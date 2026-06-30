@@ -1,0 +1,76 @@
+-- Seed Data: MVP Strength Training App
+-- 50+ exercises across all categories
+
+INSERT INTO exercises (name, category, equipment, body_region, description, default_sets, default_reps, default_rest_seconds) VALUES
+-- STRENGTH (compound lifts)
+('Barbell Bench Press', 'strength', ARRAY['barbell'], 'chest', 'Flat bench press with barbell. Primary chest builder.', 4, 8, 120),
+('Barbell Squat', 'strength', ARRAY['barbell'], 'legs', 'Back squat. Foundational lower body strength movement.', 4, 6, 150),
+('Barbell Deadlift', 'strength', ARRAY['barbell'], 'back', 'Conventional deadlift from floor. Full body pull.', 3, 5, 180),
+('Overhead Press', 'strength', ARRAY['barbell'], 'shoulders', 'Standing barbell press from shoulders to overhead.', 4, 8, 120),
+('Barbell Row', 'strength', ARRAY['barbell'], 'back', 'Bent over barbell row. Horizontal pull for back thickness.', 4, 8, 120),
+('Dumbbell Bench Press', 'strength', ARRAY['dumbbell'], 'chest', 'Flat dumbbell press. Greater ROM than barbell.', 3, 10, 90),
+('Dumbbell Shoulder Press', 'strength', ARRAY['dumbbell'], 'shoulders', 'Seated or standing dumbbell press.', 3, 10, 90),
+('Dumbbell Row', 'strength', ARRAY['dumbbell'], 'back', 'Single arm dumbbell row. Corrects imbalances.', 3, 10, 90),
+('Romanian Deadlift', 'strength', ARRAY['barbell', 'dumbbell'], 'legs', 'Hip hinge for hamstring and glute development.', 3, 10, 120),
+('Pull Up', 'strength', ARRAY['bodyweight'], 'back', 'Vertical pull using bodyweight. Overhand grip.', 3, 8, 90),
+('Chin Up', 'strength', ARRAY['bodyweight'], 'back', 'Vertical pull with underhand grip. More biceps involvement.', 3, 8, 90),
+('Dip', 'strength', ARRAY['bodyweight'], 'chest', 'Parallel bar dip. Works chest, triceps, shoulders.', 3, 10, 90),
+('Barbell Hip Thrust', 'strength', ARRAY['barbell'], 'legs', 'Glute bridge with barbell. Primary glute builder.', 4, 10, 120),
+('Trap Bar Deadlift', 'strength', ARRAY['barbell'], 'legs', 'Deadlift variation with neutral grip. Easier on lower back.', 3, 6, 150),
+('Walking Lunge', 'strength', ARRAY['dumbbell', 'barbell'], 'legs', 'Alternating lunges with weight. Single leg strength.', 3, 10, 90),
+('Bulgarian Split Squat', 'strength', ARRAY['dumbbell'], 'legs', 'Rear foot elevated split squat. Unilateral leg work.', 3, 8, 90),
+('Pendlay Row', 'strength', ARRAY['barbell'], 'back', 'Explosive barbell row from floor. Each rep from dead stop.', 4, 6, 120),
+('Floor Press', 'strength', ARRAY['barbell', 'dumbbell'], 'chest', 'Press lying on floor. Reduces shoulder stress.', 3, 8, 90),
+('Good Morning', 'strength', ARRAY['barbell'], 'legs', 'Barbell hip hinge. Posterior chain accessory.', 3, 10, 120),
+('Zercher Squat', 'strength', ARRAY['barbell'], 'legs', 'Squat with barbell in elbow crooks. Core and quad intensive.', 3, 8, 120),
+
+-- ACCESSORY
+('Dumbbell Lateral Raise', 'accessory', ARRAY['dumbbell'], 'shoulders', 'Lateral delt isolation. Key for shoulder width.', 3, 15, 60),
+('Face Pull', 'accessory', ARRAY['cable', 'bands'], 'shoulders', 'Cable face pull for rear delts and rotator cuff.', 3, 15, 60),
+('Dumbbell Bicep Curl', 'accessory', ARRAY['dumbbell'], 'arms', 'Standing alternating or simultaneous curl.', 3, 12, 60),
+('Tricep Pushdown', 'accessory', ARRAY['cable'], 'arms', 'Cable tricep extension with rope or bar.', 3, 12, 60),
+('Hammer Curl', 'accessory', ARRAY['dumbbell'], 'arms', 'Neutral grip curl. Brachialis and brachioradialis.', 3, 12, 60),
+('Skull Crusher', 'accessory', ARRAY['barbell', 'dumbbell'], 'arms', 'Lying tricep extension. Long head focus.', 3, 10, 90),
+('Dumbbell Fly', 'accessory', ARRAY['dumbbell'], 'chest', 'Flat dumbbell fly. Chest stretch and adduction.', 3, 12, 60),
+('Cable Crossover', 'accessory', ARRAY['cable'], 'chest', 'Standing cable chest fly. Constant tension.', 3, 12, 60),
+('Dumbbell Pullover', 'accessory', ARRAY['dumbbell'], 'chest', 'Chest and lat stretch. Good for ribcage expansion.', 3, 10, 90),
+('Dumbbell Shrug', 'accessory', ARRAY['dumbbell'], 'back', 'Trap isolation. Upward scapular movement.', 3, 15, 60),
+('Leg Extension', 'accessory', ARRAY['cable'], 'legs', 'Machine leg extension. Quad isolation.', 3, 12, 90),
+('Leg Curl', 'accessory', ARRAY['cable'], 'legs', 'Machine leg curl. Hamstring isolation.', 3, 12, 90),
+('Calf Raise', 'accessory', ARRAY['dumbbell', 'barbell'], 'legs', 'Standing calf raise. Gastrocnemius focus.', 4, 15, 60),
+('Seated Calf Raise', 'accessory', ARRAY['dumbbell'], 'legs', 'Seated calf raise. Soleus focus.', 4, 15, 60),
+('Dumbbell Front Raise', 'accessory', ARRAY['dumbbell'], 'shoulders', 'Anterior delt raise. Single or bilateral.', 3, 12, 60),
+('Rear Delt Fly', 'accessory', ARRAY['dumbbell', 'cable'], 'shoulders', 'Bent over or reverse pec deck. Rear delt isolation.', 3, 15, 60),
+('Preacher Curl', 'accessory', ARRAY['barbell', 'dumbbell'], 'arms', 'Bicep curl on preacher bench. Eliminates cheating.', 3, 10, 90),
+('Overhead Tricep Extension', 'accessory', ARRAY['dumbbell', 'cable'], 'arms', 'Overhead extension. Long head tricep focus.', 3, 12, 60),
+('Pallof Press', 'accessory', ARRAY['cable', 'bands'], 'core', 'Anti-rotation core exercise with cable.', 3, 12, 60),
+
+-- BODYWEIGHT
+('Push Up', 'bodyweight', ARRAY['bodyweight'], 'chest', 'Standard push up. Foundational pressing movement.', 3, 20, 60),
+('Bodyweight Squat', 'bodyweight', ARRAY['bodyweight'], 'legs', 'Air squat. Movement patterning and warm up.', 3, 15, 60),
+('Plank', 'bodyweight', ARRAY['bodyweight'], 'core', 'Front plank. Isometric core endurance.', 3, 60, 60),
+('Hanging Leg Raise', 'bodyweight', ARRAY['bodyweight'], 'core', 'Hanging knee or leg raise. Lower ab focus.', 3, 12, 60),
+('Glute Bridge', 'bodyweight', ARRAY['bodyweight'], 'legs', 'Supine glute bridge. Glute activation.', 3, 15, 60),
+('Inverted Row', 'bodyweight', ARRAY['bodyweight'], 'back', 'Bodyweight row under a bar. Horizontal pull.', 3, 10, 90),
+('Pistol Squat', 'bodyweight', ARRAY['bodyweight'], 'legs', 'Single leg squat. Advanced leg strength.', 3, 5, 90),
+('Burpee', 'bodyweight', ARRAY['bodyweight'], 'full_body', 'Full body conditioning. Squat to plank to jump.', 3, 10, 60),
+('Mountain Climber', 'bodyweight', ARRAY['bodyweight'], 'core', 'Plank with alternating knee drives. Dynamic core.', 3, 20, 60),
+('L Sit', 'bodyweight', ARRAY['bodyweight'], 'core', 'Holding L shape on parallettes or floor. Core compression.', 3, 10, 90),
+
+-- OLYMPIC
+('Power Clean', 'olympic', ARRAY['barbell'], 'full_body', 'Explosive clean from floor to shoulders. Triple extension.', 5, 3, 180),
+('Power Snatch', 'olympic', ARRAY['barbell'], 'full_body', 'Explosive snatch from floor to overhead in one motion.', 5, 3, 180),
+('Hang Clean', 'olympic', ARRAY['barbell'], 'full_body', 'Clean from hang position above knee. Technique builder.', 4, 3, 150),
+('Hang Snatch', 'olympic', ARRAY['barbell'], 'full_body', 'Snatch from hang position. Speed and timing.', 4, 3, 150),
+('Clean and Jerk', 'olympic', ARRAY['barbell'], 'full_body', 'Full competitive lift. Clean to shoulders then jerk overhead.', 4, 2, 180),
+('Push Jerk', 'olympic', ARRAY['barbell'], 'full_body', 'Dip drive and re-bend to press overhead. More leg drive than strict.', 4, 3, 150),
+('Snatch Grip Deadlift', 'olympic', ARRAY['barbell'], 'full_body', 'Deadlift with wide snatch grip. First pull strength.', 3, 5, 150),
+('Clean Pull', 'olympic', ARRAY['barbell'], 'full_body', 'Pull from floor to extension. No catch. Pull strength.', 4, 3, 150),
+('Snatch Pull', 'olympic', ARRAY['barbell'], 'full_body', 'Snatch grip pull. No catch. Explosive extension.', 4, 3, 150),
+('Muscle Clean', 'olympic', ARRAY['barbell'], 'full_body', 'Clean without catching in squat. Pull bar high enough.', 3, 3, 120),
+
+-- CARDIO
+('Assault Bike Sprint', 'cardio', ARRAY['bodyweight'], 'full_body', 'Fan bike maximal effort intervals.', 0, 0, 120),
+('Rowing Machine', 'cardio', ARRAY['bodyweight'], 'full_body', 'Ergometer rowing. Power and endurance.', 0, 0, 90),
+('Ski Erg', 'cardio', ARRAY['bodyweight'], 'full_body', 'Standing ski pull. Upper body cardio.', 0, 0, 90),
+('Jump Rope', 'cardio', ARRAY['bodyweight'], 'full_body', 'Double unders or single jumps. Coordination and conditioning.', 0, 0, 60);
