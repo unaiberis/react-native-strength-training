@@ -1,0 +1,231 @@
+// Mock the client module so we control pb behavior
+const mockAuthWithPassword = jest.fn();
+const mockCreate = jest.fn();
+const mockAuthRefresh = jest.fn();
+const mockClear = jest.fn();
+/** Stores callbacks registered via pb.authStore.onChange() */
+let mockOnChangeRegistered: (token: string, record: any) => void = () => {};
+const mockOnChange = jest.fn().mockImplementation(
+  (cb: (token: string, record: any) => void) => {
+    mockOnChangeRegistered = cb;
+    return jest.fn();
+  },
+);
+const mockIsValid = { value: false };
+
+const mockPb = {
+  authStore: {
+    clear: mockClear,
+    onChange: mockOnChange,
+    get isValid() { return mockIsValid.value; },
+    token: "",
+    record: null,
+    model: null,
+  },
+  collection: jest.fn(() => ({
+    authWithPassword: mockAuthWithPassword,
+    create: mockCreate,
+    authRefresh: mockAuthRefresh,
+  })),
+};
+
+jest.mock("../../client", () => ({
+  pb: mockPb,
+}));
+
+import {
+  signUp,
+  signIn,
+  signOut,
+  getSession,
+  onAuthStateChange,
+  type AuthResult,
+} from "../auth";
+
+describe("PocketBase auth service", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockIsValid.value = false;
+  });
+
+  // ─── signUp ──────────────────────────────────────────────────
+
+  it("signUp calls pb.collection('users').create and returns user", async () => {
+    const mockRecord = { id: "user-1", email: "test@test.com" };
+    mockCreate.mockResolvedValue(mockRecord);
+
+    const result = await signUp({
+      email: "test@test.com",
+      password: "StrongPass1",
+      displayName: "Test User",
+    });
+
+    expect(mockCreate).toHaveBeenCalledWith({
+      email: "test@test.com",
+      password: "StrongPass1",
+      passwordConfirm: "StrongPass1",
+      displayName: "Test User",
+    });
+    expect(result).toEqual({ error: null, user: mockRecord });
+  });
+
+  it("signUp returns error on PocketBase error", async () => {
+    const pbError = new Error("Failed to create record.");
+    (pbError as any).status = 400;
+    (pbError as any).response = { message: "duplicate email" };
+    mockCreate.mockRejectedValue(pbError);
+
+    const result = await signUp({
+      email: "existing@test.com",
+      password: "StrongPass1",
+      displayName: "Existing",
+    });
+
+    expect(result.error).toBeTruthy();
+    expect(result.user).toBeNull();
+  });
+
+  it("signUp maps 'already exists' errors to user-friendly message", async () => {
+    const pbError = new Error("The resource already exists.");
+    (pbError as any).status = 400;
+    (pbError as any).response = { message: "The resource already exists." };
+    mockCreate.mockRejectedValue(pbError);
+
+    const result = await signUp({
+      email: "dup@test.com",
+      password: "StrongPass1",
+      displayName: "Dup",
+    });
+
+    expect(result.error).toBe("An account with this email already exists");
+    expect(result.user).toBeNull();
+  });
+
+  // ─── signIn ──────────────────────────────────────────────────
+
+  it("signIn calls authWithPassword and returns user", async () => {
+    const mockRecord = { id: "user-1", email: "test@test.com", displayName: "Test" };
+    mockAuthWithPassword.mockResolvedValue({
+      record: mockRecord,
+      token: "jwt-token-123",
+    });
+
+    const result = await signIn({
+      email: "test@test.com",
+      password: "StrongPass1",
+    });
+
+    expect(mockAuthWithPassword).toHaveBeenCalledWith("test@test.com", "StrongPass1");
+    expect(result).toEqual({ error: null, user: mockRecord });
+  });
+
+  it("signIn returns error on invalid credentials", async () => {
+    const pbError = new Error("Invalid login credentials.");
+    (pbError as any).status = 400;
+    (pbError as any).response = { message: "Invalid login credentials." };
+    mockAuthWithPassword.mockRejectedValue(pbError);
+
+    const result = await signIn({
+      email: "wrong@test.com",
+      password: "bad",
+    });
+
+    expect(result.error).toBe("Invalid email or password");
+    expect(result.user).toBeNull();
+  });
+
+  it("signIn returns error for email not confirmed", async () => {
+    const pbError = new Error("The email is not confirmed.");
+    (pbError as any).status = 400;
+    (pbError as any).response = { message: "The email is not confirmed." };
+    mockAuthWithPassword.mockRejectedValue(pbError);
+
+    const result = await signIn({
+      email: "unconfirmed@test.com",
+      password: "StrongPass1",
+    });
+
+    expect(result.error).toBe("Please confirm your email before signing in");
+    expect(result.user).toBeNull();
+  });
+
+  // ─── signOut ─────────────────────────────────────────────────
+
+  it("signOut calls authStore.clear()", async () => {
+    const result = await signOut();
+    expect(mockClear).toHaveBeenCalledTimes(1);
+    expect(result).toEqual({ error: null });
+  });
+
+  // ─── getSession ──────────────────────────────────────────────
+
+  it("getSession returns session when stored token is valid", async () => {
+    mockIsValid.value = true;
+    const mockRecord = { id: "user-1", email: "test@test.com" };
+    mockAuthRefresh.mockResolvedValue({
+      record: mockRecord,
+      token: "refreshed-token",
+    });
+
+    const result = await getSession();
+
+    expect(mockAuthRefresh).toHaveBeenCalled();
+    expect(result).toEqual({
+      session: { user: mockRecord, token: "refreshed-token" },
+      error: null,
+    });
+  });
+
+  it("getSession returns null when no stored token", async () => {
+    mockIsValid.value = false;
+
+    const result = await getSession();
+
+    expect(mockAuthRefresh).not.toHaveBeenCalled();
+    expect(result).toEqual({ session: null, error: null });
+  });
+
+  it("getSession clears store and returns null on authRefresh failure", async () => {
+    mockIsValid.value = true;
+    const pbError = new Error("Invalid or expired token.");
+    (pbError as any).status = 401;
+    mockAuthRefresh.mockRejectedValue(pbError);
+
+    const result = await getSession();
+
+    expect(mockClear).toHaveBeenCalled();
+    expect(result).toEqual({ session: null, error: "Session expired" });
+  });
+
+  // ─── onAuthStateChange ───────────────────────────────────────
+
+  it("onAuthStateChange subscribes to pb.authStore.onChange", () => {
+    const callback = jest.fn();
+    onAuthStateChange(callback);
+
+    expect(mockOnChange).toHaveBeenCalledWith(expect.any(Function));
+  });
+
+  it("onAuthStateChange fires callback when auth state changes", () => {
+    const userCallback = jest.fn();
+    onAuthStateChange(userCallback);
+
+    // Simulate auth state change via the registered onChange callback
+    mockOnChangeRegistered("tok-1", { id: "user-1" });
+    expect(userCallback).toHaveBeenCalledWith("tok-1", { id: "user-1" });
+
+    mockOnChangeRegistered("", null);
+    expect(userCallback).toHaveBeenCalledWith("", null);
+  });
+
+  it("onAuthStateChange returns unsubscribe function", () => {
+    const mockUnsubscribe = jest.fn();
+    mockOnChange.mockReturnValue(mockUnsubscribe);
+
+    const unsubscribe = onAuthStateChange(jest.fn());
+    expect(typeof unsubscribe).toBe("function");
+
+    unsubscribe();
+    expect(mockUnsubscribe).toHaveBeenCalled();
+  });
+});
