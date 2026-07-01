@@ -6,7 +6,7 @@ import { useAuthStore } from "../src/stores/auth-store";
 import { getSession } from "../src/lib/pocketbase/services/auth";
 import { pb, ExpoSecureStoreAuth } from "../src/lib/pocketbase/client";
 import "../global.css";
-import { View, ActivityIndicator } from "react-native";
+import { View, ActivityIndicator, Text } from "react-native";
 
 const OFFLINE_ENABLED = process.env.EXPO_PUBLIC_OFFLINE_ENABLED === "true";
 
@@ -23,7 +23,7 @@ const queryClient = new QueryClient({
 let syncEngine: any | null = null;
 
 function AuthGate({ children }: { children: React.ReactNode }) {
-  const { state, setSession, setState, setIsOnline } = useAuthStore();
+  const { state, initMessage, setSession, setState, setIsOnline } = useAuthStore();
 
   useEffect(() => {
     let unsubNetwork: (() => void) | null = null;
@@ -31,9 +31,11 @@ function AuthGate({ children }: { children: React.ReactNode }) {
 
     async function init() {
       setState("loading");
+      const msg = useAuthStore.getState().setInitMessage;
 
       if (!OFFLINE_ENABLED) {
         // Standard flow without offline support
+        msg("Checking session\u2026");
         const { session } = await getSession();
         if (!cancelled) setSession(session);
         return;
@@ -45,6 +47,7 @@ function AuthGate({ children }: { children: React.ReactNode }) {
       // in the loading state forever.
       try {
         // Dynamic imports — expo-sqlite native module crashes on web if loaded statically
+        msg("Loading offline engine\u2026");
         const [
           { initDatabase },
           { NetworkMonitor },
@@ -60,6 +63,7 @@ function AuthGate({ children }: { children: React.ReactNode }) {
         ]);
 
         // 1. Initialise local SQLite database (creates tables, runs migrations)
+        msg("Setting up local database\u2026");
         const db = await initDatabase();
         const meta = new SyncMeta(db);
         const queue = new ChangeQueue(db);
@@ -67,6 +71,7 @@ function AuthGate({ children }: { children: React.ReactNode }) {
         const monitor = NetworkMonitor.getInstance();
 
         // 2. Wire React Query persister (reads/writes react_query_cache table)
+        msg("Preparing offline cache\u2026");
         const persister = createSqlitePersister(db);
         persist({
           queryClient,
@@ -82,6 +87,7 @@ function AuthGate({ children }: { children: React.ReactNode }) {
         });
 
         // 3. Create the SyncEngine singleton
+        msg("Starting sync engine\u2026");
         syncEngine = new SyncEngine(
           db as any,
           queue,
@@ -91,7 +97,20 @@ function AuthGate({ children }: { children: React.ReactNode }) {
           monitor,
         );
 
+        // Wire sync status events to the auth store so the UI shows
+        // banners when syncing, on errors, or when auth expires.
+        if (typeof syncEngine.on === "function") {
+          const setSync = useAuthStore.getState().setSyncStatus;
+          syncEngine.on("SYNC_START", () => setSync("syncing"));
+          syncEngine.on("SYNC_COMPLETE", () => setSync("idle"));
+          syncEngine.on("SYNC_PARTIAL", () => setSync("dead-letters"));
+          syncEngine.on("AUTH_EXPIRED", () => setSync("auth-expired"));
+          syncEngine.on("DEAD_LETTER", () => setSync("dead-letters"));
+          syncEngine.on("AUTH_CLEARED", () => setSync("idle"));
+        }
+
         // 4. Restore persisted auth token from SecureStore before checking
+        msg("Restoring session\u2026");
         await (pb.authStore as ExpoSecureStoreAuth).loadFromStore().catch(() => {});
 
         // 5. Auth with offline awareness
@@ -99,20 +118,24 @@ function AuthGate({ children }: { children: React.ReactNode }) {
         if (!cancelled) setIsOnline(isOnline);
 
         if (isOnline) {
+          msg("Verifying credentials\u2026");
           const result = await getSession();
           if (!cancelled) {
             if (result.error === "Network unavailable") {
               if (pb.authStore.isValid) {
+                msg("Continuing offline\u2026");
                 setSession({
                   user: pb.authStore.record!,
                   token: pb.authStore.token,
                 });
               }
             } else {
+              if (result.session) msg("Welcome back!");
               setSession(result.session);
             }
           }
         } else if (pb.authStore.isValid) {
+          msg("Working offline\u2026");
           if (!cancelled) {
             setSession({
               user: pb.authStore.record!,
@@ -127,6 +150,7 @@ function AuthGate({ children }: { children: React.ReactNode }) {
         unsubNetwork = monitor.subscribe((online) => {
           setIsOnline(online);
           if (online && syncEngine) {
+            useAuthStore.getState().setInitMessage("Syncing\u2026");
             syncEngine.syncAll().catch(console.warn);
           }
         });
@@ -135,6 +159,7 @@ function AuthGate({ children }: { children: React.ReactNode }) {
         if (isOnline && !cancelled) {
           const authState = useAuthStore.getState().state;
           if (authState === "authenticated") {
+            msg("Syncing your data\u2026");
             await syncEngine.syncAll().catch(console.warn);
           }
         }
@@ -144,6 +169,7 @@ function AuthGate({ children }: { children: React.ReactNode }) {
         // expo-sqlite native module is unavailable.
         if (cancelled) return;
         console.error("[AuthGate] Offline init failed, falling back to standard auth", err);
+        msg("Offline unavailable, switching to online mode\u2026");
         setIsOnline(false);
         const { session } = await getSession().catch(() => ({ session: null, error: null }));
         if (!cancelled) setSession(session);
@@ -160,8 +186,13 @@ function AuthGate({ children }: { children: React.ReactNode }) {
 
   if (state === "loading") {
     return (
-      <View className="flex-1 bg-surface-950 items-center justify-center">
+      <View className="flex-1 bg-surface-950 items-center justify-center px-8">
         <ActivityIndicator size="large" color="#22c55e" />
+        {initMessage ? (
+          <Text className="text-surface-400 text-sm mt-4 text-center">
+            {initMessage}
+          </Text>
+        ) : null}
       </View>
     );
   }

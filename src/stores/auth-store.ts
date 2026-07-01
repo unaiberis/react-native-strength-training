@@ -22,6 +22,8 @@ interface AuthStore {
   isOnline: boolean;
   /** Current sync engine status */
   syncStatus: SyncStatus;
+  /** Human-readable message for the current init/sync step */
+  initMessage: string;
 
   // Actions
   setSession: (session: PocketBaseSession | null) => void;
@@ -30,6 +32,7 @@ interface AuthStore {
   reset: () => void;
   setIsOnline: (online: boolean) => void;
   setSyncStatus: (status: SyncStatus) => void;
+  setInitMessage: (msg: string) => void;
 }
 
 const initialSyncStatus: SyncStatus = "idle";
@@ -40,6 +43,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
   user: null,
   isOnline: true,
   syncStatus: initialSyncStatus,
+  initMessage: "Starting...",
 
   setSession: (session) =>
     set({
@@ -54,6 +58,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
   setIsOnline: (online) => set({ isOnline: online }),
 
   setSyncStatus: (status) => set({ syncStatus: status }),
+  setInitMessage: (msg) => set({ initMessage: msg }),
 
   reset: () =>
     set({
