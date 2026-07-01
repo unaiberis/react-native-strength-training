@@ -1,0 +1,48 @@
+# Critical path: Offline workout → Online sync
+appId: com.strengthtraining.app
+---
+# 1. Wait for app to load (offline auth restore)
+- assertVisible: "Welcome back"
+- tapOn: "Programs"
+
+# 2. Create a routine offline
+- tapOn: "Create"
+- tapOn:
+    id: "routine-name-input"
+    text: "Push Day E2E"
+- tapOn: "Add Exercise"
+- tapOn:
+    id: "exercise-search"
+- inputText: "Bench Press"
+- tapOn: "Bench Press"
+- tapOn: "Save"
+- assertVisible: "Push Day E2E"
+
+# 3. Start workout from routine
+- tapOn:
+    text: "Start"
+    index: 0
+- assertVisible: "Active Workout"
+
+# 4. Log a set with tempo
+- tapOn:
+    id: "weight-input"
+- inputText: "100"
+- tapOn:
+    id: "reps-input"
+- inputText: "8"
+- tapOn:
+    id: "tempo-input"
+- inputText: "2020"
+- tapOn: "Log Set"
+- assertVisible: "100 kg"
+
+# 5. Complete workout
+- scrollUntilVisible:
+    element: "Finish"
+- tapOn: "Finish"
+- assertVisible: "Workout Complete"
+
+# 6. Verify in history
+- tapOn: "History"
+- assertVisible: "Push Day E2E"

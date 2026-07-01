@@ -12,7 +12,7 @@ import { useRouter } from "expo-router";
 import { Card } from "../../../shared/ui/Card";
 import { Button } from "../../../shared/ui/Button";
 import { useTemplates, useDeleteTemplate } from "../hooks/useTemplates";
-import type { TemplateWithExercises } from "../../../lib/supabase/services/templates";
+import type { TemplateWithExercises } from "../../../lib/pocketbase/services/templates";
 
 function RoutineItem({
   template,

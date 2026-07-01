@@ -2,16 +2,19 @@
 schema: spec-driven
 
 context: |
-  Tech stack: React Native + Expo (greenfield). Node.js v24.13.0, npm 11.6.2.
-  Architecture: To be defined. Target: strength training app (TrainingPeaks-style for strength).
-  Testing: No test runner installed yet (no package.json). Jest + React Native Testing Library expected after Expo scaffold.
-  Style: TypeScript, functional components, Expo Router for navigation.
-  Strict TDD: false (not available until test runner is installed).
+  Tech stack: React Native 0.76.6 + Expo SDK ~52.0.0, Expo Router ~4.0.0.
+  Architecture: Feature-based (src/features/), Zustand v5 stores, TanStack React Query v5.
+  Backend: Supabase (being replaced by PocketBase v0.27.0). expo-sqlite planned.
+  Styling: NativeWind v4 (TailwindCSS v3), dark-mode UI (userInterfaceStyle: dark).
+  Testing: Jest 29.7.0 via jest-expo, @testing-library/react-native ~12.9.0.
+  TypeScript: strict: true, path alias @/ → src/.
+  Strict TDD: true (test runner available, 128 tests passing).
 
 rules:
   proposal:
     - Include rollback plan for risky changes
     - Reference specific TrainingPeaks features being replicated
+    - Address PocketBase migration impact where relevant
   specs:
     - Use Given/When/Then for scenarios
     - Use RFC 2119 keywords (MUST, SHALL, SHOULD, MAY)
@@ -24,11 +27,11 @@ rules:
     - Keep tasks completable in one session
   apply:
     - Follow existing code patterns
-    tdd: false
+    tdd: true
     test_command: "npx jest"
   verify:
     test_command: "npx jest"
     build_command: "npx expo export"
-    coverage_threshold: 0
+    coverage_threshold: 80
   archive:
     - Warn before merging destructive deltas

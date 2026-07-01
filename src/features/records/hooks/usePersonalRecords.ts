@@ -1,13 +1,82 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuthStore } from "../../../stores/auth-store";
-import * as PRsService from "../../../lib/supabase/services/prs";
-import type { PRWithExercise, PRType } from "../../../lib/supabase/services/prs";
+import * as PRsService from "../../../lib/pocketbase/services/prs";
+import type { ComputedPR, PRType } from "../../../lib/pocketbase/services/prs";
 
 const PRS_QUERY_KEY = "personal-records";
 
+// ─── Display types ────────────────────────────────────────────────────────
+
 /**
- * Query hook for all personal records, grouped by exercise.
+ * A flattened PR display item, analogous to the old supabase PRWithExercise.
+ * Built from ComputedPR for backward-compatible screen rendering.
+ */
+export interface PRDisplayItem {
+  id: string;
+  exercise_id: string;
+  exerciseName: string;
+  pr_type: PRType;
+  value: number;
+  weight_kg: number | null;
+  reps: number | null;
+  achieved_at: string | null;
+}
+
+/**
+ * Flatten a ComputedPR (one per exercise with all PR values as fields)
+ * into individual PRDisplayItems — one per PR type that has a value.
+ */
+function flattenPR(computed: ComputedPR): PRDisplayItem[] {
+  const items: PRDisplayItem[] = [];
+  const baseId = computed.exerciseId;
+
+  if (computed.oneRepMax !== null) {
+    items.push({
+      id: `${baseId}-1rm`,
+      exercise_id: computed.exerciseId,
+      exerciseName: computed.exerciseName,
+      pr_type: "one_rep_max",
+      value: computed.oneRepMax,
+      weight_kg: computed.oneRepMax,
+      reps: 1,
+      achieved_at: null,
+    });
+  }
+
+  if (computed.estimatedOneRepMax !== null) {
+    items.push({
+      id: `${baseId}-e1rm`,
+      exercise_id: computed.exerciseId,
+      exerciseName: computed.exerciseName,
+      pr_type: "estimated_one_rep_max",
+      value: computed.estimatedOneRepMax,
+      weight_kg: null,
+      reps: null,
+      achieved_at: null,
+    });
+  }
+
+  if (computed.bestVolumeSet !== null) {
+    items.push({
+      id: `${baseId}-vol`,
+      exercise_id: computed.exerciseId,
+      exerciseName: computed.exerciseName,
+      pr_type: "best_volume_set",
+      value: computed.bestVolumeSet,
+      weight_kg: null,
+      reps: null,
+      achieved_at: null,
+    });
+  }
+
+  return items;
+}
+
+/**
+ * Query hook for all personal records, computed on-the-fly from exercise_sets.
+ *
+ * Returns PRs grouped by exercise, with display-ready PRDisplayItem records.
  */
 export function usePersonalRecords() {
   const userId = useAuthStore((s) => s.user?.id);
@@ -19,51 +88,30 @@ export function usePersonalRecords() {
     staleTime: 1000 * 60 * 2,
   });
 
-  const prs = query.data ?? [];
+  const computedPRs = query.data ?? [];
 
-  // Group PRs by exercise
+  // Build grouped view: one group per exercise, PRDisplayItem records
   const groupedByExercise = useMemo(() => {
-    const map = new Map<
-      string,
-      {
-        exerciseId: string;
-        exerciseName: string;
-        records: PRWithExercise[];
-      }
-    >();
+    const groups = computedPRs.map((computed) => ({
+      exerciseId: computed.exerciseId,
+      exerciseName: computed.exerciseName,
+      records: flattenPR(computed),
+    }));
 
-    for (const pr of prs) {
-      const existing = map.get(pr.exercise_id);
-      if (existing) {
-        existing.records.push(pr);
-      } else {
-        map.set(pr.exercise_id, {
-          exerciseId: pr.exercise_id,
-          exerciseName: pr.exerciseName,
-          records: [pr],
-        });
-      }
-    }
+    // Sort groups by exercise name
+    return groups.sort((a, b) => a.exerciseName.localeCompare(b.exerciseName));
+  }, [computedPRs]);
 
-    // Sort groups by latest PR date (descending)
-    return [...map.entries()]
-      .map(([_, group]) => group)
-      .sort((a, b) => {
-        const aLatest = Math.max(
-          ...a.records.map((r) => new Date(r.achieved_at).getTime()),
-        );
-        const bLatest = Math.max(
-          ...b.records.map((r) => new Date(r.achieved_at).getTime()),
-        );
-        return bLatest - aLatest;
-      });
-  }, [prs]);
+  const totalPRs = useMemo(
+    () => groupedByExercise.reduce((sum, g) => sum + g.records.length, 0),
+    [groupedByExercise],
+  );
 
   return {
     ...query,
-    prs,
+    prs: computedPRs,
     groupedByExercise,
-    totalPRs: prs.length,
+    totalPRs,
   };
 }
 
@@ -87,7 +135,6 @@ const PR_TYPE_LABELS: Record<PRType, string> = {
   one_rep_max: "1RM",
   estimated_one_rep_max: "Estimated 1RM",
   best_volume_set: "Best Volume Set",
-  best_tonnage: "Best Tonnage",
   best_reps_at_weight: "Best Reps at Weight",
 };
 
@@ -95,7 +142,6 @@ const PR_TYPE_UNITS: Record<PRType, string> = {
   one_rep_max: "kg",
   estimated_one_rep_max: "kg",
   best_volume_set: "kg",
-  best_tonnage: "kg",
   best_reps_at_weight: "reps",
 };
 
@@ -107,7 +153,7 @@ export function getPRTypeUnit(prType: PRType): string {
   return PR_TYPE_UNITS[prType] ?? "";
 }
 
-export function formatPRValue(pr: PRWithExercise): string {
+export function formatPRValue(pr: PRDisplayItem): string {
   const val = Number(pr.value);
   const unit = getPRTypeUnit(pr.pr_type);
 
@@ -117,8 +163,6 @@ export function formatPRValue(pr: PRWithExercise): string {
     case "estimated_one_rep_max":
       return `${val.toFixed(1)} ${unit}`;
     case "best_volume_set":
-      return `${val.toFixed(0)} ${unit}`;
-    case "best_tonnage":
       return `${val.toFixed(0)} ${unit}`;
     case "best_reps_at_weight":
       return `${val} ${unit}`;

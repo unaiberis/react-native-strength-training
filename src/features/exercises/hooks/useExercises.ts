@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import * as ExercisesService from "../../../lib/supabase/services/exercises";
+import * as ExercisesService from "../../../lib/pocketbase/services/exercises";
 
 const EXERCISES_QUERY_KEY = "exercises";
 const CATEGORIES_QUERY_KEY = "exercise-categories";

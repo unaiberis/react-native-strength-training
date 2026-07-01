@@ -25,10 +25,13 @@ export default function TabsLayout() {
 
   /**
    * If the user is not authenticated, redirect to the auth flow.
+   * Diferido con setTimeout(0) para que el navegador esté montado
+   * antes de intentar la navegación (evita "navigate before mounting Root Layout").
    */
   useEffect(() => {
     if (state === "unauthenticated") {
-      router.replace("/(auth)/login");
+      const id = setTimeout(() => router.replace("/(auth)/login"), 0);
+      return () => clearTimeout(id);
     }
   }, [state, router]);
 

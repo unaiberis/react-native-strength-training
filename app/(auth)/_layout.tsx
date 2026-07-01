@@ -9,10 +9,12 @@ export default function AuthLayout() {
   /**
    * If the user is already authenticated, redirect to the tabs.
    * This prevents showing the login screen to a signed-in user.
+   * Diferido con setTimeout(0) para evitar "navigate before mounting Root Layout".
    */
   useEffect(() => {
     if (state === "authenticated") {
-      router.replace("/(tabs)");
+      const id = setTimeout(() => router.replace("/(tabs)"), 0);
+      return () => clearTimeout(id);
     }
   }, [state, router]);
 

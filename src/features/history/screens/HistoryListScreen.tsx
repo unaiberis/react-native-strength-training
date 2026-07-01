@@ -12,7 +12,7 @@ import { Card } from "../../../shared/ui/Card";
 import { Button } from "../../../shared/ui/Button";
 import { useHistory } from "../hooks/useHistory";
 import { useExercises } from "../../exercises/hooks/useExercises";
-import type { SessionListItem } from "../../../lib/supabase/services/sessions";
+import type { SessionListItem } from "../../../lib/pocketbase/services/sessions";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────
 

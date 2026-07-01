@@ -3,7 +3,7 @@ import { useAuth } from "../useAuth";
 import { useAuthStore } from "../../../../stores/auth-store";
 
 // Mock the entire auth service module
-jest.mock("../../../../lib/supabase/services/auth", () => ({
+jest.mock("../../../../lib/pocketbase/services/auth", () => ({
   getSession: jest.fn(),
   signIn: jest.fn(),
   signUp: jest.fn(),
@@ -11,7 +11,7 @@ jest.mock("../../../../lib/supabase/services/auth", () => ({
   onAuthStateChange: jest.fn(() => () => {}),
 }));
 
-import * as AuthService from "../../../../lib/supabase/services/auth";
+import * as AuthService from "../../../../lib/pocketbase/services/auth";
 
 // Mock expo-router
 const mockReplace = jest.fn();

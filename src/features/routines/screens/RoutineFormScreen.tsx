@@ -28,7 +28,7 @@ import {
   useTemplate,
 } from "../hooks/useTemplates";
 import { useExerciseSearch } from "../../exercises/hooks/useExercises";
-import type { ExerciseRow } from "../../../lib/supabase/services/exercises";
+import type { ExerciseRow } from "../../../types/pocketbase";
 
 interface ExerciseFormItem {
   key: string;

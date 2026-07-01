@@ -10,7 +10,7 @@ import {
 import { useRouter } from "expo-router";
 import { Card } from "../../../shared/ui/Card";
 import { useExercises, useCategories } from "../hooks/useExercises";
-import type { ExerciseRow } from "../../../lib/supabase/services/exercises";
+import type { ExerciseRow } from "../../../types/pocketbase";
 
 const PAGE_SIZE = 20;
 

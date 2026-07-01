@@ -4,7 +4,7 @@ import { useRouter } from "expo-router";
 import { Card } from "../../../shared/ui/Card";
 import { Button } from "../../../shared/ui/Button";
 import { usePersonalRecords, getPRTypeLabel, formatPRValue } from "../hooks/usePersonalRecords";
-import type { PRWithExercise } from "../../../lib/supabase/services/prs";
+import type { PRDisplayItem } from "../hooks/usePersonalRecords";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────
 
@@ -19,7 +19,7 @@ function formatDate(iso: string): string {
 
 // ─── PR Card ──────────────────────────────────────────────────────────────
 
-function PRCard({ record }: { record: PRWithExercise }) {
+function PRCard({ record }: { record: PRDisplayItem }) {
   return (
     <View className="bg-surface-800 rounded-xl p-3 mb-2 border border-surface-700">
       <View className="flex-row justify-between items-center">
@@ -35,13 +35,15 @@ function PRCard({ record }: { record: PRWithExercise }) {
           <Text className="text-brand-500 text-sm font-bold">
             PR
           </Text>
-          <Text className="text-surface-500 text-xs mt-0.5">
-            {formatDate(record.achieved_at)}
-          </Text>
+          {record.achieved_at && (
+            <Text className="text-surface-500 text-xs mt-0.5">
+              {formatDate(record.achieved_at)}
+            </Text>
+          )}
         </View>
       </View>
 
-      {(record.weight_kg != null || record.reps != null) && record.pr_type !== "best_tonnage" && (
+      {(record.weight_kg != null || record.reps != null) && (
         <View className="flex-row items-center gap-2 mt-2 pt-2 border-t border-surface-700">
           {record.weight_kg != null && (
             <Text className="text-surface-400 text-xs">
@@ -68,7 +70,7 @@ function ExercisePRGroup({
   onToggle,
 }: {
   exerciseName: string;
-  records: PRWithExercise[];
+  records: PRDisplayItem[];
   isExpanded: boolean;
   onToggle: () => void;
 }) {

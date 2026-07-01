@@ -1,7 +1,7 @@
 import { useCallback, useEffect } from "react";
 import { useRouter, useSegments } from "expo-router";
 import { useAuthStore } from "../../../stores/auth-store";
-import * as AuthService from "../../../lib/supabase/services/auth";
+import * as AuthService from "../../../lib/pocketbase/services/auth";
 import type { LoginInput, RegisterInput } from "../../../shared/schemas/auth";
 
 /**
@@ -69,12 +69,16 @@ export function useAuth() {
 
   /**
    * Subscribe to auth state changes (token refresh, cross-tab logout, etc.)
+   *
+   * PocketBase fires onChange with (token, record) — when record is null,
+   * the user has been signed out.
    */
   useEffect(() => {
-    const unsubscribe = AuthService.onAuthStateChange((event, session) => {
-      setSession(session);
-
-      if (event === "SIGNED_OUT") {
+    const unsubscribe = AuthService.onAuthStateChange((token, record) => {
+      if (record) {
+        setSession({ user: record, token });
+      } else {
+        setSession(null);
         reset();
         router.replace("/(auth)/login");
       }
