@@ -1,27 +1,45 @@
 import { create } from "zustand";
-import type { Session, User } from "@supabase/supabase-js";
+import type { RecordModel } from "pocketbase";
 
 export type AuthState = "loading" | "authenticated" | "unauthenticated";
+
+export interface PocketBaseSession {
+  user: RecordModel;
+  token: string;
+}
+
+/** Sync status for the offline sync engine. */
+export type SyncStatus = "idle" | "syncing" | "error" | "dead-letters" | "auth-expired";
 
 interface AuthStore {
   /** Current auth state machine status */
   state: AuthState;
-  /** The Supabase session, null when not authenticated */
-  session: Session | null;
-  /** The authenticated user, null when not authenticated */
-  user: User | null;
+  /** The PocketBase session, null when not authenticated */
+  session: PocketBaseSession | null;
+  /** The authenticated user record, null when not authenticated */
+  user: RecordModel | null;
+  /** Current network connectivity status (offline sync) */
+  isOnline: boolean;
+  /** Current sync engine status */
+  syncStatus: SyncStatus;
 
   // Actions
-  setSession: (session: Session | null) => void;
-  setUser: (user: User | null) => void;
+  setSession: (session: PocketBaseSession | null) => void;
+  setUser: (user: RecordModel | null) => void;
   setState: (state: AuthState) => void;
   reset: () => void;
+  setIsOnline: (online: boolean) => void;
+  setSyncStatus: (status: SyncStatus) => void;
 }
+
+const initialSyncStatus: SyncStatus = "idle";
 
 export const useAuthStore = create<AuthStore>((set) => ({
   state: "loading",
   session: null,
   user: null,
+  isOnline: true,
+  syncStatus: initialSyncStatus,
 
   setSession: (session) =>
     set({
@@ -32,6 +50,10 @@ export const useAuthStore = create<AuthStore>((set) => ({
   setUser: (user) => set({ user }),
 
   setState: (state) => set({ state }),
+
+  setIsOnline: (online) => set({ isOnline: online }),
+
+  setSyncStatus: (status) => set({ syncStatus: status }),
 
   reset: () =>
     set({

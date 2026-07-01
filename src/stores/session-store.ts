@@ -9,6 +9,7 @@ export interface LoggedSet {
   rpe: number | null;
   rir: number | null;
   isWarmup: boolean;
+  tempo?: string | null;
   loggedAt: string;
 }
 
@@ -95,15 +96,19 @@ const initialState = {
 export const useSessionStore = create<SessionStore>((set) => ({
   ...initialState,
 
-  startSession: (sessionId, templateId, exercises) =>
-    set({
+  startSession: (sessionId, templateId, exercises) => {
+    // Persist active session id to SyncMeta (fire-and-forget)
+    persistActiveSessionId(sessionId);
+
+    return set({
       activeSessionId: sessionId,
       workoutTemplateId: templateId,
       exercises: exercises.map((ex) => ({ ...ex, loggedSets: [] })),
       currentExerciseIndex: 0,
       startedAt: new Date().toISOString(),
       restTimer: { ...initialRestTimer },
-    }),
+    });
+  },
 
   setCurrentExerciseIndex: (index) =>
     set({ currentExerciseIndex: index }),
@@ -140,5 +145,40 @@ export const useSessionStore = create<SessionStore>((set) => ({
       restTimer: { ...state.restTimer, isRunning: false, remainingSeconds: 0 },
     })),
 
-  clearSession: () => set({ ...initialState }),
+  clearSession: () => {
+    // Clear active session id from SyncMeta (fire-and-forget)
+    clearActiveSessionId();
+
+    return set({ ...initialState });
+  },
 }));
+
+// ─── Helpers: SyncMeta persistence (fire-and-forget) ────────────────────
+
+async function persistActiveSessionId(sessionId: string): Promise<void> {
+  try {
+    const [{ getDb }, { SyncMeta }] = await Promise.all([
+      import("../lib/db/database"),
+      import("../lib/db/sync-meta"),
+    ]);
+    const db = await getDb();
+    const meta = new SyncMeta(db);
+    await meta.setActiveSessionId(sessionId);
+  } catch {
+    // Best effort — DB may not be initialised yet
+  }
+}
+
+async function clearActiveSessionId(): Promise<void> {
+  try {
+    const [{ getDb }, { SyncMeta }] = await Promise.all([
+      import("../lib/db/database"),
+      import("../lib/db/sync-meta"),
+    ]);
+    const db = await getDb();
+    const meta = new SyncMeta(db);
+    await meta.clearActiveSessionId();
+  } catch {
+    // Best effort
+  }
+}
