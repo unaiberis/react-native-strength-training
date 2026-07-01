@@ -11,3 +11,8 @@ dist/
 web-build/
 .env
 .env.local
+coverage/
+android/app/build/
+android/.gradle/
+*.apk
+*.aab

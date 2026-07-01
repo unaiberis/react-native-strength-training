@@ -56,6 +56,9 @@ function SetRow({
       <Text className="text-surface-500 text-xs flex-1 text-center">
         {set.rir != null ? `${set.rir} RIR` : ""}
       </Text>
+      <Text className="text-surface-500 text-xs w-12 text-right font-mono">
+        {set.tempo ?? ""}
+      </Text>
     </View>
   );
 }
@@ -67,9 +70,10 @@ interface SetFormState {
   reps: string;
   rpe: string;
   rir: string;
+  tempo: string;
 }
 
-const emptyForm: SetFormState = { weightKg: "", reps: "", rpe: "", rir: "" };
+const emptyForm: SetFormState = { weightKg: "", reps: "", rpe: "", rir: "", tempo: "" };
 
 function SetInputForm({
   setNumber,
@@ -89,6 +93,7 @@ function SetInputForm({
     reps: number;
     rpe: number | null;
     rir: number | null;
+    tempo: string | null;
   }) => void;
   onSkip: () => void;
   isLastSet: boolean;
@@ -107,6 +112,7 @@ function SetInputForm({
     const reps = parseInt(form.reps, 10);
     const rpe = form.rpe ? parseFloat(form.rpe) : null;
     const rir = form.rir ? parseInt(form.rir, 10) : null;
+    const tempo = form.tempo.trim() || null;
 
     if (isNaN(weightKg) || weightKg < 0) {
       Alert.alert("Validation", "Enter a valid weight.");
@@ -128,8 +134,12 @@ function SetInputForm({
       Alert.alert("Validation", "RIR must be between 0 and 10.");
       return;
     }
+    if (tempo != null && !/^\d{3,4}$/.test(tempo)) {
+      Alert.alert("Validation", "Tempo must be 3 or 4 digits (e.g. 2020).");
+      return;
+    }
 
-    onLog({ weightKg, reps, rpe, rir });
+    onLog({ weightKg, reps, rpe, rir, tempo });
     setForm(emptyForm);
   }, [form, onLog]);
 
@@ -174,6 +184,17 @@ function SetInputForm({
             placeholderTextColor="#52525b"
             value={form.reps}
             onChangeText={(v) => updateField("reps", v)}
+            className="bg-surface-800 border border-surface-700 rounded-lg px-3 py-2.5 text-surface-100 text-sm"
+          />
+        </View>
+        <View className="flex-1">
+          <Text className="text-surface-400 text-xs mb-1">Tempo</Text>
+          <TextInput
+            keyboardType="number-pad"
+            placeholder="2020"
+            placeholderTextColor="#52525b"
+            value={form.tempo}
+            onChangeText={(v) => updateField("tempo", v)}
             className="bg-surface-800 border border-surface-700 rounded-lg px-3 py-2.5 text-surface-100 text-sm"
           />
         </View>
@@ -267,6 +288,7 @@ export function ActiveWorkoutScreen() {
       reps: number;
       rpe: number | null;
       rir: number | null;
+      tempo: string | null;
     }) => {
       if (!currentExercise || !activeSessionId) return;
 
@@ -279,6 +301,7 @@ export function ActiveWorkoutScreen() {
           rpe: data.rpe,
           rir: data.rir,
           isWarmup: false,
+          tempo: data.tempo,
         });
 
         // Auto-start rest timer only if sets remain
@@ -535,6 +558,9 @@ export function ActiveWorkoutScreen() {
             </Text>
             <Text className="text-surface-500 text-xs font-semibold flex-1 text-center">
               RIR
+            </Text>
+            <Text className="text-surface-500 text-xs font-semibold w-12 text-right">
+              Tempo
             </Text>
           </View>
         )}

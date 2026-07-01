@@ -140,6 +140,87 @@ describe("setEntrySchema", () => {
     });
     expect(result.success).toBe(true);
   });
+
+  // ─── tempo field ────────────────────────────────────────────────
+
+  it("accepts valid tempo string", () => {
+    const result = setEntrySchema.safeParse({
+      setNumber: 1,
+      weightKg: 100,
+      reps: 8,
+      tempo: "2020",
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.tempo).toBe("2020");
+    }
+  });
+
+  it("rejects 2-digit tempo (too short)", () => {
+    const result = setEntrySchema.safeParse({
+      setNumber: 1,
+      weightKg: 100,
+      reps: 8,
+      tempo: "20",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects non-numeric tempo", () => {
+    const result = setEntrySchema.safeParse({
+      setNumber: 1,
+      weightKg: 100,
+      reps: 8,
+      tempo: "abc",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects 5-digit tempo string", () => {
+    const result = setEntrySchema.safeParse({
+      setNumber: 1,
+      weightKg: 100,
+      reps: 8,
+      tempo: "20201",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("accepts null tempo", () => {
+    const result = setEntrySchema.safeParse({
+      setNumber: 1,
+      weightKg: 100,
+      reps: 8,
+      tempo: null,
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.tempo).toBeNull();
+    }
+  });
+
+  it("accepts 3-digit tempo", () => {
+    const result = setEntrySchema.safeParse({
+      setNumber: 1,
+      weightKg: 100,
+      reps: 8,
+      tempo: "301",
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.tempo).toBe("301");
+    }
+  });
+
+  it("accepts '0000' as valid tempo", () => {
+    const result = setEntrySchema.safeParse({
+      setNumber: 1,
+      weightKg: 100,
+      reps: 8,
+      tempo: "0000",
+    });
+    expect(result.success).toBe(true);
+  });
 });
 
 // ─── logSetSchema ──────────────────────────────────────────────────────────

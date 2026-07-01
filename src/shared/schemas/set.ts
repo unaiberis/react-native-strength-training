@@ -13,6 +13,7 @@ export const setEntrySchema = z.object({
     .nullable(),
   rir: z.number().int().min(0).max(10).optional().nullable(),
   isWarmup: z.boolean().default(false),
+  tempo: z.string().regex(/^\d{3,4}$/).optional().nullable(),
 });
 
 export const logSetSchema = z.object({
@@ -30,6 +31,7 @@ export const logSetSchema = z.object({
     .nullable(),
   rir: z.number().int().min(0).max(10).optional().nullable(),
   isWarmup: z.boolean().default(false),
+  tempo: z.string().regex(/^\d{3,4}$/).optional().nullable(),
 });
 
 export const completeSessionSchema = z.object({
@@ -48,4 +50,5 @@ export const setEntryDefaults: SetEntry = {
   rpe: null,
   rir: null,
   isWarmup: false,
+  tempo: null,
 };
