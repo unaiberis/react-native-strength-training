@@ -8,8 +8,8 @@
  * All methods receive `db` via constructor injection for testability.
  */
 
-import type { SQLiteDatabase } from "expo-sqlite";
-import type { QueueAction, QueueEntry } from "./types";
+import type { SQLiteDatabase } from 'expo-sqlite';
+import type { QueueAction, QueueEntry } from './types';
 
 export interface EnqueueParams {
   action: QueueAction;
@@ -43,7 +43,7 @@ function toQueueEntry(row: RawQueueRow): QueueEntry {
     record_id: row.record_id,
     data: row.data ? JSON.parse(row.data) : null,
     group_id: row.group_id,
-    status: row.status as QueueEntry["status"],
+    status: row.status as QueueEntry['status'],
     retry_count: row.retry_count,
     last_error: row.last_error,
     created_at: row.created_at,
@@ -68,7 +68,7 @@ export class ChangeQueue {
         recordId ?? null,
         data ? JSON.stringify(data) : null,
         groupId ?? null,
-      ],
+      ]
     );
   }
 
@@ -82,7 +82,7 @@ export class ChangeQueue {
     const hasLimit = limit !== undefined;
     const rows = await this.db.getAllAsync<RawQueueRow>(
       `SELECT * FROM change_queue WHERE status = 'pending' ORDER BY created_at ASC${hasLimit ? ' LIMIT ?' : ''}`,
-      ...(hasLimit ? [limit] : ([] as number[])),
+      ...(hasLimit ? [limit] : ([] as number[]))
     );
     return rows.map(toQueueEntry);
   }
@@ -91,7 +91,7 @@ export class ChangeQueue {
    * Remove a queue entry after successful sync.
    */
   async dequeue(id: number): Promise<void> {
-    await this.db.runAsync("DELETE FROM change_queue WHERE id = ?", [id]);
+    await this.db.runAsync('DELETE FROM change_queue WHERE id = ?', [id]);
   }
 
   /**
@@ -100,7 +100,7 @@ export class ChangeQueue {
   async markDeadLetter(id: number, error: string): Promise<void> {
     await this.db.runAsync(
       `UPDATE change_queue SET status = 'dead_letter', last_error = ?, retry_count = retry_count + 1 WHERE id = ?`,
-      [error, id],
+      [error, id]
     );
   }
 
@@ -111,7 +111,7 @@ export class ChangeQueue {
    */
   async markAllAuthError(): Promise<number> {
     const result = await this.db.runAsync(
-      `UPDATE change_queue SET status = 'auth_error' WHERE status IN ('pending', 'in_flight')`,
+      `UPDATE change_queue SET status = 'auth_error' WHERE status IN ('pending', 'in_flight')`
     );
     return result.changes;
   }
@@ -123,7 +123,7 @@ export class ChangeQueue {
    */
   async resetAuthErrors(): Promise<number> {
     const result = await this.db.runAsync(
-      `UPDATE change_queue SET status = 'pending' WHERE status = 'auth_error'`,
+      `UPDATE change_queue SET status = 'pending' WHERE status = 'auth_error'`
     );
     return result.changes;
   }
@@ -136,7 +136,7 @@ export class ChangeQueue {
   async incrementRetry(id: number, error: string): Promise<void> {
     await this.db.runAsync(
       `UPDATE change_queue SET retry_count = retry_count + 1, last_error = ? WHERE id = ?`,
-      [error, id],
+      [error, id]
     );
   }
 
@@ -145,7 +145,7 @@ export class ChangeQueue {
    */
   async getPendingCount(): Promise<number> {
     const row = await this.db.getFirstAsync<{ count: number }>(
-      "SELECT COUNT(*) as count FROM change_queue WHERE status = 'pending'",
+      "SELECT COUNT(*) as count FROM change_queue WHERE status = 'pending'"
     );
     return row?.count ?? 0;
   }

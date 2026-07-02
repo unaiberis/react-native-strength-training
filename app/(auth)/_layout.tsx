@@ -1,6 +1,6 @@
-import { useEffect } from "react";
-import { Stack, useRouter } from "expo-router";
-import { useAuthStore } from "../../src/stores/auth-store";
+import { useEffect } from 'react';
+import { Stack, useRouter } from 'expo-router';
+import { useAuthStore } from '../../src/stores/auth-store';
 
 export default function AuthLayout() {
   const router = useRouter();
@@ -12,8 +12,8 @@ export default function AuthLayout() {
    * Diferido con setTimeout(0) para evitar "navigate before mounting Root Layout".
    */
   useEffect(() => {
-    if (state === "authenticated") {
-      const id = setTimeout(() => router.replace("/(tabs)"), 0);
+    if (state === 'authenticated') {
+      const id = setTimeout(() => router.replace('/(tabs)'), 0);
       return () => clearTimeout(id);
     }
   }, [state, router]);

@@ -14,24 +14,25 @@ Test results: 380 passed, 25 suites. TypeScript: 0 new errors (10 pre-existing i
 
 ## PRs Implemented
 
-| PR | Description | Status |
-|----|-------------|--------|
-| PR 1 | Foundation — SQLite DB, schema, network monitor, UUID generation, shared types | ✅ Complete |
-| PR 2 | Data Layer — ChangeQueue, SyncEngine, IdMapping, OfflineSessionsService, OfflineTemplatesService | ✅ Complete |
+| PR   | Description                                                                                                           | Status      |
+| ---- | --------------------------------------------------------------------------------------------------------------------- | ----------- |
+| PR 1 | Foundation — SQLite DB, schema, network monitor, UUID generation, shared types                                        | ✅ Complete |
+| PR 2 | Data Layer — ChangeQueue, SyncEngine, IdMapping, OfflineSessionsService, OfflineTemplatesService                      | ✅ Complete |
 | PR 3 | Integration — React Query persister adapter, startup init, auth hardening, store wiring, hook branching, feature flag | ✅ Complete |
 
 ## Phases Executed
 
-| Phase | Description | Tasks | Status |
-|-------|-------------|-------|--------|
-| 1 | Foundation — DB infra, dependencies, network monitor | 1.1–1.9 (9 tasks) | ✅ All complete |
-| 2 | Data Layer — change queue, sync engine, ID mapping, offline services | 2.1–2.8 (8 tasks) | ✅ All complete |
-| 3 | Integration — persister, startup, auth, store wiring | 3.1–3.6 (6 tasks) | ✅ All complete |
-| 4 | Hook wiring & polish | 4.1–4.5 (5 tasks) | ✅ All complete |
+| Phase | Description                                                          | Tasks             | Status          |
+| ----- | -------------------------------------------------------------------- | ----------------- | --------------- |
+| 1     | Foundation — DB infra, dependencies, network monitor                 | 1.1–1.9 (9 tasks) | ✅ All complete |
+| 2     | Data Layer — change queue, sync engine, ID mapping, offline services | 2.1–2.8 (8 tasks) | ✅ All complete |
+| 3     | Integration — persister, startup, auth, store wiring                 | 3.1–3.6 (6 tasks) | ✅ All complete |
+| 4     | Hook wiring & polish                                                 | 4.1–4.5 (5 tasks) | ✅ All complete |
 
 ## Files Created
 
 ### Core DB Infrastructure
+
 - `src/lib/db/database.ts` — SQLite singleton via expo-sqlite, openDatabaseAsync, closeDb
 - `src/lib/db/schema.ts` — 8 CREATE TABLE statements + indexes + runMigrations with schema version tracking
 - `src/lib/db/init.ts` — initDatabase(): open DB, run migrations, return ready instance
@@ -46,11 +47,13 @@ Test results: 380 passed, 25 suites. TypeScript: 0 new errors (10 pre-existing i
 - `src/lib/db/index.ts` — barrel exports for all public modules
 
 ### Offline Services
+
 - `src/lib/db/services/offline-sessions.ts` — OfflineSessionsService: createSession, logSet, completeSession, cancelSession
 - `src/lib/db/services/offline-templates.ts` — OfflineTemplatesService: createTemplate, updateTemplate, deleteTemplate
 - `src/lib/db/services/README.md` — pattern docs for offline service wrapper pattern
 
 ### Tests
+
 - `src/lib/db/__tests__/schema.test.ts`
 - `src/lib/db/__tests__/database.test.ts`
 - `src/lib/db/__tests__/network-monitor.test.ts`
@@ -76,29 +79,29 @@ Test results: 380 passed, 25 suites. TypeScript: 0 new errors (10 pre-existing i
 
 ## Specs Synced (Delta → Main)
 
-| Domain | Action | Details |
-|--------|--------|---------|
-| `offline-sync` | Created | New domain spec — local SQLite schema, Change Queue, SyncEngine, Network Monitor, React Query persister, Auth offline handling; 8 requirements, 9 scenarios |
-| `user-auth` | Updated | Register/Session Persistence (SQLite init before auth); ADDED Sync Auth Error Handling requirement (401 detection + auth_expired flag) |
-| `workout-execution` | Updated | Start/Log Sets/Complete (offline service layer routing, SQLite dual write); ADDED Session Rehydration requirement |
-| `exercise-library` | Updated | Browse/Filter/Detail (local SQLite reads); ADDED Initial Seed requirement |
-| `routine-builder` | Updated | Create/Edit (offline service layer, queue when offline); ADDED Offline Indicator requirement |
-| `workout-history` | Updated | Session List/Filter/Detail (local SQLite reads); ADDED Unsynced Session Visibility requirement |
+| Domain              | Action  | Details                                                                                                                                                     |
+| ------------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `offline-sync`      | Created | New domain spec — local SQLite schema, Change Queue, SyncEngine, Network Monitor, React Query persister, Auth offline handling; 8 requirements, 9 scenarios |
+| `user-auth`         | Updated | Register/Session Persistence (SQLite init before auth); ADDED Sync Auth Error Handling requirement (401 detection + auth_expired flag)                      |
+| `workout-execution` | Updated | Start/Log Sets/Complete (offline service layer routing, SQLite dual write); ADDED Session Rehydration requirement                                           |
+| `exercise-library`  | Updated | Browse/Filter/Detail (local SQLite reads); ADDED Initial Seed requirement                                                                                   |
+| `routine-builder`   | Updated | Create/Edit (offline service layer, queue when offline); ADDED Offline Indicator requirement                                                                |
+| `workout-history`   | Updated | Session List/Filter/Detail (local SQLite reads); ADDED Unsynced Session Visibility requirement                                                              |
 
 ## Key Architecture Decisions
 
-| Decision | Choice | Rationale |
-|----------|--------|-----------|
-| Module structure | `src/lib/db/` with `services/` subdir | Keeps DB infra separate from PocketBase; mirrors existing patterns |
-| DB init timing | Before auth in startup sequence | Guarantees DB ready before any auth/data operation |
-| Sync trigger | Event-driven via NetInfo | No wasted cycles; instant response on reconnect with 2s debounce |
-| Queue ordering | FIFO within group_id, groups sequential | Template atoms (session + sets) must replay in correct order |
-| Offline service pattern | Decorator — wraps existing service functions | Keeps PB services unchanged; offline logic composed via isOnline check |
-| UUID strategy | `crypto.randomUUID()` with `uuid` v4 polyfill | Native in Hermes 0.76+; polyfill only for older runtimes |
-| Persister adapter | SQLite-backed implementing AsyncStorage interface | expo-sqlite already in deps; single write path for cache + app data |
-| Auth preservation | Two-pronged: startup isOnline check + getSession network-error detection | Prevents token destruction on transient failures while preserving existing contract |
-| ID remapping | 4-step after CREATE: store mapping → update local id → update child FKs → patch pending queue | Ensures referential integrity for dependent operations on queue replay |
-| Retry policy | Exponential backoff 1s→2s→4s→8s→max 30s, dead-letter after 10 | Balances recovery speed with server load; prevents infinite retry loops |
+| Decision                | Choice                                                                                        | Rationale                                                                           |
+| ----------------------- | --------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| Module structure        | `src/lib/db/` with `services/` subdir                                                         | Keeps DB infra separate from PocketBase; mirrors existing patterns                  |
+| DB init timing          | Before auth in startup sequence                                                               | Guarantees DB ready before any auth/data operation                                  |
+| Sync trigger            | Event-driven via NetInfo                                                                      | No wasted cycles; instant response on reconnect with 2s debounce                    |
+| Queue ordering          | FIFO within group_id, groups sequential                                                       | Template atoms (session + sets) must replay in correct order                        |
+| Offline service pattern | Decorator — wraps existing service functions                                                  | Keeps PB services unchanged; offline logic composed via isOnline check              |
+| UUID strategy           | `crypto.randomUUID()` with `uuid` v4 polyfill                                                 | Native in Hermes 0.76+; polyfill only for older runtimes                            |
+| Persister adapter       | SQLite-backed implementing AsyncStorage interface                                             | expo-sqlite already in deps; single write path for cache + app data                 |
+| Auth preservation       | Two-pronged: startup isOnline check + getSession network-error detection                      | Prevents token destruction on transient failures while preserving existing contract |
+| ID remapping            | 4-step after CREATE: store mapping → update local id → update child FKs → patch pending queue | Ensures referential integrity for dependent operations on queue replay              |
+| Retry policy            | Exponential backoff 1s→2s→4s→8s→max 30s, dead-letter after 10                                 | Balances recovery speed with server load; prevents infinite retry loops             |
 
 ## Notable Gotchas & Learnings
 
@@ -122,23 +125,23 @@ Feature flag `EXPO_PUBLIC_OFFLINE_ENABLED` (default `true`). When `false`: skip 
 
 ## Engram Artifact Traceability
 
-| Artifact | Engram ID | Notes |
-|----------|-----------|-------|
-| Exploration | #1048 | `sdd/offline-sync-layer/explore` |
-| Proposal | #1050 | `sdd/offline-sync-layer/proposal` |
-| Spec | #1051 | `sdd/offline-sync-layer/spec` |
-| Design | #1052 | `sdd/offline-sync-layer/design` — 2 revisions after gate review |
-| Tasks | #1054 | `sdd/offline-sync-layer/tasks` — reconciled at archive: all 28 tasks marked complete |
-| Apply Progress | #1055 | `sdd/offline-sync-layer/apply-progress` — Phase 3&4 implementation details |
-| Archive Report | this document | `sdd/offline-sync-layer/archive-report` |
+| Artifact       | Engram ID     | Notes                                                                                |
+| -------------- | ------------- | ------------------------------------------------------------------------------------ |
+| Exploration    | #1048         | `sdd/offline-sync-layer/explore`                                                     |
+| Proposal       | #1050         | `sdd/offline-sync-layer/proposal`                                                    |
+| Spec           | #1051         | `sdd/offline-sync-layer/spec`                                                        |
+| Design         | #1052         | `sdd/offline-sync-layer/design` — 2 revisions after gate review                      |
+| Tasks          | #1054         | `sdd/offline-sync-layer/tasks` — reconciled at archive: all 28 tasks marked complete |
+| Apply Progress | #1055         | `sdd/offline-sync-layer/apply-progress` — Phase 3&4 implementation details           |
+| Archive Report | this document | `sdd/offline-sync-layer/archive-report`                                              |
 
 ## OpenSpec Archive Contents
 
-| Artifact | Path |
-|----------|------|
-| Exploration | `openspec/changes/archive/2026-07-01-offline-sync-layer/exploration.md` |
-| Proposal | `openspec/changes/archive/2026-07-01-offline-sync-layer/proposal.md` |
-| Delta Specs | `openspec/changes/archive/2026-07-01-offline-sync-layer/specs/` (6 domains) |
-| Design | `openspec/changes/archive/2026-07-01-offline-sync-layer/design.md` |
-| Tasks | `openspec/changes/archive/2026-07-01-offline-sync-layer/tasks.md` (28/28 tasks complete) |
-| Archive Report | `openspec/changes/archive/2026-07-01-offline-sync-layer/archive-report.md` |
+| Artifact       | Path                                                                                     |
+| -------------- | ---------------------------------------------------------------------------------------- |
+| Exploration    | `openspec/changes/archive/2026-07-01-offline-sync-layer/exploration.md`                  |
+| Proposal       | `openspec/changes/archive/2026-07-01-offline-sync-layer/proposal.md`                     |
+| Delta Specs    | `openspec/changes/archive/2026-07-01-offline-sync-layer/specs/` (6 domains)              |
+| Design         | `openspec/changes/archive/2026-07-01-offline-sync-layer/design.md`                       |
+| Tasks          | `openspec/changes/archive/2026-07-01-offline-sync-layer/tasks.md` (28/28 tasks complete) |
+| Archive Report | `openspec/changes/archive/2026-07-01-offline-sync-layer/archive-report.md`               |

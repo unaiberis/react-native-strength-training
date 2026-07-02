@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { memo, useCallback, useState } from 'react';
 import {
   View,
   Text,
@@ -6,37 +6,38 @@ import {
   TouchableOpacity,
   RefreshControl,
   ActivityIndicator,
-} from "react-native";
-import { useRouter } from "expo-router";
-import { Card } from "../../../shared/ui/Card";
-import { Button } from "../../../shared/ui/Button";
-import { useHistory } from "../hooks/useHistory";
-import { useExercises } from "../../exercises/hooks/useExercises";
-import type { SessionListItem } from "../../../lib/pocketbase/services/sessions";
+} from 'react-native';
+import { useRouter } from 'expo-router';
+import { Button } from '../../../shared/ui/Button';
+import { useHistory } from '../hooks/useHistory';
+import { useExercises } from '../../exercises/hooks/useExercises';
+import type { SessionListItem } from '../../../lib/pocketbase/services/sessions';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────
+
+const ITEM_HEIGHT = 120;
 
 function formatDate(iso: string): string {
   const d = new Date(iso);
   return d.toLocaleDateString(undefined, {
-    weekday: "short",
-    year: "numeric",
-    month: "short",
-    day: "numeric",
+    weekday: 'short',
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
   });
 }
 
 function formatTime(iso: string): string {
   const d = new Date(iso);
   return d.toLocaleTimeString(undefined, {
-    hour: "2-digit",
-    minute: "2-digit",
+    hour: '2-digit',
+    minute: '2-digit',
   });
 }
 
 // ─── Session Row ──────────────────────────────────────────────────────────
 
-function SessionRow({
+const SessionRow = memo(function SessionRow({
   session,
   onPress,
 }: {
@@ -46,6 +47,7 @@ function SessionRow({
   return (
     <TouchableOpacity
       onPress={onPress}
+      accessibilityRole="button"
       className="bg-surface-900 rounded-xl p-4 mb-3 border border-surface-800 active:opacity-80"
     >
       <View className="flex-row justify-between items-start mb-2">
@@ -54,7 +56,7 @@ function SessionRow({
             className="text-surface-100 text-base font-semibold"
             numberOfLines={1}
           >
-            {session.templateName ?? "Free Workout"}
+            {session.templateName ?? 'Free Workout'}
           </Text>
           <Text className="text-surface-400 text-xs mt-0.5">
             {formatDate(session.started_at)} · {formatTime(session.started_at)}
@@ -75,7 +77,8 @@ function SessionRow({
           <View className="flex-row items-center gap-1">
             <Text className="text-surface-500 text-xs">🏋️</Text>
             <Text className="text-surface-400 text-xs">
-              {session.exerciseCount} exercise{session.exerciseCount !== 1 ? "s" : ""}
+              {session.exerciseCount} exercise
+              {session.exerciseCount !== 1 ? 's' : ''}
             </Text>
           </View>
         )}
@@ -83,14 +86,14 @@ function SessionRow({
           <View className="flex-row items-center gap-1">
             <Text className="text-surface-500 text-xs">🎯</Text>
             <Text className="text-surface-400 text-xs">
-              {session.totalSets} set{session.totalSets !== 1 ? "s" : ""}
+              {session.totalSets} set{session.totalSets !== 1 ? 's' : ''}
             </Text>
           </View>
         )}
       </View>
     </TouchableOpacity>
   );
-}
+});
 
 // ─── Filter bar ───────────────────────────────────────────────────────────
 
@@ -109,7 +112,8 @@ function FilterBar({
   const [showPicker, setShowPicker] = useState(false);
 
   const selectedName = filters.exerciseId
-    ? exercises?.data?.find((e) => e.id === filters.exerciseId)?.name ?? "Unknown"
+    ? (exercises?.data?.find((e) => e.id === filters.exerciseId)?.name ??
+      'Unknown')
     : null;
 
   return (
@@ -117,25 +121,27 @@ function FilterBar({
       <View className="flex-row items-center gap-2">
         <TouchableOpacity
           onPress={() => setShowPicker(!showPicker)}
+          accessibilityRole="button"
           className={`flex-1 flex-row items-center bg-surface-800 border border-surface-700 rounded-xl px-3 py-2.5 ${
-            filters.exerciseId ? "" : ""
+            filters.exerciseId ? '' : ''
           }`}
         >
           <Text className="text-surface-500 text-xs mr-2">Filter:</Text>
           <Text
-            className={`text-sm flex-1 ${filters.exerciseId ? "text-surface-100" : "text-surface-500"}`}
+            className={`text-sm flex-1 ${filters.exerciseId ? 'text-surface-100' : 'text-surface-500'}`}
             numberOfLines={1}
           >
-            {selectedName ?? "All exercises"}
+            {selectedName ?? 'All exercises'}
           </Text>
           <Text className="text-surface-500 text-xs">
-            {showPicker ? "▲" : "▼"}
+            {showPicker ? '▲' : '▼'}
           </Text>
         </TouchableOpacity>
 
         {filters.exerciseId && (
           <TouchableOpacity
             onPress={() => onChange({ exerciseId: null })}
+            accessibilityRole="button"
             className="bg-surface-800 rounded-xl px-3 py-2.5 border border-surface-700"
           >
             <Text className="text-surface-400 text-xs">Clear</Text>
@@ -147,23 +153,27 @@ function FilterBar({
       {showPicker && (
         <View className="mt-2 bg-surface-800 border border-surface-700 rounded-xl max-h-48">
           <FlatList
-            data={[{ id: null, name: "All exercises" } as { id: string | null; name: string }, ...(exercises?.data ?? [])]}
-            keyExtractor={(item) => item.id ?? "__all__"}
+            data={[
+              { id: null, name: 'All exercises' },
+              ...(exercises?.data ?? []),
+            ]}
+            keyExtractor={(item) => item.id ?? '__all__'}
             renderItem={({ item }) => (
               <TouchableOpacity
                 onPress={() => {
                   onChange({ exerciseId: item.id });
                   setShowPicker(false);
                 }}
+                accessibilityRole="button"
                 className={`px-3 py-2.5 border-b border-surface-700 last:border-b-0 ${
-                  filters.exerciseId === item.id ? "bg-surface-700" : ""
+                  filters.exerciseId === item.id ? 'bg-surface-700' : ''
                 }`}
               >
                 <Text
                   className={`text-sm ${
                     filters.exerciseId === item.id
-                      ? "text-brand-400 font-medium"
-                      : "text-surface-300"
+                      ? 'text-brand-400 font-medium'
+                      : 'text-surface-300'
                   }`}
                 >
                   {item.name}
@@ -183,16 +193,12 @@ function FilterBar({
 export function HistoryListScreen() {
   const router = useRouter();
   const [page, setPage] = useState(0);
-  const [filters, setFilters] = useState<HistoryFiltersState>({ exerciseId: null });
+  const [filters, setFilters] = useState<HistoryFiltersState>({
+    exerciseId: null,
+  });
 
-  const {
-    sessions,
-    isLoading,
-    isRefetching,
-    refetch,
-    hasMore,
-    totalCount,
-  } = useHistory(page, { exerciseId: filters.exerciseId });
+  const { sessions, isLoading, isRefetching, refetch, hasMore, totalCount } =
+    useHistory(page, { exerciseId: filters.exerciseId });
 
   const onRefresh = useCallback(() => {
     setPage(0);
@@ -209,25 +215,19 @@ export function HistoryListScreen() {
     (sessionId: string) => {
       router.push(`/history/${sessionId}`);
     },
-    [router],
+    [router]
   );
 
-  const handleFilterChange = useCallback(
-    (f: HistoryFiltersState) => {
-      setFilters(f);
-      setPage(0);
-    },
-    [],
-  );
+  const handleFilterChange = useCallback((f: HistoryFiltersState) => {
+    setFilters(f);
+    setPage(0);
+  }, []);
 
   const renderItem = useCallback(
     ({ item }: { item: SessionListItem }) => (
-      <SessionRow
-        session={item}
-        onPress={() => handleSessionPress(item.id)}
-      />
+      <SessionRow session={item} onPress={() => handleSessionPress(item.id)} />
     ),
-    [handleSessionPress],
+    [handleSessionPress]
   );
 
   const keyExtractor = useCallback((item: SessionListItem) => item.id, []);
@@ -255,7 +255,7 @@ export function HistoryListScreen() {
         <Button
           title="Start a Workout"
           variant="primary"
-          onPress={() => router.push("/(tabs)/train")}
+          onPress={() => router.push('/(tabs)/train')}
         />
       </View>
     );
@@ -271,6 +271,11 @@ export function HistoryListScreen() {
         data={sessions}
         renderItem={renderItem}
         keyExtractor={keyExtractor}
+        getItemLayout={(_data, index) => ({
+          length: ITEM_HEIGHT,
+          offset: ITEM_HEIGHT * index,
+          index,
+        })}
         contentContainerClassName="px-4 pb-8"
         refreshControl={
           <RefreshControl
@@ -289,7 +294,7 @@ export function HistoryListScreen() {
       {totalCount > 0 && (
         <View className="px-4 pb-4 pt-2">
           <Text className="text-surface-500 text-xs text-center">
-            {totalCount} workout{totalCount !== 1 ? "s" : ""} total
+            {totalCount} workout{totalCount !== 1 ? 's' : ''} total
           </Text>
         </View>
       )}

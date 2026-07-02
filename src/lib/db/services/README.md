@@ -45,10 +45,10 @@ Every offline service follows the same architecture:
 
 Each service receives two constructor-injected dependencies:
 
-| Dependency | Type | Purpose |
-|-----------|------|---------|
-| `db` | `SQLiteDatabase` | Direct SQLite access for local reads/writes |
-| `queue` | `ChangeQueue` | FIFO queue for pending sync changes |
+| Dependency | Type             | Purpose                                     |
+| ---------- | ---------------- | ------------------------------------------- |
+| `db`       | `SQLiteDatabase` | Direct SQLite access for local reads/writes |
+| `queue`    | `ChangeQueue`    | FIFO queue for pending sync changes         |
 
 Dependencies are injected (not imported as singletons) for testability.
 
@@ -115,7 +115,7 @@ changeQueue.enqueue({
 
 ## Available Services
 
-| Service | File | Tables | Collection Name |
-|---------|------|--------|-----------------|
-| `OfflineSessionsService` | `offline-sessions.ts` | `workout_sessions`, `exercise_sets` | `workout_sessions`, `exercise_sets` |
-| `OfflineTemplatesService` | `offline-templates.ts` | `workout_templates`, `workout_template_exercises` | `workout_templates` |
+| Service                   | File                   | Tables                                            | Collection Name                     |
+| ------------------------- | ---------------------- | ------------------------------------------------- | ----------------------------------- |
+| `OfflineSessionsService`  | `offline-sessions.ts`  | `workout_sessions`, `exercise_sets`               | `workout_sessions`, `exercise_sets` |
+| `OfflineTemplatesService` | `offline-templates.ts` | `workout_templates`, `workout_template_exercises` | `workout_templates`                 |

@@ -7,7 +7,7 @@
  * timestamps.
  */
 
-import type { SQLiteDatabase } from "expo-sqlite";
+import type { SQLiteDatabase } from 'expo-sqlite';
 
 export class SyncMeta {
   constructor(private db: SQLiteDatabase) {}
@@ -17,8 +17,8 @@ export class SyncMeta {
    */
   async set(key: string, value: string): Promise<void> {
     await this.db.runAsync(
-      "INSERT OR REPLACE INTO sync_meta (key, value) VALUES (?, ?)",
-      [key, value],
+      'INSERT OR REPLACE INTO sync_meta (key, value) VALUES (?, ?)',
+      [key, value]
     );
   }
 
@@ -27,8 +27,8 @@ export class SyncMeta {
    */
   async get(key: string): Promise<string | null> {
     const row = await this.db.getFirstAsync<{ value: string }>(
-      "SELECT value FROM sync_meta WHERE key = ?",
-      [key],
+      'SELECT value FROM sync_meta WHERE key = ?',
+      [key]
     );
     return row?.value ?? null;
   }
@@ -37,7 +37,7 @@ export class SyncMeta {
    * Remove a key from the store.
    */
   async delete(key: string): Promise<void> {
-    await this.db.runAsync("DELETE FROM sync_meta WHERE key = ?", [key]);
+    await this.db.runAsync('DELETE FROM sync_meta WHERE key = ?', [key]);
   }
 
   // ─── Active Session ────────────────────────────────────────────────
@@ -46,21 +46,21 @@ export class SyncMeta {
    * Store the current active workout session id.
    */
   async setActiveSessionId(sessionId: string): Promise<void> {
-    await this.set("active_session_id", sessionId);
+    await this.set('active_session_id', sessionId);
   }
 
   /**
    * Retrieve the current active session id, or `null` if none is set.
    */
   async getActiveSessionId(): Promise<string | null> {
-    return this.get("active_session_id");
+    return this.get('active_session_id');
   }
 
   /**
    * Clear the active session id.
    */
   async clearActiveSessionId(): Promise<void> {
-    await this.delete("active_session_id");
+    await this.delete('active_session_id');
   }
 
   // ─── Auth Expired ──────────────────────────────────────────────────
@@ -69,15 +69,15 @@ export class SyncMeta {
    * Set or clear the auth-expired flag.
    */
   async setAuthExpired(expired: boolean): Promise<void> {
-    await this.set("auth_expired", expired ? "true" : "false");
+    await this.set('auth_expired', expired ? 'true' : 'false');
   }
 
   /**
    * Check whether the auth-expired flag is set.
    */
   async getAuthExpired(): Promise<boolean> {
-    const value = await this.get("auth_expired");
-    return value === "true";
+    const value = await this.get('auth_expired');
+    return value === 'true';
   }
 
   // ─── Last Synced At ────────────────────────────────────────────────

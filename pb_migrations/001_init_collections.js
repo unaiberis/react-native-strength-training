@@ -19,59 +19,78 @@ migrate((app) => {
   const collections = [
     // ─── exercises ─────────────────────────────────────────────────────
     {
-      name: "exercises",
-      type: "base",
+      name: 'exercises',
+      type: 'base',
       system: false,
-      listRule: null,     // public
-      viewRule: null,     // public
-      createRule: null,   // admin only (null = superusers only)
-      updateRule: null,   // admin only
-      deleteRule: null,   // admin only
+      listRule: null, // public
+      viewRule: null, // public
+      createRule: null, // admin only (null = superusers only)
+      updateRule: null, // admin only
+      deleteRule: null, // admin only
       schema: [
-        { name: "name",         type: "text",   required: true,  max: 200 },
-        { name: "category",     type: "select", required: true,
-          options: { values: ["strength","hypertrophy","endurance","mobility","power","cardio","crossfit","hybrid"] }},
-        { name: "equipment",     type: "json" },
-        { name: "body_region",  type: "text",   required: false },
-        { name: "description",  type: "text",   required: false, max: 2000 },
-        { name: "default_sets", type: "number", required: false },
-        { name: "default_reps", type: "number", required: false },
-        { name: "default_rest_seconds", type: "number", required: false },
-        { name: "is_public",    type: "bool",   required: false },
+        { name: 'name', type: 'text', required: true, max: 200 },
+        {
+          name: 'category',
+          type: 'select',
+          required: true,
+          options: {
+            values: [
+              'strength',
+              'hypertrophy',
+              'endurance',
+              'mobility',
+              'power',
+              'cardio',
+              'crossfit',
+              'hybrid',
+            ],
+          },
+        },
+        { name: 'equipment', type: 'json' },
+        { name: 'body_region', type: 'text', required: false },
+        { name: 'description', type: 'text', required: false, max: 2000 },
+        { name: 'default_sets', type: 'number', required: false },
+        { name: 'default_reps', type: 'number', required: false },
+        { name: 'default_rest_seconds', type: 'number', required: false },
+        { name: 'is_public', type: 'bool', required: false },
       ],
       indexes: [
-        "CREATE INDEX idx_exercises_name ON exercises (name)",
-        "CREATE INDEX idx_exercises_category ON exercises (category)",
+        'CREATE INDEX idx_exercises_name ON exercises (name)',
+        'CREATE INDEX idx_exercises_category ON exercises (category)',
       ],
     },
 
     // ─── workout_templates ─────────────────────────────────────────────
     {
-      name: "workout_templates",
-      type: "base",
+      name: 'workout_templates',
+      type: 'base',
       system: false,
-      listRule: "user_id = @request.auth.id",
-      viewRule: "user_id = @request.auth.id",
+      listRule: 'user_id = @request.auth.id',
+      viewRule: 'user_id = @request.auth.id',
       createRule: "@request.auth.id != '' && user_id = @request.auth.id",
-      updateRule: "user_id = @request.auth.id",
-      deleteRule: "user_id = @request.auth.id",
+      updateRule: 'user_id = @request.auth.id',
+      deleteRule: 'user_id = @request.auth.id',
       schema: [
-        { name: "user_id",         type: "relation", required: true,
-          options: { collectionId: "users", maxSelect: 1 }},
-        { name: "name",            type: "text",     required: true, max: 100 },
-        { name: "description",     type: "text",     required: false, max: 500 },
-        { name: "program_block_id", type: "text",    required: false },
-        { name: "is_public",       type: "bool",     required: false },
+        {
+          name: 'user_id',
+          type: 'relation',
+          required: true,
+          options: { collectionId: 'users', maxSelect: 1 },
+        },
+        { name: 'name', type: 'text', required: true, max: 100 },
+        { name: 'description', type: 'text', required: false, max: 500 },
+        { name: 'program_block_id', type: 'text', required: false },
+        { name: 'is_public', type: 'bool', required: false },
       ],
       indexes: [
-        "CREATE INDEX idx_templates_user ON workout_templates (user_id)",
+        'CREATE INDEX idx_templates_user ON workout_templates (user_id)',
       ],
     },
 
     // ─── workout_template_exercises ─────────────────────────────────────
     {
-      name: "workout_template_exercises",
-      type: "base",
+      name: 'workout_template_exercises',
+      type: 'base',
       system: false,
       listRule: "@request.auth.id != ''",
       viewRule: "@request.auth.id != ''",
@@ -79,57 +98,77 @@ migrate((app) => {
       updateRule: "@request.auth.id != ''",
       deleteRule: "@request.auth.id != ''",
       schema: [
-        { name: "workout_template_id", type: "relation", required: true,
-          options: { collectionId: "workout_templates", maxSelect: 1 }},
-        { name: "exercise_id",        type: "relation", required: true,
-          options: { collectionId: "exercises", maxSelect: 1 }},
-        { name: "sort_order",         type: "number",   required: true },
-        { name: "target_sets",        type: "number",   required: false },
-        { name: "target_reps",        type: "number",   required: false },
-        { name: "target_rpe_low",     type: "number",   required: false },
-        { name: "target_rpe_high",    type: "number",   required: false },
-        { name: "rest_seconds",       type: "number",   required: false },
-        { name: "notes",              type: "text",     required: false, max: 500 },
+        {
+          name: 'workout_template_id',
+          type: 'relation',
+          required: true,
+          options: { collectionId: 'workout_templates', maxSelect: 1 },
+        },
+        {
+          name: 'exercise_id',
+          type: 'relation',
+          required: true,
+          options: { collectionId: 'exercises', maxSelect: 1 },
+        },
+        { name: 'sort_order', type: 'number', required: true },
+        { name: 'target_sets', type: 'number', required: false },
+        { name: 'target_reps', type: 'number', required: false },
+        { name: 'target_rpe_low', type: 'number', required: false },
+        { name: 'target_rpe_high', type: 'number', required: false },
+        { name: 'rest_seconds', type: 'number', required: false },
+        { name: 'notes', type: 'text', required: false, max: 500 },
       ],
       indexes: [
-        "CREATE INDEX idx_wte_template ON workout_template_exercises (workout_template_id)",
-        "CREATE INDEX idx_wte_exercise ON workout_template_exercises (exercise_id)",
+        'CREATE INDEX idx_wte_template ON workout_template_exercises (workout_template_id)',
+        'CREATE INDEX idx_wte_exercise ON workout_template_exercises (exercise_id)',
       ],
     },
 
     // ─── workout_sessions ───────────────────────────────────────────────
     {
-      name: "workout_sessions",
-      type: "base",
+      name: 'workout_sessions',
+      type: 'base',
       system: false,
-      listRule: "user_id = @request.auth.id",
-      viewRule: "user_id = @request.auth.id",
+      listRule: 'user_id = @request.auth.id',
+      viewRule: 'user_id = @request.auth.id',
       createRule: "@request.auth.id != '' && user_id = @request.auth.id",
-      updateRule: "user_id = @request.auth.id",
-      deleteRule: "user_id = @request.auth.id",
+      updateRule: 'user_id = @request.auth.id',
+      deleteRule: 'user_id = @request.auth.id',
       schema: [
-        { name: "user_id",             type: "relation", required: true,
-          options: { collectionId: "users", maxSelect: 1 }},
-        { name: "workout_template_id", type: "relation", required: false,
-          options: { collectionId: "workout_templates", maxSelect: 1 }},
-        { name: "program_block_id",    type: "text",     required: false },
-        { name: "status",              type: "select",   required: true,
-          options: { values: ["in_progress","completed","cancelled"] }},
-        { name: "started_at",          type: "autodate", required: true },
-        { name: "completed_at",        type: "autodate", required: false },
-        { name: "duration_minutes",    type: "number",   required: false },
-        { name: "notes",               type: "text",     required: false, max: 2000 },
+        {
+          name: 'user_id',
+          type: 'relation',
+          required: true,
+          options: { collectionId: 'users', maxSelect: 1 },
+        },
+        {
+          name: 'workout_template_id',
+          type: 'relation',
+          required: false,
+          options: { collectionId: 'workout_templates', maxSelect: 1 },
+        },
+        { name: 'program_block_id', type: 'text', required: false },
+        {
+          name: 'status',
+          type: 'select',
+          required: true,
+          options: { values: ['in_progress', 'completed', 'cancelled'] },
+        },
+        { name: 'started_at', type: 'autodate', required: true },
+        { name: 'completed_at', type: 'autodate', required: false },
+        { name: 'duration_minutes', type: 'number', required: false },
+        { name: 'notes', type: 'text', required: false, max: 2000 },
       ],
       indexes: [
-        "CREATE INDEX idx_sessions_user ON workout_sessions (user_id)",
-        "CREATE INDEX idx_sessions_status ON workout_sessions (status)",
+        'CREATE INDEX idx_sessions_user ON workout_sessions (user_id)',
+        'CREATE INDEX idx_sessions_status ON workout_sessions (status)',
       ],
     },
 
     // ─── exercise_sets ──────────────────────────────────────────────────
     {
-      name: "exercise_sets",
-      type: "base",
+      name: 'exercise_sets',
+      type: 'base',
       system: false,
       listRule: "@request.auth.id != ''",
       viewRule: "@request.auth.id != ''",
@@ -137,28 +176,36 @@ migrate((app) => {
       updateRule: "@request.auth.id != ''",
       deleteRule: "@request.auth.id != ''",
       schema: [
-        { name: "workout_session_id", type: "relation", required: true,
-          options: { collectionId: "workout_sessions", maxSelect: 1 }},
-        { name: "exercise_id",       type: "relation", required: true,
-          options: { collectionId: "exercises", maxSelect: 1 }},
-        { name: "set_number",        type: "number",   required: true },
-        { name: "weight_kg",         type: "number",   required: false },
-        { name: "reps",              type: "number",   required: false },
-        { name: "rpe",               type: "number",   required: false },
-        { name: "rir",               type: "number",   required: false },
-        { name: "is_warmup",         type: "bool",     required: false },
-        { name: "logged_at",         type: "autodate", required: true },
+        {
+          name: 'workout_session_id',
+          type: 'relation',
+          required: true,
+          options: { collectionId: 'workout_sessions', maxSelect: 1 },
+        },
+        {
+          name: 'exercise_id',
+          type: 'relation',
+          required: true,
+          options: { collectionId: 'exercises', maxSelect: 1 },
+        },
+        { name: 'set_number', type: 'number', required: true },
+        { name: 'weight_kg', type: 'number', required: false },
+        { name: 'reps', type: 'number', required: false },
+        { name: 'rpe', type: 'number', required: false },
+        { name: 'rir', type: 'number', required: false },
+        { name: 'is_warmup', type: 'bool', required: false },
+        { name: 'logged_at', type: 'autodate', required: true },
       ],
       indexes: [
-        "CREATE INDEX idx_sets_session ON exercise_sets (workout_session_id)",
-        "CREATE INDEX idx_sets_exercise ON exercise_sets (exercise_id)",
+        'CREATE INDEX idx_sets_session ON exercise_sets (workout_session_id)',
+        'CREATE INDEX idx_sets_exercise ON exercise_sets (exercise_id)',
       ],
     },
 
     // ─── program_blocks (future use — reserved) ─────────────────────────
     {
-      name: "program_blocks",
-      type: "base",
+      name: 'program_blocks',
+      type: 'base',
       system: false,
       listRule: "@request.auth.id != ''",
       viewRule: "@request.auth.id != ''",
@@ -166,16 +213,18 @@ migrate((app) => {
       updateRule: "@request.auth.id != ''",
       deleteRule: "@request.auth.id != ''",
       schema: [
-        { name: "user_id",      type: "relation", required: true,
-          options: { collectionId: "users", maxSelect: 1 }},
-        { name: "name",         type: "text",     required: true, max: 100 },
-        { name: "start_date",   type: "date",     required: false },
-        { name: "end_date",     type: "date",     required: false },
-        { name: "description",  type: "text",     required: false, max: 1000 },
+        {
+          name: 'user_id',
+          type: 'relation',
+          required: true,
+          options: { collectionId: 'users', maxSelect: 1 },
+        },
+        { name: 'name', type: 'text', required: true, max: 100 },
+        { name: 'start_date', type: 'date', required: false },
+        { name: 'end_date', type: 'date', required: false },
+        { name: 'description', type: 'text', required: false, max: 1000 },
       ],
-      indexes: [
-        "CREATE INDEX idx_blocks_user ON program_blocks (user_id)",
-      ],
+      indexes: ['CREATE INDEX idx_blocks_user ON program_blocks (user_id)'],
     },
   ];
 
@@ -189,7 +238,38 @@ migrate((app) => {
     }
 
     if (collection) {
-      console.log(`[migration] Collection "${colDef.name}" already exists — skipping`);
+      // Update existing collection's API rules in case they were never
+      // set (e.g. collections created via Admin UI instead of migration).
+      // Only update the rules — schema/indexes stay as-is.
+      let changed = false;
+      if (collection.listRule !== colDef.listRule) {
+        collection.listRule = colDef.listRule;
+        changed = true;
+      }
+      if (collection.viewRule !== colDef.viewRule) {
+        collection.viewRule = colDef.viewRule;
+        changed = true;
+      }
+      if (collection.createRule !== colDef.createRule) {
+        collection.createRule = colDef.createRule;
+        changed = true;
+      }
+      if (collection.updateRule !== colDef.updateRule) {
+        collection.updateRule = colDef.updateRule;
+        changed = true;
+      }
+      if (collection.deleteRule !== colDef.deleteRule) {
+        collection.deleteRule = colDef.deleteRule;
+        changed = true;
+      }
+      if (changed) {
+        dao.saveCollection(collection);
+        console.log(`[migration] Updated API rules for "${colDef.name}"`);
+      } else {
+        console.log(
+          `[migration] Collection "${colDef.name}" already exists — rules OK`
+        );
+      }
       continue;
     }
 
@@ -198,5 +278,7 @@ migrate((app) => {
     console.log(`[migration] Created collection "${colDef.name}"`);
   }
 
-  console.log("[migration] 001_init_collections complete — 6 collections ensured");
+  console.log(
+    '[migration] 001_init_collections complete — 6 collections ensured'
+  );
 });

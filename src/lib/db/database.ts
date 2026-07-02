@@ -5,9 +5,9 @@
  * Supports switching the db name for tests (`:memory:`).
  */
 
-import * as SQLite from "expo-sqlite";
+import * as SQLite from 'expo-sqlite';
 
-const DEFAULT_DB_NAME = "strength-training.db";
+const DEFAULT_DB_NAME = 'strength-training.db';
 
 let db: SQLite.SQLiteDatabase | null = null;
 
@@ -20,13 +20,11 @@ let db: SQLite.SQLiteDatabase | null = null;
  *
  * Pass `dbName=":memory:"` in tests to use an in-memory database.
  */
-export async function getDb(
-  dbName?: string,
-): Promise<SQLite.SQLiteDatabase> {
+export async function getDb(dbName?: string): Promise<SQLite.SQLiteDatabase> {
   if (!db) {
     db = await SQLite.openDatabaseAsync(dbName ?? DEFAULT_DB_NAME);
     // Enable foreign key enforcement
-    await db.execAsync("PRAGMA foreign_keys = ON;");
+    await db.execAsync('PRAGMA foreign_keys = ON;');
   }
   return db;
 }

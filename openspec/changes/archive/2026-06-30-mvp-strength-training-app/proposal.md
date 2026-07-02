@@ -13,6 +13,7 @@ TrainingPeaks-style strength-only app. Phase 1: browse exercises, build routines
 ## Capabilities
 
 ### New
+
 - `user-auth`: Register, login, logout, profile, session persistence
 - `exercise-library`: Catalog CRUD — name, category, equipment, body region
 - `routine-builder`: Templates with ordered exercises and set config
@@ -21,6 +22,7 @@ TrainingPeaks-style strength-only app. Phase 1: browse exercises, build routines
 - `personal-records`: Auto-detected PRs (1RM, e1RM, volume, tonnage)
 
 ### Modified
+
 None — greenfield.
 
 ## Approach
@@ -29,23 +31,23 @@ Scaffold via `create-expo-app` (TS + Expo Router). Supabase Auth, TanStack Query
 
 ## Affected Areas
 
-| Area | Impact | Description |
-|------|--------|------------|
-| `app/` | New | Expo Router screens (auth, tabs, modals) |
-| `src/features/` | New | Auth, exercises, routines, workout, history, records |
-| `src/shared/` | New | UI primitives, design system |
-| `src/lib/` | New | Supabase, TanStack Query, API layer |
-| `src/stores/` | New | Zustand stores |
-| `supabase/migrations/` | New | Schema, RLS, seed |
-| `package.json` | Modified | Dependencies |
+| Area                   | Impact   | Description                                          |
+| ---------------------- | -------- | ---------------------------------------------------- |
+| `app/`                 | New      | Expo Router screens (auth, tabs, modals)             |
+| `src/features/`        | New      | Auth, exercises, routines, workout, history, records |
+| `src/shared/`          | New      | UI primitives, design system                         |
+| `src/lib/`             | New      | Supabase, TanStack Query, API layer                  |
+| `src/stores/`          | New      | Zustand stores                                       |
+| `supabase/migrations/` | New      | Schema, RLS, seed                                    |
+| `package.json`         | Modified | Dependencies                                         |
 
 ## Risks
 
-| Risk | Likelihood | Mitigation |
-|------|------------|------------|
-| Scope creep into Ph2 | Med | Freeze list, enforce in review |
-| RLS data leaks | Low | Policy tests + peer review |
-| Network loss during workouts | Low | stale-while-revalidate, toast |
+| Risk                         | Likelihood | Mitigation                     |
+| ---------------------------- | ---------- | ------------------------------ |
+| Scope creep into Ph2         | Med        | Freeze list, enforce in review |
+| RLS data leaks               | Low        | Policy tests + peer review     |
+| Network loss during workouts | Low        | stale-while-revalidate, toast  |
 
 ## Rollback Plan
 

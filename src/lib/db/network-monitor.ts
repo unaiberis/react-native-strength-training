@@ -7,7 +7,7 @@
  * brief connectivity interruptions.
  */
 
-import NetInfo from "@react-native-community/netinfo";
+import NetInfo from '@react-native-community/netinfo';
 
 export type NetworkListener = (isOnline: boolean) => void;
 

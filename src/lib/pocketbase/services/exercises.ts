@@ -1,5 +1,5 @@
-import { pb } from "../client";
-import type { ExerciseRow } from "../../../types/pocketbase";
+import { pb } from '../client';
+import type { ExerciseRow } from '../../../types/pocketbase';
 
 export interface ExerciseListResult {
   data: ExerciseRow[];
@@ -12,22 +12,25 @@ export interface ExerciseListResult {
 export async function listExercises(
   category?: string | null,
   page = 0,
-  pageSize = 20,
+  pageSize = 20
 ): Promise<ExerciseListResult> {
-  const filter = category && category !== "all" ? `category = '${category}'` : "";
+  const filter =
+    category && category !== 'all' ? `category = '${category}'` : '';
 
   try {
-    const result = await pb.collection("exercises").getList(page + 1, pageSize, {
-      filter,
-      sort: "name",
-    });
+    const result = await pb
+      .collection('exercises')
+      .getList(page + 1, pageSize, {
+        filter,
+        sort: 'name',
+      });
 
     return {
       data: (result.items ?? []) as unknown as ExerciseRow[],
       count: result.totalItems,
     };
   } catch (err: any) {
-    throw new Error(err.message ?? "Failed to fetch exercises");
+    throw new Error(err.message ?? 'Failed to fetch exercises');
   }
 }
 
@@ -36,7 +39,7 @@ export async function listExercises(
  */
 export async function getExercise(id: string): Promise<ExerciseRow | null> {
   try {
-    const record = await pb.collection("exercises").getOne(id);
+    const record = await pb.collection('exercises').getOne(id);
     return record as unknown as ExerciseRow;
   } catch (err: any) {
     if (
@@ -45,7 +48,7 @@ export async function getExercise(id: string): Promise<ExerciseRow | null> {
     ) {
       return null;
     }
-    throw new Error(err.message ?? "Failed to fetch exercise");
+    throw new Error(err.message ?? 'Failed to fetch exercise');
   }
 }
 
@@ -54,17 +57,19 @@ export async function getExercise(id: string): Promise<ExerciseRow | null> {
  */
 export async function searchExercises(
   query: string,
-  limit = 20,
+  limit = 20
 ): Promise<ExerciseRow[]> {
+  // limit is intentionally unused — PocketBase getFullList ignores page size
+  void limit;
   try {
-    const records = await pb.collection("exercises").getFullList({
+    const records = await pb.collection('exercises').getFullList({
       filter: `name ~ '${query}'`,
-      sort: "name",
+      sort: 'name',
     });
 
     return (records ?? []) as unknown as ExerciseRow[];
   } catch (err: any) {
-    throw new Error(err.message ?? "Failed to search exercises");
+    throw new Error(err.message ?? 'Failed to search exercises');
   }
 }
 
@@ -73,13 +78,15 @@ export async function searchExercises(
  */
 export async function getCategories(): Promise<string[]> {
   try {
-    const records = await pb.collection("exercises").getFullList({
-      fields: "category",
+    const records = await pb.collection('exercises').getFullList({
+      fields: 'category',
     });
 
-    const categories = [...new Set((records ?? []).map((r: any) => r.category))];
+    const categories = [
+      ...new Set((records ?? []).map((r: any) => r.category)),
+    ];
     return categories.sort();
   } catch (err: any) {
-    throw new Error(err.message ?? "Failed to fetch categories");
+    throw new Error(err.message ?? 'Failed to fetch categories');
   }
 }

@@ -10,13 +10,13 @@ const mockExecAsync = jest.fn();
 const mockCloseAsync = jest.fn();
 const mockOpenDatabaseAsync = jest.fn();
 
-jest.mock("expo-sqlite", () => ({
+jest.mock('expo-sqlite', () => ({
   openDatabaseAsync: mockOpenDatabaseAsync,
 }));
 
-import { getDb, closeDb, isOpen, resetDb } from "../database";
+import { getDb, closeDb, isOpen, resetDb } from '../database';
 
-describe("database module", () => {
+describe('database module', () => {
   const mockDb = {
     execAsync: mockExecAsync,
     closeAsync: mockCloseAsync,
@@ -30,32 +30,34 @@ describe("database module", () => {
     mockCloseAsync.mockResolvedValue(undefined);
   });
 
-  describe("getDb", () => {
-    it("opens a database with the default name", async () => {
+  describe('getDb', () => {
+    it('opens a database with the default name', async () => {
       const db = await getDb();
-      expect(mockOpenDatabaseAsync).toHaveBeenCalledWith("strength-training.db");
+      expect(mockOpenDatabaseAsync).toHaveBeenCalledWith(
+        'strength-training.db'
+      );
       expect(db).toBe(mockDb);
     });
 
-    it("opens a database with a custom name", async () => {
-      const db = await getDb(":memory:");
-      expect(mockOpenDatabaseAsync).toHaveBeenCalledWith(":memory:");
+    it('opens a database with a custom name', async () => {
+      const db = await getDb(':memory:');
+      expect(mockOpenDatabaseAsync).toHaveBeenCalledWith(':memory:');
       expect(db).toBe(mockDb);
     });
 
-    it("enables foreign keys after opening", async () => {
+    it('enables foreign keys after opening', async () => {
       await getDb();
-      expect(mockExecAsync).toHaveBeenCalledWith("PRAGMA foreign_keys = ON;");
+      expect(mockExecAsync).toHaveBeenCalledWith('PRAGMA foreign_keys = ON;');
     });
 
-    it("returns the same instance on multiple calls (singleton)", async () => {
+    it('returns the same instance on multiple calls (singleton)', async () => {
       const db1 = await getDb();
       const db2 = await getDb();
       expect(db1).toBe(db2);
       expect(mockOpenDatabaseAsync).toHaveBeenCalledTimes(1);
     });
 
-    it("re-opens after closeDb", async () => {
+    it('re-opens after closeDb', async () => {
       await getDb();
       await closeDb();
       await getDb();
@@ -63,8 +65,8 @@ describe("database module", () => {
     });
   });
 
-  describe("closeDb", () => {
-    it("closes the database and resets the singleton", async () => {
+  describe('closeDb', () => {
+    it('closes the database and resets the singleton', async () => {
       await getDb();
       expect(isOpen()).toBe(true);
 
@@ -73,11 +75,11 @@ describe("database module", () => {
       expect(isOpen()).toBe(false);
     });
 
-    it("is safe to call when database is not open", async () => {
+    it('is safe to call when database is not open', async () => {
       await expect(closeDb()).resolves.toBeUndefined();
     });
 
-    it("is safe to call multiple times", async () => {
+    it('is safe to call multiple times', async () => {
       await getDb();
       await closeDb();
       await closeDb();
@@ -85,17 +87,17 @@ describe("database module", () => {
     });
   });
 
-  describe("isOpen", () => {
-    it("returns false before getDb is called", () => {
+  describe('isOpen', () => {
+    it('returns false before getDb is called', () => {
       expect(isOpen()).toBe(false);
     });
 
-    it("returns true after getDb succeeds", async () => {
+    it('returns true after getDb succeeds', async () => {
       await getDb();
       expect(isOpen()).toBe(true);
     });
 
-    it("returns false after closeDb", async () => {
+    it('returns false after closeDb', async () => {
       await getDb();
       await closeDb();
       expect(isOpen()).toBe(false);

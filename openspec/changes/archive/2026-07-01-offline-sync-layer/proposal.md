@@ -7,6 +7,7 @@ All app operations currently fail when offline. Users at the gym with no signal 
 ## Scope
 
 ### In Scope
+
 - Offline workout execution (create session, log sets, complete/cancel) with local UUIDs
 - Offline exercise library browsing via persisted React Query cache
 - Offline template CRUD with deferred sync
@@ -16,6 +17,7 @@ All app operations currently fail when offline. Users at the gym with no signal 
 - In-progress session rehydration on app restart
 
 ### Out of Scope
+
 - Multi-device sync or conflict resolution UI
 - Real-time collaboration
 - P2P / mesh networking
@@ -25,9 +27,11 @@ All app operations currently fail when offline. Users at the gym with no signal 
 ## Capabilities
 
 ### New Capabilities
+
 - `offline-sync`: Local database init, change queue, sync engine, network monitoring
 
 ### Modified Capabilities
+
 - `workout-execution`: Session + set writes go through offline service layer; ongoing session ID persisted to SQLite
 - `exercise-library`: React Query cache persisted to SQLite for offline reads
 - `routine-builder`: Template mutations queue when offline, sync when online
@@ -45,15 +49,15 @@ Writes: UI → Hook → OfflineWriteService → SQLite + Queue → SyncEngine �
 
 ## Affected Areas
 
-| Area | Impact | Files |
-|------|--------|-------|
-| `src/lib/db/` | New (6 files) | `schema.ts`, `init.ts`, `network-monitor.ts`, `change-queue.ts`, `sync-engine.ts`, `sqlite-storage.ts` |
-| `src/lib/pocketbase/services/` | Modified | `exercises.ts`, `prs.ts`; new `offline-sessions.ts`, `offline-templates.ts` |
-| `src/features/workout/hooks/` | Modified | `useWorkoutSession.ts` — branch on online/offline |
-| `src/features/exercises/hooks/` | Modified | `useExercises.ts` — add cache persister |
-| `src/features/routines/hooks/` | Modified | `useTemplates.ts` — route mutations through offline service |
-| `src/stores/auth-store.ts` | Modified | Add `isOnline` flag |
-| `src/stores/session-store.ts` | Modified | Persist `activeSessionId` to SQLite |
+| Area                            | Impact        | Files                                                                                                  |
+| ------------------------------- | ------------- | ------------------------------------------------------------------------------------------------------ |
+| `src/lib/db/`                   | New (6 files) | `schema.ts`, `init.ts`, `network-monitor.ts`, `change-queue.ts`, `sync-engine.ts`, `sqlite-storage.ts` |
+| `src/lib/pocketbase/services/`  | Modified      | `exercises.ts`, `prs.ts`; new `offline-sessions.ts`, `offline-templates.ts`                            |
+| `src/features/workout/hooks/`   | Modified      | `useWorkoutSession.ts` — branch on online/offline                                                      |
+| `src/features/exercises/hooks/` | Modified      | `useExercises.ts` — add cache persister                                                                |
+| `src/features/routines/hooks/`  | Modified      | `useTemplates.ts` — route mutations through offline service                                            |
+| `src/stores/auth-store.ts`      | Modified      | Add `isOnline` flag                                                                                    |
+| `src/stores/session-store.ts`   | Modified      | Persist `activeSessionId` to SQLite                                                                    |
 
 ## Sync Strategy
 
@@ -66,23 +70,23 @@ Writes: UI → Hook → OfflineWriteService → SQLite + Queue → SyncEngine �
 
 ## Edge Cases
 
-| Case | Handling |
-|------|----------|
-| Token expires offline | Sync fails 401 → entries marked `auth_error`, banner prompts re-login; queue replayed after re-auth |
-| Concurrent sync + user action | SQLite exclusive lock; sync writes queue, user appends after release |
-| Template atomicity | `change_queue` entries share `group_id`; sync engine processes all-or-none within same transaction |
-| In-progress session sync | Session created first (blocking), then sets sequentially under same `group_id` |
-| App killed mid-sync | Idempotent — entries dequeued only after server acknowledges. Server-side duplicate check on CREATE via unique constraint |
-| Web fallback | expo-sqlite v15 uses `op-sqlite` (WebSQL). If unavailable → `localStorage`-based queue, read-only exercise cache |
+| Case                          | Handling                                                                                                                  |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Token expires offline         | Sync fails 401 → entries marked `auth_error`, banner prompts re-login; queue replayed after re-auth                       |
+| Concurrent sync + user action | SQLite exclusive lock; sync writes queue, user appends after release                                                      |
+| Template atomicity            | `change_queue` entries share `group_id`; sync engine processes all-or-none within same transaction                        |
+| In-progress session sync      | Session created first (blocking), then sets sequentially under same `group_id`                                            |
+| App killed mid-sync           | Idempotent — entries dequeued only after server acknowledges. Server-side duplicate check on CREATE via unique constraint |
+| Web fallback                  | expo-sqlite v15 uses `op-sqlite` (WebSQL). If unavailable → `localStorage`-based queue, read-only exercise cache          |
 
 ## Risks
 
-| Risk | Likelihood | Mitigation |
-|------|------------|------------|
-| expo-sqlite web support gaps | Med | Feature-detect; fallback to Read-Only + localStorage queue |
-| `crypto.randomUUID()` missing in Hermes | Low | Polyfill via `uuid` v4 package |
-| Large queue on slow reconnect | Low | Flush in batches of 50, emit progress events |
-| PocketBase schema drift | Low | SyncEngine validates response shape before dequeue |
+| Risk                                    | Likelihood | Mitigation                                                 |
+| --------------------------------------- | ---------- | ---------------------------------------------------------- |
+| expo-sqlite web support gaps            | Med        | Feature-detect; fallback to Read-Only + localStorage queue |
+| `crypto.randomUUID()` missing in Hermes | Low        | Polyfill via `uuid` v4 package                             |
+| Large queue on slow reconnect           | Low        | Flush in batches of 50, emit progress events               |
+| PocketBase schema drift                 | Low        | SyncEngine validates response shape before dequeue         |
 
 ## Rollback Plan
 
@@ -90,11 +94,11 @@ Feature flag `EXPO_PUBLIC_OFFLINE_ENABLED` (default `true`). When `false`: skip 
 
 ## Dependencies
 
-| Package | Reason |
-|---------|--------|
-| `@react-native-community/netinfo` | Network state monitoring |
-| `@tanstack/query-async-storage-persister` | React Query cache persistence to SQLite |
-| `uuid` (v4) | Backup polyfill if `crypto.randomUUID()` unavailable |
+| Package                                   | Reason                                               |
+| ----------------------------------------- | ---------------------------------------------------- |
+| `@react-native-community/netinfo`         | Network state monitoring                             |
+| `@tanstack/query-async-storage-persister` | React Query cache persistence to SQLite              |
+| `uuid` (v4)                               | Backup polyfill if `crypto.randomUUID()` unavailable |
 
 ## Success Criteria
 

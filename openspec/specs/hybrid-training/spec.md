@@ -18,18 +18,18 @@ The Hybrid Coach approach emphasizes:
 
 ## The HYROX Race Format
 
-| Component | Details |
-|-----------|---------|
-| Total distance | 8 km (8 × 1 km runs) |
-| Stations | 8 functional fitness stations (1 between each km) |
-| Station 1 | SkiErg (1000 m) |
-| Station 2 | Sled Push (50 m) |
-| Station 3 | Sled Pull (50 m) |
-| Station 4 | Burpee Broad Jumps (80 m) |
-| Station 5 | Rowing Machine (1000 m) |
-| Station 6 | Farmers Carry (200 m) |
-| Station 7 | Sandbag Lunges (100 m) |
-| Station 8 | Wall Balls (75-100 reps) |
+| Component      | Details                                           |
+| -------------- | ------------------------------------------------- |
+| Total distance | 8 km (8 × 1 km runs)                              |
+| Stations       | 8 functional fitness stations (1 between each km) |
+| Station 1      | SkiErg (1000 m)                                   |
+| Station 2      | Sled Push (50 m)                                  |
+| Station 3      | Sled Pull (50 m)                                  |
+| Station 4      | Burpee Broad Jumps (80 m)                         |
+| Station 5      | Rowing Machine (1000 m)                           |
+| Station 6      | Farmers Carry (200 m)                             |
+| Station 7      | Sandbag Lunges (100 m)                            |
+| Station 8      | Wall Balls (75-100 reps)                          |
 
 ## Hybrid Training Principles
 
@@ -37,16 +37,16 @@ The Hybrid Coach approach emphasizes:
 
 Focus on max strength in the main lifts. Lower volume, higher intensity (RPE 7-9).
 
-| Week | Focus | Sets × Reps | Intensity |
-|------|-------|-------------|-----------|
-| 1 | Accumulation | 4 × 8 | RPE 7 |
-| 2 | Intensification | 5 × 5 | RPE 8 |
-| 3 | Peak | 4 × 3 | RPE 9 |
-| 4 | Deload | 3 × 5 | RPE 5-6 |
+| Week | Focus           | Sets × Reps | Intensity |
+| ---- | --------------- | ----------- | --------- |
+| 1    | Accumulation    | 4 × 8       | RPE 7     |
+| 2    | Intensification | 5 × 5       | RPE 8     |
+| 3    | Peak            | 4 × 3       | RPE 9     |
+| 4    | Deload          | 3 × 5       | RPE 5-6   |
 
 ### 2. Hybrid Blocks (4-6 weeks)
 
-Strength work followed by a conditioning piece in the same session. 
+Strength work followed by a conditioning piece in the same session.
 
 Template: **Strength work** (20-30 min) → **Conditioning** (10-20 min)
 
@@ -60,16 +60,16 @@ Race-practice sessions mimicking the HYROX format.
 
 ### Key Exercise Categories
 
-| Category | Examples | Purpose |
-|----------|----------|---------|
-| Main lifts | Squat, Deadlift, Bench, OHP, Barbell Row | Strength foundation |
-| Strength accessories | RDL, Bulgarian Split Squat, Pull Ups, Dips | Muscle balance, injury prevention |
-| Power | Power Clean, Hang Clean, Push Jerk | Rate of force development |
-| Sled work | Sled Push, Sled Pull | Leg drive, conditioning |
-| Carry | Farmers Carry, Suitcase Carry, Waiter Walk | Grip, core, work capacity |
-| Monosteady cardio | Run, Rower, SkiErg, Assault Bike | Aerobic base |
-| HYROX stations | Wall Balls, Burpee Broad Jumps, Sandbag Lunges, Farmers Carry | Race-specific |
-| Intervals | 400m repeats, 1km repeats, Tabata row | Speed, lactate tolerance |
+| Category             | Examples                                                      | Purpose                           |
+| -------------------- | ------------------------------------------------------------- | --------------------------------- |
+| Main lifts           | Squat, Deadlift, Bench, OHP, Barbell Row                      | Strength foundation               |
+| Strength accessories | RDL, Bulgarian Split Squat, Pull Ups, Dips                    | Muscle balance, injury prevention |
+| Power                | Power Clean, Hang Clean, Push Jerk                            | Rate of force development         |
+| Sled work            | Sled Push, Sled Pull                                          | Leg drive, conditioning           |
+| Carry                | Farmers Carry, Suitcase Carry, Waiter Walk                    | Grip, core, work capacity         |
+| Monosteady cardio    | Run, Rower, SkiErg, Assault Bike                              | Aerobic base                      |
+| HYROX stations       | Wall Balls, Burpee Broad Jumps, Sandbag Lunges, Farmers Carry | Race-specific                     |
+| Intervals            | 400m repeats, 1km repeats, Tabata row                         | Speed, lactate tolerance          |
 
 ## Session Templates
 
@@ -121,9 +121,9 @@ Min 4: Rest
 
 ## Periodization Example (12-week HYROX prep)
 
-| Weeks | Block | Focus |
-|-------|-------|-------|
-| 1-4 | Strength Foundation | Main lifts 4×8→5×5, easy runs 2×/week |
-| 5-8 | Hybrid Build | Strength + conditioning in same session, HYROX stations, tempo runs |
-| 9-11 | Race Specific | Full HYROX simulations, wall ball volume, sled work |
-| 12 | Taper/Deload | Reduced volume, race pace practice |
+| Weeks | Block               | Focus                                                               |
+| ----- | ------------------- | ------------------------------------------------------------------- |
+| 1-4   | Strength Foundation | Main lifts 4×8→5×5, easy runs 2×/week                               |
+| 5-8   | Hybrid Build        | Strength + conditioning in same session, HYROX stations, tempo runs |
+| 9-11  | Race Specific       | Full HYROX simulations, wall ball volume, sled work                 |
+| 12    | Taper/Deload        | Reduced volume, race pace practice                                  |

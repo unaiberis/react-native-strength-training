@@ -5,10 +5,10 @@
  * enqueues the corresponding change for later sync.
  */
 
-import type { SQLiteDatabase, SQLiteBindValue } from "expo-sqlite";
-import type { ChangeQueue } from "../change-queue";
-import { generateId } from "../uuid";
-import type { WorkoutTemplateRow, WorkoutTemplateExerciseRow } from "../types";
+import type { SQLiteDatabase, SQLiteBindValue } from 'expo-sqlite';
+import type { ChangeQueue } from '../change-queue';
+import { generateId } from '../uuid';
+import type { WorkoutTemplateRow, WorkoutTemplateExerciseRow } from '../types';
 
 export interface CreateTemplateInput {
   userId: string;
@@ -35,7 +35,7 @@ export interface TemplateExerciseInput {
 export class OfflineTemplatesService {
   constructor(
     private db: SQLiteDatabase,
-    private changeQueue: ChangeQueue,
+    private changeQueue: ChangeQueue
   ) {}
 
   /**
@@ -46,7 +46,7 @@ export class OfflineTemplatesService {
    * data.
    */
   async createTemplate(
-    input: CreateTemplateInput,
+    input: CreateTemplateInput
   ): Promise<WorkoutTemplateRow> {
     const id = generateId();
     const now = new Date().toISOString();
@@ -56,7 +56,7 @@ export class OfflineTemplatesService {
     await this.db.runAsync(
       `INSERT INTO workout_templates (id, local_id, user_id, name, description, is_public, dirty, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, 0, 1, ?, ?)`,
-      [id, id, input.userId, input.name, input.description ?? null, now, now],
+      [id, id, input.userId, input.name, input.description ?? null, now, now]
     );
 
     // Insert template exercises
@@ -75,14 +75,14 @@ export class OfflineTemplatesService {
           ex.targetReps ?? 10,
           ex.restSeconds ?? 90,
           ex.notes ?? null,
-        ],
+        ]
       );
     }
 
     // Enqueue the CREATE change
     await this.changeQueue.enqueue({
-      action: "create",
-      collection: "workout_templates",
+      action: 'create',
+      collection: 'workout_templates',
       localId: id,
       data: {
         user_id: input.userId,
@@ -119,37 +119,34 @@ export class OfflineTemplatesService {
    *
    * Updates the local row and enqueues an UPDATE change.
    */
-  async updateTemplate(
-    id: string,
-    input: UpdateTemplateInput,
-  ): Promise<void> {
+  async updateTemplate(id: string, input: UpdateTemplateInput): Promise<void> {
     const now = new Date().toISOString();
     const sets: string[] = [];
     const values: SQLiteBindValue[] = [];
 
     if (input.name !== undefined) {
-      sets.push("name = ?");
+      sets.push('name = ?');
       values.push(input.name);
     }
     if (input.description !== undefined) {
-      sets.push("description = ?");
+      sets.push('description = ?');
       values.push(input.description);
     }
 
-    sets.push("updated_at = ?");
+    sets.push('updated_at = ?');
     values.push(now);
 
-    sets.push("dirty = 1");
+    sets.push('dirty = 1');
 
     values.push(id);
     await this.db.runAsync(
-      `UPDATE workout_templates SET ${sets.join(", ")} WHERE id = ?`,
-      values,
+      `UPDATE workout_templates SET ${sets.join(', ')} WHERE id = ?`,
+      values
     );
 
     await this.changeQueue.enqueue({
-      action: "update",
-      collection: "workout_templates",
+      action: 'update',
+      collection: 'workout_templates',
       recordId: id,
       data: {
         name: input.name,
@@ -167,19 +164,16 @@ export class OfflineTemplatesService {
   async deleteTemplate(id: string): Promise<void> {
     // Delete child rows first (FK constraint)
     await this.db.runAsync(
-      "DELETE FROM workout_template_exercises WHERE template_id = ?",
-      [id],
+      'DELETE FROM workout_template_exercises WHERE template_id = ?',
+      [id]
     );
 
     // Delete the template itself
-    await this.db.runAsync(
-      "DELETE FROM workout_templates WHERE id = ?",
-      [id],
-    );
+    await this.db.runAsync('DELETE FROM workout_templates WHERE id = ?', [id]);
 
     await this.changeQueue.enqueue({
-      action: "delete",
-      collection: "workout_templates",
+      action: 'delete',
+      collection: 'workout_templates',
       recordId: id,
     });
   }
@@ -189,7 +183,7 @@ export class OfflineTemplatesService {
    */
   async getTemplates(): Promise<WorkoutTemplateRow[]> {
     return this.db.getAllAsync<WorkoutTemplateRow>(
-      "SELECT * FROM workout_templates",
+      'SELECT * FROM workout_templates'
     );
   }
 
@@ -197,11 +191,11 @@ export class OfflineTemplatesService {
    * Retrieve all exercises for a template, ordered by sort_order.
    */
   async getTemplateExercises(
-    templateId: string,
+    templateId: string
   ): Promise<WorkoutTemplateExerciseRow[]> {
     return this.db.getAllAsync<WorkoutTemplateExerciseRow>(
-      "SELECT * FROM workout_template_exercises WHERE template_id = ? ORDER BY sort_order ASC",
-      [templateId],
+      'SELECT * FROM workout_template_exercises WHERE template_id = ? ORDER BY sort_order ASC',
+      [templateId]
     );
   }
 }

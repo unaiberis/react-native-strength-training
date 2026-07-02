@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 export const templateExerciseSchema = z.object({
   exerciseId: z.string().uuid(),
@@ -14,19 +14,21 @@ export const templateExerciseSchema = z.object({
 export const workoutTemplateSchema = z.object({
   name: z
     .string()
-    .min(1, "Template name is required")
-    .max(100, "Name must be 100 characters or less"),
+    .min(1, 'Template name is required')
+    .max(100, 'Name must be 100 characters or less'),
   description: z.string().max(500).optional().nullable(),
   programBlockId: z.string().uuid().optional().nullable(),
   isPublic: z.boolean().default(false),
-  exercises: z.array(templateExerciseSchema).min(1, "At least one exercise is required"),
+  exercises: z
+    .array(templateExerciseSchema)
+    .min(1, 'At least one exercise is required'),
 });
 
 export type TemplateExerciseInput = z.infer<typeof templateExerciseSchema>;
 export type WorkoutTemplateInput = z.infer<typeof workoutTemplateSchema>;
 
 export const templateDefaults: WorkoutTemplateInput = {
-  name: "",
+  name: '',
   description: null,
   programBlockId: null,
   isPublic: false,

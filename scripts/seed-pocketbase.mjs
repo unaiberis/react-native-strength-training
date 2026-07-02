@@ -26,10 +26,10 @@ const ROOT = join(__dirname, '..');
 // ---------------------------------------------------------------------------
 // Configuration
 // ---------------------------------------------------------------------------
-const PB_URL       = process.env.PB_URL       || 'http://127.0.0.1:8090';
-const ADMIN_EMAIL  = process.env.PB_ADMIN_EMAIL  || 'aitor@musikak.com';
-const ADMIN_PASS   = process.env.PB_ADMIN_PASS   || 'entrenamentua2026';
-const SEED_FILE    = process.env.SEED_FILE || join(ROOT, 'supabase', 'seed.sql');
+const PB_URL = process.env.PB_URL || 'http://127.0.0.1:8090';
+const ADMIN_EMAIL = process.env.PB_ADMIN_EMAIL || 'aitor@musikak.com';
+const ADMIN_PASS = process.env.PB_ADMIN_PASS || 'entrenamentua2026';
+const SEED_FILE = process.env.SEED_FILE || join(ROOT, 'supabase', 'seed.sql');
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -72,15 +72,17 @@ function parseExercises(sql) {
     /INSERT\s+INTO\s+exercises\s*\(([^)]+)\)\s*VALUES\s*([\s\S]*?);/
   );
   if (!match) {
-    throw new Error('Could not find INSERT INTO exercises statement in seed.sql');
+    throw new Error(
+      'Could not find INSERT INTO exercises statement in seed.sql'
+    );
   }
 
-  const columns     = match[1].split(',').map((c) => c.trim());
+  const columns = match[1].split(',').map((c) => c.trim());
   const valuesBlock = match[2].trim();
 
   // ---- Split into individual row strings by tracking paren depth ----
   const rowTexts = [];
-  let depth    = 0;
+  let depth = 0;
   let rowStart = -1;
 
   for (let i = 0; i < valuesBlock.length; i++) {
@@ -88,7 +90,7 @@ function parseExercises(sql) {
 
     if (ch === '(' && depth === 0) {
       rowStart = i + 1;
-      depth    = 1;
+      depth = 1;
     } else if (ch === '(') {
       depth++;
     } else if (ch === ')') {
@@ -103,9 +105,9 @@ function parseExercises(sql) {
   // ---- Parse comma-separated values inside each row ----
   function parseRowValues(text) {
     const raw = [];
-    let buf    = '';
-    let depth  = 0;
-    let inStr  = false;
+    let buf = '';
+    let depth = 0;
+    let inStr = false;
 
     for (const ch of text) {
       if (ch === "'" && !inStr) {
@@ -162,21 +164,21 @@ async function seedExercises(token, exercises) {
   const url = `${PB_URL}/api/collections/exercises/records`;
   let created = 0;
   let skipped = 0;
-  let errors  = 0;
+  let errors = 0;
 
   for (let i = 0; i < exercises.length; i++) {
     const ex = exercises[i];
 
     const body = {
-      name:               ex.name,
-      category:           ex.category,
-      equipment:          JSON.stringify(ex.equipment || []),
-      body_region:        ex.body_region,
-      description:        ex.description || '',
-      default_sets:       ex.default_sets ?? 3,
-      default_reps:       ex.default_reps ?? 10,
+      name: ex.name,
+      category: ex.category,
+      equipment: JSON.stringify(ex.equipment || []),
+      body_region: ex.body_region,
+      description: ex.description || '',
+      default_sets: ex.default_sets ?? 3,
+      default_reps: ex.default_reps ?? 10,
       default_rest_seconds: ex.default_rest_seconds ?? 90,
-      is_public:          true,
+      is_public: true,
     };
 
     try {
@@ -191,25 +193,35 @@ async function seedExercises(token, exercises) {
 
       if (res.ok) {
         created++;
-        process.stdout.write(`\r  ✓ [${i + 1}/${exercises.length}] ${ex.name}          `);
+        process.stdout.write(
+          `\r  ✓ [${i + 1}/${exercises.length}] ${ex.name}          `
+        );
       } else if (res.status === 409) {
         skipped++;
-        process.stdout.write(`\r  – [${i + 1}/${exercises.length}] ${ex.name} (exists)  `);
+        process.stdout.write(
+          `\r  – [${i + 1}/${exercises.length}] ${ex.name} (exists)  `
+        );
       } else {
         // Treat "not unique" as already-exists (idempotent re-run)
         const text = await res.text();
         const isDuplicate = text.includes('validation_not_unique');
         if (isDuplicate) {
           skipped++;
-          process.stdout.write(`\r  – [${i + 1}/${exercises.length}] ${ex.name} (exists)  `);
+          process.stdout.write(
+            `\r  – [${i + 1}/${exercises.length}] ${ex.name} (exists)  `
+          );
         } else {
           errors++;
-          process.stdout.write(`\n  ✗ [${i + 1}/${exercises.length}] ${ex.name}: ${res.status} ${text}\n`);
+          process.stdout.write(
+            `\n  ✗ [${i + 1}/${exercises.length}] ${ex.name}: ${res.status} ${text}\n`
+          );
         }
       }
     } catch (err) {
       errors++;
-      process.stdout.write(`\n  ✗ [${i + 1}/${exercises.length}] ${ex.name}: ${err.message}\n`);
+      process.stdout.write(
+        `\n  ✗ [${i + 1}/${exercises.length}] ${ex.name}: ${err.message}\n`
+      );
     }
 
     // Small delay between requests
@@ -238,7 +250,9 @@ async function deleteTestCollection(token) {
       console.log('  – Test collection not found (nothing to delete)');
       return true;
     }
-    console.log(`  ⚠ Failed to delete test collection: ${res.status} ${await res.text()}`);
+    console.log(
+      `  ⚠ Failed to delete test collection: ${res.status} ${await res.text()}`
+    );
     return false;
   } catch (err) {
     console.log(`  ⚠ Error deleting test collection: ${err.message}`);
@@ -263,7 +277,7 @@ async function main() {
 
   // 2. Parse exercises from seed.sql
   process.stdout.write(`📖 Reading ${SEED_FILE} … `);
-  const sql       = readFileSync(SEED_FILE, 'utf-8');
+  const sql = readFileSync(SEED_FILE, 'utf-8');
   const exercises = parseExercises(sql);
   console.log(`found ${exercises.length} exercises`);
 

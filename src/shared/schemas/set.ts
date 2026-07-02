@@ -1,19 +1,17 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 export const setEntrySchema = z.object({
   setNumber: z.number().int().min(1),
   weightKg: z.number().min(0).max(9999.99).default(0),
   reps: z.number().int().min(0).max(999).default(1),
-  rpe: z
-    .number()
-    .min(1)
-    .max(10)
-    .multipleOf(0.5)
-    .optional()
-    .nullable(),
+  rpe: z.number().min(1).max(10).multipleOf(0.5).optional().nullable(),
   rir: z.number().int().min(0).max(10).optional().nullable(),
   isWarmup: z.boolean().default(false),
-  tempo: z.string().regex(/^\d{3,4}$/).optional().nullable(),
+  tempo: z
+    .string()
+    .regex(/^\d{3,4}$/)
+    .optional()
+    .nullable(),
 });
 
 export const logSetSchema = z.object({
@@ -22,16 +20,14 @@ export const logSetSchema = z.object({
   setNumber: z.number().int().min(1),
   weightKg: z.number().min(0).max(9999.99),
   reps: z.number().int().min(0).max(999),
-  rpe: z
-    .number()
-    .min(1)
-    .max(10)
-    .multipleOf(0.5)
-    .optional()
-    .nullable(),
+  rpe: z.number().min(1).max(10).multipleOf(0.5).optional().nullable(),
   rir: z.number().int().min(0).max(10).optional().nullable(),
   isWarmup: z.boolean().default(false),
-  tempo: z.string().regex(/^\d{3,4}$/).optional().nullable(),
+  tempo: z
+    .string()
+    .regex(/^\d{3,4}$/)
+    .optional()
+    .nullable(),
 });
 
 export const completeSessionSchema = z.object({

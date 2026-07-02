@@ -7,13 +7,10 @@
 
 // ─── Queue Types ────────────────────────────────────────────────────────
 
-export type QueueAction = "create" | "update" | "delete";
+export type QueueAction = 'create' | 'update' | 'delete';
 
 export type QueueStatus =
-  | "pending"
-  | "in_flight"
-  | "dead_letter"
-  | "auth_error";
+  'pending' | 'in_flight' | 'dead_letter' | 'auth_error';
 
 export interface QueueEntry {
   id: number;
@@ -32,12 +29,12 @@ export interface QueueEntry {
 // ─── Sync Events ────────────────────────────────────────────────────────
 
 export type SyncEventType =
-  | "SYNC_START"
-  | "SYNC_COMPLETE"
-  | "SYNC_PARTIAL"
-  | "AUTH_EXPIRED"
-  | "AUTH_CLEARED"
-  | "DEAD_LETTER";
+  | 'SYNC_START'
+  | 'SYNC_COMPLETE'
+  | 'SYNC_PARTIAL'
+  | 'AUTH_EXPIRED'
+  | 'AUTH_CLEARED'
+  | 'DEAD_LETTER';
 
 export interface SyncEvent {
   type: SyncEventType;

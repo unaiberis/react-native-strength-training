@@ -2,14 +2,14 @@
 
 ## Review Workload Forecast
 
-| Field | Value |
-|-------|-------|
-| Estimated changed lines | 1000-1500 |
-| 400-line budget risk | High |
-| Chained PRs recommended | Yes |
-| Suggested split | PR 1: Foundation → PR 2: Data Layer → PR 3: Integration |
-| Delivery strategy | force-chained |
-| Chain strategy | stacked-to-main |
+| Field                   | Value                                                   |
+| ----------------------- | ------------------------------------------------------- |
+| Estimated changed lines | 1000-1500                                               |
+| 400-line budget risk    | High                                                    |
+| Chained PRs recommended | Yes                                                     |
+| Suggested split         | PR 1: Foundation → PR 2: Data Layer → PR 3: Integration |
+| Delivery strategy       | force-chained                                           |
+| Chain strategy          | stacked-to-main                                         |
 
 Decision needed before apply: No
 Chained PRs recommended: Yes
@@ -18,11 +18,11 @@ Chain strategy: stacked-to-main
 
 ### Suggested Work Units
 
-| Unit | Goal | Likely PR | Base |
-|------|------|-----------|------|
-| 1 | Core DB infra + deps + network monitor | PR 1 | main |
-| 2 | Change queue, sync engine, ID mapping, offline services | PR 2 | main |
-| 3 | Persister, app init, store wiring, auth hardening | PR 3 | main |
+| Unit | Goal                                                    | Likely PR | Base |
+| ---- | ------------------------------------------------------- | --------- | ---- |
+| 1    | Core DB infra + deps + network monitor                  | PR 1      | main |
+| 2    | Change queue, sync engine, ID mapping, offline services | PR 2      | main |
+| 3    | Persister, app init, store wiring, auth hardening       | PR 3      | main |
 
 ## Phase 1: Foundation — DB Infra, Dependencies, Network Monitor
 

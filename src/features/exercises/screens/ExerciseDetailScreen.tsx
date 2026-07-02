@@ -1,7 +1,7 @@
-import { ScrollView, View, Text, ActivityIndicator } from "react-native";
-import { useLocalSearchParams } from "expo-router";
-import { Card } from "../../../shared/ui/Card";
-import { useExercise } from "../hooks/useExercises";
+import { ScrollView, View, Text, ActivityIndicator } from 'react-native';
+import { useLocalSearchParams } from 'expo-router';
+import { Card } from '../../../shared/ui/Card';
+import { useExercise } from '../hooks/useExercises';
 
 export function ExerciseDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -19,19 +19,31 @@ export function ExerciseDetailScreen() {
     return (
       <View className="flex-1 bg-surface-950 items-center justify-center px-4">
         <Text className="text-surface-400 text-base">
-          {error ? (error as Error).message : "Exercise not found"}
+          {error ? error.message : 'Exercise not found'}
         </Text>
       </View>
     );
   }
 
   const detailRows = [
-    { label: "Category", value: exercise.category.charAt(0).toUpperCase() + exercise.category.slice(1) },
-    { label: "Body Region", value: exercise.body_region ? exercise.body_region.replace(/_/g, " ") : "—" },
-    { label: "Equipment", value: exercise.equipment?.length ? exercise.equipment.join(", ") : "—" },
-    { label: "Default Sets", value: String(exercise.default_sets) },
-    { label: "Default Reps", value: String(exercise.default_reps) },
-    { label: "Rest Interval", value: `${exercise.default_rest_seconds}s` },
+    {
+      label: 'Category',
+      value:
+        exercise.category.charAt(0).toUpperCase() + exercise.category.slice(1),
+    },
+    {
+      label: 'Body Region',
+      value: exercise.body_region
+        ? exercise.body_region.replace(/_/g, ' ')
+        : '—',
+    },
+    {
+      label: 'Equipment',
+      value: exercise.equipment?.length ? exercise.equipment.join(', ') : '—',
+    },
+    { label: 'Default Sets', value: String(exercise.default_sets) },
+    { label: 'Default Reps', value: String(exercise.default_reps) },
+    { label: 'Rest Interval', value: `${exercise.default_rest_seconds}s` },
   ];
 
   return (
@@ -51,7 +63,7 @@ export function ExerciseDetailScreen() {
         {exercise.body_region && (
           <View className="bg-surface-800 rounded-full px-3 py-1">
             <Text className="text-surface-300 text-sm capitalize">
-              {exercise.body_region.replace("_", " ")}
+              {exercise.body_region.replace('_', ' ')}
             </Text>
           </View>
         )}

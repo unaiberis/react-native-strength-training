@@ -1,32 +1,32 @@
-import { useCallback } from "react";
+import { useCallback } from 'react';
 import {
   View,
   Text,
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
-} from "react-native";
-import { useRouter } from "expo-router";
-import { Card } from "../../src/shared/ui/Card";
-import { Button } from "../../src/shared/ui/Button";
-import { useTemplates } from "../../src/features/routines/hooks/useTemplates";
+} from 'react-native';
+import { useRouter } from 'expo-router';
+import { Card } from '../../src/shared/ui/Card';
+import { Button } from '../../src/shared/ui/Button';
+import { useTemplates } from '../../src/features/routines/hooks/useTemplates';
 
 export default function TrainScreen() {
   const router = useRouter();
   const { data: templates, isLoading } = useTemplates();
 
   const handleBlankWorkout = useCallback(() => {
-    router.push("/(workout)/active?mode=blank");
+    router.push('/(workout)/active?mode=blank');
   }, [router]);
 
   const handleStartRoutine = useCallback(
     (templateId: string) => {
       router.push({
-        pathname: "/(workout)/active",
-        params: { mode: "routine", templateId },
+        pathname: '/(workout)/active',
+        params: { mode: 'routine', templateId },
       });
     },
-    [router],
+    [router]
   );
 
   return (
@@ -52,7 +52,7 @@ export default function TrainScreen() {
             title="Browse Exercises"
             variant="primary"
             className="flex-1"
-            onPress={() => router.push("/exercises")}
+            onPress={() => router.push('/exercises')}
           />
         </View>
       </Card>
@@ -60,7 +60,9 @@ export default function TrainScreen() {
       {/* Quick links */}
       <View className="flex-row gap-3 mb-4">
         <TouchableOpacity
-          onPress={() => router.push("/routines")}
+          onPress={() => router.push('/routines')}
+          accessibilityRole="button"
+          accessibilityLabel="My Routines, View and manage"
           className="flex-1 bg-surface-900 rounded-2xl p-4 border border-surface-800 active:opacity-80"
         >
           <Text className="text-2xl mb-1">📋</Text>
@@ -73,7 +75,9 @@ export default function TrainScreen() {
         </TouchableOpacity>
 
         <TouchableOpacity
-          onPress={() => router.push("/routines/new")}
+          onPress={() => router.push('/routines/new')}
+          accessibilityRole="button"
+          accessibilityLabel="New Routine, Create template"
           className="flex-1 bg-surface-900 rounded-2xl p-4 border border-surface-800 active:opacity-80"
         >
           <Text className="text-2xl mb-1">➕</Text>
@@ -109,6 +113,8 @@ export default function TrainScreen() {
         <TouchableOpacity
           key={template.id}
           onPress={() => handleStartRoutine(template.id)}
+          accessibilityRole="button"
+          accessibilityLabel={`${template.name}, Start routine`}
           className="bg-surface-900 rounded-xl p-4 mb-3 border border-surface-800 active:opacity-80"
         >
           <Text className="text-surface-100 text-base font-semibold mb-1">
@@ -121,7 +127,7 @@ export default function TrainScreen() {
           )}
           <Text className="text-surface-500 text-xs">
             {template.exercises.length} exercise
-            {template.exercises.length !== 1 ? "s" : ""}
+            {template.exercises.length !== 1 ? 's' : ''}
           </Text>
         </TouchableOpacity>
       ))}

@@ -2,14 +2,14 @@
 
 ## Review Workload Forecast
 
-| Field | Value |
-|-------|-------|
-| Estimated changed lines | ~2,950 (55 files, greenfield) |
-| 400-line budget risk | High |
-| Chained PRs recommended | Yes |
-| Suggested split | PR 1: Foundation+Auth → PR 2: Exercises+Routines → PR 3: Workout Execution → PR 4: History+PRs → PR 5: Testing |
-| Delivery strategy | auto-forecast |
-| Chain strategy | stacked-to-main |
+| Field                   | Value                                                                                                          |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Estimated changed lines | ~2,950 (55 files, greenfield)                                                                                  |
+| 400-line budget risk    | High                                                                                                           |
+| Chained PRs recommended | Yes                                                                                                            |
+| Suggested split         | PR 1: Foundation+Auth → PR 2: Exercises+Routines → PR 3: Workout Execution → PR 4: History+PRs → PR 5: Testing |
+| Delivery strategy       | auto-forecast                                                                                                  |
+| Chain strategy          | stacked-to-main                                                                                                |
 
 ```
 Decision needed before apply: Yes
@@ -20,13 +20,13 @@ Chain strategy: stacked-to-main
 
 ### Suggested Work Units
 
-| Unit | Goal | Likely PR | Notes |
-|------|------|-----------|-------|
-| 1 | Expo scaffold, Supabase, DB schema, nav shell, auth | PR 1 | Base = main. ~800 lines |
-| 2 | Exercise library, routine builder | PR 2 | Base = PR 1. ~600 lines |
-| 3 | Workout execution (start, log sets, rest timer, complete) | PR 3 | Base = PR 2. ~500 lines |
-| 4 | History list/detail, PR auto-detect + display | PR 4 | Base = PR 3. ~400 lines |
-| 5 | Unit, integration, RLS, E2E critical-path tests | PR 5 | Base = PR 4. ~600 lines |
+| Unit | Goal                                                      | Likely PR | Notes                   |
+| ---- | --------------------------------------------------------- | --------- | ----------------------- |
+| 1    | Expo scaffold, Supabase, DB schema, nav shell, auth       | PR 1      | Base = main. ~800 lines |
+| 2    | Exercise library, routine builder                         | PR 2      | Base = PR 1. ~600 lines |
+| 3    | Workout execution (start, log sets, rest timer, complete) | PR 3      | Base = PR 2. ~500 lines |
+| 4    | History list/detail, PR auto-detect + display             | PR 4      | Base = PR 3. ~400 lines |
+| 5    | Unit, integration, RLS, E2E critical-path tests           | PR 5      | Base = PR 4. ~600 lines |
 
 ## Phase 1: Foundation
 

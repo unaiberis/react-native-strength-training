@@ -1,36 +1,50 @@
 // Mock pocketbase BEFORE any imports so the module under test
 // gets the fake version instead of trying to load ESM
-jest.mock("pocketbase", () => {
+jest.mock('pocketbase', () => {
   class MockBaseAuthStore {
-    private _token = "";
+    private _token = '';
     private _model: any = null;
-    private _onChangeCallbacks: Array<(token: string, record: any) => void> = [];
+    private _onChangeCallbacks: Array<(token: string, record: any) => void> =
+      [];
 
-    get token() { return this._token; }
-    get record() { return this._model; }
-    get model() { return this._model; }
+    get token() {
+      return this._token;
+    }
+    get record() {
+      return this._model;
+    }
+    get model() {
+      return this._model;
+    }
     get isValid() {
       if (!this._token) return false;
       try {
-        const payload = JSON.parse(atob(this._token.split(".")[1]));
+        const payload = JSON.parse(atob(this._token.split('.')[1]));
         return !payload.exp || payload.exp * 1000 > Date.now();
-      } catch { return !!this._token; }
+      } catch {
+        return !!this._token;
+      }
     }
-    get isSuperuser() { return false; }
+    get isSuperuser() {
+      return false;
+    }
 
     save(token: string, record?: any) {
-      this._token = token || "";
+      this._token = token || '';
       this._model = record || null;
       this.triggerChange();
     }
 
     clear() {
-      this._token = "";
+      this._token = '';
       this._model = null;
       this.triggerChange();
     }
 
-    onChange(cb: (token: string, record: any) => void, fireImmediately = false) {
+    onChange(
+      cb: (token: string, record: any) => void,
+      fireImmediately = false
+    ) {
       this._onChangeCallbacks.push(cb);
       if (fireImmediately) cb(this._token, this._model);
       return () => {
@@ -44,7 +58,7 @@ jest.mock("pocketbase", () => {
     }
 
     loadFromCookie = jest.fn();
-    exportToCookie = jest.fn(() => "");
+    exportToCookie = jest.fn(() => '');
   }
 
   return {
@@ -71,7 +85,7 @@ jest.mock("pocketbase", () => {
       filter: jest.fn((s) => s),
       buildURL: jest.fn((s) => s),
       send: jest.fn(),
-      lang: "en-US",
+      lang: 'en-US',
       settings: {},
       collections: {},
       files: {},
@@ -98,138 +112,141 @@ jest.mock("pocketbase", () => {
   };
 });
 
-describe("PocketBase client", () => {
+describe('PocketBase client', () => {
   beforeEach(() => {
     delete process.env.EXPO_PUBLIC_POCKETBASE_URL;
     jest.resetModules();
     jest.clearAllMocks();
   });
 
-  it("creates a mock client when EXPO_PUBLIC_POCKETBASE_URL is empty", async () => {
-    const { pb } = await import("../client");
+  it('creates a mock client when EXPO_PUBLIC_POCKETBASE_URL is empty', async () => {
+    const { pb } = await import('../client');
     expect(pb).toBeDefined();
-    expect(pb.baseURL).toBe("");
+    expect(pb.baseURL).toBe('');
   });
 
-  it("mock client authStore has valid token/model shape", async () => {
-    const { pb } = await import("../client");
+  it('mock client authStore has valid token/model shape', async () => {
+    const { pb } = await import('../client');
     const store = pb.authStore;
-    expect(typeof store.isValid).toBe("boolean");
-    expect(typeof store.token).toBe("string");
-    expect("model" in store).toBe(true);
+    expect(typeof store.isValid).toBe('boolean');
+    expect(typeof store.token).toBe('string');
+    expect('model' in store).toBe(true);
   });
 
-  it("mock client supports collection() which returns a RecordService-like object", async () => {
-    const { pb } = await import("../client");
-    const users = pb.collection("users");
+  it('mock client supports collection() which returns a RecordService-like object', async () => {
+    const { pb } = await import('../client');
+    const users = pb.collection('users');
     expect(users).toBeDefined();
-    expect(typeof users.authWithPassword).toBe("function");
-    expect(typeof users.create).toBe("function");
-    expect(typeof users.authRefresh).toBe("function");
-    expect(typeof users.getList).toBe("function");
+    expect(typeof users.authWithPassword).toBe('function');
+    expect(typeof users.create).toBe('function');
+    expect(typeof users.authRefresh).toBe('function');
+    expect(typeof users.getList).toBe('function');
   });
 
-  it("mock client collection() auth methods return empty results", async () => {
-    const { pb } = await import("../client");
-    const users = pb.collection("users");
+  it('mock client collection() auth methods return empty results', async () => {
+    const { pb } = await import('../client');
+    const users = pb.collection('users');
 
-    const authResult = await users.authWithPassword("test@test.com", "pass");
+    const authResult = await users.authWithPassword('test@test.com', 'pass');
     expect(authResult).toBeDefined();
     expect(authResult.record).toBeNull();
-    expect(authResult.token).toBe("");
+    expect(authResult.token).toBe('');
 
-    const createResult = await users.create({ email: "test@test.com" });
+    const createResult = await users.create({ email: 'test@test.com' });
     expect(createResult).toBeDefined();
     expect(createResult).toBeNull();
   });
 
-  it("mock client CRUD methods return empty results", async () => {
-    const { pb } = await import("../client");
-    const coll = pb.collection("exercises");
+  it('mock client CRUD methods return empty results', async () => {
+    const { pb } = await import('../client');
+    const coll = pb.collection('exercises');
 
     const listResult = await coll.getList(1, 20);
     expect(listResult).toBeDefined();
     expect(listResult.items).toEqual([]);
     expect(listResult.totalItems).toBe(0);
 
-    const oneResult = await coll.getOne("abc");
+    const oneResult = await coll.getOne('abc');
     expect(oneResult).toBeNull();
   });
 
-  it("creates a real PocketBase client when EXPO_PUBLIC_POCKETBASE_URL is set", async () => {
-    process.env.EXPO_PUBLIC_POCKETBASE_URL = "http://127.0.0.1:8090";
+  it('creates a real PocketBase client when EXPO_PUBLIC_POCKETBASE_URL is set', async () => {
+    process.env.EXPO_PUBLIC_POCKETBASE_URL = 'http://127.0.0.1:8090';
 
-    const { pb } = await import("../client");
+    const { pb } = await import('../client');
     expect(pb).toBeDefined();
-    expect(pb.baseURL).toBe("http://127.0.0.1:8090");
+    expect(pb.baseURL).toBe('http://127.0.0.1:8090');
   });
 
-  it("ExpoSecureStoreAuth save persists to SecureStore and restores from it", async () => {
+  it('ExpoSecureStoreAuth save persists to SecureStore and restores from it', async () => {
     // Import SecureStore mock directly
-    const SecureStore = require("expo-secure-store");
+    const SecureStore = require('expo-secure-store');
 
-    const { ExpoSecureStoreAuth } = await import("../client");
+    const { ExpoSecureStoreAuth } = await import('../client');
     const authStore = new ExpoSecureStoreAuth();
 
     // Initially no token
     expect(authStore.isValid).toBe(false);
 
     // Save a token
-    authStore.save("test-token-123", { id: "user-1", email: "test@test.com" });
+    authStore.save('test-token-123', { id: 'user-1', email: 'test@test.com' });
 
     // Should have persisted to SecureStore
     expect(SecureStore.setItemAsync).toHaveBeenCalled();
 
     // After save, token should be set
-    expect(authStore.token).toBe("test-token-123");
+    expect(authStore.token).toBe('test-token-123');
     expect(authStore.isValid).toBe(true);
   });
 
-  it("ExpoSecureStoreAuth clear removes from SecureStore", async () => {
-    const SecureStore = require("expo-secure-store");
+  it('ExpoSecureStoreAuth clear removes from SecureStore', async () => {
+    const SecureStore = require('expo-secure-store');
 
-    const { ExpoSecureStoreAuth } = await import("../client");
+    const { ExpoSecureStoreAuth } = await import('../client');
     const authStore = new ExpoSecureStoreAuth();
 
-    authStore.save("tok-1", { id: "u1" });
+    authStore.save('tok-1', { id: 'u1' });
     expect(SecureStore.setItemAsync).toHaveBeenCalled();
-    expect(authStore.token).toBe("tok-1");
+    expect(authStore.token).toBe('tok-1');
 
     // Clear
     authStore.clear();
     expect(SecureStore.deleteItemAsync).toHaveBeenCalled();
-    expect(authStore.token).toBe("");
+    expect(authStore.token).toBe('');
     expect(authStore.isValid).toBe(false);
   });
 
-  it("ExpoSecureStoreAuth onChange fires on save and clear", async () => {
-    const { ExpoSecureStoreAuth } = await import("../client");
+  it('ExpoSecureStoreAuth onChange fires on save and clear', async () => {
+    const { ExpoSecureStoreAuth } = await import('../client');
     const authStore = new ExpoSecureStoreAuth();
 
     const callback = jest.fn();
     authStore.onChange(callback, false);
 
-    authStore.save("tok-2", { id: "u2" });
-    expect(callback).toHaveBeenCalledWith("tok-2", expect.objectContaining({ id: "u2" }));
+    authStore.save('tok-2', { id: 'u2' });
+    expect(callback).toHaveBeenCalledWith(
+      'tok-2',
+      expect.objectContaining({ id: 'u2' })
+    );
 
     jest.clearAllMocks();
     authStore.clear();
-    expect(callback).toHaveBeenCalledWith("", null);
+    expect(callback).toHaveBeenCalledWith('', null);
   });
 
-  it("ExpoSecureStoreAuth handles SecureStore errors gracefully", async () => {
-    const SecureStore = require("expo-secure-store");
-    SecureStore.setItemAsync.mockRejectedValueOnce(new Error("Storage full"));
+  it('ExpoSecureStoreAuth handles SecureStore errors gracefully', async () => {
+    const SecureStore = require('expo-secure-store');
+    SecureStore.setItemAsync.mockRejectedValueOnce(new Error('Storage full'));
 
-    const { ExpoSecureStoreAuth } = await import("../client");
+    const { ExpoSecureStoreAuth } = await import('../client');
     const authStore = new ExpoSecureStoreAuth();
 
     // Should not throw — best-effort persistence
     expect(() => {
-      authStore.save("tok-3", { id: "u3" });
+      authStore.save('tok-3', { id: 'u3' });
     }).not.toThrow();
 
     // In-memory state should still be updated even if SecureStore fails
-    expect(authStore.token).toBe("tok-3");
+    expect(authStore.token).toBe('tok-3');
   });
 });

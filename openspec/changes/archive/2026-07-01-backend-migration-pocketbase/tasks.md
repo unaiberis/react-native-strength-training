@@ -2,15 +2,15 @@
 
 ## Review Workload Forecast
 
-| Field | Value |
-|-------|-------|
-| Estimated changed lines | ~1,100 |
-| 400-line budget risk | High |
-| Chained PRs recommended | Yes |
-| Suggested split | PR 1 → PR 2 → PR 3 → PR 4 |
-| Delivery strategy | auto-chain |
-| Chain strategy | feature-branch-chain |
-| Feature branch | `chore/backend-migration-pocketbase` |
+| Field                   | Value                                |
+| ----------------------- | ------------------------------------ |
+| Estimated changed lines | ~1,100                               |
+| 400-line budget risk    | High                                 |
+| Chained PRs recommended | Yes                                  |
+| Suggested split         | PR 1 → PR 2 → PR 3 → PR 4            |
+| Delivery strategy       | auto-chain                           |
+| Chain strategy          | feature-branch-chain                 |
+| Feature branch          | `chore/backend-migration-pocketbase` |
 
 Decision needed before apply: No
 Chained PRs recommended: Yes
@@ -19,12 +19,12 @@ Chain strategy: feature-branch-chain
 
 ### Suggested Work Units
 
-| Unit | Goal | Likely PR | Notes |
-|------|------|-----------|-------|
-| 1 | Core types + client + auth service | PR 1 | Base = `chore/backend-migration-pocketbase` |
-| 2 | Data services (exercises, templates, sessions, PRs) | PR 2 | Base = PR 1 branch |
-| 3 | Integration (hooks, screens, stores, test mocks) | PR 3 | Base = PR 2 branch |
-| 4 | Seed script + PocketBase cleanup | PR 4 | Base = PR 3 branch |
+| Unit | Goal                                                | Likely PR | Notes                                       |
+| ---- | --------------------------------------------------- | --------- | ------------------------------------------- |
+| 1    | Core types + client + auth service                  | PR 1      | Base = `chore/backend-migration-pocketbase` |
+| 2    | Data services (exercises, templates, sessions, PRs) | PR 2      | Base = PR 1 branch                          |
+| 3    | Integration (hooks, screens, stores, test mocks)    | PR 3      | Base = PR 2 branch                          |
+| 4    | Seed script + PocketBase cleanup                    | PR 4      | Base = PR 3 branch                          |
 
 ## Phase 1: Core Infrastructure
 

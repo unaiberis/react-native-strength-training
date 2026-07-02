@@ -17,6 +17,21 @@ npm run ios            # expo run:ios
 npm run web            # expo start --web
 ```
 
+### Running two Metro servers (web + Expo Go)
+
+Port 8081 está ocupado por otro servicio del sistema. Corremos web y Expo Go en puertos separados:
+
+```bash
+# Terminal 1 — Expo Go (tunnel, cualquier red)
+npx expo start --tunnel --port 8082
+
+# Terminal 2 — Web
+npx expo start --web --port 8083
+```
+
+- **Expo Go**: escanear QR o usar `exp://<ngrok-subdomain>.exp.direct` desde "Enter URL manually"
+- **Web**: abrir `http://localhost:8083` en el navegador
+
 ### Testing
 
 ```bash
@@ -53,15 +68,15 @@ cp -r pb_data/ pb_data_$(date +%Y%m%d)
 
 ### Comandos
 
-| Comando | Acción |
-|---------|--------|
+| Comando                  | Acción                                                                              |
+| ------------------------ | ----------------------------------------------------------------------------------- |
 | `/sdd-new "descripción"` | Start change: explore → proposal → spec → design → tasks → apply → verify → archive |
-| `/sdd-ff "nombre"` | Fast-forward: proposal → spec → design → tasks |
-| `/sdd-explore "tema"` | Investigar sin crear archivos |
-| `/sdd-status [change]` | Estado actual del cambio |
-| `/sdd-apply [change]` | Implementar tareas batch |
-| `/sdd-verify [change]` | Validar contra specs |
-| `/sdd-archive [change]` | Cerrar cambio y archivar |
+| `/sdd-ff "nombre"`       | Fast-forward: proposal → spec → design → tasks                                      |
+| `/sdd-explore "tema"`    | Investigar sin crear archivos                                                       |
+| `/sdd-status [change]`   | Estado actual del cambio                                                            |
+| `/sdd-apply [change]`    | Implementar tareas batch                                                            |
+| `/sdd-verify [change]`   | Validar contra specs                                                                |
+| `/sdd-archive [change]`  | Cerrar cambio y archivar                                                            |
 
 ### Reglas
 
@@ -84,15 +99,15 @@ proposal → specs → design → tasks → apply → verify → archive
 
 ### Engram Topic Keys
 
-| Artifact | Topic Key |
-|----------|-----------|
-| Init context | `sdd-init/{project}` |
-| Proposal | `sdd/{change-name}/proposal` |
-| Spec | `sdd/{change-name}/spec` |
-| Design | `sdd/{change-name}/design` |
-| Tasks | `sdd/{change-name}/tasks` |
+| Artifact       | Topic Key                          |
+| -------------- | ---------------------------------- |
+| Init context   | `sdd-init/{project}`               |
+| Proposal       | `sdd/{change-name}/proposal`       |
+| Spec           | `sdd/{change-name}/spec`           |
+| Design         | `sdd/{change-name}/design`         |
+| Tasks          | `sdd/{change-name}/tasks`          |
 | Apply progress | `sdd/{change-name}/apply-progress` |
-| Verify report | `sdd/{change-name}/verify-report` |
+| Verify report  | `sdd/{change-name}/verify-report`  |
 | Archive report | `sdd/{change-name}/archive-report` |
 
 ---
@@ -108,14 +123,14 @@ proposal → specs → design → tasks → apply → verify → archive
 
 ### Cómo se mockea cada dependencia
 
-| Dependencia | Estrategia |
-|-------------|-----------|
-| **PocketBase (client)** | `jest.mock('@/lib/pocketbase/client')` — reemplaza `pb` exportado con mock manual |
-| **PocketBase (services)** | Se mockea el client. Los services se testean con ese mock. |
-| **expo-sqlite** | No se mockea — se usa `getDb(":memory")` para tests de DB |
-| **expo-secure-store** | `jest.mock('expo-secure-store')` — retorna null por defecto |
-| **@react-native-community/netinfo** | `jest.mock(...)` — se controla estado online/offline manualmente |
-| **expo-router** | No se testea en unit. Los hooks de auth usan router mockeado si es necesario. |
+| Dependencia                         | Estrategia                                                                        |
+| ----------------------------------- | --------------------------------------------------------------------------------- |
+| **PocketBase (client)**             | `jest.mock('@/lib/pocketbase/client')` — reemplaza `pb` exportado con mock manual |
+| **PocketBase (services)**           | Se mockea el client. Los services se testean con ese mock.                        |
+| **expo-sqlite**                     | No se mockea — se usa `getDb(":memory")` para tests de DB                         |
+| **expo-secure-store**               | `jest.mock('expo-secure-store')` — retorna null por defecto                       |
+| **@react-native-community/netinfo** | `jest.mock(...)` — se controla estado online/offline manualmente                  |
+| **expo-router**                     | No se testea en unit. Los hooks de auth usan router mockeado si es necesario.     |
 
 ### Patrón de test por tipo
 
@@ -178,12 +193,12 @@ Siempre usar alias `@/`:
 
 ```typescript
 // ✅ Correcto
-import { useAuth } from "@/features/auth/hooks/useAuth";
-import { pb } from "@/lib/pocketbase/client";
-import { Button } from "@/shared/ui/Button";
+import { useAuth } from '@/features/auth/hooks/useAuth';
+import { pb } from '@/lib/pocketbase/client';
+import { Button } from '@/shared/ui/Button';
 
 // ❌ Incorrecto
-import { useAuth } from "../../../features/auth/hooks/useAuth";
+import { useAuth } from '../../../features/auth/hooks/useAuth';
 ```
 
 ---
@@ -192,22 +207,22 @@ import { useAuth } from "../../../features/auth/hooks/useAuth";
 
 ### Naming Conventions
 
-| Entidad | Convención | Ejemplo |
-|---------|-----------|---------|
-| **Archivos screen** | `PascalCaseScreen.tsx` | `ActiveWorkoutScreen.tsx` |
-| **Archivos hook** | `useCamelCase.ts` | `useWorkoutSession.ts` |
-| **Archivos service (online)** | `snake-case.ts` | `exercises.ts`, `sessions.ts` |
-| **Archivos service (offline)** | `PascalCase.ts` | `offline-sessions.ts` |
-| **Archivos store** | `kebab-case-store.ts` | `auth-store.ts` |
-| **Archivos schema Zod** | `snake-case.ts` | `template.ts` |
-| **Archivos tipo** | `snake-case.ts` | `pocketbase.ts` |
-| **Funciones** | `camelCase` | `listExercises()`, `getSession()` |
-| **Clases** | `PascalCase` | `SyncEngine`, `OfflineSessionsService` |
-| **Interfaces** | `PascalCase` | `ExerciseRow`, `SyncResult` |
-| **Tipos (type)** | `PascalCase` | `AuthState`, `QueueAction` |
-| **Constantes módulo** | `UPPER_SNAKE_CASE` | `EXERCISES_QUERY_KEY`, `PAGE_SIZE` |
-| **Exports** | Named exports SIEMPRE | Excepto pages de Expo Router (`app/`) |
-| **Default exports** | Solo en `app/` pages | `export default function LoginRoute()` |
+| Entidad                        | Convención             | Ejemplo                                |
+| ------------------------------ | ---------------------- | -------------------------------------- |
+| **Archivos screen**            | `PascalCaseScreen.tsx` | `ActiveWorkoutScreen.tsx`              |
+| **Archivos hook**              | `useCamelCase.ts`      | `useWorkoutSession.ts`                 |
+| **Archivos service (online)**  | `snake-case.ts`        | `exercises.ts`, `sessions.ts`          |
+| **Archivos service (offline)** | `PascalCase.ts`        | `offline-sessions.ts`                  |
+| **Archivos store**             | `kebab-case-store.ts`  | `auth-store.ts`                        |
+| **Archivos schema Zod**        | `snake-case.ts`        | `template.ts`                          |
+| **Archivos tipo**              | `snake-case.ts`        | `pocketbase.ts`                        |
+| **Funciones**                  | `camelCase`            | `listExercises()`, `getSession()`      |
+| **Clases**                     | `PascalCase`           | `SyncEngine`, `OfflineSessionsService` |
+| **Interfaces**                 | `PascalCase`           | `ExerciseRow`, `SyncResult`            |
+| **Tipos (type)**               | `PascalCase`           | `AuthState`, `QueueAction`             |
+| **Constantes módulo**          | `UPPER_SNAKE_CASE`     | `EXERCISES_QUERY_KEY`, `PAGE_SIZE`     |
+| **Exports**                    | Named exports SIEMPRE  | Excepto pages de Expo Router (`app/`)  |
+| **Default exports**            | Solo en `app/` pages   | `export default function LoginRoute()` |
 
 ### Stores Zustand
 
@@ -224,11 +239,12 @@ interface AuthStore {
 
 export const useAuthStore = create<AuthStore>((set) => ({
   // Initial state
-  state: "loading",
+  state: 'loading',
   session: null,
   // Actions
-  setSession: (session) => set({ session, state: session ? "authenticated" : "unauthenticated" }),
-  reset: () => set({ state: "unauthenticated", session: null }),
+  setSession: (session) =>
+    set({ session, state: session ? 'authenticated' : 'unauthenticated' }),
+  reset: () => set({ state: 'unauthenticated', session: null }),
 }));
 ```
 
@@ -236,19 +252,27 @@ export const useAuthStore = create<AuthStore>((set) => ({
 
 ```typescript
 // Constantes por módulo, en el hook file
-const EXERCISES_QUERY_KEY = "exercises";
-const CATEGORIES_QUERY_KEY = "exercise-categories";
-const TEMPLATES_QUERY_KEY = "templates";
-const SESSIONS_QUERY_KEY = "sessions";
-const HISTORY_QUERY_KEY = "workout-history";
-const PRS_QUERY_KEY = "personal-records";
+const EXERCISES_QUERY_KEY = 'exercises';
+const CATEGORIES_QUERY_KEY = 'exercise-categories';
+const TEMPLATES_QUERY_KEY = 'templates';
+const SESSIONS_QUERY_KEY = 'sessions';
+const HISTORY_QUERY_KEY = 'workout-history';
+const PRS_QUERY_KEY = 'personal-records';
 
 // Patrón de queryKey:
-[KEY]                       // Lista
-[KEY, id]                   // Single item
-[KEY, category, page, size] // Filtrado
-[KEY, "search", query]      // Búsqueda
-[KEY, id, isOnline ? "online" : "offline"] // Offline-aware
+[
+  KEY,
+] // Lista
+[
+  (KEY, id)
+] // Single item
+[
+  (KEY, category, page, size)
+] // Filtrado
+[
+  (KEY, 'search', query)
+] // Búsqueda
+[(KEY, id, isOnline ? 'online' : 'offline')]; // Offline-aware
 ```
 
 ### Hooks por feature — patrón
@@ -283,10 +307,13 @@ export function useCreateTemplate() {
 export class OfflineSessionsService {
   constructor(
     private db: SQLiteDatabase,
-    private changeQueue: ChangeQueue,
+    private changeQueue: ChangeQueue
   ) {}
 
-  async createSession(userId: string, templateId?: string): Promise<WorkoutSessionRow> {
+  async createSession(
+    userId: string,
+    templateId?: string
+  ): Promise<WorkoutSessionRow> {
     const id = generateId();
     // 1. Write to SQLite
     // 2. Enqueue CREATE change
@@ -302,7 +329,7 @@ export class OfflineSessionsService {
 export async function listExercises(
   category?: string | null,
   page = 0,
-  pageSize = 20,
+  pageSize = 20
 ): Promise<ExerciseListResult> {
   // ...
 }
@@ -350,25 +377,25 @@ git commit -m "docs: document PocketBase collection schema"
 
 ### 🔴 CRÍTICO — No modificar sin aprobación explícita
 
-| Archivo | Razón |
-|---------|-------|
-| `src/lib/db/schema.ts` | Solo vía migración idempotente + bump schema_version |
-| `openspec/specs/*/spec.md` | Source of truth. Cambiar requiere SDD proposal |
-| `src/lib/db/change-queue.ts` | Estados críticos. Puede perder datos del usuario |
-| `src/lib/db/sync-engine.ts` | Corazón del offline. Cualquier cambio → judgment-day |
-| `src/lib/pocketbase/client.ts` | Mock client frágil. Cambiar mock rompe 5+ test files |
-| `scripts/seed-demo-data.mjs` | 181 registros con IDs referenciados |
-| `tailwind.config.js` | Paleta design system. No añadir colores sin documentar |
+| Archivo                        | Razón                                                  |
+| ------------------------------ | ------------------------------------------------------ |
+| `src/lib/db/schema.ts`         | Solo vía migración idempotente + bump schema_version   |
+| `openspec/specs/*/spec.md`     | Source of truth. Cambiar requiere SDD proposal         |
+| `src/lib/db/change-queue.ts`   | Estados críticos. Puede perder datos del usuario       |
+| `src/lib/db/sync-engine.ts`    | Corazón del offline. Cualquier cambio → judgment-day   |
+| `src/lib/pocketbase/client.ts` | Mock client frágil. Cambiar mock rompe 5+ test files   |
+| `scripts/seed-demo-data.mjs`   | 181 registros con IDs referenciados                    |
+| `tailwind.config.js`           | Paleta design system. No añadir colores sin documentar |
 
 ### 🟡 PRECAUCIÓN — Preguntar antes de tocar
 
-| Área | Riesgo |
-|------|--------|
-| `src/lib/db/id-mapping.ts` | `patchPendingQueue` usa `replaceAll` —edge case de substring ID |
-| `src/lib/db/network-monitor.ts` | Singleton — asegurar cleanup en tests con `destroy()` |
-| `src/stores/session-store.ts` | Fire-and-forget persist a SyncMeta. No bloquear |
-| `app/_layout.tsx` | AuthGate con offline init secuencial. Orden importa |
-| `.env` | `OFFLINE_ENABLED=true` descomentar solo tras staging test |
+| Área                            | Riesgo                                                          |
+| ------------------------------- | --------------------------------------------------------------- |
+| `src/lib/db/id-mapping.ts`      | `patchPendingQueue` usa `replaceAll` —edge case de substring ID |
+| `src/lib/db/network-monitor.ts` | Singleton — asegurar cleanup en tests con `destroy()`           |
+| `src/stores/session-store.ts`   | Fire-and-forget persist a SyncMeta. No bloquear                 |
+| `app/_layout.tsx`               | AuthGate con offline init secuencial. Orden importa             |
+| `.env`                          | `OFFLINE_ENABLED=true` descomentar solo tras staging test       |
 
 ### Deuda Técnica que NO intentar arreglar sin orden
 
@@ -402,5 +429,5 @@ git commit -m "docs: document PocketBase collection schema"
 
 ---
 
-*Fin de AGENTS.md. Complementa PROJECT_REPORT.md.*
-*Generado 2026-07-01 para orchestrators entrantes.*
+_Fin de AGENTS.md. Complementa PROJECT_REPORT.md._
+_Generado 2026-07-01 para orchestrators entrantes._

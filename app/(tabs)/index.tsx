@@ -1,27 +1,29 @@
-import { View, Text, ScrollView, TouchableOpacity } from "react-native";
-import { useRouter } from "expo-router";
-import { Card } from "../../src/shared/ui/Card";
-import { useAuth } from "../../src/features/auth/hooks/useAuth";
+import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { useRouter } from 'expo-router';
+import { Card } from '../../src/shared/ui/Card';
+import { useAuth } from '../../src/features/auth/hooks/useAuth';
 
 export default function HomeScreen() {
   const router = useRouter();
   const { user } = useAuth();
   const displayName =
-    user?.user_metadata?.display_name ?? user?.email?.split("@")[0] ?? "Athlete";
+    user?.user_metadata?.display_name ??
+    user?.email?.split('@')[0] ??
+    'Athlete';
 
   return (
     <ScrollView className="flex-1 bg-surface-950 px-4 pt-16">
       <Text className="text-surface-50 text-2xl font-bold mb-2">
         Welcome back, {displayName}
       </Text>
-      <Text className="text-surface-400 text-base mb-6">
-        Ready to train?
-      </Text>
+      <Text className="text-surface-400 text-base mb-6">Ready to train?</Text>
 
       {/* Quick actions */}
       <View className="flex-row mb-6 gap-3">
         <TouchableOpacity
-          onPress={() => router.push("/exercises")}
+          onPress={() => router.push('/exercises')}
+          accessibilityRole="button"
+          accessibilityLabel="Exercises, Browse library"
           className="flex-1 bg-surface-900 rounded-2xl p-4 border border-surface-800 active:opacity-80"
         >
           <Text className="text-2xl mb-1">🏋️</Text>
@@ -34,7 +36,9 @@ export default function HomeScreen() {
         </TouchableOpacity>
 
         <TouchableOpacity
-          onPress={() => router.push("/routines")}
+          onPress={() => router.push('/routines')}
+          accessibilityRole="button"
+          accessibilityLabel="Routines, Create and manage"
           className="flex-1 bg-surface-900 rounded-2xl p-4 border border-surface-800 active:opacity-80"
         >
           <Text className="text-2xl mb-1">📋</Text>
@@ -50,16 +54,16 @@ export default function HomeScreen() {
       {/* Second row */}
       <View className="flex-row mb-6 gap-3">
         <TouchableOpacity
-          onPress={() => router.push("/history")}
+          onPress={() => router.push('/history')}
+          accessibilityRole="button"
+          accessibilityLabel="History, Past workouts"
           className="flex-1 bg-surface-900 rounded-2xl p-4 border border-surface-800 active:opacity-80"
         >
           <Text className="text-2xl mb-1">📊</Text>
           <Text className="text-surface-100 text-sm font-semibold">
             History
           </Text>
-          <Text className="text-surface-500 text-xs mt-0.5">
-            Past workouts
-          </Text>
+          <Text className="text-surface-500 text-xs mt-0.5">Past workouts</Text>
         </TouchableOpacity>
 
         <View className="flex-1" />

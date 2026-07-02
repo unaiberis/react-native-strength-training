@@ -1,11 +1,11 @@
-import PocketBase from "pocketbase";
-import { BaseAuthStore, RecordService } from "pocketbase";
-import type PocketBaseType from "pocketbase";
-import * as SecureStore from "expo-secure-store";
-import { Platform } from "react-native";
+import PocketBase from 'pocketbase';
+import { BaseAuthStore, RecordService } from 'pocketbase';
+import type PocketBaseType from 'pocketbase';
+import * as SecureStore from 'expo-secure-store';
+import { Platform } from 'react-native';
 
-const PB_URL = process.env.EXPO_PUBLIC_POCKETBASE_URL ?? "";
-const STORAGE_KEY = "pb_auth";
+const PB_URL = process.env.EXPO_PUBLIC_POCKETBASE_URL ?? '';
+const STORAGE_KEY = 'pb_auth';
 
 /**
  * Expo-compatible auth store for PocketBase client.
@@ -33,14 +33,14 @@ class ExpoSecureStoreAuth extends BaseAuthStore {
   async loadFromStore(): Promise<boolean> {
     try {
       let data: string | null = null;
-      if (Platform.OS === "web") {
+      if (Platform.OS === 'web') {
         data = localStorage.getItem(STORAGE_KEY);
       } else {
         data = await SecureStore.getItemAsync(STORAGE_KEY);
       }
       if (data) {
         const parsed = JSON.parse(data);
-        super.save(parsed.token || "", parsed.record || null);
+        super.save(parsed.token || '', parsed.record || null);
         return true;
       }
     } catch {
@@ -51,7 +51,7 @@ class ExpoSecureStoreAuth extends BaseAuthStore {
 
   private async _persist(token: string, record?: any): Promise<void> {
     const data = JSON.stringify({ token, record: record ?? null });
-    if (Platform.OS === "web") {
+    if (Platform.OS === 'web') {
       localStorage.setItem(STORAGE_KEY, data);
     } else {
       await SecureStore.setItemAsync(STORAGE_KEY, data);
@@ -59,7 +59,7 @@ class ExpoSecureStoreAuth extends BaseAuthStore {
   }
 
   private async _removePersisted(): Promise<void> {
-    if (Platform.OS === "web") {
+    if (Platform.OS === 'web') {
       localStorage.removeItem(STORAGE_KEY);
     } else {
       await SecureStore.deleteItemAsync(STORAGE_KEY);
@@ -73,7 +73,7 @@ class ExpoSecureStoreAuth extends BaseAuthStore {
  */
 function createMockClient(): PocketBaseType {
   console.warn(
-    "[PocketBase] EXPO_PUBLIC_POCKETBASE_URL no configurada. Usando mock — las funciones de auth/DB devolverán datos vacíos.",
+    '[PocketBase] EXPO_PUBLIC_POCKETBASE_URL no configurada. Usando mock — las funciones de auth/DB devolverán datos vacíos.'
   );
 
   const tick = () => new Promise((r) => setTimeout(r, 100));
@@ -84,11 +84,11 @@ function createMockClient(): PocketBaseType {
     return {
       authWithPassword: async () => {
         await tick();
-        return { record: null, token: "" };
+        return { record: null, token: '' };
       },
       authRefresh: async () => {
         await tick();
-        return { record: null, token: "" };
+        return { record: null, token: '' };
       },
       create: async () => {
         await tick();
@@ -96,7 +96,13 @@ function createMockClient(): PocketBaseType {
       },
       getList: async () => {
         await tick();
-        return { page: 1, perPage: 30, totalItems: 0, totalPages: 0, items: [] };
+        return {
+          page: 1,
+          perPage: 30,
+          totalItems: 0,
+          totalPages: 0,
+          items: [],
+        };
       },
       getOne: async () => {
         await tick();
@@ -121,7 +127,7 @@ function createMockClient(): PocketBaseType {
       subscribe: async () => () => {},
       unsubscribe: async () => {},
       listAuthMethods: async () => ({
-        password: { enabled: true, identityFields: ["email"] },
+        password: { enabled: true, identityFields: ['email'] },
         oauth2: { enabled: false, providers: [] },
         mfa: { enabled: false },
         otp: { enabled: false },
@@ -132,7 +138,7 @@ function createMockClient(): PocketBaseType {
   }
 
   return {
-    baseURL: "",
+    baseURL: '',
     authStore: mockAuthStore,
     collection: () => createMockRecordService(),
     filter: (raw: string) => raw,
@@ -140,7 +146,7 @@ function createMockClient(): PocketBaseType {
     send: async () => null,
     beforeSend: undefined,
     afterSend: undefined,
-    lang: "en-US",
+    lang: 'en-US',
     settings: {} as any,
     collections: {} as any,
     files: {} as any,
@@ -171,6 +177,10 @@ function createPocketBaseClient(): PocketBaseType {
 
   const authStore = new ExpoSecureStoreAuth();
   const pb = new PocketBase(PB_URL, authStore);
+
+  // Disable auto-cancellation to prevent "request was aborted" errors
+  // when React Query re-fetches queries from the offline persister.
+  pb.autoCancellation(false);
 
   return pb;
 }

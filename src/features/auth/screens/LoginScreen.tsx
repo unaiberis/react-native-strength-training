@@ -1,13 +1,23 @@
-import { useState } from "react";
-import { View, Text, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
-import { useForm, Controller } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "expo-router";
-import { Button } from "../../../shared/ui/Button";
-import { Input } from "../../../shared/ui/Input";
-import { Card } from "../../../shared/ui/Card";
-import { loginSchema, loginDefaults, type LoginInput } from "../../../shared/schemas/auth";
-import { useAuth } from "../hooks/useAuth";
+import { useState } from 'react';
+import {
+  View,
+  Text,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+} from 'react-native';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from 'expo-router';
+import { Button } from '../../../shared/ui/Button';
+import { Input } from '../../../shared/ui/Input';
+import { Card } from '../../../shared/ui/Card';
+import {
+  loginSchema,
+  loginDefaults,
+  type LoginInput,
+} from '../../../shared/schemas/auth';
+import { useAuth } from '../hooks/useAuth';
 
 export function LoginScreen() {
   const router = useRouter();
@@ -41,7 +51,7 @@ export function LoginScreen() {
   return (
     <KeyboardAvoidingView
       className="flex-1 bg-surface-950"
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView
         contentContainerClassName="flex-1 justify-center px-6"
@@ -57,7 +67,9 @@ export function LoginScreen() {
         </View>
 
         <Card>
-          <Text className="text-surface-100 text-xl font-semibold mb-6">Sign In</Text>
+          <Text className="text-surface-100 text-xl font-semibold mb-6">
+            Sign In
+          </Text>
 
           {error && (
             <View className="bg-red-900/30 border border-red-800 rounded-xl px-4 py-3 mb-4">
@@ -110,7 +122,7 @@ export function LoginScreen() {
           <Button
             title="Don't have an account? Register"
             variant="ghost"
-            onPress={() => router.push("/(auth)/register")}
+            onPress={() => router.push('/(auth)/register')}
             className="mt-3"
           />
         </Card>

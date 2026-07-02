@@ -9,11 +9,11 @@
  * and ID remapping for server-assigned IDs after CREATE operations.
  */
 
-import type { SQLiteDatabase, SQLiteBindValue } from "expo-sqlite";
-import type { ChangeQueue } from "./change-queue";
-import type { IdMapping } from "./id-mapping";
-import type { SyncMeta } from "./sync-meta";
-import type { QueueEntry, SyncEventType, SyncEvent } from "./types";
+import type { SQLiteDatabase, SQLiteBindValue } from 'expo-sqlite';
+import type { ChangeQueue } from './change-queue';
+import type { IdMapping } from './id-mapping';
+import type { SyncMeta } from './sync-meta';
+import type { QueueEntry, SyncEventType, SyncEvent } from './types';
 
 // ─── Public Types ──────────────────────────────────────────────────────
 
@@ -28,11 +28,11 @@ export interface SyncResult {
 // ─── Default Collections to Pull ───────────────────────────────────────
 
 const DEFAULT_PULL_COLLECTIONS = [
-  "exercises",
-  "workout_templates",
-  "workout_template_exercises",
-  "workout_sessions",
-  "exercise_sets",
+  'exercises',
+  'workout_templates',
+  'workout_template_exercises',
+  'workout_sessions',
+  'exercise_sets',
 ];
 
 // ─── Collection-Specific FK Relationships for ID Remapping ─────────────
@@ -43,9 +43,9 @@ interface ChildFkRelation {
 }
 
 const CHILD_FK_MAP: Record<string, ChildFkRelation[]> = {
-  workout_sessions: [{ table: "exercise_sets", fkColumn: "session_id" }],
+  workout_sessions: [{ table: 'exercise_sets', fkColumn: 'session_id' }],
   workout_templates: [
-    { table: "workout_template_exercises", fkColumn: "template_id" },
+    { table: 'workout_template_exercises', fkColumn: 'template_id' },
   ],
 };
 
@@ -65,7 +65,7 @@ export class SyncEngine {
     private idMapping: IdMapping,
     private syncMeta: SyncMeta,
     private pocketbase: { collection: (name: string) => CollectionAPI },
-    private networkMonitor: { isOnline: boolean },
+    private networkMonitor: { isOnline: boolean }
   ) {}
 
   // ─── Event Emitter ─────────────────────────────────────────────────
@@ -117,7 +117,7 @@ export class SyncEngine {
       };
     }
 
-    this.emit({ type: "SYNC_START" });
+    this.emit({ type: 'SYNC_START' });
 
     // 1. Push local changes
     const flushResult = await this.flushQueue();
@@ -134,7 +134,7 @@ export class SyncEngine {
     }
 
     this.emit({
-      type: flushResult.deadLettered > 0 ? "SYNC_PARTIAL" : "SYNC_COMPLETE",
+      type: flushResult.deadLettered > 0 ? 'SYNC_PARTIAL' : 'SYNC_COMPLETE',
       detail: {
         deadLetterCount: flushResult.deadLettered,
       },
@@ -183,22 +183,25 @@ export class SyncEngine {
         const outcome = await this.processEntry(entry);
 
         switch (outcome) {
-          case "success":
+          case 'success':
             result.synced++;
             break;
-          case "auth_error":
+          case 'auth_error':
             result.authExpired = true;
-            this.emit({ type: "AUTH_EXPIRED" });
+            this.emit({ type: 'AUTH_EXPIRED' });
             break;
-          case "dead_letter":
+          case 'dead_letter':
             groupFailed = true;
             result.deadLettered++;
             this.emit({
-              type: "DEAD_LETTER",
-              detail: { error: "Exceeded max retries", collection: entry.collection },
+              type: 'DEAD_LETTER',
+              detail: {
+                error: 'Exceeded max retries',
+                collection: entry.collection,
+              },
             });
             break;
-          case "retry":
+          case 'retry':
             groupFailed = true;
             result.failed++;
             break;
@@ -229,7 +232,7 @@ export class SyncEngine {
     } catch (err) {
       console.warn(
         `[SyncEngine] Failed to pull collection "${collection}":`,
-        err,
+        err
       );
     }
   }
@@ -289,12 +292,12 @@ export class SyncEngine {
    * for CREATE, and dequeue on success.
    */
   private async processEntry(
-    entry: QueueEntry,
-  ): Promise<"success" | "auth_error" | "dead_letter" | "retry"> {
+    entry: QueueEntry
+  ): Promise<'success' | 'auth_error' | 'dead_letter' | 'retry'> {
     try {
       const pbCollection = this.pocketbase.collection(entry.collection);
 
-      if (entry.action === "create") {
+      if (entry.action === 'create') {
         const response = await pbCollection.create(entry.data ?? {});
 
         // ID remapping
@@ -303,12 +306,16 @@ export class SyncEngine {
           const localId = entry.local_id;
 
           // 1. Store mapping
-          await this.idMapping.storeMapping(localId, serverId, entry.collection);
+          await this.idMapping.storeMapping(
+            localId,
+            serverId,
+            entry.collection
+          );
 
           // 2. Update local row: swap local UUID for server ID
           await this.db.runAsync(
             `UPDATE ${entry.collection} SET id = ?, dirty = 0, synced_at = datetime('now') WHERE local_id = ?`,
-            [serverId, localId],
+            [serverId, localId]
           );
 
           // 3. Update child FK columns
@@ -318,7 +325,7 @@ export class SyncEngine {
               localId,
               serverId,
               rel.fkColumn,
-              rel.table,
+              rel.table
             );
           }
 
@@ -327,41 +334,41 @@ export class SyncEngine {
         }
 
         await this.changeQueue.dequeue(entry.id);
-        return "success";
+        return 'success';
       }
 
-      if (entry.action === "update" && entry.record_id) {
+      if (entry.action === 'update' && entry.record_id) {
         await pbCollection.update(entry.record_id, entry.data ?? {});
         await this.changeQueue.dequeue(entry.id);
-        return "success";
+        return 'success';
       }
 
-      if (entry.action === "delete" && entry.record_id) {
+      if (entry.action === 'delete' && entry.record_id) {
         await pbCollection.delete(entry.record_id);
         await this.changeQueue.dequeue(entry.id);
-        return "success";
+        return 'success';
       }
 
-      return "retry";
+      return 'retry';
     } catch (err: any) {
       // Auth error (401) — mark all pending entries and stop
       if (err?.status === 401) {
         await this.changeQueue.markAllAuthError();
         await this.syncMeta.setAuthExpired(true);
-        return "auth_error";
+        return 'auth_error';
       }
 
       // Exceeded retries — dead letter
       if (entry.retry_count >= 10) {
         const errorMsg = err?.message ?? String(err);
         await this.changeQueue.markDeadLetter(entry.id, errorMsg);
-        return "dead_letter";
+        return 'dead_letter';
       }
 
       // Transient error — increment retry count, leave in queue
       const errorMsg = err?.message ?? String(err);
       await this.changeQueue.incrementRetry(entry.id, errorMsg);
-      return "retry";
+      return 'retry';
     }
   }
 
@@ -374,7 +381,7 @@ export class SyncEngine {
   private async upsertRecord(
     collection: string,
     record: Record<string, unknown>,
-    timestamp: string,
+    timestamp: string
   ): Promise<void> {
     // Gather known columns from the record
     const columns: string[] = [];
@@ -382,11 +389,11 @@ export class SyncEngine {
 
     for (const [key, value] of Object.entries(record)) {
       // Skip internal PocketBase fields
-      if (key === "@collectionId" || key === "@collectionName") continue;
+      if (key === '@collectionId' || key === '@collectionName') continue;
 
       columns.push(key);
       // Normalise boolean/int types for SQLite
-      if (typeof value === "boolean") {
+      if (typeof value === 'boolean') {
         values.push(value ? 1 : 0);
       } else if (value !== null && value !== undefined) {
         values.push(value as SQLiteBindValue);
@@ -396,17 +403,17 @@ export class SyncEngine {
     }
 
     // Add synced_at timestamp if it's a known column
-    if (!columns.includes("synced_at")) {
-      columns.push("synced_at");
+    if (!columns.includes('synced_at')) {
+      columns.push('synced_at');
       values.push(timestamp);
     }
 
-    const placeholders = columns.map(() => "?").join(", ");
-    const columnList = columns.join(", ");
+    const placeholders = columns.map(() => '?').join(', ');
+    const columnList = columns.join(', ');
 
     await this.db.runAsync(
       `INSERT OR REPLACE INTO ${collection} (${columnList}) VALUES (${placeholders})`,
-      values,
+      values
     );
   }
 }
@@ -422,7 +429,7 @@ export interface CollectionAPI {
   create(data: Record<string, unknown>): Promise<Record<string, unknown>>;
   update(
     id: string,
-    data: Record<string, unknown>,
+    data: Record<string, unknown>
   ): Promise<Record<string, unknown>>;
   delete(id: string): Promise<boolean>;
   getFullList(): Promise<Record<string, unknown>[]>;

@@ -1,31 +1,31 @@
-import { useMemo } from "react";
-import { View, Text, ScrollView, ActivityIndicator } from "react-native";
-import { useLocalSearchParams } from "expo-router";
-import { Card } from "../../../shared/ui/Card";
-import { useSessionDetail } from "../hooks/useHistory";
+import { useMemo } from 'react';
+import { View, Text, ScrollView, ActivityIndicator } from 'react-native';
+import { useLocalSearchParams } from 'expo-router';
+import { Card } from '../../../shared/ui/Card';
+import { useSessionDetail } from '../hooks/useHistory';
 import {
   calculateVolume,
   calculateTonnage,
   calculateE1RM,
-} from "../../../shared/utils/pr-calc";
+} from '../../../shared/utils/pr-calc';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────
 
 function formatDate(iso: string): string {
   const d = new Date(iso);
   return d.toLocaleDateString(undefined, {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
   });
 }
 
 function formatTime(iso: string): string {
   const d = new Date(iso);
   return d.toLocaleTimeString(undefined, {
-    hour: "2-digit",
-    minute: "2-digit",
+    hour: '2-digit',
+    minute: '2-digit',
   });
 }
 
@@ -50,7 +50,7 @@ function SetRow({
 
   return (
     <View
-      className={`flex-row items-center py-2 ${!isLast ? "border-b border-surface-800" : ""} ${set.isWarmup ? "opacity-60" : ""}`}
+      className={`flex-row items-center py-2 ${!isLast ? 'border-b border-surface-800' : ''} ${set.isWarmup ? 'opacity-60' : ''}`}
     >
       <Text className="text-surface-400 text-xs font-mono w-8">
         #{set.setNumber}
@@ -72,9 +72,13 @@ function SetRow({
         </View>
       </View>
       <View className="items-end">
-        <Text className="text-surface-400 text-xs">Vol {volume.toFixed(0)}</Text>
+        <Text className="text-surface-400 text-xs">
+          Vol {volume.toFixed(0)}
+        </Text>
         {e1rm > 0 && (
-          <Text className="text-surface-500 text-xs">e1RM {e1rm.toFixed(1)}</Text>
+          <Text className="text-surface-500 text-xs">
+            e1RM {e1rm.toFixed(1)}
+          </Text>
         )}
       </View>
     </View>
@@ -107,11 +111,9 @@ function ExerciseSection({
       {/* Summary row */}
       <View className="flex-row justify-between items-center mb-2 pb-2 border-b border-surface-800">
         <Text className="text-surface-400 text-xs">
-          {workingSetCount} working set{workingSetCount !== 1 ? "s" : ""}
+          {workingSetCount} working set{workingSetCount !== 1 ? 's' : ''}
           {totalSets > workingSetCount && (
-            <Text className="text-surface-500">
-              {" "}· {totalSets} total
-            </Text>
+            <Text className="text-surface-500"> · {totalSets} total</Text>
           )}
         </Text>
         <Text className="text-surface-300 text-xs font-semibold">
@@ -168,7 +170,7 @@ export function HistoryDetailScreen() {
           Could not load workout
         </Text>
         <Text className="text-surface-400 text-center">
-          {error ? (error as Error).message : "Workout not found"}
+          {error ? error.message : 'Workout not found'}
         </Text>
       </View>
     );
@@ -177,22 +179,24 @@ export function HistoryDetailScreen() {
   const { groupedSets, exerciseNames } = detail;
   const totalSets = detail.sets.length;
   const totalVolume = calculateTonnage(
-    detail.sets.filter((s) => !s.is_warmup).map((s) => ({
-      weightKg: Number(s.weight_kg),
-      reps: s.reps,
-    })),
+    detail.sets
+      .filter((s) => !s.is_warmup)
+      .map((s) => ({
+        weightKg: s.weight_kg,
+        reps: s.reps,
+      }))
   );
 
   // Convert groupedSets object to ordered array for rendering
   const exerciseGroups = useMemo(() => {
     return Object.entries(groupedSets).map(([exerciseId, sets]) => ({
       exerciseId,
-      exerciseName: exerciseNames[exerciseId] ?? "Unknown Exercise",
+      exerciseName: exerciseNames[exerciseId] ?? 'Unknown Exercise',
       sets: sets.map((s) => ({
         setNumber: s.set_number,
-        weightKg: Number(s.weight_kg),
+        weightKg: s.weight_kg,
         reps: s.reps,
-        rpe: s.rpe != null ? Number(s.rpe) : null,
+        rpe: s.rpe,
         rir: s.rir ?? null,
         isWarmup: s.is_warmup,
       })),
@@ -203,7 +207,7 @@ export function HistoryDetailScreen() {
     <ScrollView className="flex-1 bg-surface-950 px-4 pt-4">
       {/* Header */}
       <Text className="text-surface-50 text-xl font-bold mb-1">
-        {detail.templateName ?? "Workout"}
+        {detail.templateName ?? 'Workout'}
       </Text>
       <Text className="text-surface-400 text-sm mb-4">
         {formatDate(detail.started_at)} at {formatTime(detail.started_at)}
@@ -229,9 +233,7 @@ export function HistoryDetailScreen() {
 
         <Card className="flex-1">
           <Text className="text-surface-400 text-xs mb-1">Sets</Text>
-          <Text className="text-surface-50 text-lg font-bold">
-            {totalSets}
-          </Text>
+          <Text className="text-surface-50 text-lg font-bold">{totalSets}</Text>
         </Card>
       </View>
 

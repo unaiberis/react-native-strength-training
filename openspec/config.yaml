@@ -26,12 +26,13 @@ rules:
     - Group by phase, use hierarchical numbering
     - Keep tasks completable in one session
   apply:
-    - Follow existing code patterns
+    rules:
+      - Follow existing code patterns
     tdd: true
-    test_command: "npx jest"
+    test_command: 'npx jest'
   verify:
-    test_command: "npx jest"
-    build_command: "npx expo export"
+    test_command: 'npx jest'
+    build_command: 'npx expo export'
     coverage_threshold: 80
   archive:
     - Warn before merging destructive deltas

@@ -1,13 +1,16 @@
-import { useCallback } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useAuthStore } from "../../../stores/auth-store";
-import { useSessionStore } from "../../../stores/session-store";
-import * as SessionsService from "../../../lib/pocketbase/services/sessions";
-import type { LogSetInput, CompleteSessionInput } from "../../../lib/pocketbase/services/sessions";
+import { useCallback } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useAuthStore } from '../../../stores/auth-store';
+import { useSessionStore } from '../../../stores/session-store';
+import * as SessionsService from '../../../lib/pocketbase/services/sessions';
+import type {
+  LogSetInput,
+  CompleteSessionInput,
+} from '../../../lib/pocketbase/services/sessions';
 // Offline modules imported dynamically — expo-sqlite native module unavailable on web
 // import { getDb, ChangeQueue, OfflineSessionsService } from "../../../lib/db";
 
-const SESSIONS_QUERY_KEY = "sessions";
+const SESSIONS_QUERY_KEY = 'sessions';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────
 
@@ -18,9 +21,9 @@ const SESSIONS_QUERY_KEY = "sessions";
 async function createOfflineSessions(): Promise<any> {
   const [{ getDb }, { ChangeQueue }, { OfflineSessionsService }] =
     await Promise.all([
-      import("../../../lib/db/database"),
-      import("../../../lib/db/change-queue"),
-      import("../../../lib/db/services/offline-sessions"),
+      import('../../../lib/db/database'),
+      import('../../../lib/db/change-queue'),
+      import('../../../lib/db/services/offline-sessions'),
     ]);
   const db = await getDb();
   const queue = new ChangeQueue(db);
@@ -48,10 +51,16 @@ export function useCreateSession() {
   const store = useSessionStore();
 
   return useMutation({
-    mutationFn: async (options?: { workoutTemplateId?: string; programBlockId?: string }) => {
+    mutationFn: async (options?: {
+      workoutTemplateId?: string;
+      programBlockId?: string;
+    }) => {
       if (!isOnline) {
         const svc = await createOfflineSessions();
-        const session = await svc.createSession(userId!, options?.workoutTemplateId);
+        const session = await svc.createSession(
+          userId!,
+          options?.workoutTemplateId
+        );
         return {
           session: { id: session.id, workout_template_id: session.template_id },
           exercises: [] as SessionsService.SessionExercise[],
@@ -63,7 +72,7 @@ export function useCreateSession() {
       store.startSession(
         (data.session as any).id,
         (data.session as any).workout_template_id,
-        data.exercises,
+        data.exercises
       );
       queryClient.invalidateQueries({ queryKey: [SESSIONS_QUERY_KEY] });
     },

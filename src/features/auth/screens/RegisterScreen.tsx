@@ -1,17 +1,23 @@
-import { useState } from "react";
-import { View, Text, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
-import { useForm, Controller } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "expo-router";
-import { Button } from "../../../shared/ui/Button";
-import { Input } from "../../../shared/ui/Input";
-import { Card } from "../../../shared/ui/Card";
+import { useState } from 'react';
+import {
+  View,
+  Text,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+} from 'react-native';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from 'expo-router';
+import { Button } from '../../../shared/ui/Button';
+import { Input } from '../../../shared/ui/Input';
+import { Card } from '../../../shared/ui/Card';
 import {
   registerSchema,
   registerDefaults,
   type RegisterInput,
-} from "../../../shared/schemas/auth";
-import { useAuth } from "../hooks/useAuth";
+} from '../../../shared/schemas/auth';
+import { useAuth } from '../hooks/useAuth';
 
 export function RegisterScreen() {
   const router = useRouter();
@@ -45,7 +51,7 @@ export function RegisterScreen() {
   return (
     <KeyboardAvoidingView
       className="flex-1 bg-surface-950"
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView
         contentContainerClassName="flex-1 justify-center px-6"
@@ -133,7 +139,7 @@ export function RegisterScreen() {
           <Button
             title="Already have an account? Sign In"
             variant="ghost"
-            onPress={() => router.push("/(auth)/login")}
+            onPress={() => router.push('/(auth)/login')}
             className="mt-3"
           />
         </Card>

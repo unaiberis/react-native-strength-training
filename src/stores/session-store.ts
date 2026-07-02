@@ -1,4 +1,4 @@
-import { create } from "zustand";
+import { create } from 'zustand';
 
 // ─── Types ───────────────────────────────────────────────────────────────
 
@@ -52,7 +52,7 @@ interface SessionStore {
   startSession: (
     sessionId: string,
     templateId: string | null,
-    exercises: Omit<ExerciseInSession, "loggedSets">[],
+    exercises: Omit<ExerciseInSession, 'loggedSets'>[]
   ) => void;
 
   /** Navigate to a specific exercise */
@@ -110,15 +110,14 @@ export const useSessionStore = create<SessionStore>((set) => ({
     });
   },
 
-  setCurrentExerciseIndex: (index) =>
-    set({ currentExerciseIndex: index }),
+  setCurrentExerciseIndex: (index) => set({ currentExerciseIndex: index }),
 
   addLoggedSet: (exerciseId, setRecord) =>
     set((state) => ({
       exercises: state.exercises.map((ex) =>
         ex.exerciseId === exerciseId
           ? { ...ex, loggedSets: [...ex.loggedSets, setRecord] }
-          : ex,
+          : ex
       ),
     })),
 
@@ -135,7 +134,13 @@ export const useSessionStore = create<SessionStore>((set) => ({
     set((state) => {
       const next = state.restTimer.remainingSeconds - 1;
       if (next <= 0) {
-        return { restTimer: { ...state.restTimer, isRunning: false, remainingSeconds: 0 } };
+        return {
+          restTimer: {
+            ...state.restTimer,
+            isRunning: false,
+            remainingSeconds: 0,
+          },
+        };
       }
       return { restTimer: { ...state.restTimer, remainingSeconds: next } };
     }),
@@ -158,8 +163,8 @@ export const useSessionStore = create<SessionStore>((set) => ({
 async function persistActiveSessionId(sessionId: string): Promise<void> {
   try {
     const [{ getDb }, { SyncMeta }] = await Promise.all([
-      import("../lib/db/database"),
-      import("../lib/db/sync-meta"),
+      import('../lib/db/database'),
+      import('../lib/db/sync-meta'),
     ]);
     const db = await getDb();
     const meta = new SyncMeta(db);
@@ -172,8 +177,8 @@ async function persistActiveSessionId(sessionId: string): Promise<void> {
 async function clearActiveSessionId(): Promise<void> {
   try {
     const [{ getDb }, { SyncMeta }] = await Promise.all([
-      import("../lib/db/database"),
-      import("../lib/db/sync-meta"),
+      import('../lib/db/database'),
+      import('../lib/db/sync-meta'),
     ]);
     const db = await getDb();
     const meta = new SyncMeta(db);

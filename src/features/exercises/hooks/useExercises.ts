@@ -1,13 +1,17 @@
-import { useQuery } from "@tanstack/react-query";
-import * as ExercisesService from "../../../lib/pocketbase/services/exercises";
+import { useQuery } from '@tanstack/react-query';
+import * as ExercisesService from '../../../lib/pocketbase/services/exercises';
 
-const EXERCISES_QUERY_KEY = "exercises";
-const CATEGORIES_QUERY_KEY = "exercise-categories";
+const EXERCISES_QUERY_KEY = 'exercises';
+const CATEGORIES_QUERY_KEY = 'exercise-categories';
 
 /**
  * Query hook for paginated exercise list with optional category filter.
  */
-export function useExercises(category?: string | null, page = 0, pageSize = 20) {
+export function useExercises(
+  category?: string | null,
+  page = 0,
+  pageSize = 20
+) {
   return useQuery({
     queryKey: [EXERCISES_QUERY_KEY, category, page, pageSize],
     queryFn: () => ExercisesService.listExercises(category, page, pageSize),
@@ -32,7 +36,7 @@ export function useExercise(id: string | undefined) {
  */
 export function useExerciseSearch(query: string) {
   return useQuery({
-    queryKey: [EXERCISES_QUERY_KEY, "search", query],
+    queryKey: [EXERCISES_QUERY_KEY, 'search', query],
     queryFn: () => ExercisesService.searchExercises(query),
     enabled: query.length >= 2,
     staleTime: 1000 * 30,

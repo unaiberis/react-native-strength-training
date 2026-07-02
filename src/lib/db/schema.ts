@@ -7,10 +7,10 @@
  * All statements use `IF NOT EXISTS` so `runMigrations()` is idempotent.
  */
 
-import type { SQLiteDatabase } from "expo-sqlite";
+import type { SQLiteDatabase } from 'expo-sqlite';
 
-const SCHEMA_VERSION_KEY = "schema_version";
-const CURRENT_SCHEMA_VERSION = "2";
+const SCHEMA_VERSION_KEY = 'schema_version';
+const CURRENT_SCHEMA_VERSION = '2';
 
 // ─── DDL Statements ─────────────────────────────────────────────────────
 
@@ -162,15 +162,15 @@ const ALTER_ADD_TEMPO = `ALTER TABLE exercise_sets ADD COLUMN tempo TEXT;`;
 // ─── Table Definitions (for testing / introspection) ────────────────────
 
 export const TABLES: readonly string[] = [
-  "exercises",
-  "workout_templates",
-  "workout_template_exercises",
-  "workout_sessions",
-  "exercise_sets",
-  "change_queue",
-  "id_mapping",
-  "sync_meta",
-  "react_query_cache",
+  'exercises',
+  'workout_templates',
+  'workout_template_exercises',
+  'workout_sessions',
+  'exercise_sets',
+  'change_queue',
+  'id_mapping',
+  'sync_meta',
+  'react_query_cache',
 ] as const;
 
 // ─── Migration Runner ───────────────────────────────────────────────────
@@ -186,7 +186,7 @@ export async function runMigrations(db: SQLiteDatabase): Promise<void> {
   // Check if we're already at the current schema version
   try {
     const row = await db.getFirstAsync<{ value: string }>(
-      `SELECT value FROM sync_meta WHERE key = '${SCHEMA_VERSION_KEY}'`,
+      `SELECT value FROM sync_meta WHERE key = '${SCHEMA_VERSION_KEY}'`
     );
     if (row?.value === CURRENT_SCHEMA_VERSION) {
       return; // Already up to date — skip

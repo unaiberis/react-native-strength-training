@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -7,38 +7,27 @@ import {
   TouchableOpacity,
   Alert,
   ActivityIndicator,
-  FlatList,
-} from "react-native";
-import { useRouter, useLocalSearchParams } from "expo-router";
-import { Card } from "../../../shared/ui/Card";
-import { Button } from "../../../shared/ui/Button";
-import { RestTimer } from "../../../shared/ui/RestTimer";
-import {
-  useSessionStore,
-  type LoggedSet,
-} from "../../../stores/session-store";
+} from 'react-native';
+import { useRouter, useLocalSearchParams } from 'expo-router';
+import { Card } from '../../../shared/ui/Card';
+import { Button } from '../../../shared/ui/Button';
+import { RestTimer } from '../../../shared/ui/RestTimer';
+import { useSessionStore, type LoggedSet } from '../../../stores/session-store';
 import {
   useCreateSession,
   useLogSet,
   useCompleteSession,
   useCancelSession,
   useCurrentExercise,
-  useIsCurrentExerciseComplete,
-} from "../hooks/useWorkoutSession";
+} from '../hooks/useWorkoutSession';
 
 // ─── Set Row ─────────────────────────────────────────────────────────────
 
-function SetRow({
-  set,
-  isActive,
-}: {
-  set: LoggedSet;
-  isActive: boolean;
-}) {
+function SetRow({ set, isActive }: { set: LoggedSet; isActive: boolean }) {
   return (
     <View
       className={`flex-row items-center py-2.5 px-3 rounded-lg mb-1 ${
-        isActive ? "bg-surface-800" : "bg-surface-900"
+        isActive ? 'bg-surface-800' : 'bg-surface-900'
       }`}
     >
       <Text className="text-surface-400 text-sm font-mono w-8">
@@ -51,13 +40,13 @@ function SetRow({
         × {set.reps}
       </Text>
       <Text className="text-surface-400 text-sm flex-1 text-center">
-        {set.rpe != null ? `RPE ${set.rpe}` : "—"}
+        {set.rpe != null ? `RPE ${set.rpe}` : '—'}
       </Text>
       <Text className="text-surface-500 text-xs flex-1 text-center">
-        {set.rir != null ? `${set.rir} RIR` : ""}
+        {set.rir != null ? `${set.rir} RIR` : ''}
       </Text>
       <Text className="text-surface-500 text-xs w-12 text-right font-mono">
-        {set.tempo ?? ""}
+        {set.tempo ?? ''}
       </Text>
     </View>
   );
@@ -73,7 +62,13 @@ interface SetFormState {
   tempo: string;
 }
 
-const emptyForm: SetFormState = { weightKg: "", reps: "", rpe: "", rir: "", tempo: "" };
+const emptyForm: SetFormState = {
+  weightKg: '',
+  reps: '',
+  rpe: '',
+  rir: '',
+  tempo: '',
+};
 
 function SetInputForm({
   setNumber,
@@ -104,7 +99,7 @@ function SetInputForm({
     (field: keyof SetFormState, value: string) => {
       setForm((prev) => ({ ...prev, [field]: value }));
     },
-    [],
+    []
   );
 
   const handleLog = useCallback(() => {
@@ -115,27 +110,27 @@ function SetInputForm({
     const tempo = form.tempo.trim() || null;
 
     if (isNaN(weightKg) || weightKg < 0) {
-      Alert.alert("Validation", "Enter a valid weight.");
+      Alert.alert('Validation', 'Enter a valid weight.');
       return;
     }
     if (isNaN(reps) || reps < 1) {
-      Alert.alert("Validation", "Reps must be at least 1.");
+      Alert.alert('Validation', 'Reps must be at least 1.');
       return;
     }
     if (rpe != null && (rpe < 1 || rpe > 10)) {
-      Alert.alert("Validation", "RPE must be between 1 and 10.");
+      Alert.alert('Validation', 'RPE must be between 1 and 10.');
       return;
     }
     if (rpe != null && rpe % 0.5 !== 0) {
-      Alert.alert("Validation", "RPE must be in 0.5 increments.");
+      Alert.alert('Validation', 'RPE must be in 0.5 increments.');
       return;
     }
     if (rir != null && (rir < 0 || rir > 10)) {
-      Alert.alert("Validation", "RIR must be between 0 and 10.");
+      Alert.alert('Validation', 'RIR must be between 0 and 10.');
       return;
     }
     if (tempo != null && !/^\d{3,4}$/.test(tempo)) {
-      Alert.alert("Validation", "Tempo must be 3 or 4 digits (e.g. 2020).");
+      Alert.alert('Validation', 'Tempo must be 3 or 4 digits (e.g. 2020).');
       return;
     }
 
@@ -150,7 +145,7 @@ function SetInputForm({
 
   const rpeHint =
     targetRpeLow != null || targetRpeHigh != null
-      ? `Target RPE ${targetRpeLow ?? "?"}–${targetRpeHigh ?? "?"}`
+      ? `Target RPE ${targetRpeLow ?? '?'}–${targetRpeHigh ?? '?'}`
       : null;
 
   return (
@@ -167,34 +162,37 @@ function SetInputForm({
         <View className="flex-1">
           <Text className="text-surface-400 text-xs mb-1">Weight (kg)</Text>
           <TextInput
+            accessibilityLabel="Text input field"
             ref={weightRef}
             keyboardType="decimal-pad"
             placeholder="0"
             placeholderTextColor="#52525b"
             value={form.weightKg}
-            onChangeText={(v) => updateField("weightKg", v)}
+            onChangeText={(v) => updateField('weightKg', v)}
             className="bg-surface-800 border border-surface-700 rounded-lg px-3 py-2.5 text-surface-100 text-sm"
           />
         </View>
         <View className="flex-1">
           <Text className="text-surface-400 text-xs mb-1">Reps</Text>
           <TextInput
+            accessibilityLabel="Text input field"
             keyboardType="number-pad"
             placeholder={String(targetReps)}
             placeholderTextColor="#52525b"
             value={form.reps}
-            onChangeText={(v) => updateField("reps", v)}
+            onChangeText={(v) => updateField('reps', v)}
             className="bg-surface-800 border border-surface-700 rounded-lg px-3 py-2.5 text-surface-100 text-sm"
           />
         </View>
         <View className="flex-1">
           <Text className="text-surface-400 text-xs mb-1">Tempo</Text>
           <TextInput
+            accessibilityLabel="Text input field"
             keyboardType="number-pad"
             placeholder="2020"
             placeholderTextColor="#52525b"
             value={form.tempo}
-            onChangeText={(v) => updateField("tempo", v)}
+            onChangeText={(v) => updateField('tempo', v)}
             className="bg-surface-800 border border-surface-700 rounded-lg px-3 py-2.5 text-surface-100 text-sm"
           />
         </View>
@@ -204,22 +202,24 @@ function SetInputForm({
         <View className="flex-1">
           <Text className="text-surface-400 text-xs mb-1">RPE (1–10)</Text>
           <TextInput
+            accessibilityLabel="Text input field"
             keyboardType="decimal-pad"
             placeholder="—"
             placeholderTextColor="#52525b"
             value={form.rpe}
-            onChangeText={(v) => updateField("rpe", v)}
+            onChangeText={(v) => updateField('rpe', v)}
             className="bg-surface-800 border border-surface-700 rounded-lg px-3 py-2.5 text-surface-100 text-sm"
           />
         </View>
         <View className="flex-1">
           <Text className="text-surface-400 text-xs mb-1">RIR (0–5)</Text>
           <TextInput
+            accessibilityLabel="Text input field"
             keyboardType="number-pad"
             placeholder="—"
             placeholderTextColor="#52525b"
             value={form.rir}
-            onChangeText={(v) => updateField("rir", v)}
+            onChangeText={(v) => updateField('rir', v)}
             className="bg-surface-800 border border-surface-700 rounded-lg px-3 py-2.5 text-surface-100 text-sm"
           />
         </View>
@@ -232,9 +232,7 @@ function SetInputForm({
           className="flex-1"
           onPress={handleLog}
         />
-        {isLastSet && (
-          <Button title="Skip" variant="ghost" onPress={onSkip} />
-        )}
+        {isLastSet && <Button title="Skip" variant="ghost" onPress={onSkip} />}
       </View>
     </Card>
   );
@@ -249,12 +247,11 @@ export function ActiveWorkoutScreen() {
     templateId?: string;
   }>();
 
-  const store = useSessionStore();
   const activeSessionId = useSessionStore((s) => s.activeSessionId);
   const exercises = useSessionStore((s) => s.exercises);
   const currentIndex = useSessionStore((s) => s.currentExerciseIndex);
   const setCurrentExerciseIndex = useSessionStore(
-    (s) => s.setCurrentExerciseIndex,
+    (s) => s.setCurrentExerciseIndex
   );
   const startRest = useSessionStore((s) => s.startRest);
 
@@ -264,15 +261,16 @@ export function ActiveWorkoutScreen() {
   const cancelMutation = useCancelSession();
 
   const currentExercise = useCurrentExercise();
-  const isCurrentComplete = useIsCurrentExerciseComplete();
-
-  const [isAdvancing, setIsAdvancing] = useState(false);
 
   // ─── Auto-create session on initial mount ──────────────────────────────
 
   useEffect(() => {
-    if (!activeSessionId && !createSession.isPending && !createSession.isSuccess) {
-      if (params.mode === "routine" && params.templateId) {
+    if (
+      !activeSessionId &&
+      !createSession.isPending &&
+      !createSession.isSuccess
+    ) {
+      if (params.mode === 'routine' && params.templateId) {
         createSession.mutate({ workoutTemplateId: params.templateId });
       } else {
         createSession.mutate({});
@@ -310,10 +308,10 @@ export function ActiveWorkoutScreen() {
           startRest(currentExercise.restSeconds);
         }
       } catch (err) {
-        Alert.alert("Error", (err as Error).message ?? "Failed to log set");
+        Alert.alert('Error', (err as Error).message ?? 'Failed to log set');
       }
     },
-    [currentExercise, activeSessionId, logSetMutation, startRest],
+    [currentExercise, activeSessionId, logSetMutation, startRest]
   );
 
   // ─── Advance to next exercise ──────────────────────────────────────────
@@ -333,17 +331,13 @@ export function ActiveWorkoutScreen() {
 
   const handleSkipExercise = useCallback(() => {
     if (!isLastExercise && nextExerciseName) {
-      Alert.alert(
-        "Skip Exercise",
-        "This exercise will remain incomplete.",
-        [
-          { text: "Stay", style: "cancel" },
-          {
-            text: `Skip to ${nextExerciseName}`,
-            onPress: handleAdvance,
-          },
-        ],
-      );
+      Alert.alert('Skip Exercise', 'This exercise will remain incomplete.', [
+        { text: 'Stay', style: 'cancel' },
+        {
+          text: `Skip to ${nextExerciseName}`,
+          onPress: handleAdvance,
+        },
+      ]);
     } else if (isLastExercise) {
       // On last exercise, skip means finish
       handleFinish();
@@ -355,20 +349,20 @@ export function ActiveWorkoutScreen() {
   // ─── Finish / Complete ────────────────────────────────────────────────
 
   const handleFinish = useCallback(() => {
-    Alert.alert("Finish Workout", "Mark this workout as complete?", [
-      { text: "Cancel", style: "cancel" },
+    Alert.alert('Finish Workout', 'Mark this workout as complete?', [
+      { text: 'Cancel', style: 'cancel' },
       {
-        text: "Complete",
+        text: 'Complete',
         onPress: async () => {
           try {
             await completeMutation.mutateAsync({});
             // Store is intentionally NOT cleared here — the WorkoutCompleteScreen
             // reads exercise/set data from it. It clears itself on navigation away.
-            router.replace("/(workout)/active?completed=true");
+            router.replace('/(workout)/active?completed=true');
           } catch (err) {
             Alert.alert(
-              "Error",
-              (err as Error).message ?? "Failed to complete workout",
+              'Error',
+              (err as Error).message ?? 'Failed to complete workout'
             );
           }
         },
@@ -380,26 +374,26 @@ export function ActiveWorkoutScreen() {
 
   const handleCancel = useCallback(() => {
     Alert.alert(
-      "Cancel Workout",
-      "Are you sure? This workout will be marked as cancelled.",
+      'Cancel Workout',
+      'Are you sure? This workout will be marked as cancelled.',
       [
-        { text: "Keep Going", style: "cancel" },
+        { text: 'Keep Going', style: 'cancel' },
         {
-          text: "Cancel Workout",
-          style: "destructive",
+          text: 'Cancel Workout',
+          style: 'destructive',
           onPress: async () => {
             try {
               await cancelMutation.mutateAsync();
               router.back();
             } catch (err) {
               Alert.alert(
-                "Error",
-                (err as Error).message ?? "Failed to cancel workout",
+                'Error',
+                (err as Error).message ?? 'Failed to cancel workout'
               );
             }
           },
         },
-      ],
+      ]
     );
   }, [cancelMutation, router]);
 
@@ -424,7 +418,7 @@ export function ActiveWorkoutScreen() {
           Could not start workout
         </Text>
         <Text className="text-surface-400 text-center mb-6">
-          {(createSession.error as Error)?.message ?? "An error occurred"}
+          {createSession.error?.message ?? 'An error occurred'}
         </Text>
         <Button
           title="Go Back"
@@ -463,11 +457,7 @@ export function ActiveWorkoutScreen() {
             variant="primary"
             onPress={handleFinish}
           />
-          <Button
-            title="Cancel"
-            variant="ghost"
-            onPress={handleCancel}
-          />
+          <Button title="Cancel" variant="ghost" onPress={handleCancel} />
         </View>
       </View>
     );
@@ -490,7 +480,11 @@ export function ActiveWorkoutScreen() {
     <View className="flex-1 bg-surface-950">
       {/* Top bar */}
       <View className="flex-row items-center justify-between px-4 pt-14 pb-2 bg-surface-950/90">
-        <TouchableOpacity onPress={handleCancel} className="p-2 -ml-2">
+        <TouchableOpacity
+          accessibilityRole="button"
+          onPress={handleCancel}
+          className="p-2 -ml-2"
+        >
           <Text className="text-surface-400 text-sm">Cancel</Text>
         </TouchableOpacity>
 
@@ -498,7 +492,11 @@ export function ActiveWorkoutScreen() {
           Exercise {currentIndex + 1} of {exercises.length}
         </Text>
 
-        <TouchableOpacity onPress={handleFinish} className="p-2 -mr-2">
+        <TouchableOpacity
+          accessibilityRole="button"
+          onPress={handleFinish}
+          className="p-2 -mr-2"
+        >
           <Text className="text-brand-500 text-sm font-medium">Finish</Text>
         </TouchableOpacity>
       </View>
@@ -508,14 +506,15 @@ export function ActiveWorkoutScreen() {
         <View className="flex-row justify-center gap-1.5 px-4 pb-2">
           {exercises.map((_, idx) => (
             <TouchableOpacity
+              accessibilityRole="button"
               key={idx}
               onPress={() => setCurrentExerciseIndex(idx)}
               className={`w-2 h-2 rounded-full ${
                 idx === currentIndex
-                  ? "bg-brand-500"
+                  ? 'bg-brand-500'
                   : exercises[idx].loggedSets.length > 0
-                    ? "bg-surface-500"
-                    : "bg-surface-700"
+                    ? 'bg-surface-500'
+                    : 'bg-surface-700'
               }`}
             />
           ))}
@@ -528,19 +527,16 @@ export function ActiveWorkoutScreen() {
           {currentExercise.exerciseName}
         </Text>
         <Text className="text-surface-400 text-sm mt-1">
-          Target: {currentExercise.targetSets} × {currentExercise.targetReps}{" "}
+          Target: {currentExercise.targetSets} × {currentExercise.targetReps}{' '}
           reps
           {currentExercise.targetRpeHigh != null
-            ? ` @ RPE ${currentExercise.targetRpeLow ?? ""}–${currentExercise.targetRpeHigh}`
-            : ""}
+            ? ` @ RPE ${currentExercise.targetRpeLow ?? ''}–${currentExercise.targetRpeHigh}`
+            : ''}
         </Text>
       </View>
 
       {/* Sets list + input */}
-      <ScrollView
-        className="flex-1 px-4"
-        keyboardShouldPersistTaps="handled"
-      >
+      <ScrollView className="flex-1 px-4" keyboardShouldPersistTaps="handled">
         {/* Column headers */}
         {currentExercise.loggedSets.length > 0 && (
           <View className="flex-row py-1 px-3 mb-1">
@@ -597,7 +593,7 @@ export function ActiveWorkoutScreen() {
 
             {!isLastExercise && (
               <Button
-                title={`Next: ${nextExerciseName ?? "Next Exercise"}`}
+                title={`Next: ${nextExerciseName ?? 'Next Exercise'}`}
                 variant="primary"
                 onPress={handleAdvance}
               />

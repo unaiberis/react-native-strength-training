@@ -13,8 +13,8 @@
  *   persistQueryClient({ queryClient, persister, maxAge: 1000 * 60 * 60 * 24 });
  */
 
-import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
-import type { SQLiteDatabase } from "expo-sqlite";
+import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister';
+import type { SQLiteDatabase } from 'expo-sqlite';
 
 /**
  * Create a React Query persister backed by a SQLite `react_query_cache` table.
@@ -28,24 +28,21 @@ export function createSqlitePersister(db: SQLiteDatabase) {
     storage: {
       getItem: async (key: string) => {
         const row = await db.getFirstAsync<{ value: string }>(
-          "SELECT value FROM react_query_cache WHERE key = ?",
-          [key],
+          'SELECT value FROM react_query_cache WHERE key = ?',
+          [key]
         );
         return row?.value ?? null;
       },
 
       setItem: async (key: string, value: string) => {
         await db.runAsync(
-          "INSERT OR REPLACE INTO react_query_cache (key, value) VALUES (?, ?)",
-          [key, value],
+          'INSERT OR REPLACE INTO react_query_cache (key, value) VALUES (?, ?)',
+          [key, value]
         );
       },
 
       removeItem: async (key: string) => {
-        await db.runAsync(
-          "DELETE FROM react_query_cache WHERE key = ?",
-          [key],
-        );
+        await db.runAsync('DELETE FROM react_query_cache WHERE key = ?', [key]);
       },
     },
   });

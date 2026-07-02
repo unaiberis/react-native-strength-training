@@ -7,11 +7,11 @@
  * 3. Auth offline preservation — getSession with network errors
  */
 
-jest.mock("expo-sqlite", () => ({}));
+jest.mock('expo-sqlite', () => ({}));
 
-import { createSqlitePersister } from "../sqlite-storage";
-import type { SQLiteDatabase } from "expo-sqlite";
-import type { PersistedClient } from "@tanstack/react-query-persist-client";
+import { createSqlitePersister } from '../sqlite-storage';
+import type { SQLiteDatabase } from 'expo-sqlite';
+import type { PersistedClient } from '@tanstack/react-query-persist-client';
 
 // ─── Test Db Factory ────────────────────────────────────────────────────
 
@@ -21,12 +21,12 @@ function createMockDb() {
   return {
     runAsync: jest.fn(async (_sql: string, ...params: unknown[]) => {
       const [sql] = [_sql];
-      if (sql.includes("INSERT OR REPLACE INTO react_query_cache")) {
+      if (sql.includes('INSERT OR REPLACE INTO react_query_cache')) {
         const p = params[0] as [string, string];
         store.set(p[0], p[1]);
         return { lastInsertRowId: 1, changes: 1 };
       }
-      if (sql.includes("DELETE FROM react_query_cache")) {
+      if (sql.includes('DELETE FROM react_query_cache')) {
         const p = params[0] as [string];
         store.delete(p[0]);
         return { lastInsertRowId: 0, changes: 1 };
@@ -35,35 +35,33 @@ function createMockDb() {
     }) as jest.Mock,
     getFirstAsync: jest.fn(async (_sql: string, ...params: unknown[]) => {
       const [sql] = [_sql];
-      if (sql.includes("SELECT value FROM react_query_cache")) {
+      if (sql.includes('SELECT value FROM react_query_cache')) {
         const p = params[0] as [string];
         return store.has(p[0]) ? { value: store.get(p[0]) } : null;
       }
       return null;
     }) as jest.Mock,
-    getAllAsync: jest.fn() as jest.Mock,
-    execAsync: jest.fn() as jest.Mock,
-    closeAsync: jest.fn() as jest.Mock,
+    getAllAsync: jest.fn(),
+    execAsync: jest.fn(),
+    closeAsync: jest.fn(),
   };
 }
 
 // ─── 1. React Query Persister Cache Roundtrip ──────────────────────────
 
-describe("React Query persister cache roundtrip", () => {
-  it("persister stores and retrieves query cache via SQLite", async () => {
+describe('React Query persister cache roundtrip', () => {
+  it('persister stores and retrieves query cache via SQLite', async () => {
     const db = createMockDb();
     const persister = createSqlitePersister(db as unknown as SQLiteDatabase);
 
     const client: PersistedClient = {
       timestamp: Date.now(),
-      buster: "1.0.0",
+      buster: '1.0.0',
       clientState: {
         queries: [
           {
             state: {
-              data: [
-                { id: "ex-1", name: "Squat", category: "Legs" },
-              ],
+              data: [{ id: 'ex-1', name: 'Squat', category: 'Legs' }],
               dataUpdateCount: 1,
               dataUpdatedAt: Date.now(),
               error: null,
@@ -73,10 +71,10 @@ describe("React Query persister cache roundtrip", () => {
               fetchFailureRetryCount: 0,
               fetchMeta: null,
               isInvalidated: false,
-              fetchStatus: "idle",
-              status: "success",
+              fetchStatus: 'idle',
+              status: 'success',
             } as any,
-            queryKey: ["exercises"],
+            queryKey: ['exercises'],
             queryHash: '["exercises"]',
           },
         ],
@@ -92,19 +90,21 @@ describe("React Query persister cache roundtrip", () => {
 
     expect(restored).not.toBeUndefined();
     expect(restored?.clientState.queries).toHaveLength(1);
-    expect(restored?.clientState.queries[0].queryKey).toEqual(["exercises"]);
+    expect(restored?.clientState.queries[0].queryKey).toEqual(['exercises']);
     expect(
-      (restored?.clientState.queries[0].state.data as Array<{ name: string }>)[0].name,
-    ).toBe("Squat");
+      (
+        restored?.clientState.queries[0].state.data as Array<{ name: string }>
+      )[0].name
+    ).toBe('Squat');
 
     // Verify SQLite was called with the cache key
     expect(db.runAsync).toHaveBeenCalledWith(
-      expect.stringContaining("INSERT OR REPLACE INTO react_query_cache"),
-      expect.arrayContaining(["REACT_QUERY_OFFLINE_CACHE"]),
+      expect.stringContaining('INSERT OR REPLACE INTO react_query_cache'),
+      expect.arrayContaining(['REACT_QUERY_OFFLINE_CACHE'])
     );
   });
 
-  it("persister returns undefined when cache is empty", async () => {
+  it('persister returns undefined when cache is empty', async () => {
     const db = createMockDb();
     const persister = createSqlitePersister(db as unknown as SQLiteDatabase);
 
@@ -112,13 +112,13 @@ describe("React Query persister cache roundtrip", () => {
     expect(restored).toBeUndefined();
   });
 
-  it("persister removes cache entries", async () => {
+  it('persister removes cache entries', async () => {
     const db = createMockDb();
     const persister = createSqlitePersister(db as unknown as SQLiteDatabase);
 
     const client: PersistedClient = {
       timestamp: Date.now(),
-      buster: "1.0.0",
+      buster: '1.0.0',
       clientState: { queries: [], mutations: [] },
     };
 
@@ -138,23 +138,23 @@ describe("React Query persister cache roundtrip", () => {
     expect(restored).toBeUndefined();
   });
 
-  it("persister roundtrip preserves complex nested data", async () => {
+  it('persister roundtrip preserves complex nested data', async () => {
     const db = createMockDb();
     // Mock a scenario where we store and retrieve
     // Instead of using the persister's internal key, we test the full cycle
     const persister = createSqlitePersister(db as unknown as SQLiteDatabase);
 
     // Override the persistent behavior: restore from store
-    (db.getFirstAsync as jest.Mock).mockImplementation(
+    db.getFirstAsync.mockImplementation(
       async (_sql: string, ...params: unknown[]) => {
         const [sql] = [_sql];
-        if (sql.includes("SELECT value FROM react_query_cache")) {
+        if (sql.includes('SELECT value FROM react_query_cache')) {
           const p = params[0] as [string];
-          if (p[0] === "REACT_QUERY_OFFLINE_CACHE") {
+          if (p[0] === 'REACT_QUERY_OFFLINE_CACHE') {
             return {
               value: JSON.stringify({
                 timestamp: 1000,
-                buster: "1.0.0",
+                buster: '1.0.0',
                 clientState: {
                   queries: [
                     {
@@ -169,10 +169,10 @@ describe("React Query persister cache roundtrip", () => {
                         fetchFailureRetryCount: 0,
                         fetchMeta: null,
                         isInvalidated: false,
-                        fetchStatus: "idle",
-                        status: "success",
+                        fetchStatus: 'idle',
+                        status: 'success',
                       },
-                      queryKey: ["test"],
+                      queryKey: ['test'],
                       queryHash: '["test"]',
                     },
                   ],
@@ -183,7 +183,7 @@ describe("React Query persister cache roundtrip", () => {
           }
         }
         return null;
-      },
+      }
     );
 
     const restored = await persister.restoreClient();
@@ -194,29 +194,29 @@ describe("React Query persister cache roundtrip", () => {
 
 // ─── 2. Startup Sequence ─────────────────────────────────────────────────
 
-describe("startup sequence", () => {
-  it("creates persister adapter from database instance", async () => {
+describe('startup sequence', () => {
+  it('creates persister adapter from database instance', async () => {
     const db = createMockDb();
     const persister = createSqlitePersister(db as unknown as SQLiteDatabase);
 
     expect(persister).toBeDefined();
-    expect(typeof persister.persistClient).toBe("function");
-    expect(typeof persister.restoreClient).toBe("function");
-    expect(typeof persister.removeClient).toBe("function");
+    expect(typeof persister.persistClient).toBe('function');
+    expect(typeof persister.restoreClient).toBe('function');
+    expect(typeof persister.removeClient).toBe('function');
   });
 
-  it("persister store and restore roundtrip preserves query data", async () => {
+  it('persister store and restore roundtrip preserves query data', async () => {
     const db = createMockDb();
     const persister = createSqlitePersister(db as unknown as SQLiteDatabase);
 
     const client: PersistedClient = {
       timestamp: Date.now(),
-      buster: "1.0.0",
+      buster: '1.0.0',
       clientState: {
         queries: [
           {
             state: {
-              data: { items: ["a", "b", "c"] },
+              data: { items: ['a', 'b', 'c'] },
               dataUpdateCount: 1,
               dataUpdatedAt: Date.now(),
               error: null,
@@ -226,10 +226,10 @@ describe("startup sequence", () => {
               fetchFailureRetryCount: 0,
               fetchMeta: null,
               isInvalidated: false,
-              fetchStatus: "idle",
-              status: "success",
+              fetchStatus: 'idle',
+              status: 'success',
             } as any,
-            queryKey: ["exercises", "all"],
+            queryKey: ['exercises', 'all'],
             queryHash: '["exercises","all"]',
           },
         ],
@@ -239,18 +239,20 @@ describe("startup sequence", () => {
 
     await persister.persistClient(client);
     const restored = await persister.restoreClient();
-    expect(restored?.clientState.queries[0].state.data).toEqual({ items: ["a", "b", "c"] });
+    expect(restored?.clientState.queries[0].state.data).toEqual({
+      items: ['a', 'b', 'c'],
+    });
   });
 });
 
 // ─── 3. Auth Offline Preservation ───────────────────────────────────────
 
-describe("auth offline preservation", () => {
-  it("preserves token on network error (no status field)", async () => {
+describe('auth offline preservation', () => {
+  it('preserves token on network error (no status field)', async () => {
     const authStore = {
       isValid: true,
-      record: { id: "user-1", email: "test@test.com" },
-      token: "valid-token",
+      record: { id: 'user-1', email: 'test@test.com' },
+      token: 'valid-token',
       clear: jest.fn(),
     };
 
@@ -260,30 +262,30 @@ describe("auth offline preservation", () => {
       }
 
       try {
-        const err = new TypeError("Network request failed");
+        const err = new TypeError('Network request failed');
         throw err;
       } catch (err: any) {
         // Network error (no status or status 0) — preserve token
         if (!err?.status || err.status === 0) {
-          return { session: null, error: "Network unavailable" };
+          return { session: null, error: 'Network unavailable' };
         }
         // 401 / auth error
         authStore.clear();
-        return { session: null, error: "Session expired" };
+        return { session: null, error: 'Session expired' };
       }
     }
 
     const result = await getSession();
-    expect(result.error).toBe("Network unavailable");
+    expect(result.error).toBe('Network unavailable');
     expect(result.session).toBeNull();
     expect(authStore.clear).not.toHaveBeenCalled();
   });
 
-  it("preserves token on status 0 network error", async () => {
+  it('preserves token on status 0 network error', async () => {
     const authStore = {
       isValid: true,
-      record: { id: "user-1" },
-      token: "valid-token",
+      record: { id: 'user-1' },
+      token: 'valid-token',
       clear: jest.fn(),
     };
 
@@ -293,29 +295,32 @@ describe("auth offline preservation", () => {
       }
 
       try {
-        throw { status: 0, message: "Offline" };
+        // eslint-disable-next-line @typescript-eslint/only-throw-error
+        throw { status: 0, message: 'Offline' };
       } catch (err: any) {
         if (!err?.status || err.status === 0) {
-          return { session: null, error: "Network unavailable" };
+          return { session: null, error: 'Network unavailable' };
         }
         authStore.clear();
-        return { session: null, error: "Session expired" };
+        return { session: null, error: 'Session expired' };
       }
     }
 
     const result = await getSession();
-    expect(result.error).toBe("Network unavailable");
+    expect(result.error).toBe('Network unavailable');
     expect(result.session).toBeNull();
     expect(authStore.clear).not.toHaveBeenCalled();
   });
 
-  it("clears token on 401 auth error", async () => {
+  it('clears token on 401 auth error', async () => {
     let cleared = false;
     const authStore = {
       isValid: true,
-      record: { id: "user-1" },
-      token: "expired-token",
-      clear: () => { cleared = true; },
+      record: { id: 'user-1' },
+      token: 'expired-token',
+      clear: () => {
+        cleared = true;
+      },
     };
 
     async function getSession() {
@@ -324,23 +329,24 @@ describe("auth offline preservation", () => {
       }
 
       try {
-        throw { status: 401, message: "Unauthorized" };
+        // eslint-disable-next-line @typescript-eslint/only-throw-error
+        throw { status: 401, message: 'Unauthorized' };
       } catch (err: any) {
         if (!err?.status || err.status === 0) {
-          return { session: null, error: "Network unavailable" };
+          return { session: null, error: 'Network unavailable' };
         }
         authStore.clear();
-        return { session: null, error: "Session expired" };
+        return { session: null, error: 'Session expired' };
       }
     }
 
     const result = await getSession();
-    expect(result.error).toBe("Session expired");
+    expect(result.error).toBe('Session expired');
     expect(result.session).toBeNull();
     expect(cleared).toBe(true);
   });
 
-  it("returns null session when authStore is invalid", async () => {
+  it('returns null session when authStore is invalid', async () => {
     async function getSession() {
       const authStore = { isValid: false };
       if (!authStore.isValid) {
@@ -354,7 +360,7 @@ describe("auth offline preservation", () => {
     expect(result.error).toBeNull();
   });
 
-  it("returns valid session on successful refresh", async () => {
+  it('returns valid session on successful refresh', async () => {
     async function getSession() {
       const authStore = { isValid: true };
       if (!authStore.isValid) {
@@ -363,8 +369,8 @@ describe("auth offline preservation", () => {
 
       try {
         const authData = {
-          record: { id: "user-1", email: "test@test.com" },
-          token: "fresh-token",
+          record: { id: 'user-1', email: 'test@test.com' },
+          token: 'fresh-token',
         };
         return {
           session: { user: authData.record, token: authData.token },
@@ -372,16 +378,16 @@ describe("auth offline preservation", () => {
         };
       } catch (err: any) {
         if (!err?.status || err.status === 0) {
-          return { session: null, error: "Network unavailable" };
+          return { session: null, error: 'Network unavailable' };
         }
-        return { session: null, error: "Session expired" };
+        return { session: null, error: 'Session expired' };
       }
     }
 
     const result = await getSession();
     expect(result.session).toEqual({
-      user: { id: "user-1", email: "test@test.com" },
-      token: "fresh-token",
+      user: { id: 'user-1', email: 'test@test.com' },
+      token: 'fresh-token',
     });
     expect(result.error).toBeNull();
   });

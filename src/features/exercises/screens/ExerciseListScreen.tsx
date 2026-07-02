@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { memo, useCallback, useState } from 'react';
 import {
   View,
   Text,
@@ -6,13 +6,13 @@ import {
   TouchableOpacity,
   RefreshControl,
   ActivityIndicator,
-} from "react-native";
-import { useRouter } from "expo-router";
-import { Card } from "../../../shared/ui/Card";
-import { useExercises, useCategories } from "../hooks/useExercises";
-import type { ExerciseRow } from "../../../types/pocketbase";
+} from 'react-native';
+import { useRouter } from 'expo-router';
+import { useExercises, useCategories } from '../hooks/useExercises';
+import type { ExerciseRow } from '../../../types/pocketbase';
 
 const PAGE_SIZE = 20;
+const ITEM_HEIGHT = 100;
 
 interface CategoryChipProps {
   label: string;
@@ -20,30 +20,40 @@ interface CategoryChipProps {
   onPress: () => void;
 }
 
-function CategoryChip({ label, selected, onPress }: CategoryChipProps) {
+const CategoryChip = memo(function CategoryChip({
+  label,
+  selected,
+  onPress,
+}: CategoryChipProps) {
   return (
     <TouchableOpacity
+      accessibilityRole="button"
       onPress={onPress}
       className={`
         px-4 py-2 rounded-full mr-2 mb-2
-        ${selected ? "bg-brand-500" : "bg-surface-800 border border-surface-700"}
+        ${selected ? 'bg-brand-500' : 'bg-surface-800 border border-surface-700'}
       `}
     >
       <Text
-        className={`text-sm font-medium ${selected ? "text-surface-950" : "text-surface-300"}`}
+        className={`text-sm font-medium ${selected ? 'text-surface-950' : 'text-surface-300'}`}
       >
         {label.charAt(0).toUpperCase() + label.slice(1)}
       </Text>
     </TouchableOpacity>
   );
-}
+});
 
-function ExerciseItem({ exercise }: { exercise: ExerciseRow }) {
+const ExerciseItem = memo(function ExerciseItem({
+  exercise,
+}: {
+  exercise: ExerciseRow;
+}) {
   const router = useRouter();
 
   return (
     <TouchableOpacity
-      onPress={() => router.push(`/(tabs)/exercises/${exercise.id}`)}
+      accessibilityRole="button"
+      onPress={() => router.push(`/exercises/${exercise.id}`)}
       className="bg-surface-900 rounded-xl p-4 mb-3 border border-surface-800 active:opacity-80"
     >
       <Text className="text-surface-100 text-base font-semibold mb-1">
@@ -58,29 +68,28 @@ function ExerciseItem({ exercise }: { exercise: ExerciseRow }) {
         {exercise.body_region && (
           <View className="bg-surface-800 rounded-full px-2.5 py-0.5">
             <Text className="text-surface-400 text-xs capitalize">
-              {exercise.body_region.replace("_", " ")}
+              {exercise.body_region.replace('_', ' ')}
             </Text>
           </View>
         )}
       </View>
       {exercise.equipment && exercise.equipment.length > 0 && (
         <Text className="text-surface-500 text-xs mt-1.5">
-          {exercise.equipment.join(" · ")}
+          {exercise.equipment.join(' · ')}
         </Text>
       )}
     </TouchableOpacity>
   );
-}
+});
 
 export function ExerciseListScreen() {
-  const router = useRouter();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [page, setPage] = useState(0);
 
   const { data, isLoading, isRefetching, refetch } = useExercises(
     selectedCategory,
     page,
-    PAGE_SIZE,
+    PAGE_SIZE
   );
   const { data: categories } = useCategories();
 
@@ -104,11 +113,11 @@ export function ExerciseListScreen() {
     }
   }, [hasMore, isLoading]);
 
-  const allCategories = ["all", ...(categories ?? [])];
+  const allCategories = ['all', ...(categories ?? [])];
 
   const renderItem = useCallback(
     ({ item }: { item: ExerciseRow }) => <ExerciseItem exercise={item} />,
-    [],
+    []
   );
 
   const keyExtractor = useCallback((item: ExerciseRow) => item.id, []);
@@ -128,11 +137,14 @@ export function ExerciseListScreen() {
       <View className="flex-1 items-center justify-center py-16">
         <Text className="text-surface-500 text-base mb-2">
           {selectedCategory
-            ? "No exercises found in this category"
-            : "No exercises available"}
+            ? 'No exercises found in this category'
+            : 'No exercises available'}
         </Text>
         {selectedCategory && (
-          <TouchableOpacity onPress={() => handleCategoryPress(null)}>
+          <TouchableOpacity
+            accessibilityRole="button"
+            onPress={() => handleCategoryPress(null)}
+          >
             <Text className="text-brand-500 text-sm">Clear filter</Text>
           </TouchableOpacity>
         )}
@@ -151,13 +163,13 @@ export function ExerciseListScreen() {
           keyExtractor={(item) => item}
           renderItem={({ item }) => (
             <CategoryChip
-              label={item === "all" ? "All" : item}
+              label={item === 'all' ? 'All' : item}
               selected={
-                item === "all" ? selectedCategory === null : selectedCategory === item
+                item === 'all'
+                  ? selectedCategory === null
+                  : selectedCategory === item
               }
-              onPress={() =>
-                handleCategoryPress(item === "all" ? null : item)
-              }
+              onPress={() => handleCategoryPress(item === 'all' ? null : item)}
             />
           )}
           contentContainerStyle={{ paddingRight: 16 }}
@@ -169,6 +181,11 @@ export function ExerciseListScreen() {
         data={exercises}
         renderItem={renderItem}
         keyExtractor={keyExtractor}
+        getItemLayout={(_data, index) => ({
+          length: ITEM_HEIGHT,
+          offset: ITEM_HEIGHT * index,
+          index,
+        })}
         contentContainerClassName="px-4 pb-8"
         refreshControl={
           <RefreshControl

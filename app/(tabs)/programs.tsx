@@ -1,7 +1,7 @@
-import { View, Text, ScrollView, TouchableOpacity } from "react-native";
-import { useRouter } from "expo-router";
-import { Card } from "../../src/shared/ui/Card";
-import { Button } from "../../src/shared/ui/Button";
+import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { useRouter } from 'expo-router';
+import { Card } from '../../src/shared/ui/Card';
+import { Button } from '../../src/shared/ui/Button';
 
 export default function ProgramsScreen() {
   const router = useRouter();
@@ -24,19 +24,21 @@ export default function ProgramsScreen() {
             title="View Routines"
             variant="secondary"
             className="flex-1"
-            onPress={() => router.push("/routines")}
+            onPress={() => router.push('/routines')}
           />
           <Button
             title="Create New"
             variant="primary"
             className="flex-1"
-            onPress={() => router.push("/routines/new")}
+            onPress={() => router.push('/routines/new')}
           />
         </View>
       </Card>
 
       <TouchableOpacity
-        onPress={() => router.push("/routines")}
+        onPress={() => router.push('/routines')}
+        accessibilityRole="button"
+        accessibilityLabel="Your Routines, Browse, edit, or delete your saved workout templates"
         className="bg-surface-900 rounded-xl p-4 mb-3 border border-surface-800 active:opacity-80"
       >
         <Text className="text-surface-100 text-base font-semibold mb-1">

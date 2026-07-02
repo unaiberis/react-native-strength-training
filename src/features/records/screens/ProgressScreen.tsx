@@ -1,19 +1,30 @@
-import { useState, useCallback } from "react";
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl } from "react-native";
-import { useRouter } from "expo-router";
-import { Card } from "../../../shared/ui/Card";
-import { Button } from "../../../shared/ui/Button";
-import { usePersonalRecords, getPRTypeLabel, formatPRValue } from "../hooks/usePersonalRecords";
-import type { PRDisplayItem } from "../hooks/usePersonalRecords";
+import { useState, useCallback } from 'react';
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  ActivityIndicator,
+  RefreshControl,
+} from 'react-native';
+import { useRouter } from 'expo-router';
+import { Card } from '../../../shared/ui/Card';
+import { Button } from '../../../shared/ui/Button';
+import {
+  usePersonalRecords,
+  getPRTypeLabel,
+  formatPRValue,
+} from '../hooks/usePersonalRecords';
+import type { PRDisplayItem } from '../hooks/usePersonalRecords';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────
 
 function formatDate(iso: string): string {
   const d = new Date(iso);
   return d.toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
   });
 }
 
@@ -32,9 +43,7 @@ function PRCard({ record }: { record: PRDisplayItem }) {
           </Text>
         </View>
         <View className="items-end">
-          <Text className="text-brand-500 text-sm font-bold">
-            PR
-          </Text>
+          <Text className="text-brand-500 text-sm font-bold">PR</Text>
           {record.achieved_at && (
             <Text className="text-surface-500 text-xs mt-0.5">
               {formatDate(record.achieved_at)}
@@ -77,20 +86,24 @@ function ExercisePRGroup({
   return (
     <Card className="mb-3">
       <TouchableOpacity
+        accessibilityRole="button"
         onPress={onToggle}
         className="flex-row justify-between items-center active:opacity-80"
       >
-        <Text className="text-surface-100 text-base font-semibold flex-1 mr-2" numberOfLines={1}>
+        <Text
+          className="text-surface-100 text-base font-semibold flex-1 mr-2"
+          numberOfLines={1}
+        >
           {exerciseName}
         </Text>
         <View className="flex-row items-center gap-2">
           <View className="bg-brand-500/20 rounded-lg px-2 py-0.5">
             <Text className="text-brand-400 text-xs font-medium">
-              {records.length} PR{records.length !== 1 ? "s" : ""}
+              {records.length} PR{records.length !== 1 ? 's' : ''}
             </Text>
           </View>
           <Text className="text-surface-500 text-sm">
-            {isExpanded ? "▲" : "▼"}
+            {isExpanded ? '▲' : '▼'}
           </Text>
         </View>
       </TouchableOpacity>
@@ -110,16 +123,11 @@ function ExercisePRGroup({
 
 export function ProgressScreen() {
   const router = useRouter();
-  const {
-    groupedByExercise,
-    isLoading,
-    isRefetching,
-    refetch,
-    totalPRs,
-  } = usePersonalRecords();
+  const { groupedByExercise, isLoading, isRefetching, refetch, totalPRs } =
+    usePersonalRecords();
 
   const [expandedExercises, setExpandedExercises] = useState<Set<string>>(
-    new Set(),
+    new Set()
   );
 
   const toggleExercise = useCallback((exerciseId: string) => {
@@ -138,7 +146,7 @@ export function ProgressScreen() {
 
   return (
     <ScrollView
-      className="flex-1 bg-surface-950 px-4 pt-4"
+      className="flex-1 bg-surface-950 px-4 pt-16"
       refreshControl={
         <RefreshControl
           refreshing={isRefetching}
@@ -151,9 +159,9 @@ export function ProgressScreen() {
       <Text className="text-surface-50 text-2xl font-bold mb-2">Progress</Text>
       {hasRecords && (
         <Text className="text-surface-400 text-sm mb-4">
-          {totalPRs} personal record{totalPRs !== 1 ? "s" : ""} across{" "}
+          {totalPRs} personal record{totalPRs !== 1 ? 's' : ''} across{' '}
           {groupedByExercise.length} exercise
-          {groupedByExercise.length !== 1 ? "s" : ""}
+          {groupedByExercise.length !== 1 ? 's' : ''}
         </Text>
       )}
 
@@ -178,7 +186,7 @@ export function ProgressScreen() {
           <Button
             title="Start a Workout"
             variant="primary"
-            onPress={() => router.push("/(tabs)/train")}
+            onPress={() => router.push('/(tabs)/train')}
           />
         </View>
       )}

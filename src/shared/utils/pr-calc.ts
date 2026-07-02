@@ -42,7 +42,7 @@ export function calculateVolume(weightKg: number, reps: number): number {
  * Calculate total tonnage across multiple sets: Σ(weight × reps).
  */
 export function calculateTonnage(
-  sets: { weightKg: number; reps: number }[],
+  sets: { weightKg: number; reps: number }[]
 ): number {
   return sets.reduce((sum, s) => sum + calculateVolume(s.weightKg, s.reps), 0);
 }
@@ -61,7 +61,7 @@ export interface SetWithE1RM {
  * Returns `null` if the list is empty or no sets produce a valid e1RM.
  */
 export function findBestSetByE1RM(
-  sets: { weightKg: number; reps: number }[],
+  sets: { weightKg: number; reps: number }[]
 ): SetWithE1RM | null {
   let best: SetWithE1RM | null = null;
 
@@ -83,7 +83,7 @@ export function findBestSetByE1RM(
  * Returns `null` if the list is empty.
  */
 export function findBestSetByVolume(
-  sets: { weightKg: number; reps: number }[],
+  sets: { weightKg: number; reps: number }[]
 ): SetWithE1RM | null {
   let best: SetWithE1RM | null = null;
 
@@ -127,7 +127,7 @@ export function detectPRs(
     estimatedOneRepMax?: number;
     bestVolumeSet?: number;
     bestTonnage?: number;
-  },
+  }
 ): PRDetectionResult {
   const workingSets = sets.filter((s) => s.reps > 0 && s.weightKg > 0);
 

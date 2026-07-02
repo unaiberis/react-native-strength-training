@@ -1,6 +1,6 @@
-import { pb } from "../client";
-import type { LoginInput, RegisterInput } from "../../../shared/schemas/auth";
-import type { RecordModel } from "pocketbase";
+import { pb } from '../client';
+import type { LoginInput, RegisterInput } from '../../../shared/schemas/auth';
+import type { RecordModel } from 'pocketbase';
 
 export interface AuthResult {
   error: string | null;
@@ -18,7 +18,7 @@ export interface SessionResult {
  */
 export async function signUp(input: RegisterInput): Promise<AuthResult> {
   try {
-    const record = await pb.collection("users").create({
+    const record = await pb.collection('users').create({
       email: input.email,
       password: input.password,
       passwordConfirm: input.password,
@@ -36,10 +36,9 @@ export async function signUp(input: RegisterInput): Promise<AuthResult> {
  */
 export async function signIn(input: LoginInput): Promise<AuthResult> {
   try {
-    const authData = await pb.collection("users").authWithPassword(
-      input.email,
-      input.password,
-    );
+    const authData = await pb
+      .collection('users')
+      .authWithPassword(input.email, input.password);
 
     return { error: null, user: authData.record ?? null };
   } catch (err: any) {
@@ -65,7 +64,7 @@ export async function getSession(): Promise<SessionResult> {
   }
 
   try {
-    const authData = await pb.collection("users").authRefresh();
+    const authData = await pb.collection('users').authRefresh();
     return {
       session: { user: authData.record, token: authData.token },
       error: null,
@@ -73,11 +72,11 @@ export async function getSession(): Promise<SessionResult> {
   } catch (err: any) {
     // Network error (no HTTP status or status 0) — preserve stored token
     if (!err?.status || err.status === 0) {
-      return { session: null, error: "Network unavailable" };
+      return { session: null, error: 'Network unavailable' };
     }
     // 401 / auth error — token truly expired
     pb.authStore.clear();
-    return { session: null, error: "Session expired" };
+    return { session: null, error: 'Session expired' };
   }
 }
 
@@ -86,7 +85,7 @@ export async function getSession(): Promise<SessionResult> {
  * Returns an unsubscribe function.
  */
 export function onAuthStateChange(
-  callback: (token: string, record: RecordModel | null) => void,
+  callback: (token: string, record: RecordModel | null) => void
 ): () => void {
   return pb.authStore.onChange((token, record) => {
     callback(token, record);
@@ -98,38 +97,35 @@ export function onAuthStateChange(
  */
 function mapAuthError(err: any): string {
   const message =
-    err?.response?.message ?? err?.message ?? "An unexpected error occurred";
+    err?.response?.message ?? err?.message ?? 'An unexpected error occurred';
   const lower = message.toLowerCase();
 
   if (
-    lower.includes("already exists") ||
-    lower.includes("duplicate") ||
-    lower.includes("already in use")
+    lower.includes('already exists') ||
+    lower.includes('duplicate') ||
+    lower.includes('already in use')
   ) {
-    return "An account with this email already exists";
+    return 'An account with this email already exists';
   }
 
   if (
-    lower.includes("invalid login credentials") ||
-    lower.includes("invalid email or password") ||
-    lower.includes("invalid identity")
+    lower.includes('invalid login credentials') ||
+    lower.includes('invalid email or password') ||
+    lower.includes('invalid identity')
   ) {
-    return "Invalid email or password";
+    return 'Invalid email or password';
   }
 
   if (
-    lower.includes("not confirmed") ||
-    lower.includes("email not confirmed") ||
-    lower.includes("unverified")
+    lower.includes('not confirmed') ||
+    lower.includes('email not confirmed') ||
+    lower.includes('unverified')
   ) {
-    return "Please confirm your email before signing in";
+    return 'Please confirm your email before signing in';
   }
 
-  if (
-    lower.includes("rate limit") ||
-    lower.includes("too many")
-  ) {
-    return "Too many attempts. Please try again later";
+  if (lower.includes('rate limit') || lower.includes('too many')) {
+    return 'Too many attempts. Please try again later';
   }
 
   return message;

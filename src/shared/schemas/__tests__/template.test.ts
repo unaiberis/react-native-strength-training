@@ -1,11 +1,11 @@
-import { workoutTemplateSchema, templateExerciseSchema } from "../template";
+import { workoutTemplateSchema, templateExerciseSchema } from '../template';
 
 // ─── templateExerciseSchema ────────────────────────────────────────────────
 
-describe("templateExerciseSchema", () => {
-  it("accepts valid exercise config", () => {
+describe('templateExerciseSchema', () => {
+  it('accepts valid exercise config', () => {
     const result = templateExerciseSchema.safeParse({
-      exerciseId: "550e8400-e29b-41d4-a716-446655440000",
+      exerciseId: '550e8400-e29b-41d4-a716-446655440000',
       sortOrder: 0,
       targetSets: 3,
       targetReps: 10,
@@ -14,9 +14,9 @@ describe("templateExerciseSchema", () => {
     expect(result.success).toBe(true);
   });
 
-  it("applies defaults for optional fields", () => {
+  it('applies defaults for optional fields', () => {
     const result = templateExerciseSchema.safeParse({
-      exerciseId: "550e8400-e29b-41d4-a716-446655440000",
+      exerciseId: '550e8400-e29b-41d4-a716-446655440000',
       sortOrder: 0,
     });
     expect(result.success).toBe(true);
@@ -27,61 +27,61 @@ describe("templateExerciseSchema", () => {
     }
   });
 
-  it("rejects invalid exerciseId (not UUID)", () => {
+  it('rejects invalid exerciseId (not UUID)', () => {
     const result = templateExerciseSchema.safeParse({
-      exerciseId: "not-a-uuid",
+      exerciseId: 'not-a-uuid',
       sortOrder: 0,
     });
     expect(result.success).toBe(false);
   });
 
-  it("rejects targetSets at 0 (min is 1)", () => {
+  it('rejects targetSets at 0 (min is 1)', () => {
     const result = templateExerciseSchema.safeParse({
-      exerciseId: "550e8400-e29b-41d4-a716-446655440000",
+      exerciseId: '550e8400-e29b-41d4-a716-446655440000',
       sortOrder: 0,
       targetSets: 0,
     });
     expect(result.success).toBe(false);
   });
 
-  it("rejects targetSets above 20", () => {
+  it('rejects targetSets above 20', () => {
     const result = templateExerciseSchema.safeParse({
-      exerciseId: "550e8400-e29b-41d4-a716-446655440000",
+      exerciseId: '550e8400-e29b-41d4-a716-446655440000',
       sortOrder: 0,
       targetSets: 21,
     });
     expect(result.success).toBe(false);
   });
 
-  it("rejects targetReps at 0", () => {
+  it('rejects targetReps at 0', () => {
     const result = templateExerciseSchema.safeParse({
-      exerciseId: "550e8400-e29b-41d4-a716-446655440000",
+      exerciseId: '550e8400-e29b-41d4-a716-446655440000',
       sortOrder: 0,
       targetReps: 0,
     });
     expect(result.success).toBe(false);
   });
 
-  it("rejects targetReps above 100", () => {
+  it('rejects targetReps above 100', () => {
     const result = templateExerciseSchema.safeParse({
-      exerciseId: "550e8400-e29b-41d4-a716-446655440000",
+      exerciseId: '550e8400-e29b-41d4-a716-446655440000',
       sortOrder: 0,
       targetReps: 101,
     });
     expect(result.success).toBe(false);
   });
 
-  it("rejects negative sort order", () => {
+  it('rejects negative sort order', () => {
     const result = templateExerciseSchema.safeParse({
-      exerciseId: "550e8400-e29b-41d4-a716-446655440000",
+      exerciseId: '550e8400-e29b-41d4-a716-446655440000',
       sortOrder: -1,
     });
     expect(result.success).toBe(false);
   });
 
-  it("accepts optional RPE low/high values", () => {
+  it('accepts optional RPE low/high values', () => {
     const result = templateExerciseSchema.safeParse({
-      exerciseId: "550e8400-e29b-41d4-a716-446655440000",
+      exerciseId: '550e8400-e29b-41d4-a716-446655440000',
       sortOrder: 0,
       targetRpeLow: 6,
       targetRpeHigh: 8,
@@ -89,29 +89,29 @@ describe("templateExerciseSchema", () => {
     expect(result.success).toBe(true);
   });
 
-  it("rejects RPE below 1", () => {
+  it('rejects RPE below 1', () => {
     const result = templateExerciseSchema.safeParse({
-      exerciseId: "550e8400-e29b-41d4-a716-446655440000",
+      exerciseId: '550e8400-e29b-41d4-a716-446655440000',
       sortOrder: 0,
       targetRpeLow: 0,
     });
     expect(result.success).toBe(false);
   });
 
-  it("rejects RPE above 10", () => {
+  it('rejects RPE above 10', () => {
     const result = templateExerciseSchema.safeParse({
-      exerciseId: "550e8400-e29b-41d4-a716-446655440000",
+      exerciseId: '550e8400-e29b-41d4-a716-446655440000',
       sortOrder: 0,
       targetRpeHigh: 11,
     });
     expect(result.success).toBe(false);
   });
 
-  it("rejects notes longer than 500 chars", () => {
+  it('rejects notes longer than 500 chars', () => {
     const result = templateExerciseSchema.safeParse({
-      exerciseId: "550e8400-e29b-41d4-a716-446655440000",
+      exerciseId: '550e8400-e29b-41d4-a716-446655440000',
       sortOrder: 0,
-      notes: "x".repeat(501),
+      notes: 'x'.repeat(501),
     });
     expect(result.success).toBe(false);
   });
@@ -119,15 +119,15 @@ describe("templateExerciseSchema", () => {
 
 // ─── workoutTemplateSchema ─────────────────────────────────────────────────
 
-describe("workoutTemplateSchema", () => {
-  it("accepts valid template with exercises", () => {
+describe('workoutTemplateSchema', () => {
+  it('accepts valid template with exercises', () => {
     const result = workoutTemplateSchema.safeParse({
-      name: "Push Day",
-      description: "Chest, shoulders, triceps",
+      name: 'Push Day',
+      description: 'Chest, shoulders, triceps',
       isPublic: false,
       exercises: [
         {
-          exerciseId: "550e8400-e29b-41d4-a716-446655440000",
+          exerciseId: '550e8400-e29b-41d4-a716-446655440000',
           sortOrder: 0,
         },
       ],
@@ -135,12 +135,12 @@ describe("workoutTemplateSchema", () => {
     expect(result.success).toBe(true);
   });
 
-  it("rejects empty name", () => {
+  it('rejects empty name', () => {
     const result = workoutTemplateSchema.safeParse({
-      name: "",
+      name: '',
       exercises: [
         {
-          exerciseId: "550e8400-e29b-41d4-a716-446655440000",
+          exerciseId: '550e8400-e29b-41d4-a716-446655440000',
           sortOrder: 0,
         },
       ],
@@ -148,12 +148,12 @@ describe("workoutTemplateSchema", () => {
     expect(result.success).toBe(false);
   });
 
-  it("rejects name over 100 characters", () => {
+  it('rejects name over 100 characters', () => {
     const result = workoutTemplateSchema.safeParse({
-      name: "A".repeat(101),
+      name: 'A'.repeat(101),
       exercises: [
         {
-          exerciseId: "550e8400-e29b-41d4-a716-446655440000",
+          exerciseId: '550e8400-e29b-41d4-a716-446655440000',
           sortOrder: 0,
         },
       ],
@@ -161,21 +161,21 @@ describe("workoutTemplateSchema", () => {
     expect(result.success).toBe(false);
   });
 
-  it("rejects template with no exercises", () => {
+  it('rejects template with no exercises', () => {
     const result = workoutTemplateSchema.safeParse({
-      name: "Push Day",
+      name: 'Push Day',
       exercises: [],
     });
     expect(result.success).toBe(false);
   });
 
-  it("accepts template with optional programBlockId", () => {
+  it('accepts template with optional programBlockId', () => {
     const result = workoutTemplateSchema.safeParse({
-      name: "Push Day",
-      programBlockId: "550e8400-e29b-41d4-a716-446655440000",
+      name: 'Push Day',
+      programBlockId: '550e8400-e29b-41d4-a716-446655440000',
       exercises: [
         {
-          exerciseId: "550e8400-e29b-41d4-a716-446655440000",
+          exerciseId: '550e8400-e29b-41d4-a716-446655440000',
           sortOrder: 0,
         },
       ],

@@ -8,43 +8,43 @@ Hybrid: dedicated offline write services route mutations to SQLite + change queu
 
 ## Architecture Decisions
 
-| Decision | Options | Choice | Rationale |
-|----------|---------|--------|-----------|
-| Module structure | Flattened vs nested by concern | `src/lib/db/` with `services/` subdir | Keeps DB infra separate from PocketBase; `services/` mirrors existing `src/lib/pocketbase/services/` pattern |
-| DB init location | Standalone module vs app startup hook | `init.ts` module, called from `_layout.tsx` `AuthGate` before `getSession()` | Guarantees DB ready before any auth or data operation; matches spec "SQLite init MUST complete BEFORE auth actions" |
-| Sync trigger | Poll (setInterval) vs event-driven | Event-driven via NetInfo | No wasted cycles; instant response on reconnect with 2s debounce to prevent flapping |
-| Queue ordering | FIFO vs priority | FIFO within `group_id`, groups processed sequentially | Template atoms (session + sets) must replay in order; within a group, creation order determines sequence |
-| Offline service pattern | Decorator vs subclass vs wrapper | Decorator — `OfflineWriteService` wraps existing service functions | Keeps PB services unchanged; offline logic composed via `isOnline` check + dual write; single responsibility |
-| UUID generation | `crypto.randomUUID()` vs `uuid` v4 | `crypto.randomUUID()` with `uuid` v4 polyfill in `uuid.ts` | Native in Hermes 0.76+; polyfill only needed for older runtimes; avoids extra native dependency on iOS/Android |
-| Web fallback | Polyfill expo-sqlite vs localStorage | Feature-detect; localStorage queue + in-memory cache on web | expo-sqlite v15 uses op-sqlite (WebSQL) — not universal. When unavailable, degrade gracefully |
-| Persister adapter | SQLite-backed vs AsyncStorage | `sqlite-storage.ts` adapter implementing `AsyncStorage` interface | expo-sqlite already in deps; no need for AsyncStorage. Single write path for both cache and app data |
+| Decision                | Options                               | Choice                                                                       | Rationale                                                                                                           |
+| ----------------------- | ------------------------------------- | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| Module structure        | Flattened vs nested by concern        | `src/lib/db/` with `services/` subdir                                        | Keeps DB infra separate from PocketBase; `services/` mirrors existing `src/lib/pocketbase/services/` pattern        |
+| DB init location        | Standalone module vs app startup hook | `init.ts` module, called from `_layout.tsx` `AuthGate` before `getSession()` | Guarantees DB ready before any auth or data operation; matches spec "SQLite init MUST complete BEFORE auth actions" |
+| Sync trigger            | Poll (setInterval) vs event-driven    | Event-driven via NetInfo                                                     | No wasted cycles; instant response on reconnect with 2s debounce to prevent flapping                                |
+| Queue ordering          | FIFO vs priority                      | FIFO within `group_id`, groups processed sequentially                        | Template atoms (session + sets) must replay in order; within a group, creation order determines sequence            |
+| Offline service pattern | Decorator vs subclass vs wrapper      | Decorator — `OfflineWriteService` wraps existing service functions           | Keeps PB services unchanged; offline logic composed via `isOnline` check + dual write; single responsibility        |
+| UUID generation         | `crypto.randomUUID()` vs `uuid` v4    | `crypto.randomUUID()` with `uuid` v4 polyfill in `uuid.ts`                   | Native in Hermes 0.76+; polyfill only needed for older runtimes; avoids extra native dependency on iOS/Android      |
+| Web fallback            | Polyfill expo-sqlite vs localStorage  | Feature-detect; localStorage queue + in-memory cache on web                  | expo-sqlite v15 uses op-sqlite (WebSQL) — not universal. When unavailable, degrade gracefully                       |
+| Persister adapter       | SQLite-backed vs AsyncStorage         | `sqlite-storage.ts` adapter implementing `AsyncStorage` interface            | expo-sqlite already in deps; no need for AsyncStorage. Single write path for both cache and app data                |
 
 ---
 
 ## Module Tree
 
-| File | Action | Responsibility |
-|------|--------|---------------|
-| `src/lib/db/database.ts` | Create | SQLite singleton — `openDatabaseAsync`, export `db` instance, `closeDb()` |
-| `src/lib/db/schema.ts` | Create | `CREATE TABLE IF NOT EXISTS` statements, migration version tracking, `runMigrations(db)` |
-| `src/lib/db/init.ts` | Create | `initDatabase()` — opens DB, runs migrations, returns ready instance. Called once at startup |
-| `src/lib/db/uuid.ts` | Create | `generateId()` — `crypto.randomUUID()` with `uuid` v4 fallback |
-| `src/lib/db/types.ts` | Create | QueueEntry, SyncEvent, SyncMeta, offline service input types |
-| `src/lib/db/change-queue.ts` | Create | `ChangeQueue` class — `enqueue()`, `peek()`, `dequeue()`, `markDeadLetter()`, `markAuthError()`, `getPendingCount()` |
-| `src/lib/db/network-monitor.ts` | Create | `NetworkMonitor` singleton — wraps NetInfo, emits `online`/`offline` events with 2s debounce |
-| `src/lib/db/sync-engine.ts` | Create | `SyncEngine` class — `syncAll()`, `flushQueue()`, `pullCollection(collection)`, event emitter for progress/auth-expired |
-| `src/lib/db/sync-meta.ts` | Create | `SyncMeta` store — `getActiveSessionId()`, `setActiveSessionId()`, `getAuthExpired()`, `setAuthExpired()`, `getLastSyncedAt()` |
-| `src/lib/db/sqlite-storage.ts` | Create | React Query persister adapter — `getItem`, `setItem`, `removeItem` backed by SQLite `react_query_cache` table |
-| `src/lib/db/services/offline-sessions.ts` | Create | Offline session operations — `createSession()`, `logSet()`, `completeSession()`, `cancelSession()` — writes to SQLite + enqueues |
-| `src/lib/db/services/offline-templates.ts` | Create | Offline template operations — `createTemplate()`, `updateTemplate()`, `deleteTemplate()` — writes to SQLite + enqueues |
-| `src/lib/db/index.ts` | Create | Barrel export for all DB modules |
-| `app/_layout.tsx` | Modify | Add `initDatabase()` before `getSession()` in `AuthGate`; wrap `QueryClientProvider` with `persistQueryClient` |
-| `src/stores/auth-store.ts` | Modify | Add `isOnline: boolean` field |
-| `src/features/workout/hooks/useWorkoutSession.ts` | Modify | Branch on `isOnline`: offline → call `OfflineSessions`, online → call existing `SessionsService` |
-| `src/features/exercises/hooks/useExercises.ts` | Modify | Add `staleTime: 5min`, persister reads from SQLite when offline |
-| `src/features/routines/hooks/useTemplates.ts` | Modify | Branch mutations on `isOnline`; read from React Query cache with persister |
-| `src/features/history/hooks/useHistory.ts` | Modify | Read from SQLite `workout_sessions WHERE status='completed'` when offline |
-| `src/stores/session-store.ts` | Modify | `startSession`/`clearSession` also calls `SyncMeta.setActiveSessionId()` |
+| File                                              | Action | Responsibility                                                                                                                   |
+| ------------------------------------------------- | ------ | -------------------------------------------------------------------------------------------------------------------------------- |
+| `src/lib/db/database.ts`                          | Create | SQLite singleton — `openDatabaseAsync`, export `db` instance, `closeDb()`                                                        |
+| `src/lib/db/schema.ts`                            | Create | `CREATE TABLE IF NOT EXISTS` statements, migration version tracking, `runMigrations(db)`                                         |
+| `src/lib/db/init.ts`                              | Create | `initDatabase()` — opens DB, runs migrations, returns ready instance. Called once at startup                                     |
+| `src/lib/db/uuid.ts`                              | Create | `generateId()` — `crypto.randomUUID()` with `uuid` v4 fallback                                                                   |
+| `src/lib/db/types.ts`                             | Create | QueueEntry, SyncEvent, SyncMeta, offline service input types                                                                     |
+| `src/lib/db/change-queue.ts`                      | Create | `ChangeQueue` class — `enqueue()`, `peek()`, `dequeue()`, `markDeadLetter()`, `markAuthError()`, `getPendingCount()`             |
+| `src/lib/db/network-monitor.ts`                   | Create | `NetworkMonitor` singleton — wraps NetInfo, emits `online`/`offline` events with 2s debounce                                     |
+| `src/lib/db/sync-engine.ts`                       | Create | `SyncEngine` class — `syncAll()`, `flushQueue()`, `pullCollection(collection)`, event emitter for progress/auth-expired          |
+| `src/lib/db/sync-meta.ts`                         | Create | `SyncMeta` store — `getActiveSessionId()`, `setActiveSessionId()`, `getAuthExpired()`, `setAuthExpired()`, `getLastSyncedAt()`   |
+| `src/lib/db/sqlite-storage.ts`                    | Create | React Query persister adapter — `getItem`, `setItem`, `removeItem` backed by SQLite `react_query_cache` table                    |
+| `src/lib/db/services/offline-sessions.ts`         | Create | Offline session operations — `createSession()`, `logSet()`, `completeSession()`, `cancelSession()` — writes to SQLite + enqueues |
+| `src/lib/db/services/offline-templates.ts`        | Create | Offline template operations — `createTemplate()`, `updateTemplate()`, `deleteTemplate()` — writes to SQLite + enqueues           |
+| `src/lib/db/index.ts`                             | Create | Barrel export for all DB modules                                                                                                 |
+| `app/_layout.tsx`                                 | Modify | Add `initDatabase()` before `getSession()` in `AuthGate`; wrap `QueryClientProvider` with `persistQueryClient`                   |
+| `src/stores/auth-store.ts`                        | Modify | Add `isOnline: boolean` field                                                                                                    |
+| `src/features/workout/hooks/useWorkoutSession.ts` | Modify | Branch on `isOnline`: offline → call `OfflineSessions`, online → call existing `SessionsService`                                 |
+| `src/features/exercises/hooks/useExercises.ts`    | Modify | Add `staleTime: 5min`, persister reads from SQLite when offline                                                                  |
+| `src/features/routines/hooks/useTemplates.ts`     | Modify | Branch mutations on `isOnline`; read from React Query cache with persister                                                       |
+| `src/features/history/hooks/useHistory.ts`        | Modify | Read from SQLite `workout_sessions WHERE status='completed'` when offline                                                        |
+| `src/stores/session-store.ts`                     | Modify | `startSession`/`clearSession` also calls `SyncMeta.setActiveSessionId()`                                                         |
 
 ---
 
@@ -224,9 +224,9 @@ after each successful CREATE response:
 
 ### Collection-Specific FK Relationships
 
-| Collection | Child Table(s) | FK Column | Patching Rule |
-|------------|---------------|-----------|---------------|
-| `workout_sessions` | `exercise_sets` | `session_id` | All `exercise_sets` rows with `session_id = :local_id` get `session_id = :server_id` |
+| Collection          | Child Table(s)               | FK Column     | Patching Rule                                                                             |
+| ------------------- | ---------------------------- | ------------- | ----------------------------------------------------------------------------------------- |
+| `workout_sessions`  | `exercise_sets`              | `session_id`  | All `exercise_sets` rows with `session_id = :local_id` get `session_id = :server_id`      |
 | `workout_templates` | `workout_template_exercises` | `template_id` | All template_exercises rows with `template_id = :local_id` get `template_id = :server_id` |
 
 ### Concrete Example
@@ -275,7 +275,7 @@ NetworkMonitor.isOnline?
 
 ```typescript
 async function init() {
-  setState("loading");
+  setState('loading');
   await initDatabase();
 
   const monitor = NetworkMonitor.getInstance();
@@ -295,7 +295,7 @@ async function init() {
   }
 
   // Sync only if authenticated AND online
-  if (isOnline && useAuthStore.getState().state === "authenticated") {
+  if (isOnline && useAuthStore.getState().state === 'authenticated') {
     await syncEngine.syncAll();
   }
 }
@@ -307,7 +307,7 @@ Modify `getSession()` to distinguish network errors (no HTTP status) from real a
 
 ```typescript
 try {
-  const authData = await pb.collection("users").authRefresh();
+  const authData = await pb.collection('users').authRefresh();
   return {
     session: { user: authData.record, token: authData.token },
     error: null,
@@ -315,11 +315,11 @@ try {
 } catch (err: any) {
   // Network error (no status or status 0) — preserve token
   if (!err?.status || err.status === 0) {
-    return { session: null, error: "Network unavailable" };
+    return { session: null, error: 'Network unavailable' };
   }
   // 401 / auth error — token truly expired
   pb.authStore.clear();
-  return { session: null, error: "Session expired" };
+  return { session: null, error: 'Session expired' };
 }
 ```
 
@@ -591,6 +591,7 @@ export class OfflineSessionsService {
 **Persister adapter** (`sqlite-storage.ts`): implements the `AsyncStorage` interface (`getItem`, `setItem`, `removeItem`) backed by the `react_query_cache` table. This table is a simple key-value store — no schema relation to app data.
 
 **Provider setup** (`_layout.tsx`):
+
 ```typescript
 import { persistQueryClient } from '@tanstack/query-async-storage-persister';
 import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister';
@@ -608,15 +609,17 @@ persistQueryClient({
 ```
 
 **Query key strategy**: Persist only read-only keys via `persistOptions.dehydrateOptions.shouldDehydrateQuery`:
+
 ```typescript
 shouldDehydrateQuery: (query) => {
   const key = query.queryKey[0];
   return ['exercises', 'exercise-categories'].includes(key as string);
   // Exclude: 'templates', 'sessions', 'workout-history' (served from SQLite directly)
-}
+};
 ```
 
 The three read paths:
+
 - **exercises**: persisted RQ cache → SQLite via persister. Offline reads hit the cache.
 - **templates**: RQ cache as primary; persister serves offline reads. Mutations route through `OfflineTemplatesService`.
 - **history**: reads switch to direct SQLite queries (`workout_sessions WHERE status='completed'`) when offline.
@@ -625,20 +628,20 @@ The three read paths:
 
 ## Error Handling
 
-| Layer | Error | Handling |
-|-------|-------|----------|
-| ChangeQueue enqueue | SQLite write fail | Throw — caller must not proceed (rare, means DB is corrupt) |
-| SyncEngine flush | 401 from PB | `markAllAuthError()`, emit `AUTH_EXPIRED`, halt sync |
-| SyncEngine flush | 5xx / network timeout | Increment `retry_count`, exponential backoff 1s→2s→4s→8s→max 30s |
-| SyncEngine flush | 10th consecutive failure | `markDeadLetter(id, error)`, emit `DEAD_LETTER`, continue next entry |
-| SyncEngine flush | Conflict / 409 | Log warning, dequeue (server state wins for now; conflict resolution is OOS) |
-| SyncEngine pullCollection | PB unreachable | Log warning, skip pull, continue (data may be stale) |
-| NetworkMonitor | NetInfo unavailable | Default to `isOnline=true` — app works as before |
-| SyncEngine flush | ID mapping insert/update fails | Log error, mark entry dead_letter — local data would be unrecoverable without mapping |
-| SyncEngine flush | Queue data patch finds unexpected JSON shape | Log warning, dequeue with error (server state may have orphaned refs) |
-| Startup | Offline with valid token | Trust stored token, skip authRefresh — no network call made |
-| OfflineServices | `initDatabase()` not called | Guard with invariant — crash early in dev |
-| React Query persister | SQLite read fail | Return `undefined` — React Query fetches from network |
+| Layer                     | Error                                        | Handling                                                                              |
+| ------------------------- | -------------------------------------------- | ------------------------------------------------------------------------------------- |
+| ChangeQueue enqueue       | SQLite write fail                            | Throw — caller must not proceed (rare, means DB is corrupt)                           |
+| SyncEngine flush          | 401 from PB                                  | `markAllAuthError()`, emit `AUTH_EXPIRED`, halt sync                                  |
+| SyncEngine flush          | 5xx / network timeout                        | Increment `retry_count`, exponential backoff 1s→2s→4s→8s→max 30s                      |
+| SyncEngine flush          | 10th consecutive failure                     | `markDeadLetter(id, error)`, emit `DEAD_LETTER`, continue next entry                  |
+| SyncEngine flush          | Conflict / 409                               | Log warning, dequeue (server state wins for now; conflict resolution is OOS)          |
+| SyncEngine pullCollection | PB unreachable                               | Log warning, skip pull, continue (data may be stale)                                  |
+| NetworkMonitor            | NetInfo unavailable                          | Default to `isOnline=true` — app works as before                                      |
+| SyncEngine flush          | ID mapping insert/update fails               | Log error, mark entry dead_letter — local data would be unrecoverable without mapping |
+| SyncEngine flush          | Queue data patch finds unexpected JSON shape | Log warning, dequeue with error (server state may have orphaned refs)                 |
+| Startup                   | Offline with valid token                     | Trust stored token, skip authRefresh — no network call made                           |
+| OfflineServices           | `initDatabase()` not called                  | Guard with invariant — crash early in dev                                             |
+| React Query persister     | SQLite read fail                             | Return `undefined` — React Query fetches from network                                 |
 
 **Dead-letter visibility**: Emit `SYNC_PARTIAL` event with `deadLetterCount`. UI shows a settings badge: "N items failed to sync" with retry-all button.
 
@@ -646,22 +649,22 @@ The three read paths:
 
 ## Testing Strategy
 
-| Layer | What to Test | Approach |
-|-------|-------------|----------|
-| **Unit — schema** | Migration runs, tables exist, indexes created | Open in-memory SQLite via `expo-sqlite` mock, run `runMigrations`, assert tables via `PRAGMA table_info` |
-| **Unit — ChangeQueue** | enqueue, peek FIFO, dequeue, markDeadLetter, markAllAuthError | In-memory SQLite; insert 3 entries, assert peek order; dequeue mid; assert remaining |
-| **Unit — NetworkMonitor** | Subscriptions fire, debounce works, cleanup | Mock NetInfo; emit connect/disconnect; assert listener called with correct `isOnline` |
-| **Unit — SyncEngine flush** | Queue replay in order, group atomicity, 401 handling, retry backoff | Mock ChangeQueue + PocketBase responses; assert call order and dequeue timing |
-| **Unit — SyncEngine pull** | Upsert logic, sync_meta update, PB failure | Mock PB response; assert SQLite rows match; assert meta updated |
-| **Unit — OfflineSessions** | createSession offline, logSet offline, completeSession offline | Mock ChangeQueue + SQLite; assert both DB insert + queue enqueue occur |
-| **Unit — uuid.ts** | crypto.randomUUID success, polyfill fallback | Mock `crypto` undefined; assert polyfill returns valid UUID v4 |
-| **Integration — offline write path** | Hook → OfflineService → SQLite → ChangeQueue | Full path test with real in-memory SQLite, mock `isOnline=false` |
-| **Unit — SyncEngine ID remap** | CREATE response → mapping insert + local row update + queue patch | Mock PB CREATE response with server ID; assert `id_mapping` row inserted, local `id` updated, queue `data` patched, child FK columns updated |
-| **Unit — Offline auth startup** | Offline with valid token → skip refresh → session restored | Mock NetInfo offline + pb.authStore.isValid=true; assert `authRefresh` NOT called, `setSession` called with stored token |
-| **Unit — Offline auth startup (no token)** | Offline with no token → unauthenticated | Mock NetInfo offline + pb.authStore.isValid=false; assert `setSession(null)`, state = unauthenticated |
-| **Unit — getSession network error** | Network failure preserves token, does not clear authStore | Mock `authRefresh` throws network error (no status); assert `pb.authStore.clear` NOT called, error = "Network unavailable" |
-| **Integration — startup sequence** | initDatabase → auth → syncAll on first launch | Full sequence with mocks; verify DB initialized before auth call |
-| **Integration — React Query persister** | Cache writes to SQLite, reads restore cache | Write query data via persister, clear cache, read back — assert shape preserved |
+| Layer                                      | What to Test                                                        | Approach                                                                                                                                     |
+| ------------------------------------------ | ------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Unit — schema**                          | Migration runs, tables exist, indexes created                       | Open in-memory SQLite via `expo-sqlite` mock, run `runMigrations`, assert tables via `PRAGMA table_info`                                     |
+| **Unit — ChangeQueue**                     | enqueue, peek FIFO, dequeue, markDeadLetter, markAllAuthError       | In-memory SQLite; insert 3 entries, assert peek order; dequeue mid; assert remaining                                                         |
+| **Unit — NetworkMonitor**                  | Subscriptions fire, debounce works, cleanup                         | Mock NetInfo; emit connect/disconnect; assert listener called with correct `isOnline`                                                        |
+| **Unit — SyncEngine flush**                | Queue replay in order, group atomicity, 401 handling, retry backoff | Mock ChangeQueue + PocketBase responses; assert call order and dequeue timing                                                                |
+| **Unit — SyncEngine pull**                 | Upsert logic, sync_meta update, PB failure                          | Mock PB response; assert SQLite rows match; assert meta updated                                                                              |
+| **Unit — OfflineSessions**                 | createSession offline, logSet offline, completeSession offline      | Mock ChangeQueue + SQLite; assert both DB insert + queue enqueue occur                                                                       |
+| **Unit — uuid.ts**                         | crypto.randomUUID success, polyfill fallback                        | Mock `crypto` undefined; assert polyfill returns valid UUID v4                                                                               |
+| **Integration — offline write path**       | Hook → OfflineService → SQLite → ChangeQueue                        | Full path test with real in-memory SQLite, mock `isOnline=false`                                                                             |
+| **Unit — SyncEngine ID remap**             | CREATE response → mapping insert + local row update + queue patch   | Mock PB CREATE response with server ID; assert `id_mapping` row inserted, local `id` updated, queue `data` patched, child FK columns updated |
+| **Unit — Offline auth startup**            | Offline with valid token → skip refresh → session restored          | Mock NetInfo offline + pb.authStore.isValid=true; assert `authRefresh` NOT called, `setSession` called with stored token                     |
+| **Unit — Offline auth startup (no token)** | Offline with no token → unauthenticated                             | Mock NetInfo offline + pb.authStore.isValid=false; assert `setSession(null)`, state = unauthenticated                                        |
+| **Unit — getSession network error**        | Network failure preserves token, does not clear authStore           | Mock `authRefresh` throws network error (no status); assert `pb.authStore.clear` NOT called, error = "Network unavailable"                   |
+| **Integration — startup sequence**         | initDatabase → auth → syncAll on first launch                       | Full sequence with mocks; verify DB initialized before auth call                                                                             |
+| **Integration — React Query persister**    | Cache writes to SQLite, reads restore cache                         | Write query data via persister, clear cache, read back — assert shape preserved                                                              |
 
 Test files go in `src/lib/db/__tests__/` following existing convention (e.g., `src/lib/pocketbase/services/__tests__/`).
 
@@ -672,6 +675,7 @@ Test files go in `src/lib/db/__tests__/` following existing convention (e.g., `s
 Existing users have data only in PocketBase. No local SQLite data exists.
 
 **First launch after offline update**:
+
 1. App starts → `initDatabase()` creates empty tables
 2. User authenticated → `syncAll()` triggers `pullCollection` for exercises, templates, sessions, sets
 3. `sync_meta` populated with timestamps and row counts

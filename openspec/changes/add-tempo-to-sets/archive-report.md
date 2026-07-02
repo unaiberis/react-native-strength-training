@@ -19,26 +19,28 @@ Added an optional `tempo` field (string, regex `^\d{3,4}$`) to exercise_sets acr
 
 ## Files Changed (13)
 
-| File | Action |
-|------|--------|
-| `src/lib/db/schema.ts` | Modified |
-| `src/lib/db/types.ts` | Modified |
-| `src/types/pocketbase.ts` | Modified |
-| `src/shared/schemas/set.ts` | Modified |
-| `src/lib/pocketbase/services/sessions.ts` | Modified |
-| `src/lib/db/services/offline-sessions.ts` | Modified |
-| `src/stores/session-store.ts` | Modified |
-| `src/features/workout/hooks/useWorkoutSession.ts` | Modified |
-| `src/features/workout/screens/ActiveWorkoutScreen.tsx` | Modified |
-| `src/lib/db/__tests__/schema.test.ts` | Modified |
-| `src/shared/schemas/__tests__/set.test.ts` | Modified |
+| File                                                     | Action   |
+| -------------------------------------------------------- | -------- |
+| `src/lib/db/schema.ts`                                   | Modified |
+| `src/lib/db/types.ts`                                    | Modified |
+| `src/types/pocketbase.ts`                                | Modified |
+| `src/shared/schemas/set.ts`                              | Modified |
+| `src/lib/pocketbase/services/sessions.ts`                | Modified |
+| `src/lib/db/services/offline-sessions.ts`                | Modified |
+| `src/stores/session-store.ts`                            | Modified |
+| `src/features/workout/hooks/useWorkoutSession.ts`        | Modified |
+| `src/features/workout/screens/ActiveWorkoutScreen.tsx`   | Modified |
+| `src/lib/db/__tests__/schema.test.ts`                    | Modified |
+| `src/shared/schemas/__tests__/set.test.ts`               | Modified |
 | `src/lib/pocketbase/services/__tests__/sessions.test.ts` | Modified |
-| `src/lib/db/__tests__/offline-sessions.test.ts` | Modified |
+| `src/lib/db/__tests__/offline-sessions.test.ts`          | Modified |
 
 ## Spec Updated
+
 - `openspec/specs/workout-execution/spec.md` — Log Sets requirement now documents tempo field
 
 ## Post-Archive Notes
+
 - PocketBase schema: `exercise_sets.tempo` already included in `pb_migrations/001_init_collections.js`
 - SQLite migration: idempotent from v1 or fresh install
 - No breaking changes — tempo defaults to null in all paths

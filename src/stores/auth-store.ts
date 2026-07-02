@@ -1,7 +1,7 @@
-import { create } from "zustand";
-import type { RecordModel } from "pocketbase";
+import { create } from 'zustand';
+import type { RecordModel } from 'pocketbase';
 
-export type AuthState = "loading" | "authenticated" | "unauthenticated";
+export type AuthState = 'loading' | 'authenticated' | 'unauthenticated';
 
 export interface PocketBaseSession {
   user: RecordModel;
@@ -9,7 +9,8 @@ export interface PocketBaseSession {
 }
 
 /** Sync status for the offline sync engine. */
-export type SyncStatus = "idle" | "syncing" | "error" | "dead-letters" | "auth-expired";
+export type SyncStatus =
+  'idle' | 'syncing' | 'error' | 'dead-letters' | 'auth-expired';
 
 interface AuthStore {
   /** Current auth state machine status */
@@ -35,20 +36,21 @@ interface AuthStore {
   setInitMessage: (msg: string) => void;
 }
 
-const initialSyncStatus: SyncStatus = "idle";
+const initialSyncStatus: SyncStatus = 'idle';
 
 export const useAuthStore = create<AuthStore>((set) => ({
-  state: "loading",
+  state: 'loading',
   session: null,
   user: null,
   isOnline: true,
   syncStatus: initialSyncStatus,
-  initMessage: "Starting...",
+  initMessage: 'Starting...',
 
   setSession: (session) =>
     set({
       session,
-      state: session ? "authenticated" : "unauthenticated",
+      user: session?.user ?? null,
+      state: session ? 'authenticated' : 'unauthenticated',
     }),
 
   setUser: (user) => set({ user }),
@@ -62,7 +64,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
 
   reset: () =>
     set({
-      state: "unauthenticated",
+      state: 'unauthenticated',
       session: null,
       user: null,
     }),

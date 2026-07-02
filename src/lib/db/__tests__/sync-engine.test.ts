@@ -6,12 +6,12 @@
  * collection pulling, and event emission.
  */
 
-jest.mock("expo-sqlite", () => ({}));
+jest.mock('expo-sqlite', () => ({}));
 
-import { SyncEngine } from "../sync-engine";
-import type { QueueEntry } from "../types";
+import { SyncEngine } from '../sync-engine';
+import type { QueueEntry } from '../types';
 
-describe("SyncEngine", () => {
+describe('SyncEngine', () => {
   // ─── Helpers ──────────────────────────────────────────────────────
 
   function createMockChangeQueue() {
@@ -31,7 +31,10 @@ describe("SyncEngine", () => {
     return {
       storeMapping: jest.fn(),
       lookup: jest.fn(),
-      updateChildFKs: jest.fn<Promise<number>, [string, string, string, string]>(),
+      updateChildFKs: jest.fn<
+        Promise<number>,
+        [string, string, string, string]
+      >(),
       patchPendingQueue: jest.fn(),
     };
   }
@@ -75,7 +78,7 @@ describe("SyncEngine", () => {
       pocketbase?: ReturnType<typeof createMockPocketBase>;
       networkMonitor?: ReturnType<typeof createMockNetworkMonitor>;
       db?: { runAsync: jest.Mock };
-    } = {},
+    } = {}
   ) {
     const db = overrides.db ?? { runAsync: jest.fn() };
     return {
@@ -85,7 +88,7 @@ describe("SyncEngine", () => {
         overrides.idMapping ?? (createMockIdMapping() as any),
         overrides.syncMeta ?? (createMockSyncMeta() as any),
         overrides.pocketbase ?? (createMockPocketBase() as any),
-        overrides.networkMonitor ?? createMockNetworkMonitor(),
+        overrides.networkMonitor ?? createMockNetworkMonitor()
       ),
       db,
     };
@@ -94,16 +97,16 @@ describe("SyncEngine", () => {
   function makeQueueEntry(overrides: Partial<QueueEntry> = {}): QueueEntry {
     return {
       id: 1,
-      action: "create",
-      collection: "workout_sessions",
-      local_id: "local-1",
+      action: 'create',
+      collection: 'workout_sessions',
+      local_id: 'local-1',
       record_id: null,
-      data: { name: "Test Session" },
+      data: { name: 'Test Session' },
       group_id: null,
-      status: "pending",
+      status: 'pending',
       retry_count: 0,
       last_error: null,
-      created_at: "2026-07-01T00:00:00Z",
+      created_at: '2026-07-01T00:00:00Z',
       ...overrides,
     };
   }
@@ -114,44 +117,44 @@ describe("SyncEngine", () => {
 
   // ─── Constructor & event helpers ──────────────────────────────────
 
-  describe("constructor", () => {
-    it("stores all dependencies", () => {
+  describe('constructor', () => {
+    it('stores all dependencies', () => {
       const { engine } = createEngine();
       expect(engine).toBeDefined();
     });
   });
 
-  describe("on / off", () => {
-    it("registers and invokes event listeners", () => {
+  describe('on / off', () => {
+    it('registers and invokes event listeners', () => {
       const { engine } = createEngine();
       const listener = jest.fn();
 
-      engine.on("SYNC_START", listener);
+      engine.on('SYNC_START', listener);
       // Manually emit via the internal method
-      (engine as any).emit({ type: "SYNC_START" });
+      (engine as any).emit({ type: 'SYNC_START' });
 
-      expect(listener).toHaveBeenCalledWith({ type: "SYNC_START" });
+      expect(listener).toHaveBeenCalledWith({ type: 'SYNC_START' });
     });
 
-    it("removes listeners via off", () => {
+    it('removes listeners via off', () => {
       const { engine } = createEngine();
       const listener = jest.fn();
 
-      engine.on("SYNC_START", listener);
-      engine.off("SYNC_START", listener);
-      (engine as any).emit({ type: "SYNC_START" });
+      engine.on('SYNC_START', listener);
+      engine.off('SYNC_START', listener);
+      (engine as any).emit({ type: 'SYNC_START' });
 
       expect(listener).not.toHaveBeenCalled();
     });
 
-    it("supports multiple listeners on the same event", () => {
+    it('supports multiple listeners on the same event', () => {
       const { engine } = createEngine();
       const listener1 = jest.fn();
       const listener2 = jest.fn();
 
-      engine.on("SYNC_COMPLETE", listener1);
-      engine.on("SYNC_COMPLETE", listener2);
-      (engine as any).emit({ type: "SYNC_COMPLETE" });
+      engine.on('SYNC_COMPLETE', listener1);
+      engine.on('SYNC_COMPLETE', listener2);
+      (engine as any).emit({ type: 'SYNC_COMPLETE' });
 
       expect(listener1).toHaveBeenCalled();
       expect(listener2).toHaveBeenCalled();
@@ -160,8 +163,8 @@ describe("SyncEngine", () => {
 
   // ─── flushQueue ───────────────────────────────────────────────────
 
-  describe("flushQueue", () => {
-    it("processes create entries and dequeues them", async () => {
+  describe('flushQueue', () => {
+    it('processes create entries and dequeues them', async () => {
       const changeQueue = createMockChangeQueue();
       const idMapping = createMockIdMapping();
       const db = { runAsync: jest.fn() };
@@ -171,7 +174,7 @@ describe("SyncEngine", () => {
       changeQueue.dequeue.mockResolvedValue(undefined);
       idMapping.updateChildFKs.mockResolvedValue(0);
       db.runAsync.mockResolvedValue({ lastInsertRowId: 0, changes: 1 });
-      pb.collection().create.mockResolvedValue({ id: "server-1" });
+      pb.collection().create.mockResolvedValue({ id: 'server-1' });
 
       const { engine } = createEngine({
         changeQueue,
@@ -183,40 +186,48 @@ describe("SyncEngine", () => {
       const result = await engine.flushQueue();
 
       expect(changeQueue.peek).toHaveBeenCalled();
-      expect(pb.collection).toHaveBeenCalledWith("workout_sessions");
-      expect(pb.collection().create).toHaveBeenCalledWith({ name: "Test Session" });
+      expect(pb.collection).toHaveBeenCalledWith('workout_sessions');
+      expect(pb.collection().create).toHaveBeenCalledWith({
+        name: 'Test Session',
+      });
       // ID remapping should have happened
-      expect(idMapping.storeMapping).toHaveBeenCalledWith("local-1", "server-1", "workout_sessions");
+      expect(idMapping.storeMapping).toHaveBeenCalledWith(
+        'local-1',
+        'server-1',
+        'workout_sessions'
+      );
       expect(changeQueue.dequeue).toHaveBeenCalledWith(1);
       expect(result.synced).toBe(1);
     });
 
-    it("processes update entries and dequeues them", async () => {
+    it('processes update entries and dequeues them', async () => {
       const changeQueue = createMockChangeQueue();
       const pb = createMockPocketBase();
 
       changeQueue.peek.mockResolvedValue([
-        makeQueueEntry({ action: "update", record_id: "server-1" }),
+        makeQueueEntry({ action: 'update', record_id: 'server-1' }),
       ]);
       changeQueue.dequeue.mockResolvedValue(undefined);
-      pb.collection().update.mockResolvedValue({ id: "server-1" });
+      pb.collection().update.mockResolvedValue({ id: 'server-1' });
 
       const { engine } = createEngine({ changeQueue, pocketbase: pb });
 
       const result = await engine.flushQueue();
 
-      expect(pb.collection).toHaveBeenCalledWith("workout_sessions");
-      expect(pb.collection().update).toHaveBeenCalledWith("server-1", { name: "Test Session" });
+      expect(pb.collection).toHaveBeenCalledWith('workout_sessions');
+      expect(pb.collection().update).toHaveBeenCalledWith('server-1', {
+        name: 'Test Session',
+      });
       expect(changeQueue.dequeue).toHaveBeenCalledWith(1);
       expect(result.synced).toBe(1);
     });
 
-    it("processes delete entries and dequeues them", async () => {
+    it('processes delete entries and dequeues them', async () => {
       const changeQueue = createMockChangeQueue();
       const pb = createMockPocketBase();
 
       changeQueue.peek.mockResolvedValue([
-        makeQueueEntry({ action: "delete", record_id: "server-1", data: null }),
+        makeQueueEntry({ action: 'delete', record_id: 'server-1', data: null }),
       ]);
       changeQueue.dequeue.mockResolvedValue(undefined);
       pb.collection().delete.mockResolvedValue(true);
@@ -225,73 +236,74 @@ describe("SyncEngine", () => {
 
       const result = await engine.flushQueue();
 
-      expect(pb.collection().delete).toHaveBeenCalledWith("server-1");
+      expect(pb.collection().delete).toHaveBeenCalledWith('server-1');
       expect(changeQueue.dequeue).toHaveBeenCalledWith(1);
       expect(result.synced).toBe(1);
     });
 
-    it("handles 401 by marking auth error and emitting AUTH_EXPIRED", async () => {
+    it('handles 401 by marking auth error and emitting AUTH_EXPIRED', async () => {
       const changeQueue = createMockChangeQueue();
       const pb = createMockPocketBase();
 
       changeQueue.peek.mockResolvedValue([makeQueueEntry()]);
       changeQueue.markAllAuthError.mockResolvedValue(1);
-      const authError = new Error("Auth expired");
+      const authError = new Error('Auth expired');
       (authError as any).status = 401;
       pb.collection().create.mockRejectedValue(authError);
 
       const { engine } = createEngine({ changeQueue, pocketbase: pb });
       const listener = jest.fn();
-      engine.on("AUTH_EXPIRED", listener);
+      engine.on('AUTH_EXPIRED', listener);
 
       const result = await engine.flushQueue();
 
       expect(changeQueue.markAllAuthError).toHaveBeenCalled();
       expect(listener).toHaveBeenCalledWith(
-        expect.objectContaining({ type: "AUTH_EXPIRED" }),
+        expect.objectContaining({ type: 'AUTH_EXPIRED' })
       );
       expect(result.authExpired).toBe(true);
     });
 
-    it("marks dead letter after 10 retries and emits DEAD_LETTER", async () => {
+    it('marks dead letter after 10 retries and emits DEAD_LETTER', async () => {
       const changeQueue = createMockChangeQueue();
       const pb = createMockPocketBase();
 
-      changeQueue.peek.mockResolvedValue([
-        makeQueueEntry({ retry_count: 10 }),
-      ]);
+      changeQueue.peek.mockResolvedValue([makeQueueEntry({ retry_count: 10 })]);
       changeQueue.markDeadLetter.mockResolvedValue(undefined);
-      const error = new Error("Server error");
+      const error = new Error('Server error');
       pb.collection().create.mockRejectedValue(error);
 
       const { engine } = createEngine({ changeQueue, pocketbase: pb });
       const listener = jest.fn();
-      engine.on("DEAD_LETTER", listener);
+      engine.on('DEAD_LETTER', listener);
 
       const result = await engine.flushQueue();
 
-      expect(changeQueue.markDeadLetter).toHaveBeenCalledWith(1, expect.any(String));
+      expect(changeQueue.markDeadLetter).toHaveBeenCalledWith(
+        1,
+        expect.any(String)
+      );
       expect(listener).toHaveBeenCalledWith(
-        expect.objectContaining({ type: "DEAD_LETTER" }),
+        expect.objectContaining({ type: 'DEAD_LETTER' })
       );
       expect(result.deadLettered).toBe(1);
     });
 
-    it("respects group atomicity — stops group on first failure", async () => {
+    it('respects group atomicity — stops group on first failure', async () => {
       const changeQueue = createMockChangeQueue();
       const idMapping = createMockIdMapping();
       const db = { runAsync: jest.fn() };
       const pb = createMockPocketBase();
 
       changeQueue.peek.mockResolvedValue([
-        makeQueueEntry({ id: 1, group_id: "g1", data: { order: 1 } }),
-        makeQueueEntry({ id: 2, group_id: "g1", data: { order: 2 } }),
+        makeQueueEntry({ id: 1, group_id: 'g1', data: { order: 1 } }),
+        makeQueueEntry({ id: 2, group_id: 'g1', data: { order: 2 } }),
       ]);
       changeQueue.incrementRetry.mockResolvedValue(undefined);
       // First entry succeeds, second fails
-      pb.collection().create
-        .mockResolvedValueOnce({ id: "server-1" })
-        .mockRejectedValueOnce(new Error("Server error"));
+      pb.collection()
+        .create.mockResolvedValueOnce({ id: 'server-1' })
+        .mockRejectedValueOnce(new Error('Server error'));
       idMapping.updateChildFKs.mockResolvedValue(0);
       db.runAsync.mockResolvedValue({ lastInsertRowId: 0, changes: 1 });
 
@@ -312,7 +324,7 @@ describe("SyncEngine", () => {
       expect(result.failed).toBe(1);
     });
 
-    it("returns empty result when no entries are pending", async () => {
+    it('returns empty result when no entries are pending', async () => {
       const changeQueue = createMockChangeQueue();
       changeQueue.peek.mockResolvedValue([]);
 
@@ -327,15 +339,15 @@ describe("SyncEngine", () => {
 
   // ─── pullCollection ───────────────────────────────────────────────
 
-  describe("pullCollection", () => {
-    it("fetches records from PocketBase and upserts to SQLite", async () => {
+  describe('pullCollection', () => {
+    it('fetches records from PocketBase and upserts to SQLite', async () => {
       const pb = createMockPocketBase();
       const syncMeta = createMockSyncMeta();
       const db = { runAsync: jest.fn() };
 
       pb.collection().getFullList.mockResolvedValue([
-        { id: "ex-1", name: "Bench Press", category: "strength" },
-        { id: "ex-2", name: "Squat", category: "strength" },
+        { id: 'ex-1', name: 'Bench Press', category: 'strength' },
+        { id: 'ex-2', name: 'Squat', category: 'strength' },
       ]);
       db.runAsync.mockResolvedValue({ changes: 1, lastInsertRowId: 0 });
 
@@ -344,30 +356,30 @@ describe("SyncEngine", () => {
         createMockChangeQueue() as any,
         createMockIdMapping() as any,
         syncMeta as any,
-        pb as any,
-        createMockNetworkMonitor(),
+        pb,
+        createMockNetworkMonitor()
       );
 
-      await engine.pullCollection("exercises");
+      await engine.pullCollection('exercises');
 
       // Should upsert each record
       expect(db.runAsync).toHaveBeenCalledTimes(2);
       expect(db.runAsync).toHaveBeenCalledWith(
-        expect.stringContaining("INSERT OR REPLACE INTO exercises"),
-        expect.arrayContaining(["ex-1"]),
+        expect.stringContaining('INSERT OR REPLACE INTO exercises'),
+        expect.arrayContaining(['ex-1'])
       );
       expect(db.runAsync).toHaveBeenCalledWith(
-        expect.stringContaining("INSERT OR REPLACE INTO exercises"),
-        expect.arrayContaining(["ex-2"]),
+        expect.stringContaining('INSERT OR REPLACE INTO exercises'),
+        expect.arrayContaining(['ex-2'])
       );
       // Should update sync meta
       expect(syncMeta.setLastSyncedAt).toHaveBeenCalledWith(
-        "exercises",
-        expect.any(String),
+        'exercises',
+        expect.any(String)
       );
     });
 
-    it("handles empty response from PocketBase", async () => {
+    it('handles empty response from PocketBase', async () => {
       const pb = createMockPocketBase();
       const syncMeta = createMockSyncMeta();
       const db = { runAsync: jest.fn() };
@@ -379,34 +391,34 @@ describe("SyncEngine", () => {
         createMockChangeQueue() as any,
         createMockIdMapping() as any,
         syncMeta as any,
-        pb as any,
-        createMockNetworkMonitor(),
+        pb,
+        createMockNetworkMonitor()
       );
 
-      await engine.pullCollection("exercises");
+      await engine.pullCollection('exercises');
 
       expect(db.runAsync).not.toHaveBeenCalled();
       expect(syncMeta.setLastSyncedAt).toHaveBeenCalled();
     });
 
-    it("logs warning and skips on PocketBase error", async () => {
+    it('logs warning and skips on PocketBase error', async () => {
       const pb = createMockPocketBase();
-      const consoleWarn = jest.spyOn(console, "warn").mockImplementation();
+      const consoleWarn = jest.spyOn(console, 'warn').mockImplementation();
       const syncMeta = createMockSyncMeta();
       const db = { runAsync: jest.fn() };
 
-      pb.collection().getFullList.mockRejectedValue(new Error("Network error"));
+      pb.collection().getFullList.mockRejectedValue(new Error('Network error'));
 
       const engine = new SyncEngine(
         db as any,
         createMockChangeQueue() as any,
         createMockIdMapping() as any,
         syncMeta as any,
-        pb as any,
-        createMockNetworkMonitor(),
+        pb,
+        createMockNetworkMonitor()
       );
 
-      await engine.pullCollection("exercises");
+      await engine.pullCollection('exercises');
 
       expect(consoleWarn).toHaveBeenCalled();
       consoleWarn.mockRestore();
@@ -415,8 +427,8 @@ describe("SyncEngine", () => {
 
   // ─── syncAll ──────────────────────────────────────────────────────
 
-  describe("syncAll", () => {
-    it("flushes queue then pulls collections", async () => {
+  describe('syncAll', () => {
+    it('flushes queue then pulls collections', async () => {
       const changeQueue = createMockChangeQueue();
       const pb = createMockPocketBase();
       const syncMeta = createMockSyncMeta();
@@ -431,8 +443,8 @@ describe("SyncEngine", () => {
         changeQueue as any,
         createMockIdMapping() as any,
         syncMeta as any,
-        pb as any,
-        createMockNetworkMonitor(),
+        pb,
+        createMockNetworkMonitor()
       );
 
       const result = await engine.syncAll();
@@ -444,7 +456,7 @@ describe("SyncEngine", () => {
       expect(result.timestamp).toBeDefined();
     });
 
-    it("skips when offline", async () => {
+    it('skips when offline', async () => {
       const changeQueue = createMockChangeQueue();
       const { engine } = createEngine({
         changeQueue,
@@ -457,7 +469,7 @@ describe("SyncEngine", () => {
       expect(result.synced).toBe(0);
     });
 
-    it("emits SYNC_START and SYNC_COMPLETE events", async () => {
+    it('emits SYNC_START and SYNC_COMPLETE events', async () => {
       const changeQueue = createMockChangeQueue();
       const pb = createMockPocketBase();
       const syncMeta = createMockSyncMeta();
@@ -472,14 +484,14 @@ describe("SyncEngine", () => {
         changeQueue as any,
         createMockIdMapping() as any,
         syncMeta as any,
-        pb as any,
-        createMockNetworkMonitor(),
+        pb,
+        createMockNetworkMonitor()
       );
 
       const startListener = jest.fn();
       const completeListener = jest.fn();
-      engine.on("SYNC_START", startListener);
-      engine.on("SYNC_COMPLETE", completeListener);
+      engine.on('SYNC_START', startListener);
+      engine.on('SYNC_COMPLETE', completeListener);
 
       await engine.syncAll();
 
@@ -490,20 +502,20 @@ describe("SyncEngine", () => {
 
   // ─── Exponential backoff ──────────────────────────────────────────
 
-  describe("backoff", () => {
-    it("computes delay for retry count 0", () => {
+  describe('backoff', () => {
+    it('computes delay for retry count 0', () => {
       const { engine } = createEngine();
       const delay = (engine as any).getBackoffDelay(0);
       expect(delay).toBe(1000);
     });
 
-    it("computes delay for retry count 3", () => {
+    it('computes delay for retry count 3', () => {
       const { engine } = createEngine();
       const delay = (engine as any).getBackoffDelay(3);
       expect(delay).toBe(8000);
     });
 
-    it("caps delay at 30 seconds", () => {
+    it('caps delay at 30 seconds', () => {
       const { engine } = createEngine();
       const delay = (engine as any).getBackoffDelay(10);
       expect(delay).toBe(30000);

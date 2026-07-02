@@ -7,6 +7,7 @@ Replace Supabase (auth + DB + realtime) with a self-hosted PocketBase instance. 
 ## Scope
 
 ### In Scope
+
 - Drop-in replacement of `src/lib/supabase/` by `src/lib/pocketbase/` (same service interfaces)
 - Auth (email/password) migrated from Supabase Auth to PocketBase Auth
 - All 5 data collections migrated: exercises, workout_templates, workout_template_exercises, workout_sessions, exercise_sets
@@ -18,6 +19,7 @@ Replace Supabase (auth + DB + realtime) with a self-hosted PocketBase instance. 
 - Keep `expo-secure-store` for auth token persistence
 
 ### Out of Scope
+
 - Offline/local-first sync logic (future change)
 - Multi-device conflict resolution
 - Program blocks / periodization (not yet implemented)
@@ -26,15 +28,18 @@ Replace Supabase (auth + DB + realtime) with a self-hosted PocketBase instance. 
 ## Capabilities
 
 ### New Capabilities
+
 - None
 
 ### Modified Capabilities
+
 - `user-auth`: Auth backend changes from Supabase Auth to PocketBase Auth (same email/password, same session persistence via SecureStore)
 - `personal-records`: PRs computed on-the-fly from `exercise_sets` on read — no separate `personal_records` collection or write-on-complete step
 
 ## Approach
 
 Create `src/lib/pocketbase/` mirroring the current `src/lib/supabase/` structure:
+
 - `client.ts` — PocketBase SDK init with SecureStore adapter
 - `services/auth.ts` — PocketBase `pb.collection("users").authWithPassword()` / `create()`
 - `services/exercises.ts` — `pb.collection("exercises").getList()` / `getOne()`
@@ -46,24 +51,24 @@ Replace `@supabase/supabase-js` by PocketBase SDK. Add `expo-sqlite` dep. All co
 
 ## Affected Areas
 
-| Area | Impact | Description |
-|------|--------|-------------|
-| `src/lib/supabase/` | Removed | Entire directory replaced by pocketbase/ |
-| `src/lib/pocketbase/` | New | 6 service files mirroring current interfaces |
-| `src/shared/utils/pr-calc.ts` | Modified | Add on-the-fly computation entry point |
-| `supabase/seed.sql` | Kept | Reference for PocketBase seed script |
-| `package.json` | Modified | Add `expo-sqlite`, remove `@supabase/supabase-js` |
-| `openspec/specs/user-auth/spec.md` | Modified | Backend ref from Supabase → PocketBase |
-| `openspec/specs/personal-records/spec.md` | Modified | On-the-fly vs persisted PRs |
+| Area                                      | Impact   | Description                                       |
+| ----------------------------------------- | -------- | ------------------------------------------------- |
+| `src/lib/supabase/`                       | Removed  | Entire directory replaced by pocketbase/          |
+| `src/lib/pocketbase/`                     | New      | 6 service files mirroring current interfaces      |
+| `src/shared/utils/pr-calc.ts`             | Modified | Add on-the-fly computation entry point            |
+| `supabase/seed.sql`                       | Kept     | Reference for PocketBase seed script              |
+| `package.json`                            | Modified | Add `expo-sqlite`, remove `@supabase/supabase-js` |
+| `openspec/specs/user-auth/spec.md`        | Modified | Backend ref from Supabase → PocketBase            |
+| `openspec/specs/personal-records/spec.md` | Modified | On-the-fly vs persisted PRs                       |
 
 ## Risks
 
-| Risk | Likelihood | Mitigation |
-|------|------------|------------|
-| Data loss during migration | Low | Dry-run first, verify counts, rollback script ready |
-| Auth tokens incompatible | Low | PocketBase JWT stored in SecureStore (same pattern) |
-| On-the-fly PR perf on large datasets | Low-Med | Index exercise_sets by (user_id, exercise_id, achieved_at); paginate query |
-| Existing mock client breaks | Low | PocketBase mock mirrors current Supabase mock pattern |
+| Risk                                 | Likelihood | Mitigation                                                                 |
+| ------------------------------------ | ---------- | -------------------------------------------------------------------------- |
+| Data loss during migration           | Low        | Dry-run first, verify counts, rollback script ready                        |
+| Auth tokens incompatible             | Low        | PocketBase JWT stored in SecureStore (same pattern)                        |
+| On-the-fly PR perf on large datasets | Low-Med    | Index exercise_sets by (user_id, exercise_id, achieved_at); paginate query |
+| Existing mock client breaks          | Low        | PocketBase mock mirrors current Supabase mock pattern                      |
 
 ## Rollback Plan
 

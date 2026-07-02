@@ -38,6 +38,7 @@ MUST show empty state with action when no templates exist.
 ## UI Spec
 
 ### Layout
+
 ```
 ┌──────────────────────────────┐
 │  Programs                    │  ← header
@@ -57,6 +58,7 @@ MUST show empty state with action when no templates exist.
 ```
 
 ### Tokens
+
 - Card: `bg-surface-900` + `border-surface-800` + `rounded-2xl` + `p-4`
 - Title: `text-surface-50 text-lg font-semibold`
 - Metadata: `text-surface-400 text-xs`

@@ -1,9 +1,9 @@
-import { setEntrySchema, logSetSchema, completeSessionSchema } from "../set";
+import { setEntrySchema, logSetSchema, completeSessionSchema } from '../set';
 
 // ─── setEntrySchema ────────────────────────────────────────────────────────
 
-describe("setEntrySchema", () => {
-  it("accepts valid set entry", () => {
+describe('setEntrySchema', () => {
+  it('accepts valid set entry', () => {
     const result = setEntrySchema.safeParse({
       setNumber: 1,
       weightKg: 100,
@@ -15,7 +15,7 @@ describe("setEntrySchema", () => {
     expect(result.success).toBe(true);
   });
 
-  it("applies defaults for weight and reps", () => {
+  it('applies defaults for weight and reps', () => {
     const result = setEntrySchema.safeParse({
       setNumber: 1,
     });
@@ -27,7 +27,7 @@ describe("setEntrySchema", () => {
     }
   });
 
-  it("rejects setNumber below 1", () => {
+  it('rejects setNumber below 1', () => {
     const result = setEntrySchema.safeParse({
       setNumber: 0,
       weightKg: 100,
@@ -36,7 +36,7 @@ describe("setEntrySchema", () => {
     expect(result.success).toBe(false);
   });
 
-  it("rejects negative weight", () => {
+  it('rejects negative weight', () => {
     const result = setEntrySchema.safeParse({
       setNumber: 1,
       weightKg: -1,
@@ -45,7 +45,7 @@ describe("setEntrySchema", () => {
     expect(result.success).toBe(false);
   });
 
-  it("rejects weight over 9999.99", () => {
+  it('rejects weight over 9999.99', () => {
     const result = setEntrySchema.safeParse({
       setNumber: 1,
       weightKg: 10000,
@@ -54,7 +54,7 @@ describe("setEntrySchema", () => {
     expect(result.success).toBe(false);
   });
 
-  it("rejects reps above 999", () => {
+  it('rejects reps above 999', () => {
     const result = setEntrySchema.safeParse({
       setNumber: 1,
       weightKg: 100,
@@ -63,7 +63,7 @@ describe("setEntrySchema", () => {
     expect(result.success).toBe(false);
   });
 
-  it("rejects negative reps", () => {
+  it('rejects negative reps', () => {
     const result = setEntrySchema.safeParse({
       setNumber: 1,
       weightKg: 100,
@@ -72,7 +72,7 @@ describe("setEntrySchema", () => {
     expect(result.success).toBe(false);
   });
 
-  it("accepts valid RPE values", () => {
+  it('accepts valid RPE values', () => {
     // RPE must be between 1 and 10, and multiple of 0.5
     const valid = setEntrySchema.safeParse({
       setNumber: 1,
@@ -91,7 +91,7 @@ describe("setEntrySchema", () => {
     expect(invalid.success).toBe(false);
   });
 
-  it("rejects RPE below 1", () => {
+  it('rejects RPE below 1', () => {
     const result = setEntrySchema.safeParse({
       setNumber: 1,
       weightKg: 100,
@@ -101,7 +101,7 @@ describe("setEntrySchema", () => {
     expect(result.success).toBe(false);
   });
 
-  it("rejects RPE above 10", () => {
+  it('rejects RPE above 10', () => {
     const result = setEntrySchema.safeParse({
       setNumber: 1,
       weightKg: 100,
@@ -111,7 +111,7 @@ describe("setEntrySchema", () => {
     expect(result.success).toBe(false);
   });
 
-  it("accepts null rpe and rir", () => {
+  it('accepts null rpe and rir', () => {
     const result = setEntrySchema.safeParse({
       setNumber: 1,
       weightKg: 100,
@@ -122,7 +122,7 @@ describe("setEntrySchema", () => {
     expect(result.success).toBe(true);
   });
 
-  it("rejects RIR above 10", () => {
+  it('rejects RIR above 10', () => {
     const result = setEntrySchema.safeParse({
       setNumber: 1,
       weightKg: 100,
@@ -132,7 +132,7 @@ describe("setEntrySchema", () => {
     expect(result.success).toBe(false);
   });
 
-  it("accepts 0 as valid weight (bodyweight exercise)", () => {
+  it('accepts 0 as valid weight (bodyweight exercise)', () => {
     const result = setEntrySchema.safeParse({
       setNumber: 1,
       weightKg: 0,
@@ -143,50 +143,50 @@ describe("setEntrySchema", () => {
 
   // ─── tempo field ────────────────────────────────────────────────
 
-  it("accepts valid tempo string", () => {
+  it('accepts valid tempo string', () => {
     const result = setEntrySchema.safeParse({
       setNumber: 1,
       weightKg: 100,
       reps: 8,
-      tempo: "2020",
+      tempo: '2020',
     });
     expect(result.success).toBe(true);
     if (result.success) {
-      expect(result.data.tempo).toBe("2020");
+      expect(result.data.tempo).toBe('2020');
     }
   });
 
-  it("rejects 2-digit tempo (too short)", () => {
+  it('rejects 2-digit tempo (too short)', () => {
     const result = setEntrySchema.safeParse({
       setNumber: 1,
       weightKg: 100,
       reps: 8,
-      tempo: "20",
+      tempo: '20',
     });
     expect(result.success).toBe(false);
   });
 
-  it("rejects non-numeric tempo", () => {
+  it('rejects non-numeric tempo', () => {
     const result = setEntrySchema.safeParse({
       setNumber: 1,
       weightKg: 100,
       reps: 8,
-      tempo: "abc",
+      tempo: 'abc',
     });
     expect(result.success).toBe(false);
   });
 
-  it("rejects 5-digit tempo string", () => {
+  it('rejects 5-digit tempo string', () => {
     const result = setEntrySchema.safeParse({
       setNumber: 1,
       weightKg: 100,
       reps: 8,
-      tempo: "20201",
+      tempo: '20201',
     });
     expect(result.success).toBe(false);
   });
 
-  it("accepts null tempo", () => {
+  it('accepts null tempo', () => {
     const result = setEntrySchema.safeParse({
       setNumber: 1,
       weightKg: 100,
@@ -199,16 +199,16 @@ describe("setEntrySchema", () => {
     }
   });
 
-  it("accepts 3-digit tempo", () => {
+  it('accepts 3-digit tempo', () => {
     const result = setEntrySchema.safeParse({
       setNumber: 1,
       weightKg: 100,
       reps: 8,
-      tempo: "301",
+      tempo: '301',
     });
     expect(result.success).toBe(true);
     if (result.success) {
-      expect(result.data.tempo).toBe("301");
+      expect(result.data.tempo).toBe('301');
     }
   });
 
@@ -217,7 +217,7 @@ describe("setEntrySchema", () => {
       setNumber: 1,
       weightKg: 100,
       reps: 8,
-      tempo: "0000",
+      tempo: '0000',
     });
     expect(result.success).toBe(true);
   });
@@ -225,11 +225,11 @@ describe("setEntrySchema", () => {
 
 // ─── logSetSchema ──────────────────────────────────────────────────────────
 
-describe("logSetSchema", () => {
-  it("accepts valid logSet input", () => {
+describe('logSetSchema', () => {
+  it('accepts valid logSet input', () => {
     const result = logSetSchema.safeParse({
-      workoutSessionId: "550e8400-e29b-41d4-a716-446655440000",
-      exerciseId: "550e8400-e29b-41d4-a716-446655440001",
+      workoutSessionId: '550e8400-e29b-41d4-a716-446655440000',
+      exerciseId: '550e8400-e29b-41d4-a716-446655440001',
       setNumber: 1,
       weightKg: 100,
       reps: 8,
@@ -238,10 +238,10 @@ describe("logSetSchema", () => {
     expect(result.success).toBe(true);
   });
 
-  it("rejects non-UUID session ID", () => {
+  it('rejects non-UUID session ID', () => {
     const result = logSetSchema.safeParse({
-      workoutSessionId: "bad-id",
-      exerciseId: "550e8400-e29b-41d4-a716-446655440001",
+      workoutSessionId: 'bad-id',
+      exerciseId: '550e8400-e29b-41d4-a716-446655440001',
       setNumber: 1,
       weightKg: 100,
       reps: 8,
@@ -249,12 +249,12 @@ describe("logSetSchema", () => {
     expect(result.success).toBe(false);
   });
 
-  it("rejects weight of NaN", () => {
+  it('rejects weight of NaN', () => {
     const result = logSetSchema.safeParse({
-      workoutSessionId: "550e8400-e29b-41d4-a716-446655440000",
-      exerciseId: "550e8400-e29b-41d4-a716-446655440001",
+      workoutSessionId: '550e8400-e29b-41d4-a716-446655440000',
+      exerciseId: '550e8400-e29b-41d4-a716-446655440001',
       setNumber: 1,
-      weightKg: "not-a-number",
+      weightKg: 'not-a-number',
       reps: 8,
     });
     expect(result.success).toBe(false);
@@ -263,34 +263,34 @@ describe("logSetSchema", () => {
 
 // ─── completeSessionSchema ─────────────────────────────────────────────────
 
-describe("completeSessionSchema", () => {
-  it("accepts valid session completion", () => {
+describe('completeSessionSchema', () => {
+  it('accepts valid session completion', () => {
     const result = completeSessionSchema.safeParse({
-      sessionId: "550e8400-e29b-41d4-a716-446655440000",
-      notes: "Great workout!",
+      sessionId: '550e8400-e29b-41d4-a716-446655440000',
+      notes: 'Great workout!',
     });
     expect(result.success).toBe(true);
   });
 
-  it("accepts null notes", () => {
+  it('accepts null notes', () => {
     const result = completeSessionSchema.safeParse({
-      sessionId: "550e8400-e29b-41d4-a716-446655440000",
+      sessionId: '550e8400-e29b-41d4-a716-446655440000',
       notes: null,
     });
     expect(result.success).toBe(true);
   });
 
-  it("rejects non-UUID session id", () => {
+  it('rejects non-UUID session id', () => {
     const result = completeSessionSchema.safeParse({
-      sessionId: "not-a-uuid",
+      sessionId: 'not-a-uuid',
     });
     expect(result.success).toBe(false);
   });
 
-  it("rejects notes over 2000 characters", () => {
+  it('rejects notes over 2000 characters', () => {
     const result = completeSessionSchema.safeParse({
-      sessionId: "550e8400-e29b-41d4-a716-446655440000",
-      notes: "x".repeat(2001),
+      sessionId: '550e8400-e29b-41d4-a716-446655440000',
+      notes: 'x'.repeat(2001),
     });
     expect(result.success).toBe(false);
   });

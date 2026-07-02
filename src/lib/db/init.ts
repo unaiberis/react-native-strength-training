@@ -6,9 +6,9 @@
  * from `_layout.tsx` before any auth or data operations.
  */
 
-import { getDb } from "./database";
-import { runMigrations } from "./schema";
-import type { SQLiteDatabase } from "expo-sqlite";
+import { getDb } from './database';
+import { runMigrations } from './schema';
+import type { SQLiteDatabase } from 'expo-sqlite';
 
 /**
  * Initialize the local SQLite database.

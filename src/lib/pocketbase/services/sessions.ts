@@ -1,5 +1,5 @@
-import { pb } from "../client";
-import type { SessionRow, ExerciseSetRow } from "../../../types/pocketbase";
+import { pb } from '../client';
+import type { SessionRow, ExerciseSetRow } from '../../../types/pocketbase';
 
 // ─── Row Types ───────────────────────────────────────────────────────────
 
@@ -62,18 +62,18 @@ export interface CreateSessionResult {
  */
 export async function createSession(
   userId: string,
-  options?: { workoutTemplateId?: string; programBlockId?: string },
+  options?: { workoutTemplateId?: string; programBlockId?: string }
 ): Promise<CreateSessionResult> {
   try {
     // Insert the session row
-    const session = await pb.collection("workout_sessions").create({
+    const session = await pb.collection('workout_sessions').create({
       user_id: userId,
       workout_template_id: options?.workoutTemplateId ?? null,
       program_block_id: options?.programBlockId ?? null,
-      status: "in_progress",
+      status: 'in_progress',
     });
 
-    if (!session) throw new Error("Failed to create session");
+    if (!session) throw new Error('Failed to create session');
     const sessionRow = session as unknown as SessionRow;
 
     // If a template was specified, fetch its exercises
@@ -84,7 +84,7 @@ export async function createSession(
 
     return { session: sessionRow, exercises };
   } catch (err: any) {
-    throw new Error(err.message ?? "Failed to create session");
+    throw new Error(err.message ?? 'Failed to create session');
   }
 }
 
@@ -92,12 +92,12 @@ export async function createSession(
  * Fetch exercises from a workout template, enriched with exercise names.
  */
 async function fetchTemplateExercises(
-  templateId: string,
+  templateId: string
 ): Promise<SessionExercise[]> {
   // Step 1: get template exercise rows
-  const rows = await pb.collection("workout_template_exercises").getFullList({
+  const rows = await pb.collection('workout_template_exercises').getFullList({
     filter: `workout_template_id = '${templateId}'`,
-    sort: "sort_order",
+    sort: 'sort_order',
   });
 
   const templateExercises = (rows ?? []) as unknown as Array<{
@@ -117,9 +117,9 @@ async function fetchTemplateExercises(
 
   // Step 2: fetch exercise names
   const exerciseIds = templateExercises.map((r) => r.exercise_id);
-  const exerciseRecords = await pb.collection("exercises").getFullList({
-    filter: exerciseIds.map((id) => `id = '${id}'`).join(" || "),
-    fields: "id,name",
+  const exerciseRecords = await pb.collection('exercises').getFullList({
+    filter: exerciseIds.map((id) => `id = '${id}'`).join(' || '),
+    fields: 'id,name',
   });
 
   const nameMap = new Map<string, string>();
@@ -130,7 +130,7 @@ async function fetchTemplateExercises(
 
   return templateExercises.map((r) => ({
     exerciseId: r.exercise_id,
-    exerciseName: nameMap.get(r.exercise_id) ?? "Unknown Exercise",
+    exerciseName: nameMap.get(r.exercise_id) ?? 'Unknown Exercise',
     targetSets: r.target_sets,
     targetReps: r.target_reps,
     targetRpeLow: r.target_rpe_low,
@@ -144,10 +144,10 @@ async function fetchTemplateExercises(
 
 export async function logSet(
   sessionId: string,
-  input: LogSetInput,
+  input: LogSetInput
 ): Promise<ExerciseSetRow> {
   try {
-    const record = await pb.collection("exercise_sets").create({
+    const record = await pb.collection('exercise_sets').create({
       workout_session_id: sessionId,
       exercise_id: input.exerciseId,
       set_number: input.setNumber,
@@ -159,10 +159,10 @@ export async function logSet(
       tempo: input.tempo ?? null,
     });
 
-    if (!record) throw new Error("Failed to log set");
+    if (!record) throw new Error('Failed to log set');
     return record as unknown as ExerciseSetRow;
   } catch (err: any) {
-    throw new Error(err.message ?? "Failed to log set");
+    throw new Error(err.message ?? 'Failed to log set');
   }
 }
 
@@ -174,27 +174,30 @@ export interface CompleteSessionInput {
 
 export async function completeSession(
   sessionId: string,
-  input?: CompleteSessionInput & { startedAt?: string },
+  input?: CompleteSessionInput & { startedAt?: string }
 ): Promise<SessionRow> {
   try {
     const now = new Date().toISOString();
     const updateData: Record<string, unknown> = {
-      status: "completed",
+      status: 'completed',
       completed_at: now,
       notes: input?.notes ?? null,
     };
 
     // Compute duration in minutes if we have a startedAt
     if (input?.startedAt) {
-      const diffMs = new Date(now).getTime() - new Date(input.startedAt).getTime();
+      const diffMs =
+        new Date(now).getTime() - new Date(input.startedAt).getTime();
       updateData.duration_minutes = Math.round(diffMs / 60000);
     }
 
-    const record = await pb.collection("workout_sessions").update(sessionId, updateData);
-    if (!record) throw new Error("Session not found");
+    const record = await pb
+      .collection('workout_sessions')
+      .update(sessionId, updateData);
+    if (!record) throw new Error('Session not found');
     return record as unknown as SessionRow;
   } catch (err: any) {
-    throw new Error(err.message ?? "Failed to complete session");
+    throw new Error(err.message ?? 'Failed to complete session');
   }
 }
 
@@ -202,28 +205,30 @@ export async function completeSession(
 
 export async function cancelSession(sessionId: string): Promise<SessionRow> {
   try {
-    const record = await pb.collection("workout_sessions").update(sessionId, {
-      status: "cancelled",
+    const record = await pb.collection('workout_sessions').update(sessionId, {
+      status: 'cancelled',
       completed_at: new Date().toISOString(),
     });
 
-    if (!record) throw new Error("Session not found");
+    if (!record) throw new Error('Session not found');
     return record as unknown as SessionRow;
   } catch (err: any) {
-    throw new Error(err.message ?? "Failed to cancel session");
+    throw new Error(err.message ?? 'Failed to cancel session');
   }
 }
 
 // ─── Get Workout Session ─────────────────────────────────────────────────
 
-export async function getWorkoutSession(id: string): Promise<SessionDetail | null> {
+export async function getWorkoutSession(
+  id: string
+): Promise<SessionDetail | null> {
   try {
-    const session = await pb.collection("workout_sessions").getOne(id);
+    const session = await pb.collection('workout_sessions').getOne(id);
     const sessionRow = session as unknown as SessionRow;
 
-    const sets = await pb.collection("exercise_sets").getFullList({
+    const sets = await pb.collection('exercise_sets').getFullList({
       filter: `workout_session_id = '${id}'`,
-      sort: "set_number",
+      sort: 'set_number',
     });
 
     return {
@@ -237,7 +242,7 @@ export async function getWorkoutSession(id: string): Promise<SessionDetail | nul
     ) {
       return null;
     }
-    throw new Error(err.message ?? "Failed to get session");
+    throw new Error(err.message ?? 'Failed to get session');
   }
 }
 
@@ -248,7 +253,7 @@ export async function getWorkoutSession(id: string): Promise<SessionDetail | nul
  * sets grouped by exercise.
  */
 export async function getSessionDetail(
-  id: string,
+  id: string
 ): Promise<SessionDetailWithExercises | null> {
   try {
     const session = await getWorkoutSession(id);
@@ -261,9 +266,11 @@ export async function getSessionDetail(
     let templateName: string | undefined;
     if (session.workout_template_id) {
       try {
-        const tmpl = await pb.collection("workout_templates").getOne(session.workout_template_id, {
-          fields: "name",
-        });
+        const tmpl = await pb
+          .collection('workout_templates')
+          .getOne(session.workout_template_id, {
+            fields: 'name',
+          });
         templateName = (tmpl as unknown as { name: string }).name;
       } catch {
         // template might have been deleted; silently skip
@@ -280,9 +287,9 @@ export async function getSessionDetail(
     }
 
     // Fetch exercise names
-    const exerciseRecords = await pb.collection("exercises").getFullList({
-      filter: exerciseIds.map((eid) => `id = '${eid}'`).join(" || "),
-      fields: "id,name",
+    const exerciseRecords = await pb.collection('exercises').getFullList({
+      filter: exerciseIds.map((eid) => `id = '${eid}'`).join(' || '),
+      fields: 'id,name',
     });
 
     const exerciseNames: ExerciseNameMap = {};
@@ -306,7 +313,7 @@ export async function getSessionDetail(
       templateName,
     };
   } catch (err: any) {
-    throw new Error(err.message ?? "Failed to get session detail");
+    throw new Error(err.message ?? 'Failed to get session detail');
   }
 }
 
@@ -315,7 +322,7 @@ export async function getSessionDetail(
 export interface SessionListItem {
   id: string;
   workout_template_id: string | null;
-  status: "in_progress" | "completed" | "cancelled";
+  status: 'in_progress' | 'completed' | 'cancelled';
   started_at: string;
   completed_at: string | null;
   duration_minutes: number | null;
@@ -341,10 +348,10 @@ export interface ListSessionsOptions {
  */
 export async function listSessions(
   userId: string,
-  options?: ListSessionsOptions,
+  options?: ListSessionsOptions
 ): Promise<{ data: SessionListItem[]; count: number }> {
   const {
-    status = "completed",
+    status = 'completed',
     exerciseId,
     fromDate,
     toDate,
@@ -356,12 +363,14 @@ export async function listSessions(
     // If filtering by exercise, look up matching session IDs first
     let sessionIds: string[] | undefined;
     if (exerciseId) {
-      const sets = await pb.collection("exercise_sets").getFullList({
+      const sets = await pb.collection('exercise_sets').getFullList({
         filter: `exercise_id = '${exerciseId}'`,
-        fields: "workout_session_id",
+        fields: 'workout_session_id',
       });
 
-      const setList = (sets ?? []) as unknown as Array<{ workout_session_id: string }>;
+      const setList = (sets ?? []) as unknown as Array<{
+        workout_session_id: string;
+      }>;
       const ids = [...new Set(setList.map((s) => s.workout_session_id))];
       if (ids.length === 0) return { data: [], count: 0 };
       sessionIds = ids;
@@ -373,36 +382,45 @@ export async function listSessions(
     if (fromDate) conditions.push(`started_at >= '${fromDate}'`);
     if (toDate) conditions.push(`started_at <= '${toDate}'`);
     if (sessionIds) {
-      conditions.push(`(${sessionIds.map((id) => `id = '${id}'`).join(" || ")})`);
+      conditions.push(
+        `(${sessionIds.map((id) => `id = '${id}'`).join(' || ')})`
+      );
     }
 
-    const filter = conditions.join(" && ");
+    const filter = conditions.join(' && ');
 
-    const result = await pb.collection("workout_sessions").getList(page + 1, pageSize, {
-      filter,
-      sort: "-started_at",
-    });
+    const result = await pb
+      .collection('workout_sessions')
+      .getList(page + 1, pageSize, {
+        filter,
+        sort: '-started_at',
+      });
 
     const rows = (result.items ?? []) as unknown as SessionRow[];
 
     // Enrich each session with exercise + set counts and template name
     const enriched: SessionListItem[] = await Promise.all(
       rows.map(async (row) => {
-        const sets = await pb.collection("exercise_sets").getFullList({
+        const sets = await pb.collection('exercise_sets').getFullList({
           filter: `workout_session_id = '${row.id}'`,
-          fields: "id,exercise_id",
+          fields: 'id,exercise_id',
         });
 
-        const setList = (sets ?? []) as unknown as Array<{ id: string; exercise_id: string }>;
+        const setList = (sets ?? []) as unknown as Array<{
+          id: string;
+          exercise_id: string;
+        }>;
         const uniqueExercises = [...new Set(setList.map((s) => s.exercise_id))];
 
         // Fetch template name if the session references a template
         let templateName: string | undefined;
         if (row.workout_template_id) {
           try {
-            const tmpl = await pb.collection("workout_templates").getOne(row.workout_template_id, {
-              fields: "name",
-            });
+            const tmpl = await pb
+              .collection('workout_templates')
+              .getOne(row.workout_template_id, {
+                fields: 'name',
+              });
             templateName = (tmpl as unknown as { name: string }).name;
           } catch {
             // template might have been deleted; silently skip
@@ -421,12 +439,12 @@ export async function listSessions(
           exerciseCount: uniqueExercises.length,
           totalSets: setList.length,
         };
-      }),
+      })
     );
 
     return { data: enriched, count: result.totalItems };
   } catch (err: any) {
-    throw new Error(err.message ?? "Failed to list sessions");
+    throw new Error(err.message ?? 'Failed to list sessions');
   }
 }
 
@@ -434,13 +452,13 @@ export async function listSessions(
 
 export async function updateSessionDuration(
   sessionId: string,
-  durationMinutes: number,
+  durationMinutes: number
 ): Promise<void> {
   try {
-    await pb.collection("workout_sessions").update(sessionId, {
+    await pb.collection('workout_sessions').update(sessionId, {
       duration_minutes: durationMinutes,
     });
   } catch (err: any) {
-    throw new Error(err.message ?? "Failed to update session duration");
+    throw new Error(err.message ?? 'Failed to update session duration');
   }
 }

@@ -9,9 +9,9 @@
  * `@/lib/pocketbase`.
  */
 
-export { pb, ExpoSecureStoreAuth } from "./client";
-export * from "./services/auth";
-export * from "./services/exercises";
-export * from "./services/templates";
-export * from "./services/sessions";
-export * from "./services/prs";
+export { pb, ExpoSecureStoreAuth } from './client';
+export * from './services/auth';
+export * from './services/exercises';
+export * from './services/templates';
+export * from './services/sessions';
+export * from './services/prs';

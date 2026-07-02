@@ -7,20 +7,20 @@
 
 ## Completeness
 
-| Metric | Value |
-|--------|-------|
-| Tasks total (Phase 2) | 4 |
-| Tasks complete | 4 |
-| Tasks incomplete | 0 |
+| Metric                | Value |
+| --------------------- | ----- |
+| Tasks total (Phase 2) | 4     |
+| Tasks complete        | 4     |
+| Tasks incomplete      | 0     |
 
 ### Phase 2 Tasks
 
-| Task | Status | Evidence |
-|------|--------|----------|
-| 2.1 `src/lib/pocketbase/services/exercises.ts` | ✅ COMPLETE | `listExercises`, `getExercise`, `searchExercises`, `getCategories` via `pb.collection("exercises")` |
-| 2.2 `src/lib/pocketbase/services/templates.ts` | ✅ COMPLETE | `createTemplate`, `listTemplates`, `getTemplate`, `updateTemplate`, `deleteTemplate`, `reorderTemplateExercises` via `workout_templates` + `workout_template_exercises` |
-| 2.3 `src/lib/pocketbase/services/sessions.ts` | ✅ COMPLETE | `createSession`, `logSet`, `completeSession`, `cancelSession`, `getSession`, `getSessionDetail`, `listSessions`, `updateSessionDuration` via `workout_sessions` + `exercise_sets` |
-| 2.4 `src/lib/pocketbase/services/prs.ts` | ✅ COMPLETE | `listPRs`, `getExercisePRs`, `getPRHistory`, `checkIsPR` — on-the-fly computation from `exercise_sets`; no `personal_records` |
+| Task                                           | Status      | Evidence                                                                                                                                                                          |
+| ---------------------------------------------- | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2.1 `src/lib/pocketbase/services/exercises.ts` | ✅ COMPLETE | `listExercises`, `getExercise`, `searchExercises`, `getCategories` via `pb.collection("exercises")`                                                                               |
+| 2.2 `src/lib/pocketbase/services/templates.ts` | ✅ COMPLETE | `createTemplate`, `listTemplates`, `getTemplate`, `updateTemplate`, `deleteTemplate`, `reorderTemplateExercises` via `workout_templates` + `workout_template_exercises`           |
+| 2.3 `src/lib/pocketbase/services/sessions.ts`  | ✅ COMPLETE | `createSession`, `logSet`, `completeSession`, `cancelSession`, `getSession`, `getSessionDetail`, `listSessions`, `updateSessionDuration` via `workout_sessions` + `exercise_sets` |
+| 2.4 `src/lib/pocketbase/services/prs.ts`       | ✅ COMPLETE | `listPRs`, `getExercisePRs`, `getPRHistory`, `checkIsPR` — on-the-fly computation from `exercise_sets`; no `personal_records`                                                     |
 
 ## Build & Tests Execution
 
@@ -57,6 +57,7 @@ Tests:       232 passed, 232 total
 ```
 
 New test files for Phase 2:
+
 - `src/lib/pocketbase/services/__tests__/exercises.test.ts` — 15 tests
 - `src/lib/pocketbase/services/__tests__/templates.test.ts` — 12 tests
 - `src/lib/pocketbase/services/__tests__/sessions.test.ts` — 18 tests
@@ -68,68 +69,68 @@ Existing tests (161 mentioned in Phase 1 verify) are all still passing, confirmi
 
 ### Personal Records — On-the-fly PR computation
 
-| Requirement | Scenario | Test | Result |
-|-------------|----------|------|--------|
-| On-the-fly 1RM | Squat 140kg x 1 → 1RM = 140kg | `prs.test.ts > listPRs returns computed PRs grouped by exercise` (Squat assertion: `oneRepMax` = 150) | ✅ COMPLIANT |
-| On-the-fly e1RM | 80kg x 8, 85kg x 6 → highest e1RM (Epley) | `prs.test.ts > listPRs returns computed PRs grouped by exercise` (Bench Press assertion: `estimatedOneRepMax` ~121) | ✅ COMPLIANT |
-| On-the-fly null | No exercise_sets → null returned | `prs.test.ts > listPRs returns empty array when no sessions exist` | ✅ COMPLIANT |
-| On-the-fly 10k+ queries | 10,000+ sets → query within 2s (indexed) | (no covering test — would require integration test against running PocketBase) | ❌ UNTESTED |
+| Requirement             | Scenario                                  | Test                                                                                                                | Result       |
+| ----------------------- | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | ------------ |
+| On-the-fly 1RM          | Squat 140kg x 1 → 1RM = 140kg             | `prs.test.ts > listPRs returns computed PRs grouped by exercise` (Squat assertion: `oneRepMax` = 150)               | ✅ COMPLIANT |
+| On-the-fly e1RM         | 80kg x 8, 85kg x 6 → highest e1RM (Epley) | `prs.test.ts > listPRs returns computed PRs grouped by exercise` (Bench Press assertion: `estimatedOneRepMax` ~121) | ✅ COMPLIANT |
+| On-the-fly null         | No exercise_sets → null returned          | `prs.test.ts > listPRs returns empty array when no sessions exist`                                                  | ✅ COMPLIANT |
+| On-the-fly 10k+ queries | 10,000+ sets → query within 2s (indexed)  | (no covering test — would require integration test against running PocketBase)                                      | ❌ UNTESTED  |
 
 ## Correctness (Static Evidence)
 
 ### Exercises Service
 
-| Requirement | Status | Notes |
-|------------|--------|-------|
+| Requirement                                | Status         | Notes                                                             |
+| ------------------------------------------ | -------------- | ----------------------------------------------------------------- |
 | `listExercises` paginated, category filter | ✅ Implemented | Uses `pb.collection("exercises").getList()` with PB filter syntax |
-| `getExercise` by id | ✅ Implemented | Returns null on 404 |
-| `searchExercises` name case-insensitive | ✅ Implemented | Uses PB `name ~ 'query'` tilde operator |
-| `getCategories` distinct sorted | ✅ Implemented | Fetches all categories, deduplicates, sorts |
+| `getExercise` by id                        | ✅ Implemented | Returns null on 404                                               |
+| `searchExercises` name case-insensitive    | ✅ Implemented | Uses PB `name ~ 'query'` tilde operator                           |
+| `getCategories` distinct sorted            | ✅ Implemented | Fetches all categories, deduplicates, sorts                       |
 
 ### Templates Service
 
-| Requirement | Status | Notes |
-|------------|--------|-------|
-| `createTemplate` with exercises | ⚠️ Partial | Creates template and exercises, but **drops `programBlockId`** from input — field exists in `WorkoutTemplateInput` schema but not passed to `pb.collection("workout_templates").create()` |
-| `listTemplates` with exercises | ✅ Implemented | Fetches templates, then exercises per template via `getTemplateExercises()` |
-| `getTemplate` with exercises | ✅ Implemented | Returns null on 404 |
-| `updateTemplate` replace exercises | ⚠️ Partial | Updates metadata and replaces exercises, but **drops `programBlockId`** from update payload |
-| `deleteTemplate` | ✅ Implemented | Delete via PB; cascade handled by collection relationship |
-| `reorderTemplateExercises` | ✅ Implemented | Sequential update of `sort_order` |
+| Requirement                        | Status         | Notes                                                                                                                                                                                     |
+| ---------------------------------- | -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `createTemplate` with exercises    | ⚠️ Partial     | Creates template and exercises, but **drops `programBlockId`** from input — field exists in `WorkoutTemplateInput` schema but not passed to `pb.collection("workout_templates").create()` |
+| `listTemplates` with exercises     | ✅ Implemented | Fetches templates, then exercises per template via `getTemplateExercises()`                                                                                                               |
+| `getTemplate` with exercises       | ✅ Implemented | Returns null on 404                                                                                                                                                                       |
+| `updateTemplate` replace exercises | ⚠️ Partial     | Updates metadata and replaces exercises, but **drops `programBlockId`** from update payload                                                                                               |
+| `deleteTemplate`                   | ✅ Implemented | Delete via PB; cascade handled by collection relationship                                                                                                                                 |
+| `reorderTemplateExercises`         | ✅ Implemented | Sequential update of `sort_order`                                                                                                                                                         |
 
 ### Sessions Service
 
-| Requirement | Status | Notes |
-|------------|--------|-------|
-| `createSession` | ⚠️ Partial | Creates session, fetches template exercises when `workoutTemplateId` provided, but **missing `programBlockId`** option |
-| `logSet` | ✅ Implemented | Creates `exercise_sets` record with all fields |
-| `completeSession` with duration | ✅ Implemented | Computes duration from `startedAt` |
-| `cancelSession` | ✅ Implemented | Updates status to `cancelled` |
-| `getSession` with sets | ✅ Implemented | Returns session + sets, null on 404 |
-| `getSessionDetail` with exercise names + grouped | ✅ Implemented | Fetches exercise names, groups sets by exercise |
-| `listSessions` paginated + filters | ⚠️ Partial | Supports status, date range, pagination — but **missing `exerciseId` filter** and **`templateName` enrichment** compared to Supabase version |
-| `updateSessionDuration` | ✅ Implemented | Updates `duration_minutes` |
+| Requirement                                      | Status         | Notes                                                                                                                                        |
+| ------------------------------------------------ | -------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `createSession`                                  | ⚠️ Partial     | Creates session, fetches template exercises when `workoutTemplateId` provided, but **missing `programBlockId`** option                       |
+| `logSet`                                         | ✅ Implemented | Creates `exercise_sets` record with all fields                                                                                               |
+| `completeSession` with duration                  | ✅ Implemented | Computes duration from `startedAt`                                                                                                           |
+| `cancelSession`                                  | ✅ Implemented | Updates status to `cancelled`                                                                                                                |
+| `getSession` with sets                           | ✅ Implemented | Returns session + sets, null on 404                                                                                                          |
+| `getSessionDetail` with exercise names + grouped | ✅ Implemented | Fetches exercise names, groups sets by exercise                                                                                              |
+| `listSessions` paginated + filters               | ⚠️ Partial     | Supports status, date range, pagination — but **missing `exerciseId` filter** and **`templateName` enrichment** compared to Supabase version |
+| `updateSessionDuration`                          | ✅ Implemented | Updates `duration_minutes`                                                                                                                   |
 
 ### PRs Service
 
-| Requirement | Status | Notes |
-|------------|--------|-------|
+| Requirement                             | Status         | Notes                                                                                      |
+| --------------------------------------- | -------------- | ------------------------------------------------------------------------------------------ |
 | `listPRs` on-the-fly from exercise_sets | ✅ Implemented | Fetches user sessions → exercise_sets → groups by exercise → computes PRs via `pr-calc.ts` |
-| `getExercisePRs` single exercise | ✅ Implemented | Delegates to `listPRs` with exercise filter |
-| `getPRHistory` progression over time | ✅ Implemented | NEW function not in Supabase service — per-session best values for any PR type |
-| `checkIsPR` quick check | ✅ Implemented | NEW function not in Supabase service — checks if weight × reps beats historical best |
-| No `personal_records` collection used | ✅ Implemented | All values computed from `exercise_sets` only |
+| `getExercisePRs` single exercise        | ✅ Implemented | Delegates to `listPRs` with exercise filter                                                |
+| `getPRHistory` progression over time    | ✅ Implemented | NEW function not in Supabase service — per-session best values for any PR type             |
+| `checkIsPR` quick check                 | ✅ Implemented | NEW function not in Supabase service — checks if weight × reps beats historical best       |
+| No `personal_records` collection used   | ✅ Implemented | All values computed from `exercise_sets` only                                              |
 
 ## Coherence (Design)
 
-| Decision | Followed? | Notes |
-|----------|-----------|-------|
-| Drop-in replacement preserving same service interface signatures | ⚠️ Partial | 5 interfaces differ (see issues below: `program_block_id`, `exerciseId` filter, `templateName`, `getSession` collision) |
-| PRs computed on-the-fly from `exercise_sets` | ✅ Yes | No `personal_records` read/write; uses `shared/utils/pr-calc.ts` |
-| Service functions keep same return types as supabase versions | ⚠️ Partial | `listPRs` returns `ComputedPR[]` vs `PRWithExercise[]` (intentional — by design as documented) |
-| Barrel file per service (same shape) | ⚠️ Partial | `getSession` name collision in barrel prevents clean re-export |
-| Mock client pattern | ✅ Yes | Same 100ms-delay pattern as Phase 1 |
-| `program_block_id` deferred (out of scope) | ⚠️ Not documented | `programBlockId` exists in `WorkoutTemplateInput` and `templateDefaults`; Supabase version persists it; dropping it in PocketBase is unannounced |
+| Decision                                                         | Followed?         | Notes                                                                                                                                            |
+| ---------------------------------------------------------------- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Drop-in replacement preserving same service interface signatures | ⚠️ Partial        | 5 interfaces differ (see issues below: `program_block_id`, `exerciseId` filter, `templateName`, `getSession` collision)                          |
+| PRs computed on-the-fly from `exercise_sets`                     | ✅ Yes            | No `personal_records` read/write; uses `shared/utils/pr-calc.ts`                                                                                 |
+| Service functions keep same return types as supabase versions    | ⚠️ Partial        | `listPRs` returns `ComputedPR[]` vs `PRWithExercise[]` (intentional — by design as documented)                                                   |
+| Barrel file per service (same shape)                             | ⚠️ Partial        | `getSession` name collision in barrel prevents clean re-export                                                                                   |
+| Mock client pattern                                              | ✅ Yes            | Same 100ms-delay pattern as Phase 1                                                                                                              |
+| `program_block_id` deferred (out of scope)                       | ⚠️ Not documented | `programBlockId` exists in `WorkoutTemplateInput` and `templateDefaults`; Supabase version persists it; dropping it in PocketBase is unannounced |
 
 ## Issues Found
 

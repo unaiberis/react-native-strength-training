@@ -15,13 +15,13 @@ UI Components
 
 ### Collections on PocketBase
 
-| Collection | Type | Mutation pattern | Read pattern |
-|-----------|------|-----------------|-------------|
-| `exercises` | Reference data (static) | Admin-only | `getList`, `getOne`, `getFullList` |
-| `workout_templates` | User data | User CRUD | `getFullList`, `getOne` |
-| `workout_template_exercises` | User data | Created/deleted with template | `getFullList` (by template) |
-| `workout_sessions` | User data | Create → log → complete/cancel | `getList`, `getOne` |
-| `exercise_sets` | User data | Create only (append-only) | `getFullList` (by session) |
+| Collection                   | Type                    | Mutation pattern               | Read pattern                       |
+| ---------------------------- | ----------------------- | ------------------------------ | ---------------------------------- |
+| `exercises`                  | Reference data (static) | Admin-only                     | `getList`, `getOne`, `getFullList` |
+| `workout_templates`          | User data               | User CRUD                      | `getFullList`, `getOne`            |
+| `workout_template_exercises` | User data               | Created/deleted with template  | `getFullList` (by template)        |
+| `workout_sessions`           | User data               | Create → log → complete/cancel | `getList`, `getOne`                |
+| `exercise_sets`              | User data               | Create only (append-only)      | `getFullList` (by session)         |
 
 ### Key observations
 
@@ -34,12 +34,12 @@ UI Components
 
 ### Dependencies installed
 
-| Package | Version | Status |
-|---------|---------|--------|
-| `expo-sqlite` | ~15.1.4 | Installed, unused |
-| `@tanstack/react-query` | ^5.56.0 | Active, server state only |
-| `zustand` | ^5.0.0 | Active, UI state only |
-| `@react-native-community/netinfo` | **not installed** | Missing |
+| Package                           | Version           | Status                    |
+| --------------------------------- | ----------------- | ------------------------- |
+| `expo-sqlite`                     | ~15.1.4           | Installed, unused         |
+| `@tanstack/react-query`           | ^5.56.0           | Active, server state only |
+| `zustand`                         | ^5.0.0            | Active, UI state only     |
+| `@react-native-community/netinfo` | **not installed** | Missing                   |
 
 ### Auth persistence
 
@@ -49,6 +49,7 @@ UI Components
 ## Affected Areas
 
 ### Service layer — `src/lib/pocketbase/services/`
+
 - `exercises.ts` — all reads → need local fallback
 - `sessions.ts` — all reads + writes → highest priority for offline
 - `templates.ts` — all reads + writes → need offline support
@@ -56,16 +57,19 @@ UI Components
 - `prs.ts` — computed from `exercise_sets` → can be computed locally from SQLite
 
 ### Hook layer — `src/features/*/hooks/`
+
 - `useExercises.ts` — React Query → needs offline-aware data source
 - `useWorkoutSession.ts` — mutations → needs offline queue
 - `useTemplates.ts` — queries + mutations → needs both
 - `useAuth.ts` — initialization → needs to init local DB
 
 ### Store layer — `src/stores/`
+
 - `auth-store.ts` — may need `isOnline` flag
 - `session-store.ts` — workout state is already in-memory; may need persistence hook
 
 ### New files needed
+
 - `src/lib/db/` — database initialization, schema, migrations
 - `src/lib/db/schema.ts` — table definitions
 - `src/lib/db/sync-engine.ts` — sync orchestrator
@@ -80,6 +84,7 @@ UI Components
 Wrap each PocketBase service with an offline-aware counterpart that writes to both SQLite + PocketBase.
 
 **Architecture:**
+
 ```
 UI → React Query hooks → OfflineServiceWrapper → SQLite + PocketBase
                                         ↕
@@ -87,6 +92,7 @@ UI → React Query hooks → OfflineServiceWrapper → SQLite + PocketBase
 ```
 
 **Implementation sketch:**
+
 ```typescript
 // src/lib/db/services/offline-sessions.ts
 export async function logSet(input: LogSetInput): Promise<ExerciseSetRow> {
@@ -110,12 +116,14 @@ export async function logSet(input: LogSetInput): Promise<ExerciseSetRow> {
 ```
 
 **Pros:**
+
 - No changes to existing hooks — swap imports at the service level
 - Clean separation of concerns — sync logic is isolated
 - Easy to test — services are pure functions
 - Works with existing React Query invalidation patterns
 
 **Cons:**
+
 - Need to refactor all service exports to go through wrappers
 - PocketBase service functions use `pb` client directly — hard to abstract cleanly
 - Two code paths (online vs offline) per service function
@@ -128,6 +136,7 @@ export async function logSet(input: LogSetInput): Promise<ExerciseSetRow> {
 Keep PocketBase services as-is for network calls. Add a React Query persister (expo-sqlite adapter) for query cache persistence, plus a mutation queue middleware at the React Query layer.
 
 **Architecture:**
+
 ```
 UI → React Query (persisted to SQLite) → PocketBase services
                            ↕
@@ -137,6 +146,7 @@ UI → React Query (persisted to SQLite) → PocketBase services
 ```
 
 **Implementation sketch:**
+
 ```typescript
 // React Query persister saves query cache to SQLite
 const persister = createAsyncStoragePersister({
@@ -144,22 +154,25 @@ const persister = createAsyncStoragePersister({
 });
 
 // Mutation queue intercepts failed mutations
-const offlineMutationMiddleware: Middleware = (queryClient) => (next) => (action) => {
-  if (action.type === 'mutation' && !isOnline) {
-    // Save to offline queue instead
-    return saveToQueue(action);
-  }
-  return next(action);
-};
+const offlineMutationMiddleware: Middleware =
+  (queryClient) => (next) => (action) => {
+    if (action.type === 'mutation' && !isOnline) {
+      // Save to offline queue instead
+      return saveToQueue(action);
+    }
+    return next(action);
+  };
 ```
 
 **Pros:**
+
 - Minimal changes to existing code — hooks don't change
 - React Query handles cache dedup and invalidation
 - Query cache persistence is automatic
 - Leverages existing React Query patterns
 
 **Cons:**
+
 - React Query's `persistQueryClient` wasn't designed for offline-first writes — it persists cache, not user mutations
 - Complex to handle mutation replay with side effects (invalidation, UI updates)
 - Conflict resolution is harder outside the service layer
@@ -173,6 +186,7 @@ const offlineMutationMiddleware: Middleware = (queryClient) => (next) => (action
 Use a dedicated offline service layer for **write operations** (sessions, sets, template mutations) that writes to SQLite + queues sync. Use React Query's `persistQueryClient` to persist **read cache** (exercises, templates list, history) to SQLite for offline browsing.
 
 **Architecture:**
+
 ```
 Writes: UI → Hook → OfflineWriteService → SQLite + Queue → SyncEngine
  Reads: UI → React Query (persisted cache) → PocketBase services
@@ -181,6 +195,7 @@ Writes: UI → Hook → OfflineWriteService → SQLite + Queue → SyncEngine
 ```
 
 **Pros:**
+
 - Writes have explicit offline handling with proper ID generation
 - Reads benefit from React Query's existing cache/refetch/staleness logic
 - Exercises (static data) can be seeded to SQLite on first sync
@@ -188,6 +203,7 @@ Writes: UI → Hook → OfflineWriteService → SQLite + Queue → SyncEngine
 - Each concern uses the right tool
 
 **Cons:**
+
 - Two data paths to understand and maintain
 - Cache persister for reads + SQLite for writes = dual storage
 - Need to keep both in sync during transitions

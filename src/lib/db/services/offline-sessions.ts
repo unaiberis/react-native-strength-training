@@ -10,20 +10,20 @@
  * local UUIDs and child FK references are remapped accordingly.
  */
 
-import type { SQLiteDatabase } from "expo-sqlite";
-import type { ChangeQueue } from "../change-queue";
-import { generateId } from "../uuid";
+import type { SQLiteDatabase } from 'expo-sqlite';
+import type { ChangeQueue } from '../change-queue';
+import { generateId } from '../uuid';
 import type {
   WorkoutSessionRow,
   ExerciseSetRow,
   LogSetInput,
   CompleteSessionInput,
-} from "../types";
+} from '../types';
 
 export class OfflineSessionsService {
   constructor(
     private db: SQLiteDatabase,
-    private changeQueue: ChangeQueue,
+    private changeQueue: ChangeQueue
   ) {}
 
   /**
@@ -34,7 +34,7 @@ export class OfflineSessionsService {
    */
   async createSession(
     userId: string,
-    templateId?: string,
+    templateId?: string
   ): Promise<WorkoutSessionRow> {
     const id = generateId();
     const now = new Date().toISOString();
@@ -42,17 +42,17 @@ export class OfflineSessionsService {
     await this.db.runAsync(
       `INSERT INTO workout_sessions (id, local_id, user_id, template_id, status, started_at, dirty)
        VALUES (?, ?, ?, ?, ?, ?, 1)`,
-      [id, id, userId, templateId ?? null, "active", now],
+      [id, id, userId, templateId ?? null, 'active', now]
     );
 
     await this.changeQueue.enqueue({
-      action: "create",
-      collection: "workout_sessions",
+      action: 'create',
+      collection: 'workout_sessions',
       localId: id,
       data: {
         user_id: userId,
         template_id: templateId ?? null,
-        status: "active",
+        status: 'active',
         started_at: now,
       },
     });
@@ -62,7 +62,7 @@ export class OfflineSessionsService {
       local_id: id,
       user_id: userId,
       template_id: templateId ?? null,
-      status: "active",
+      status: 'active',
       started_at: now,
       completed_at: null,
       duration_seconds: null,
@@ -78,10 +78,7 @@ export class OfflineSessionsService {
    * Writes to `exercise_sets` and enqueues a CREATE change.
    * Returns the inserted set row.
    */
-  async logSet(
-    sessionId: string,
-    input: LogSetInput,
-  ): Promise<ExerciseSetRow> {
+  async logSet(sessionId: string, input: LogSetInput): Promise<ExerciseSetRow> {
     const id = generateId();
 
     await this.db.runAsync(
@@ -99,12 +96,12 @@ export class OfflineSessionsService {
         input.rir ?? null,
         input.isWarmup ? 1 : 0,
         input.tempo ?? null,
-      ],
+      ]
     );
 
     await this.changeQueue.enqueue({
-      action: "create",
-      collection: "exercise_sets",
+      action: 'create',
+      collection: 'exercise_sets',
       localId: id,
       data: {
         session_id: sessionId,
@@ -144,26 +141,21 @@ export class OfflineSessionsService {
    */
   async completeSession(
     sessionId: string,
-    input?: CompleteSessionInput,
+    input?: CompleteSessionInput
   ): Promise<void> {
     const now = new Date().toISOString();
 
     await this.db.runAsync(
       `UPDATE workout_sessions SET status = 'completed', completed_at = ?, duration_seconds = ?, notes = ?, dirty = 1 WHERE id = ?`,
-      [
-        now,
-        input?.durationSeconds ?? null,
-        input?.notes ?? null,
-        sessionId,
-      ],
+      [now, input?.durationSeconds ?? null, input?.notes ?? null, sessionId]
     );
 
     await this.changeQueue.enqueue({
-      action: "update",
-      collection: "workout_sessions",
+      action: 'update',
+      collection: 'workout_sessions',
       recordId: sessionId,
       data: {
-        status: "completed",
+        status: 'completed',
         completed_at: now,
         duration_seconds: input?.durationSeconds ?? null,
         notes: input?.notes ?? null,
@@ -179,14 +171,14 @@ export class OfflineSessionsService {
   async cancelSession(sessionId: string): Promise<void> {
     await this.db.runAsync(
       `UPDATE workout_sessions SET status = 'cancelled', dirty = 1 WHERE id = ?`,
-      [sessionId],
+      [sessionId]
     );
 
     await this.changeQueue.enqueue({
-      action: "update",
-      collection: "workout_sessions",
+      action: 'update',
+      collection: 'workout_sessions',
       recordId: sessionId,
-      data: { status: "cancelled" },
+      data: { status: 'cancelled' },
     });
   }
 
@@ -195,7 +187,7 @@ export class OfflineSessionsService {
    */
   async getActiveSession(): Promise<WorkoutSessionRow | null> {
     const row = await this.db.getFirstAsync<WorkoutSessionRow>(
-      "SELECT * FROM workout_sessions WHERE status = 'active' LIMIT 1",
+      "SELECT * FROM workout_sessions WHERE status = 'active' LIMIT 1"
     );
     return row ?? null;
   }
@@ -205,8 +197,8 @@ export class OfflineSessionsService {
    */
   async getSessionSets(sessionId: string): Promise<ExerciseSetRow[]> {
     return this.db.getAllAsync<ExerciseSetRow>(
-      "SELECT * FROM exercise_sets WHERE session_id = ? ORDER BY set_number ASC",
-      [sessionId],
+      'SELECT * FROM exercise_sets WHERE session_id = ? ORDER BY set_number ASC',
+      [sessionId]
     );
   }
 }

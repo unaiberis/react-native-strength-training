@@ -57,13 +57,13 @@ Flow: Workout CRUD
 
 ## Files
 
-| File | Action |
-|------|--------|
-| `.maestro/critical-path.yaml` | CREATE |
-| `.maestro/auth.yaml` | CREATE |
-| `.maestro/workout.yaml` | CREATE |
-| `.github/workflows/ci.yml` | MODIFY — add optional e2e step |
-| `e2e/README.md` | CREATE — setup instructions |
+| File                          | Action                         |
+| ----------------------------- | ------------------------------ |
+| `.maestro/critical-path.yaml` | CREATE                         |
+| `.maestro/auth.yaml`          | CREATE                         |
+| `.maestro/workout.yaml`       | CREATE                         |
+| `.github/workflows/ci.yml`    | MODIFY — add optional e2e step |
+| `e2e/README.md`               | CREATE — setup instructions    |
 
 ## Acceptance Criteria
 

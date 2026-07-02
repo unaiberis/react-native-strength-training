@@ -1,12 +1,15 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useAuthStore } from "../../../stores/auth-store";
-import * as TemplatesService from "../../../lib/pocketbase/services/templates";
-import type { WorkoutTemplateInput } from "../../../shared/schemas/template";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useAuthStore } from '../../../stores/auth-store';
+import * as TemplatesService from '../../../lib/pocketbase/services/templates';
+import type { WorkoutTemplateInput } from '../../../shared/schemas/template';
 // Offline modules imported dynamically — expo-sqlite native module unavailable on web
 // import { getDb, ChangeQueue, OfflineTemplatesService } from "../../../lib/db";
-import type { CreateTemplateInput, UpdateTemplateInput } from "../../../lib/db/services/offline-templates";
+import type {
+  CreateTemplateInput,
+  UpdateTemplateInput,
+} from '../../../lib/db/services/offline-templates';
 
-const TEMPLATES_QUERY_KEY = "templates";
+const TEMPLATES_QUERY_KEY = 'templates';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────
 
@@ -17,9 +20,9 @@ const TEMPLATES_QUERY_KEY = "templates";
 async function createOfflineTemplates(): Promise<any> {
   const [{ getDb }, { ChangeQueue }, { OfflineTemplatesService }] =
     await Promise.all([
-      import("../../../lib/db/database"),
-      import("../../../lib/db/change-queue"),
-      import("../../../lib/db/services/offline-templates"),
+      import('../../../lib/db/database'),
+      import('../../../lib/db/change-queue'),
+      import('../../../lib/db/services/offline-templates'),
     ]);
   const db = await getDb();
   const queue = new ChangeQueue(db);
@@ -32,7 +35,7 @@ async function createOfflineTemplates(): Promise<any> {
  */
 function toOfflineCreateInput(
   userId: string,
-  input: WorkoutTemplateInput,
+  input: WorkoutTemplateInput
 ): CreateTemplateInput {
   return {
     userId,
@@ -55,7 +58,7 @@ function toOfflineCreateInput(
  */
 function toOfflineUpdateInput(
   userId: string,
-  input: WorkoutTemplateInput,
+  input: WorkoutTemplateInput
 ): UpdateTemplateInput {
   return {
     userId,
@@ -73,7 +76,7 @@ export function useTemplates() {
   const userId = useAuthStore((s) => s.user?.id);
 
   return useQuery({
-    queryKey: [TEMPLATES_QUERY_KEY],
+    queryKey: [TEMPLATES_QUERY_KEY, userId],
     queryFn: () => TemplatesService.listTemplates(userId!),
     enabled: !!userId,
     staleTime: 1000 * 60 * 2,

@@ -1,6 +1,6 @@
-import { useLocalSearchParams } from "expo-router";
-import { ActiveWorkoutScreen } from "../../src/features/workout/screens/ActiveWorkoutScreen";
-import { WorkoutCompleteScreen } from "../../src/features/workout/screens/WorkoutCompleteScreen";
+import { useLocalSearchParams } from 'expo-router';
+import { ActiveWorkoutScreen } from '../../src/features/workout/screens/ActiveWorkoutScreen';
+import { WorkoutCompleteScreen } from '../../src/features/workout/screens/WorkoutCompleteScreen';
 
 /**
  * Active workout route.
@@ -14,7 +14,7 @@ import { WorkoutCompleteScreen } from "../../src/features/workout/screens/Workou
 export default function WorkoutRoute() {
   const { completed } = useLocalSearchParams<{ completed?: string }>();
 
-  if (completed === "true") {
+  if (completed === 'true') {
     return <WorkoutCompleteScreen />;
   }
 

@@ -50,7 +50,7 @@ export interface SessionRow {
   user_id: string;
   workout_template_id: string | null;
   program_block_id: string | null;
-  status: "in_progress" | "completed" | "cancelled";
+  status: 'in_progress' | 'completed' | 'cancelled';
   started_at: string;
   completed_at: string | null;
   duration_minutes: number | null;

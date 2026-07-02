@@ -1,24 +1,17 @@
-import { View, Text, ScrollView, Alert } from "react-native";
-import { Card } from "../../../shared/ui/Card";
-import { Button } from "../../../shared/ui/Button";
-import { useAuth } from "../../auth/hooks/useAuth";
+import { View, Text, ScrollView } from 'react-native';
+import { Card } from '../../../shared/ui/Card';
+import { Button } from '../../../shared/ui/Button';
+import { useAuth } from '../../auth/hooks/useAuth';
 
 export function ProfileScreen() {
   const { user, logout } = useAuth();
 
-  const handleLogout = () => {
-    Alert.alert("Sign Out", "Are you sure you want to sign out?", [
-      { text: "Cancel", style: "cancel" },
-      { text: "Sign Out", style: "destructive", onPress: logout },
-    ]);
-  };
-
-  const email = user?.email ?? "No email";
+  const email = user?.email ?? 'No email';
   const displayName =
-    user?.user_metadata?.display_name ?? email.split("@")[0] ?? "User";
+    user?.user_metadata?.display_name ?? email.split('@')[0] ?? 'User';
   const createdAt = user?.created_at
     ? new Date(user.created_at).toLocaleDateString()
-    : "Unknown";
+    : 'Unknown';
 
   return (
     <ScrollView className="flex-1 bg-surface-950 px-4 pt-16">
@@ -47,14 +40,17 @@ export function ProfileScreen() {
         </View>
         <View className="flex-row justify-between py-2">
           <Text className="text-surface-400">User ID</Text>
-          <Text className="text-surface-100 text-xs font-mono" numberOfLines={1}>
+          <Text
+            className="text-surface-100 text-xs font-mono"
+            numberOfLines={1}
+          >
             {user?.id.slice(0, 12)}...
           </Text>
         </View>
       </Card>
 
       {/* Sign out */}
-      <Button title="Sign Out" variant="danger" onPress={handleLogout} />
+      <Button title="Sign Out" variant="danger" onPress={logout} />
     </ScrollView>
   );
 }

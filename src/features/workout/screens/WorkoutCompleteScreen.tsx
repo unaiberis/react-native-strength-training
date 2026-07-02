@@ -1,10 +1,10 @@
-import { useCallback } from "react";
-import { View, Text, ScrollView } from "react-native";
-import { useRouter } from "expo-router";
-import { Button } from "../../../shared/ui/Button";
-import { Card } from "../../../shared/ui/Card";
-import { useSessionStore } from "../../../stores/session-store";
-import { useClearSession } from "../hooks/useWorkoutSession";
+import { useCallback } from 'react';
+import { View, Text, ScrollView } from 'react-native';
+import { useRouter } from 'expo-router';
+import { Button } from '../../../shared/ui/Button';
+import { Card } from '../../../shared/ui/Card';
+import { useSessionStore } from '../../../stores/session-store';
+import { useClearSession } from '../hooks/useWorkoutSession';
 
 /**
  * Workout Complete Screen
@@ -24,28 +24,26 @@ export function WorkoutCompleteScreen() {
   // Compute summary
   const totalLoggedSets = exercises.reduce(
     (sum, ex) => sum + ex.loggedSets.length,
-    0,
+    0
   );
   const totalExercises = exercises.length;
   const completedExercises = exercises.filter(
-    (ex) => ex.loggedSets.length > 0,
+    (ex) => ex.loggedSets.length > 0
   ).length;
 
   // Compute duration from startedAt
   const durationMinutes = startedAt
-    ? Math.round(
-        (Date.now() - new Date(startedAt).getTime()) / 60000,
-      )
+    ? Math.round((Date.now() - new Date(startedAt).getTime()) / 60000)
     : 0;
 
   const handleGoHome = useCallback(() => {
     clearSession();
-    router.replace("/(tabs)");
+    router.replace('/(tabs)');
   }, [clearSession, router]);
 
   const handleGoTrain = useCallback(() => {
     clearSession();
-    router.replace("/(tabs)/train");
+    router.replace('/(tabs)/train');
   }, [clearSession, router]);
 
   return (
@@ -102,7 +100,9 @@ export function WorkoutCompleteScreen() {
               <View
                 key={ex.exerciseId}
                 className={`flex-row justify-between items-center py-2 ${
-                  idx < exercises.length - 1 ? "border-b border-surface-800" : ""
+                  idx < exercises.length - 1
+                    ? 'border-b border-surface-800'
+                    : ''
                 }`}
               >
                 <Text
@@ -135,11 +135,7 @@ export function WorkoutCompleteScreen() {
             variant="primary"
             onPress={handleGoTrain}
           />
-          <Button
-            title="Go Home"
-            variant="secondary"
-            onPress={handleGoHome}
-          />
+          <Button title="Go Home" variant="secondary" onPress={handleGoHome} />
         </View>
       </ScrollView>
     </View>

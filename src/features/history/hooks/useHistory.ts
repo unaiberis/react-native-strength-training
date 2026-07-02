@@ -1,15 +1,15 @@
-import { useCallback, useMemo } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useAuthStore } from "../../../stores/auth-store";
-import * as SessionsService from "../../../lib/pocketbase/services/sessions";
+import { useCallback, useMemo } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useAuthStore } from '../../../stores/auth-store';
+import * as SessionsService from '../../../lib/pocketbase/services/sessions';
 // Offline modules imported dynamically — expo-sqlite native module unavailable on web
 // import { getDb } from "../../../lib/db";
 import type {
   SessionListItem,
   SessionDetailWithExercises,
-} from "../../../lib/pocketbase/services/sessions";
+} from '../../../lib/pocketbase/services/sessions';
 
-const HISTORY_QUERY_KEY = "workout-history";
+const HISTORY_QUERY_KEY = 'workout-history';
 const PAGE_SIZE = 20;
 
 export interface HistoryFilters {
@@ -38,30 +38,30 @@ async function listLocalSessions(
   userId: string,
   filters: HistoryFilters | undefined,
   page: number,
-  pageSize: number,
+  pageSize: number
 ): Promise<{ data: SessionListItem[]; count: number }> {
-  const { getDb } = await import("../../../lib/db/database");
+  const { getDb } = await import('../../../lib/db/database');
   const db = await getDb();
 
   const conditions = ["status = 'completed'"];
   const params: (string | number)[] = [];
 
   if (filters?.fromDate) {
-    conditions.push("started_at >= ?");
+    conditions.push('started_at >= ?');
     params.push(filters.fromDate);
   }
   if (filters?.toDate) {
-    conditions.push("started_at <= ?");
+    conditions.push('started_at <= ?');
     params.push(filters.toDate);
   }
 
-  const where = conditions.join(" AND ");
+  const where = conditions.join(' AND ');
   const offset = page * pageSize;
 
   // Count total
   const countRow = await db.getFirstAsync<{ count: number }>(
     `SELECT COUNT(*) as count FROM workout_sessions WHERE ${where}`,
-    params,
+    params
   );
   const count = countRow?.count ?? 0;
 
@@ -72,13 +72,13 @@ async function listLocalSessions(
      WHERE ${where}
      ORDER BY started_at DESC
      LIMIT ? OFFSET ?`,
-    [...params, pageSize, offset],
+    [...params, pageSize, offset]
   );
 
   const data: SessionListItem[] = rows.map((row) => ({
     id: row.id,
     workout_template_id: row.template_id,
-    status: row.status as "completed",
+    status: row.status as 'completed',
     started_at: row.started_at,
     completed_at: row.completed_at,
     duration_minutes: row.duration_seconds
@@ -97,15 +97,15 @@ async function listLocalSessions(
  * Returns null if the session is not found.
  */
 async function getLocalSessionDetail(
-  sessionId: string,
+  sessionId: string
 ): Promise<SessionDetailWithExercises | null> {
-  const { getDb } = await import("../../../lib/db/database");
+  const { getDb } = await import('../../../lib/db/database');
   const db = await getDb();
 
   const session = await db.getFirstAsync<LocalSessionRow>(
     `SELECT id, template_id, status, started_at, completed_at, duration_seconds, notes
      FROM workout_sessions WHERE id = ?`,
-    [sessionId],
+    [sessionId]
   );
 
   if (!session) return null;
@@ -124,7 +124,7 @@ async function getLocalSessionDetail(
   }>(
     `SELECT id, session_id, exercise_id, set_number, weight_kg, reps, rpe, rir, is_warmup
      FROM exercise_sets WHERE session_id = ? ORDER BY set_number ASC`,
-    [sessionId],
+    [sessionId]
   );
 
   // Get unique exercise IDs and their names
@@ -133,10 +133,10 @@ async function getLocalSessionDetail(
 
   for (const eid of exerciseIds) {
     const ex = await db.getFirstAsync<{ name: string }>(
-      "SELECT name FROM exercises WHERE id = ?",
-      [eid],
+      'SELECT name FROM exercises WHERE id = ?',
+      [eid]
     );
-    exerciseNames[eid] = ex?.name ?? "Unknown Exercise";
+    exerciseNames[eid] = ex?.name ?? 'Unknown Exercise';
   }
 
   // Group sets by exercise
@@ -149,10 +149,10 @@ async function getLocalSessionDetail(
 
   return {
     id: session.id,
-    user_id: "",
+    user_id: '',
     workout_template_id: session.template_id,
     program_block_id: null,
-    status: session.status as SessionDetailWithExercises["status"],
+    status: session.status as SessionDetailWithExercises['status'],
     started_at: session.started_at,
     completed_at: session.completed_at,
     duration_minutes: session.duration_seconds
@@ -165,9 +165,9 @@ async function getLocalSessionDetail(
       ...s,
       workout_session_id: session.id,
     })) as any,
-    exerciseNames: exerciseNames as any,
+    exerciseNames: exerciseNames,
     groupedSets: groupedSets as any,
-  } as SessionDetailWithExercises;
+  };
 }
 
 // ─── Hooks ───────────────────────────────────────────────────────────────
@@ -188,8 +188,23 @@ export function useHistory(page = 0, filters?: HistoryFilters) {
   const isOnline = useAuthStore((s) => s.isOnline);
 
   const queryKey = useMemo(
-    () => [HISTORY_QUERY_KEY, page, filters?.exerciseId, filters?.fromDate, filters?.toDate, isOnline ? "online" : "offline"],
-    [page, filters?.exerciseId, filters?.fromDate, filters?.toDate, isOnline],
+    () => [
+      HISTORY_QUERY_KEY,
+      userId,
+      page,
+      filters?.exerciseId,
+      filters?.fromDate,
+      filters?.toDate,
+      isOnline ? 'online' : 'offline',
+    ],
+    [
+      userId,
+      page,
+      filters?.exerciseId,
+      filters?.fromDate,
+      filters?.toDate,
+      isOnline,
+    ]
   );
 
   const query = useQuery({
@@ -199,7 +214,7 @@ export function useHistory(page = 0, filters?: HistoryFilters) {
         return listLocalSessions(userId!, filters, page, PAGE_SIZE);
       }
       return SessionsService.listSessions(userId!, {
-        status: "completed",
+        status: 'completed',
         exerciseId: filters?.exerciseId ?? undefined,
         fromDate: filters?.fromDate ?? undefined,
         toDate: filters?.toDate ?? undefined,
@@ -235,13 +250,16 @@ export function useHistory(page = 0, filters?: HistoryFilters) {
  *
  * Returns the session with all sets, exercise names, and grouped sets.
  */
-export function useSessionDetail(
-  sessionId: string | undefined,
-) {
+export function useSessionDetail(sessionId: string | undefined) {
   const isOnline = useAuthStore((s) => s.isOnline);
 
   const query = useQuery<SessionDetailWithExercises | null>({
-    queryKey: [HISTORY_QUERY_KEY, "detail", sessionId, isOnline ? "online" : "offline"],
+    queryKey: [
+      HISTORY_QUERY_KEY,
+      'detail',
+      sessionId,
+      isOnline ? 'online' : 'offline',
+    ],
     queryFn: () => {
       if (!sessionId) return null;
       if (!isOnline) {
@@ -266,7 +284,12 @@ export function usePrefetchSession() {
   const prefetch = useCallback(
     (sessionId: string) => {
       queryClient.prefetchQuery({
-        queryKey: [HISTORY_QUERY_KEY, "detail", sessionId, isOnline ? "online" : "offline"],
+        queryKey: [
+          HISTORY_QUERY_KEY,
+          'detail',
+          sessionId,
+          isOnline ? 'online' : 'offline',
+        ],
         queryFn: () => {
           if (!isOnline) {
             return getLocalSessionDetail(sessionId);
@@ -276,7 +299,7 @@ export function usePrefetchSession() {
         staleTime: 1000 * 60 * 5,
       });
     },
-    [queryClient, isOnline],
+    [queryClient, isOnline]
   );
 
   return prefetch;
