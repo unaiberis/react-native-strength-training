@@ -8,9 +8,19 @@ import { pb, ExpoSecureStoreAuth } from "../src/lib/pocketbase/client";
 import "../global.css";
 import { View, ActivityIndicator, Text, Platform } from "react-native";
 import { GradientBackground } from "../src/shared/ui/GradientBackground";
+import { useColorScheme } from "nativewind";
 
 const OFFLINE_ENABLED = process.env.EXPO_PUBLIC_OFFLINE_ENABLED === "true";
 const IS_WEB = Platform.OS === "web";
+
+/** Force dark mode — this app is dark-only by design. */
+function ForceDarkMode({ children }: { children: React.ReactNode }) {
+  const { setColorScheme } = useColorScheme();
+  useEffect(() => {
+    setColorScheme("dark");
+  }, []);
+  return <>{children}</>;
+}
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -207,22 +217,24 @@ function AuthGate({ children }: { children: React.ReactNode }) {
 
 export default function RootLayout() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthGate>
-        <StatusBar style="light" />
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="(auth)" />
-          <Stack.Screen name="(tabs)" />
-          <Stack.Screen name="exercises/index" options={{ headerShown: true, headerTitle: "Exercise Library", headerStyle: { backgroundColor: "#18181b" }, headerTintColor: "#fafafa" }} />
-          <Stack.Screen name="exercises/[id]" options={{ headerShown: true, headerTitle: "Exercise Details", headerStyle: { backgroundColor: "#18181b" }, headerTintColor: "#fafafa" }} />
-          <Stack.Screen name="routines/index" options={{ headerShown: true, headerTitle: "Routines", headerStyle: { backgroundColor: "#18181b" }, headerTintColor: "#fafafa" }} />
-          <Stack.Screen name="routines/new" options={{ headerShown: true, headerTitle: "New Routine", headerStyle: { backgroundColor: "#18181b" }, headerTintColor: "#fafafa" }} />
-          <Stack.Screen name="routines/[id]/edit" options={{ headerShown: true, headerTitle: "Edit Routine", headerStyle: { backgroundColor: "#18181b" }, headerTintColor: "#fafafa" }} />
-          <Stack.Screen name="history/index" options={{ headerShown: true, headerTitle: "Workout History", headerStyle: { backgroundColor: "#18181b" }, headerTintColor: "#fafafa" }} />
-          <Stack.Screen name="history/[id]" options={{ headerShown: true, headerTitle: "Workout Details", headerStyle: { backgroundColor: "#18181b" }, headerTintColor: "#fafafa" }} />
-          <Stack.Screen name="(workout)/active" options={{ headerShown: false, presentation: "fullScreenModal" }} />
-        </Stack>
-      </AuthGate>
-    </QueryClientProvider>
+    <ForceDarkMode>
+      <QueryClientProvider client={queryClient}>
+        <AuthGate>
+          <StatusBar style="light" />
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="(auth)" />
+            <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="exercises/index" options={{ headerShown: true, headerTitle: "Exercise Library", headerStyle: { backgroundColor: "#18181b" }, headerTintColor: "#fafafa" }} />
+            <Stack.Screen name="exercises/[id]" options={{ headerShown: true, headerTitle: "Exercise Details", headerStyle: { backgroundColor: "#18181b" }, headerTintColor: "#fafafa" }} />
+            <Stack.Screen name="routines/index" options={{ headerShown: true, headerTitle: "Routines", headerStyle: { backgroundColor: "#18181b" }, headerTintColor: "#fafafa" }} />
+            <Stack.Screen name="routines/new" options={{ headerShown: true, headerTitle: "New Routine", headerStyle: { backgroundColor: "#18181b" }, headerTintColor: "#fafafa" }} />
+            <Stack.Screen name="routines/[id]/edit" options={{ headerShown: true, headerTitle: "Edit Routine", headerStyle: { backgroundColor: "#18181b" }, headerTintColor: "#fafafa" }} />
+            <Stack.Screen name="history/index" options={{ headerShown: true, headerTitle: "Workout History", headerStyle: { backgroundColor: "#18181b" }, headerTintColor: "#fafafa" }} />
+            <Stack.Screen name="history/[id]" options={{ headerShown: true, headerTitle: "Workout Details", headerStyle: { backgroundColor: "#18181b" }, headerTintColor: "#fafafa" }} />
+            <Stack.Screen name="(workout)/active" options={{ headerShown: false, presentation: "fullScreenModal" }} />
+          </Stack>
+        </AuthGate>
+      </QueryClientProvider>
+    </ForceDarkMode>
   );
 }
