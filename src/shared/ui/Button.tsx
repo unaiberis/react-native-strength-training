@@ -35,6 +35,31 @@ const variantStyles: Record<ButtonVariant, { container: string; text: string }> 
   },
 };
 
+const shadowStyles: Record<ButtonVariant, ViewStyle> = {
+  primary: {
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.35,
+    shadowRadius: 14,
+    elevation: 8,
+  },
+  secondary: {
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.35,
+    shadowRadius: 14,
+    elevation: 8,
+  },
+  ghost: {},
+  danger: {
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.35,
+    shadowRadius: 14,
+    elevation: 8,
+  },
+};
+
 export function Button({
   title,
   variant = "primary",
@@ -57,7 +82,7 @@ export function Button({
         ${isDisabled ? "opacity-50" : ""}
         ${className ?? ""}
       `}
-      style={style as ViewStyle}
+      style={[shadowStyles[variant], style as ViewStyle]}
       {...props}
     >
       {loading && (
