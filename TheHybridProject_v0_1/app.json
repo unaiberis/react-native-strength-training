@@ -1,0 +1,11 @@
+{
+  "expo": {
+    "name": "The Hybrid Project",
+    "slug": "the-hybrid-project",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "thehybridproject",
+    "userInterfaceStyle": "dark",
+    "assetBundlePatterns": ["**/*"]
+  }
+}

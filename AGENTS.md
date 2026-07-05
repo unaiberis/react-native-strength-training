@@ -402,5 +402,73 @@ git commit -m "docs: document PocketBase collection schema"
 
 ---
 
+## Estructura Funcional — TheHybridProject
+
+> Fuente: WhatsApp images 2026-07-05. Estructura funcional + flujos de usuario.
+
+### 1. Auth
+
+- Login
+- Registro atleta
+- Recuperar contraseña
+
+### 2. Athlete App
+
+- Home / Calendario
+- Entrenamiento de hoy
+- Registro de ejercicio
+- Historial
+- Evolución
+- Métricas de bienestar
+- Perfil
+
+### 3. Coach Software
+
+- Dashboard entrenador
+- Lista de atletas
+- Perfil de atleta
+- Crear entrenamiento
+- Biblioteca de ejercicios
+- Asignar entrenamiento
+- Analítica de atleta
+
+### Flujo del Atleta
+
+```
+Login → Calendario semanal/mensual → Entrenamiento de hoy → Ver ejercicios
+→ Registrar peso / reps / RIR / notas → Marcar entrenamiento completado
+→ Enviar feedback
+```
+
+### Flujo del Entrenador
+
+```
+Login entrenador → Dashboard → Seleccionar atleta → Crear entrenamiento
+→ Añadir ejercicios + vídeos → Configurar series, reps, RIR, descanso, notas
+→ Asignar fecha → Atleta lo recibe en su calendario
+```
+
+### Gap con el Proyecto Actual
+
+| Módulo TheHybridProject | Estado Actual | Gap |
+|------------------------|---------------|-----|
+| Auth (login, registro, recuperar) | ✅ Existe | Completado |
+| Home / Calendario | ❌ No existe | Crear calendario semanal/mensual |
+| Entrenamiento de hoy | ✅ Existe | `ActiveWorkoutScreen` |
+| Registro de ejercicio | ✅ Existe | `ExerciseSetRow` en DB |
+| Historial | ✅ Existe | `useHistory` hook |
+| Evolución | ⚠️ Parcial | `usePersonalRecords` — falta gráfica evolución temporal |
+| Métricas de bienestar | ❌ No existe | Nuevo módulo completo |
+| Perfil (atleta) | ❌ No existe | Crear perfil screen |
+| Coach Dashboard | ❌ No existe | Nuevo módulo completo |
+| Coach → Crear entrenamiento | ⚠️ Parcial | Templates existen pero no hay flujo coach→atleta |
+| Coach → Asignar entrenamiento | ❌ No existe | Falta asignación a atleta específico |
+| Coach → Analítica de atleta | ❌ No existe | Nuevo módulo |
+| Videos en ejercicios | ❌ No existe | Campo `video_url` no existe en schema |
+| Feedback del atleta | ❌ No existe | Nuevo modelo de datos |
+
+---
+
 *Fin de AGENTS.md. Complementa PROJECT_REPORT.md.*
 *Generado 2026-07-01 para orchestrators entrantes.*
+*Actualizado 2026-07-05 con estructura funcional TheHybridProject (WhatsApp images).*
