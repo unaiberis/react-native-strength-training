@@ -69,8 +69,8 @@ export async function createSession(
     const session = await pb.collection("workout_sessions").create({
       user_id: userId,
       workout_template_id: options?.workoutTemplateId ?? null,
-      program_block_id: options?.programBlockId ?? null,
       status: "in_progress",
+      started_at: new Date().toISOString(),
     });
 
     if (!session) throw new Error("Failed to create session");

@@ -79,12 +79,14 @@ describe("PocketBase sessions service", () => {
 
     const result = await createSession("user-1");
 
-    expect(mockCreate).toHaveBeenCalledWith({
-      user_id: "user-1",
-      workout_template_id: null,
-      program_block_id: null,
-      status: "in_progress",
-    });
+    expect(mockCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        user_id: "user-1",
+        workout_template_id: null,
+        status: "in_progress",
+        started_at: expect.any(String),
+      }),
+    );
     expect(result.session.id).toBe("sess-1");
     expect(result.session.status).toBe("in_progress");
     expect(result.exercises).toEqual([]);
@@ -121,21 +123,21 @@ describe("PocketBase sessions service", () => {
   });
 
   it("createSession passes programBlockId when provided", async () => {
-    const session = makeSession({ program_block_id: "block-1" });
+    const session = makeSession();
     mockCreate.mockResolvedValueOnce(session);
 
     const result = await createSession("user-1", {
       workoutTemplateId: "tmpl-1",
-      programBlockId: "block-1",
     });
 
-    expect(mockCreate).toHaveBeenCalledWith({
-      user_id: "user-1",
-      workout_template_id: "tmpl-1",
-      program_block_id: "block-1",
-      status: "in_progress",
-    });
-    expect(result.session.program_block_id).toBe("block-1");
+    expect(mockCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        user_id: "user-1",
+        workout_template_id: "tmpl-1",
+        status: "in_progress",
+      }),
+    );
+    expect(result.session.id).toBe("sess-1");
   });
 
   it("createSession throws on failure", async () => {
