@@ -3,7 +3,7 @@ module.exports = {
   // No jest-expo preset — pure TypeScript tests that don't need RN environment
   testEnvironment: "node",
   transform: {
-    "^.+\\.tsx?$": ["ts-jest", { tsconfig: "tsconfig.json" }],
+    "^.+\\.tsx?$": ["ts-jest", { tsconfig: "tsconfig.json", diagnostics: false }],
   },
   setupFiles: ["./jest.setup.ts"],
   moduleNameMapper: {

@@ -87,6 +87,7 @@ jest.mock("pocketbase", () => {
       createBatch: jest.fn(),
     })),
     BaseAuthStore: MockBaseAuthStore,
+    LocalAuthStore: MockBaseAuthStore,
     RecordService: class {},
     RecordModel: class {},
     ClientResponseError: class extends Error {
@@ -97,6 +98,13 @@ jest.mock("pocketbase", () => {
     },
   };
 });
+
+// Mock expo-secure-store
+jest.mock("expo-secure-store", () => ({
+  getItemAsync: jest.fn().mockResolvedValue(null),
+  setItemAsync: jest.fn().mockResolvedValue(undefined),
+  deleteItemAsync: jest.fn().mockResolvedValue(undefined),
+}));
 
 describe("PocketBase client", () => {
   beforeEach(() => {
@@ -164,72 +172,15 @@ describe("PocketBase client", () => {
     expect(pb.baseURL).toBe("http://127.0.0.1:8090");
   });
 
-  it("ExpoSecureStoreAuth save persists to SecureStore and restores from it", async () => {
-    // Import SecureStore mock directly
-    const SecureStore = require("expo-secure-store");
+  it("real client creates PocketBase instance with auth store", async () => {
+    process.env.EXPO_PUBLIC_POCKETBASE_URL = "http://127.0.0.1:8090";
 
-    const { ExpoSecureStoreAuth } = await import("../client");
-    const authStore = new ExpoSecureStoreAuth();
-
-    // Initially no token
-    expect(authStore.isValid).toBe(false);
-
-    // Save a token
-    authStore.save("test-token-123", { id: "user-1", email: "test@test.com" });
-
-    // Should have persisted to SecureStore
-    expect(SecureStore.setItemAsync).toHaveBeenCalled();
-
-    // After save, token should be set
-    expect(authStore.token).toBe("test-token-123");
-    expect(authStore.isValid).toBe(true);
-  });
-
-  it("ExpoSecureStoreAuth clear removes from SecureStore", async () => {
-    const SecureStore = require("expo-secure-store");
-
-    const { ExpoSecureStoreAuth } = await import("../client");
-    const authStore = new ExpoSecureStoreAuth();
-
-    authStore.save("tok-1", { id: "u1" });
-    expect(SecureStore.setItemAsync).toHaveBeenCalled();
-    expect(authStore.token).toBe("tok-1");
-
-    // Clear
-    authStore.clear();
-    expect(SecureStore.deleteItemAsync).toHaveBeenCalled();
-    expect(authStore.token).toBe("");
-    expect(authStore.isValid).toBe(false);
-  });
-
-  it("ExpoSecureStoreAuth onChange fires on save and clear", async () => {
-    const { ExpoSecureStoreAuth } = await import("../client");
-    const authStore = new ExpoSecureStoreAuth();
-
-    const callback = jest.fn();
-    authStore.onChange(callback, false);
-
-    authStore.save("tok-2", { id: "u2" });
-    expect(callback).toHaveBeenCalledWith("tok-2", expect.objectContaining({ id: "u2" }));
-
-    jest.clearAllMocks();
-    authStore.clear();
-    expect(callback).toHaveBeenCalledWith("", null);
-  });
-
-  it("ExpoSecureStoreAuth handles SecureStore errors gracefully", async () => {
-    const SecureStore = require("expo-secure-store");
-    SecureStore.setItemAsync.mockRejectedValueOnce(new Error("Storage full"));
-
-    const { ExpoSecureStoreAuth } = await import("../client");
-    const authStore = new ExpoSecureStoreAuth();
-
-    // Should not throw — best-effort persistence
-    expect(() => {
-      authStore.save("tok-3", { id: "u3" });
-    }).not.toThrow();
-
-    // In-memory state should still be updated even if SecureStore fails
-    expect(authStore.token).toBe("tok-3");
+    const { pb } = await import("../client");
+    expect(pb).toBeDefined();
+    expect(pb.baseURL).toBe("http://127.0.0.1:8090");
+    // Auth store should be attached
+    expect(pb.authStore).toBeDefined();
+    expect(typeof pb.authStore.save).toBe("function");
+    expect(typeof pb.authStore.clear).toBe("function");
   });
 });

@@ -4,7 +4,7 @@ import { StatusBar } from "expo-status-bar";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useAuthStore } from "../src/stores/auth-store";
 import { getSession } from "../src/lib/pocketbase/services/auth";
-import { pb, ExpoSecureStoreAuth } from "../src/lib/pocketbase/client";
+import { pb } from "../src/lib/pocketbase/client";
 import "../global.css";
 import { View, ActivityIndicator, Text, Platform } from "react-native";
 import { GradientBackground } from "../src/shared/ui/GradientBackground";
@@ -48,8 +48,7 @@ function AuthGate({ children }: { children: React.ReactNode }) {
       if (!OFFLINE_ENABLED || IS_WEB) {
         // Standard flow without offline support
         // Also skip on web — expo-sqlite hangs in browser
-        msg("Restoring session\u2026");
-        await (pb.authStore as ExpoSecureStoreAuth).loadFromStore().catch(() => {});
+        // Auth store auto-restores from localStorage (web) or SecureStore (native)
         msg("Checking session\u2026");
         const { session } = await getSession();
         if (!cancelled) setSession(session);
@@ -124,10 +123,7 @@ function AuthGate({ children }: { children: React.ReactNode }) {
           syncEngine.on("AUTH_CLEARED", () => setSync("idle"));
         }
 
-        // 4. Restore persisted auth token from SecureStore before checking
-        msg("Restoring session\u2026");
-        await (pb.authStore as ExpoSecureStoreAuth).loadFromStore().catch(() => {});
-
+        // 4. Auth store auto-restores from SecureStore — no manual load needed
         // 5. Auth with offline awareness
         const isOnline = monitor.isOnline;
         if (!cancelled) setIsOnline(isOnline);

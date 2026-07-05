@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Alert } from "react-native";
+import { View, Text, ScrollView, Alert, Platform } from "react-native";
 import { Card } from "../../../shared/ui/Card";
 import { Button } from "../../../shared/ui/Button";
 import { GradientBackground } from "../../../shared/ui/GradientBackground";
@@ -8,6 +8,11 @@ export function ProfileScreen() {
   const { user, logout } = useAuth();
 
   const handleLogout = () => {
+    if (Platform.OS === "web") {
+      const confirmed = window.confirm("Are you sure you want to sign out?");
+      if (confirmed) logout();
+      return;
+    }
     Alert.alert("Sign Out", "Are you sure you want to sign out?", [
       { text: "Cancel", style: "cancel" },
       { text: "Sign Out", style: "destructive", onPress: logout },

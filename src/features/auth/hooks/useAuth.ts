@@ -60,6 +60,7 @@ export function useAuth() {
 
   /**
    * Sign out and redirect to login.
+   * Also triggers onAuthStateChange which handles navigation for cross-tab signouts.
    */
   const logout = useCallback(async () => {
     await AuthService.signOut();

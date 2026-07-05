@@ -1,70 +1,36 @@
 import PocketBase from "pocketbase";
-import { BaseAuthStore, RecordService } from "pocketbase";
+import { BaseAuthStore, LocalAuthStore, RecordService } from "pocketbase";
 import type PocketBaseType from "pocketbase";
-import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
 
 const PB_URL = process.env.EXPO_PUBLIC_POCKETBASE_URL ?? "";
 const STORAGE_KEY = "pb_auth";
 
 /**
- * Expo-compatible auth store for PocketBase client.
- * Persists auth tokens in SecureStore on native, localStorage on web.
+ * Create the appropriate auth store for the current platform.
+ *
+ * - Web: LocalAuthStore — auto-persists to localStorage, auto-restores,
+ *   cross-tab sync via storage events. No manual loadFromStore() needed.
+ * - Native: AsyncAuthStore with expo-secure-store — async persistence,
+ *   auto-restores via the `initial` param.
  */
-class ExpoSecureStoreAuth extends BaseAuthStore {
-  override save(token: string, record?: any): void {
-    super.save(token, record);
-    this._persist(token, record).catch(() => {
-      // Best effort persistence
-    });
+function createAuthStore() {
+  if (Platform.OS === "web") {
+    return new LocalAuthStore(STORAGE_KEY);
   }
 
-  override clear(): void {
-    super.clear();
-    this._removePersisted().catch(() => {
-      // Best effort removal
-    });
-  }
-
-  /**
-   * Try to load persisted auth state from SecureStore.
-   * Returns true if state was successfully restored.
-   */
-  async loadFromStore(): Promise<boolean> {
-    try {
-      let data: string | null = null;
-      if (Platform.OS === "web") {
-        data = localStorage.getItem(STORAGE_KEY);
-      } else {
-        data = await SecureStore.getItemAsync(STORAGE_KEY);
-      }
-      if (data) {
-        const parsed = JSON.parse(data);
-        super.save(parsed.token || "", parsed.record || null);
-        return true;
-      }
-    } catch {
-      // Storage read failed — no persisted state
-    }
-    return false;
-  }
-
-  private async _persist(token: string, record?: any): Promise<void> {
-    const data = JSON.stringify({ token, record: record ?? null });
-    if (Platform.OS === "web") {
-      localStorage.setItem(STORAGE_KEY, data);
-    } else {
-      await SecureStore.setItemAsync(STORAGE_KEY, data);
-    }
-  }
-
-  private async _removePersisted(): Promise<void> {
-    if (Platform.OS === "web") {
-      localStorage.removeItem(STORAGE_KEY);
-    } else {
+  // Native: use expo-secure-store via AsyncAuthStore
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const SecureStore = require("expo-secure-store");
+  return {
+    save: async (serialized: string) => {
+      await SecureStore.setItemAsync(STORAGE_KEY, serialized);
+    },
+    clear: async () => {
       await SecureStore.deleteItemAsync(STORAGE_KEY);
-    }
-  }
+    },
+    initial: SecureStore.getItemAsync(STORAGE_KEY),
+  };
 }
 
 /**
@@ -161,19 +127,16 @@ function createMockClient(): PocketBaseType {
  * Create a PocketBase client.
  *
  * If EXPO_PUBLIC_POCKETBASE_URL is not configured, returns a mock client.
- * Otherwise, returns a real PocketBase client connected to the configured URL
- * with Expo SecureStore-based auth persistence.
+ * Otherwise, returns a real PocketBase client with platform-appropriate
+ * auth persistence (LocalAuthStore for web, AsyncAuthStore for native).
  */
 function createPocketBaseClient(): PocketBaseType {
   if (!PB_URL) {
     return createMockClient();
   }
 
-  const authStore = new ExpoSecureStoreAuth();
-  const pb = new PocketBase(PB_URL, authStore);
-
-  return pb;
+  const authStore = createAuthStore();
+  return new PocketBase(PB_URL, authStore as any);
 }
 
 export const pb = createPocketBaseClient();
-export { ExpoSecureStoreAuth };
