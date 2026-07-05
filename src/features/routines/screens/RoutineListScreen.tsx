@@ -73,6 +73,8 @@ export function RoutineListScreen() {
   const deleteTemplate = useDeleteTemplate();
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
+  console.log("[RoutineListScreen]", { isLoading, templatesCount: templates?.length, firstTemplate: templates?.[0]?.name });
+
   const handleDelete = useCallback(
     (template: TemplateWithExercises) => {
       Alert.alert(

@@ -50,7 +50,9 @@ function AuthGate({ children }: { children: React.ReactNode }) {
         // Also skip on web — expo-sqlite hangs in browser
         // Auth store auto-restores from localStorage (web) or SecureStore (native)
         msg("Checking session\u2026");
-        const { session } = await getSession();
+        console.log("[AuthGate] Web flow — getSession start, pb.authStore.isValid:", pb.authStore.isValid);
+        const { session, error } = await getSession();
+        console.log("[AuthGate] getSession result:", session ? { userId: session.user?.id, email: session.user?.email } : "null", "error:", error);
         if (!cancelled) setSession(session);
         return;
       }

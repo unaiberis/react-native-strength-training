@@ -45,12 +45,14 @@ export const useAuthStore = create<AuthStore>((set) => ({
   syncStatus: initialSyncStatus,
   initMessage: "Starting...",
 
-  setSession: (session) =>
+  setSession: (session) => {
+    console.log("[AuthStore] setSession:", session ? { userId: session.user?.id, email: session.user?.email } : null);
     set({
       session,
       user: session?.user ?? null,
       state: session ? "authenticated" : "unauthenticated",
-    }),
+    });
+  },
 
   setUser: (user) => set({ user }),
 

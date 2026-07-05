@@ -71,13 +71,28 @@ function toOfflineUpdateInput(
  */
 export function useTemplates() {
   const userId = useAuthStore((s) => s.user?.id);
+  const user = useAuthStore((s) => s.user);
 
-  return useQuery({
+  console.log("[useTemplates]", { userId, userEmail: user?.email, hasUser: !!user });
+
+  const query = useQuery({
     queryKey: [TEMPLATES_QUERY_KEY],
-    queryFn: () => TemplatesService.listTemplates(userId!),
+    queryFn: async () => {
+      console.log("[useTemplates] queryFn called with userId:", userId);
+      const result = await TemplatesService.listTemplates(userId!);
+      console.log("[useTemplates] queryFn result:", result?.length, "templates");
+      return result;
+    },
     enabled: !!userId,
-    staleTime: 1000 * 60 * 2,
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 30,
   });
+
+  if (query.error) {
+    console.log("[useTemplates] ERROR:", query.error);
+  }
+
+  return query;
 }
 
 /**
