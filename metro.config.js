@@ -23,4 +23,10 @@ config.resolver.extraNodeModules = {
   ),
 };
 
+// Ensure expo-router/entry resolves correctly even after cache clear
+config.resolver.extraNodeModules["expo-router/entry"] = path.join(
+  __dirname,
+  "node_modules/expo-router/entry.js",
+);
+
 module.exports = withNativeWind(config, { input: "./global.css" });
