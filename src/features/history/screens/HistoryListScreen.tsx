@@ -10,6 +10,7 @@ import {
 import { useRouter } from "expo-router";
 import { Card } from "../../../shared/ui/Card";
 import { Button } from "../../../shared/ui/Button";
+import { GradientBackground } from "../../../shared/ui/GradientBackground";
 import { useHistory } from "../hooks/useHistory";
 import { useExercises } from "../../exercises/hooks/useExercises";
 import type { SessionListItem } from "../../../lib/pocketbase/services/sessions";
@@ -236,7 +237,7 @@ export function HistoryListScreen() {
     if (!isLoading || sessions.length === 0) return null;
     return (
       <View className="py-4">
-        <ActivityIndicator size="small" color="#22c55e" />
+        <ActivityIndicator size="small" color="#A4A4A8" />
       </View>
     );
   };
@@ -262,7 +263,8 @@ export function HistoryListScreen() {
   };
 
   return (
-    <View className="flex-1 bg-surface-950">
+    <GradientBackground>
+    <View className="flex-1">
       {/* Filter bar */}
       <FilterBar filters={filters} onChange={handleFilterChange} />
 
@@ -276,7 +278,7 @@ export function HistoryListScreen() {
           <RefreshControl
             refreshing={isRefetching}
             onRefresh={onRefresh}
-            tintColor="#22c55e"
+            tintColor="#B9B9B6"
           />
         }
         onEndReached={loadMore}
@@ -294,5 +296,6 @@ export function HistoryListScreen() {
         </View>
       )}
     </View>
+    </GradientBackground>
   );
 }

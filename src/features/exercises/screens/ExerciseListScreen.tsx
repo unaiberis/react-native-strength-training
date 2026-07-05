@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Card } from "../../../shared/ui/Card";
+import { GradientBackground } from "../../../shared/ui/GradientBackground";
 import { useExercises, useCategories } from "../hooks/useExercises";
 import type { ExerciseRow } from "../../../types/pocketbase";
 
@@ -117,7 +118,7 @@ export function ExerciseListScreen() {
     if (!isLoading || exercises.length === 0) return null;
     return (
       <View className="py-4">
-        <ActivityIndicator size="small" color="#22c55e" />
+        <ActivityIndicator size="small" color="#A4A4A8" />
       </View>
     );
   };
@@ -141,7 +142,8 @@ export function ExerciseListScreen() {
   };
 
   return (
-    <View className="flex-1 bg-surface-950">
+    <GradientBackground>
+    <View className="flex-1">
       {/* Category filter chips */}
       <View className="px-4 pt-4 pb-2">
         <FlatList
@@ -174,7 +176,7 @@ export function ExerciseListScreen() {
           <RefreshControl
             refreshing={isRefetching}
             onRefresh={onRefresh}
-            tintColor="#22c55e"
+            tintColor="#B9B9B6"
           />
         }
         onEndReached={loadMore}
@@ -184,5 +186,6 @@ export function ExerciseListScreen() {
         showsVerticalScrollIndicator={false}
       />
     </View>
+    </GradientBackground>
   );
 }

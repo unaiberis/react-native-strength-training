@@ -3,6 +3,7 @@ import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, RefreshCon
 import { useRouter } from "expo-router";
 import { Card } from "../../../shared/ui/Card";
 import { Button } from "../../../shared/ui/Button";
+import { GradientBackground } from "../../../shared/ui/GradientBackground";
 import { usePersonalRecords, getPRTypeLabel, formatPRValue } from "../hooks/usePersonalRecords";
 import type { PRDisplayItem } from "../hooks/usePersonalRecords";
 
@@ -137,13 +138,14 @@ export function ProgressScreen() {
   const hasRecords = groupedByExercise.length > 0;
 
   return (
+    <GradientBackground>
     <ScrollView
-      className="flex-1 bg-surface-950 px-4 pt-4"
+      className="flex-1 px-4 pt-4"
       refreshControl={
         <RefreshControl
           refreshing={isRefetching}
           onRefresh={refetch}
-          tintColor="#22c55e"
+          tintColor="#B9B9B6"
         />
       }
     >
@@ -160,7 +162,7 @@ export function ProgressScreen() {
       {/* Loading */}
       {isLoading && (
         <View className="items-center justify-center py-16">
-          <ActivityIndicator size="large" color="#22c55e" />
+          <ActivityIndicator size="large" color="#A4A4A8" />
         </View>
       )}
 
@@ -198,5 +200,6 @@ export function ProgressScreen() {
         </View>
       )}
     </ScrollView>
+    </GradientBackground>
   );
 }

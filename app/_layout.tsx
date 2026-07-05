@@ -7,6 +7,7 @@ import { getSession } from "../src/lib/pocketbase/services/auth";
 import { pb, ExpoSecureStoreAuth } from "../src/lib/pocketbase/client";
 import "../global.css";
 import { View, ActivityIndicator, Text, Platform } from "react-native";
+import { GradientBackground } from "../src/shared/ui/GradientBackground";
 
 const OFFLINE_ENABLED = process.env.EXPO_PUBLIC_OFFLINE_ENABLED === "true";
 const IS_WEB = Platform.OS === "web";
@@ -188,18 +189,20 @@ function AuthGate({ children }: { children: React.ReactNode }) {
 
   if (state === "loading") {
     return (
-      <View className="flex-1 bg-surface-950 items-center justify-center px-8">
-        <ActivityIndicator size="large" color="#22c55e" />
+      <GradientBackground>
+        <View className="items-center justify-center px-8">
+        <ActivityIndicator size="large" color="#B9B9B6" />
         {initMessage ? (
           <Text className="text-surface-400 text-sm mt-4 text-center">
             {initMessage}
           </Text>
         ) : null}
-      </View>
+        </View>
+      </GradientBackground>
     );
   }
 
-  return <>{children}</>;
+  return <GradientBackground>{children}</GradientBackground>;
 }
 
 export default function RootLayout() {

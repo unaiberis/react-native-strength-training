@@ -11,6 +11,7 @@ import {
 import { useRouter } from "expo-router";
 import { Card } from "../../../shared/ui/Card";
 import { Button } from "../../../shared/ui/Button";
+import { GradientBackground } from "../../../shared/ui/GradientBackground";
 import { useTemplates, useDeleteTemplate } from "../hooks/useTemplates";
 import type { TemplateWithExercises } from "../../../lib/pocketbase/services/templates";
 
@@ -147,14 +148,17 @@ export function RoutineListScreen() {
 
   if (isLoading) {
     return (
-      <View className="flex-1 bg-surface-950 items-center justify-center">
-        <ActivityIndicator size="large" color="#22c55e" />
-      </View>
+      <GradientBackground>
+        <View className="flex-1 items-center justify-center">
+        <ActivityIndicator size="large" color="#A4A4A8" />
+        </View>
+      </GradientBackground>
     );
   }
 
   return (
-    <View className="flex-1 bg-surface-950">
+    <GradientBackground>
+    <View className="flex-1">
       {/* Header */}
       <View className="px-4 pt-4 pb-2 flex-row justify-between items-center">
         <Text className="text-surface-400 text-sm">
@@ -176,12 +180,13 @@ export function RoutineListScreen() {
           <RefreshControl
             refreshing={isRefetching}
             onRefresh={refetch}
-            tintColor="#22c55e"
+            tintColor="#B9B9B6"
           />
         }
         ListEmptyComponent={renderEmpty}
         showsVerticalScrollIndicator={false}
       />
     </View>
+    </GradientBackground>
   );
 }

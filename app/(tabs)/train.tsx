@@ -10,6 +10,7 @@ import { useRouter } from "expo-router";
 import { Card } from "../../src/shared/ui/Card";
 import { Button } from "../../src/shared/ui/Button";
 import { useTemplates } from "../../src/features/routines/hooks/useTemplates";
+import { GradientBackground } from "../../src/shared/ui/GradientBackground";
 
 export default function TrainScreen() {
   const router = useRouter();
@@ -30,7 +31,8 @@ export default function TrainScreen() {
   );
 
   return (
-    <ScrollView className="flex-1 bg-surface-950 px-4 pt-16">
+    <GradientBackground>
+    <ScrollView className="flex-1 px-4 pt-16">
       <Text className="text-surface-50 text-2xl font-bold mb-6">Train</Text>
 
       {/* Start workout */}
@@ -93,7 +95,7 @@ export default function TrainScreen() {
 
       {isLoading && (
         <View className="py-8">
-          <ActivityIndicator size="small" color="#22c55e" />
+          <ActivityIndicator size="small" color="#B9B9B6" />
         </View>
       )}
 
@@ -126,5 +128,6 @@ export default function TrainScreen() {
         </TouchableOpacity>
       ))}
     </ScrollView>
+    </GradientBackground>
   );
 }

@@ -12,6 +12,7 @@ import {
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { Card } from "../../../shared/ui/Card";
 import { Button } from "../../../shared/ui/Button";
+import { GradientBackground } from "../../../shared/ui/GradientBackground";
 import { RestTimer } from "../../../shared/ui/RestTimer";
 import {
   useSessionStore,
@@ -407,18 +408,21 @@ export function ActiveWorkoutScreen() {
 
   if (createSession.isPending || (!activeSessionId && !createSession.isError)) {
     return (
-      <View className="flex-1 bg-surface-950 items-center justify-center">
-        <ActivityIndicator size="large" color="#22c55e" />
+      <GradientBackground>
+        <View className="flex-1 items-center justify-center">
+        <ActivityIndicator size="large" color="#A4A4A8" />
         <Text className="text-surface-400 text-sm mt-4">
           Starting workout...
         </Text>
-      </View>
+        </View>
+      </GradientBackground>
     );
   }
 
   if (createSession.isError) {
     return (
-      <View className="flex-1 bg-surface-950 items-center justify-center px-6">
+      <GradientBackground>
+        <View className="flex-1 items-center justify-center px-6">
         <Text className="text-4xl mb-4">⚠️</Text>
         <Text className="text-surface-100 text-lg font-semibold mb-2">
           Could not start workout
@@ -432,6 +436,7 @@ export function ActiveWorkoutScreen() {
           onPress={() => router.back()}
         />
       </View>
+      </GradientBackground>
     );
   }
 
@@ -439,7 +444,8 @@ export function ActiveWorkoutScreen() {
 
   if (exercises.length === 0) {
     return (
-      <View className="flex-1 bg-surface-950 items-center justify-center px-6">
+      <GradientBackground>
+        <View className="flex-1 items-center justify-center px-6">
         <Text className="text-5xl mb-4">🏋️</Text>
         <Text className="text-surface-100 text-lg font-semibold mb-2">
           Workout Started
@@ -470,14 +476,17 @@ export function ActiveWorkoutScreen() {
           />
         </View>
       </View>
+      </GradientBackground>
     );
   }
 
   if (!currentExercise) {
     return (
-      <View className="flex-1 bg-surface-950 items-center justify-center">
-        <ActivityIndicator size="large" color="#22c55e" />
-      </View>
+      <GradientBackground>
+        <View className="flex-1 items-center justify-center">
+        <ActivityIndicator size="large" color="#A4A4A8" />
+        </View>
+      </GradientBackground>
     );
   }
 
@@ -487,7 +496,8 @@ export function ActiveWorkoutScreen() {
   const isExerciseComplete = nextSetNumber > currentExercise.targetSets;
 
   return (
-    <View className="flex-1 bg-surface-950">
+    <GradientBackground>
+    <View className="flex-1">
       {/* Top bar */}
       <View className="flex-row items-center justify-between px-4 pt-14 pb-2 bg-surface-950/90">
         <TouchableOpacity onPress={handleCancel} className="p-2 -ml-2">
@@ -620,5 +630,6 @@ export function ActiveWorkoutScreen() {
       {/* Rest timer overlay */}
       <RestTimer />
     </View>
+    </GradientBackground>
   );
 }

@@ -1,6 +1,7 @@
 import { ScrollView, View, Text, ActivityIndicator } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { Card } from "../../../shared/ui/Card";
+import { GradientBackground } from "../../../shared/ui/GradientBackground";
 import { useExercise } from "../hooks/useExercises";
 
 export function ExerciseDetailScreen() {
@@ -9,19 +10,23 @@ export function ExerciseDetailScreen() {
 
   if (isLoading) {
     return (
-      <View className="flex-1 bg-surface-950 items-center justify-center">
-        <ActivityIndicator size="large" color="#22c55e" />
-      </View>
+      <GradientBackground>
+        <View className="flex-1 items-center justify-center">
+        <ActivityIndicator size="large" color="#A4A4A8" />
+        </View>
+      </GradientBackground>
     );
   }
 
   if (error || !exercise) {
     return (
-      <View className="flex-1 bg-surface-950 items-center justify-center px-4">
+      <GradientBackground>
+        <View className="flex-1 items-center justify-center px-4">
         <Text className="text-surface-400 text-base">
           {error ? (error as Error).message : "Exercise not found"}
         </Text>
       </View>
+      </GradientBackground>
     );
   }
 
@@ -35,7 +40,8 @@ export function ExerciseDetailScreen() {
   ];
 
   return (
-    <ScrollView className="flex-1 bg-surface-950 px-4 pt-4">
+    <GradientBackground>
+    <ScrollView className="flex-1 px-4 pt-4">
       {/* Exercise name header */}
       <Text className="text-surface-50 text-2xl font-bold mb-2">
         {exercise.name}
@@ -81,5 +87,6 @@ export function ExerciseDetailScreen() {
         ))}
       </Card>
     </ScrollView>
+    </GradientBackground>
   );
 }

@@ -16,6 +16,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Card } from "../../../shared/ui/Card";
 import { Button } from "../../../shared/ui/Button";
 import { Input } from "../../../shared/ui/Input";
+import { GradientBackground } from "../../../shared/ui/GradientBackground";
 import {
   workoutTemplateSchema,
   templateDefaults,
@@ -64,7 +65,8 @@ function ExercisePickerModal({
 
   return (
     <Modal visible={visible} animationType="slide" presentationStyle="pageSheet">
-      <View className="flex-1 bg-surface-950 pt-16 px-4">
+      <GradientBackground>
+      <View className="flex-1 pt-16 px-4">
         <View className="flex-row justify-between items-center mb-4">
           <Text className="text-surface-50 text-xl font-bold">Add Exercise</Text>
           <TouchableOpacity onPress={onClose} className="p-2">
@@ -83,7 +85,7 @@ function ExercisePickerModal({
 
         {isLoading && searchQuery.length >= 2 && (
           <View className="py-4">
-            <ActivityIndicator size="small" color="#22c55e" />
+            <ActivityIndicator size="small" color="#A4A4A8" />
           </View>
         )}
 
@@ -119,6 +121,7 @@ function ExercisePickerModal({
           showsVerticalScrollIndicator={false}
         />
       </View>
+      </GradientBackground>
     </Modal>
   );
 }
@@ -410,14 +413,17 @@ export function RoutineFormScreen() {
 
   if (isEditing && isLoadingTemplate) {
     return (
-      <View className="flex-1 bg-surface-950 items-center justify-center">
-        <ActivityIndicator size="large" color="#22c55e" />
-      </View>
+      <GradientBackground>
+        <View className="flex-1 items-center justify-center">
+        <ActivityIndicator size="large" color="#A4A4A8" />
+        </View>
+      </GradientBackground>
     );
   }
 
   return (
-    <View className="flex-1 bg-surface-950">
+    <GradientBackground>
+    <View className="flex-1">
       <ScrollView
         className="flex-1 px-4 pt-4"
         keyboardShouldPersistTaps="handled"
@@ -508,5 +514,6 @@ export function RoutineFormScreen() {
         selectedIds={new Set(exercises.map((e) => e.exerciseId))}
       />
     </View>
+    </GradientBackground>
   );
 }
