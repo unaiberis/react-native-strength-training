@@ -77,6 +77,7 @@ async function getTemplateExercises(
   const records = await pb.collection("workout_template_exercises").getFullList({
     filter: `workout_template_id = '${templateId}'`,
     sort: "sort_order",
+    $autoCancel: false,
   });
   return (records ?? []) as unknown as TemplateExerciseRow[];
 }
@@ -91,6 +92,7 @@ export async function listTemplates(
     const records = await pb.collection("workout_templates").getFullList({
       filter: `user_id = '${userId}'`,
       sort: "-created",
+      $autoCancel: false,
     });
 
     const templateRows = (records ?? []) as unknown as TemplateRow[];
