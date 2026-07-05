@@ -4,6 +4,7 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "../../../shared/ui/Button";
 import { Input } from "../../../shared/ui/Input";
+import { GradientBackground } from "../../../shared/ui/GradientBackground";
 import {
   registerSchema,
   registerDefaults,
@@ -40,8 +41,9 @@ export function RegisterScreen() {
   };
 
   return (
+    <GradientBackground>
     <KeyboardAvoidingView
-      className="flex-1 bg-surface-950"
+      className="flex-1"
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <ScrollView
@@ -131,5 +133,6 @@ export function RegisterScreen() {
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
+    </GradientBackground>
   );
 }

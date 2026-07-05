@@ -2,12 +2,14 @@ import { SafeAreaView, View, Text } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { Button } from "../src/shared/ui/Button";
+import { GradientBackground } from "../src/shared/ui/GradientBackground";
 
 export default function WelcomeScreen() {
   const router = useRouter();
 
   return (
-    <SafeAreaView className="flex-1 bg-surface-950">
+    <GradientBackground>
+    <SafeAreaView className="flex-1">
       <View
         className="flex-1"
         style={{ paddingTop: 56, paddingBottom: 26, paddingHorizontal: 28 }}
@@ -62,5 +64,6 @@ export default function WelcomeScreen() {
         </Text>
       </View>
     </SafeAreaView>
+    </GradientBackground>
   );
 }

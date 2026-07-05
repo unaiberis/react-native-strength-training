@@ -1,6 +1,7 @@
 import { View, Text, ScrollView, Alert } from "react-native";
 import { Card } from "../../../shared/ui/Card";
 import { Button } from "../../../shared/ui/Button";
+import { GradientBackground } from "../../../shared/ui/GradientBackground";
 import { useAuth } from "../../auth/hooks/useAuth";
 
 export function ProfileScreen() {
@@ -21,7 +22,8 @@ export function ProfileScreen() {
     : "Unknown";
 
   return (
-    <ScrollView className="flex-1 bg-surface-950 px-4 pt-16">
+    <GradientBackground>
+    <ScrollView className="flex-1 px-4 pt-16">
       <Text className="text-surface-50 text-2xl font-bold mb-6">Profile</Text>
 
       {/* User info card */}
@@ -56,5 +58,6 @@ export function ProfileScreen() {
       {/* Sign out */}
       <Button title="Sign Out" variant="danger" onPress={handleLogout} />
     </ScrollView>
+    </GradientBackground>
   );
 }

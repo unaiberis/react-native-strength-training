@@ -3,6 +3,7 @@ import { View, Text, ScrollView } from "react-native";
 import { useRouter } from "expo-router";
 import { Button } from "../../../shared/ui/Button";
 import { Card } from "../../../shared/ui/Card";
+import { GradientBackground } from "../../../shared/ui/GradientBackground";
 import { useSessionStore } from "../../../stores/session-store";
 import { useClearSession } from "../hooks/useWorkoutSession";
 
@@ -49,7 +50,8 @@ export function WorkoutCompleteScreen() {
   }, [clearSession, router]);
 
   return (
-    <View className="flex-1 bg-surface-950">
+    <GradientBackground>
+    <View className="flex-1">
       <ScrollView
         className="flex-1 px-4"
         contentContainerClassName="items-center pt-24 pb-8"
@@ -143,5 +145,6 @@ export function WorkoutCompleteScreen() {
         </View>
       </ScrollView>
     </View>
+    </GradientBackground>
   );
 }

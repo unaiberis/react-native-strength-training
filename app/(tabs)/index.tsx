@@ -2,6 +2,7 @@ import { View, Text, ScrollView, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
 import { Card } from "../../src/shared/ui/Card";
 import { useAuth } from "../../src/features/auth/hooks/useAuth";
+import { GradientBackground } from "../../src/shared/ui/GradientBackground";
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -10,7 +11,8 @@ export default function HomeScreen() {
     user?.user_metadata?.display_name ?? user?.email?.split("@")[0] ?? "Athlete";
 
   return (
-    <ScrollView className="flex-1 bg-surface-950 px-4 pt-16">
+    <GradientBackground>
+    <ScrollView className="flex-1 px-4 pt-16">
       <Text className="text-surface-50 text-2xl font-bold mb-2">
         Welcome back, {displayName}
       </Text>
@@ -77,5 +79,6 @@ export default function HomeScreen() {
         </Text>
       </Card>
     </ScrollView>
+    </GradientBackground>
   );
 }

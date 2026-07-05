@@ -2,12 +2,14 @@ import { View, Text, ScrollView, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
 import { Card } from "../../src/shared/ui/Card";
 import { Button } from "../../src/shared/ui/Button";
+import { GradientBackground } from "../../src/shared/ui/GradientBackground";
 
 export default function ProgramsScreen() {
   const router = useRouter();
 
   return (
-    <ScrollView className="flex-1 bg-surface-950 px-4 pt-16">
+    <GradientBackground>
+    <ScrollView className="flex-1 px-4 pt-16">
       <Text className="text-surface-50 text-2xl font-bold mb-6">Programs</Text>
 
       {/* Routines */}
@@ -54,5 +56,6 @@ export default function ProgramsScreen() {
         </Text>
       </Card>
     </ScrollView>
+    </GradientBackground>
   );
 }
