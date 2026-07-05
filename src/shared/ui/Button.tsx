@@ -5,6 +5,7 @@ import {
   type ViewStyle,
   ActivityIndicator,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
 type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
 
@@ -12,6 +13,7 @@ interface ButtonProps extends ComponentProps<typeof TouchableOpacity> {
   title: string;
   variant?: ButtonVariant;
   loading?: boolean;
+  icon?: keyof typeof Ionicons.glyphMap;
 }
 
 const variantStyles: Record<ButtonVariant, { container: string; text: string }> = {
@@ -38,6 +40,7 @@ export function Button({
   variant = "primary",
   loading = false,
   disabled,
+  icon,
   className,
   style,
   ...props
@@ -59,9 +62,15 @@ export function Button({
     >
       {loading && (
         <ActivityIndicator
-          className="mr-2"
           color={variant === "primary" ? "#F4F4F2" : "#A4A4A8"}
           size="small"
+        />
+      )}
+      {!loading && icon && (
+        <Ionicons
+          name={icon}
+          size={20}
+          color={variant === "primary" ? "#F4F4F2" : variant === "ghost" ? "#A4A4A8" : "#F4F4F2"}
         />
       )}
       <Text className={`text-[17px] font-extrabold ${styles.text}`}>{title}</Text>

@@ -2,15 +2,12 @@ import { useState } from "react";
 import { View, Text, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "expo-router";
 import { Button } from "../../../shared/ui/Button";
 import { Input } from "../../../shared/ui/Input";
-import { Card } from "../../../shared/ui/Card";
 import { loginSchema, loginDefaults, type LoginInput } from "../../../shared/schemas/auth";
 import { useAuth } from "../hooks/useAuth";
 
 export function LoginScreen() {
-  const router = useRouter();
   const { login } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -44,24 +41,28 @@ export function LoginScreen() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <ScrollView
-        contentContainerClassName="flex-1 justify-center px-6"
+        contentContainerClassName="flex-1 justify-center px-7"
         keyboardShouldPersistTaps="handled"
       >
         <View className="mb-10">
-          <Text className="text-surface-50 text-3xl font-bold text-center">
-            Strength Training
+          <Text
+            className="text-surface-50"
+            style={{ fontSize: 32, fontWeight: "900" }}
+          >
+            Accede a tu cuenta
           </Text>
-          <Text className="text-surface-400 text-base text-center mt-2">
-            Log your lifts. Track your progress.
+          <Text
+            className="text-surface-400 mt-2"
+            style={{ fontSize: 15, lineHeight: 22 }}
+          >
+            Introduce tus credenciales para ver tu planificación.
           </Text>
         </View>
 
-        <Card>
-          <Text className="text-surface-100 text-xl font-semibold mb-6">Sign In</Text>
-
+        <View className="gap-4">
           {error && (
-            <View className="bg-red-900/30 border border-red-800 rounded-xl px-4 py-3 mb-4">
-              <Text className="text-red-400 text-sm">{error}</Text>
+            <View className="bg-danger/10 border border-danger rounded-xl px-4 py-3">
+              <Text className="text-danger text-sm">{error}</Text>
             </View>
           )}
 
@@ -102,18 +103,11 @@ export function LoginScreen() {
           />
 
           <Button
-            title="Sign In"
+            title="Entrar"
             loading={isSubmitting}
             onPress={handleSubmit(onSubmit)}
           />
-
-          <Button
-            title="Don't have an account? Register"
-            variant="ghost"
-            onPress={() => router.push("/(auth)/register")}
-            className="mt-3"
-          />
-        </Card>
+        </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
