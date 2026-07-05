@@ -6,9 +6,10 @@ import { useAuthStore } from "../src/stores/auth-store";
 import { getSession } from "../src/lib/pocketbase/services/auth";
 import { pb, ExpoSecureStoreAuth } from "../src/lib/pocketbase/client";
 import "../global.css";
-import { View, ActivityIndicator, Text } from "react-native";
+import { View, ActivityIndicator, Text, Platform } from "react-native";
 
 const OFFLINE_ENABLED = process.env.EXPO_PUBLIC_OFFLINE_ENABLED === "true";
+const IS_WEB = Platform.OS === "web";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -33,8 +34,9 @@ function AuthGate({ children }: { children: React.ReactNode }) {
       setState("loading");
       const msg = useAuthStore.getState().setInitMessage;
 
-      if (!OFFLINE_ENABLED) {
+      if (!OFFLINE_ENABLED || IS_WEB) {
         // Standard flow without offline support
+        // Also skip on web — expo-sqlite hangs in browser
         msg("Checking session\u2026");
         const { session } = await getSession();
         if (!cancelled) setSession(session);
