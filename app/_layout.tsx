@@ -48,6 +48,8 @@ function AuthGate({ children }: { children: React.ReactNode }) {
       if (!OFFLINE_ENABLED || IS_WEB) {
         // Standard flow without offline support
         // Also skip on web — expo-sqlite hangs in browser
+        msg("Restoring session\u2026");
+        await (pb.authStore as ExpoSecureStoreAuth).loadFromStore().catch(() => {});
         msg("Checking session\u2026");
         const { session } = await getSession();
         if (!cancelled) setSession(session);
