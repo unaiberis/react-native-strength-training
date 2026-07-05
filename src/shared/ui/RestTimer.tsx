@@ -15,22 +15,22 @@ export function RestTimer() {
   const progress = 1;
 
   return (
-    <View className="absolute inset-0 z-50 bg-surface-950/90 items-center justify-center">
-      <View className="bg-surface-900 rounded-3xl p-8 items-center w-72 border border-surface-800">
+    <View className="absolute inset-0 z-50 bg-[#050505]/90 items-center justify-center">
+      <View className="bg-card rounded-2xl p-8 items-center w-72 border border-border">
         {/* Icon */}
         <Text className="text-5xl mb-4">⏱️</Text>
 
         {/* Timer display */}
-        <Text className="text-surface-50 text-5xl font-bold font-mono tracking-widest mb-2">
+        <Text className="text-surface-50 text-5xl font-extrabold tracking-widest mb-2">
           {formatRestTime(remainingSeconds)}
         </Text>
 
-        <Text className="text-surface-400 text-sm mb-6">Rest between sets</Text>
+        <Text className="text-surface-400 text-[13px] font-semibold mb-6">Rest between sets</Text>
 
         {/* Progress bar */}
-        <View className="w-full h-1.5 bg-surface-800 rounded-full overflow-hidden mb-6">
+        <View className="w-full h-1.5 bg-card-soft rounded-full overflow-hidden mb-6">
           <View
-            className="h-full bg-brand-500 rounded-full"
+            className="h-full bg-surface-400 rounded-full"
             style={{ width: `${progress * 100}%` }}
           />
         </View>
@@ -38,9 +38,9 @@ export function RestTimer() {
         {/* Skip button */}
         <TouchableOpacity
           onPress={stopRest}
-          className="bg-surface-800 active:bg-surface-700 rounded-xl py-3 px-8 border border-surface-700"
+          className="bg-card-soft active:bg-surface-800 rounded-xl py-3 px-8 border border-border"
         >
-          <Text className="text-surface-100 text-base font-medium">Skip Rest</Text>
+          <Text className="text-surface-50 text-[15px] font-bold">Skip Rest</Text>
         </TouchableOpacity>
       </View>
     </View>

@@ -11,11 +11,11 @@ interface CardProps {
 export function Card({ children, title, className, style }: CardProps) {
   return (
     <View
-      className={`bg-surface-900 rounded-2xl p-4 border border-surface-800 ${className ?? ""}`}
+      className={`bg-card rounded-2xl p-5 border border-border ${className ?? ""}`}
       style={style}
     >
       {title && (
-        <Text className="text-surface-100 text-lg font-semibold mb-3">
+        <Text className="text-surface-50 text-[23px] font-extrabold mb-5">
           {title}
         </Text>
       )}

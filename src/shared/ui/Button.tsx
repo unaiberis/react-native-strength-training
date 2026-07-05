@@ -16,20 +16,20 @@ interface ButtonProps extends ComponentProps<typeof TouchableOpacity> {
 
 const variantStyles: Record<ButtonVariant, { container: string; text: string }> = {
   primary: {
-    container: "bg-brand-500 active:bg-brand-600",
-    text: "text-surface-950 font-semibold",
+    container: "bg-card-soft active:bg-surface-800 border border-border",
+    text: "text-surface-50 font-bold",
   },
   secondary: {
-    container: "bg-surface-800 active:bg-surface-700 border border-surface-700",
-    text: "text-surface-100 font-semibold",
+    container: "bg-surface-900 active:bg-card-soft border border-border",
+    text: "text-surface-100 font-bold",
   },
   ghost: {
     container: "bg-transparent active:bg-surface-800",
-    text: "text-brand-500 font-medium",
+    text: "text-surface-400 font-bold",
   },
   danger: {
-    container: "bg-red-600 active:bg-red-700",
-    text: "text-white font-semibold",
+    container: "bg-danger active:bg-red-700",
+    text: "text-surface-50 font-bold",
   },
 };
 
@@ -49,7 +49,7 @@ export function Button({
     <TouchableOpacity
       disabled={isDisabled}
       className={`
-        rounded-xl py-3.5 px-6 items-center justify-center flex-row
+        min-h-[58px] rounded-xl py-3.5 px-5 items-center justify-center flex-row gap-2.5
         ${styles.container}
         ${isDisabled ? "opacity-50" : ""}
         ${className ?? ""}
@@ -60,11 +60,11 @@ export function Button({
       {loading && (
         <ActivityIndicator
           className="mr-2"
-          color={variant === "primary" ? "#09090b" : "#fafafa"}
+          color={variant === "primary" ? "#F4F4F2" : "#A4A4A8"}
           size="small"
         />
       )}
-      <Text className={`text-base ${styles.text}`}>{title}</Text>
+      <Text className={`text-[17px] font-extrabold ${styles.text}`}>{title}</Text>
     </TouchableOpacity>
   );
 }

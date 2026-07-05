@@ -405,6 +405,30 @@ git commit -m "docs: document PocketBase collection schema"
 ## Estructura Funcional — TheHybridProject
 
 > Fuente: WhatsApp images 2026-07-05. Estructura funcional + flujos de usuario.
+> ⚠️ **Referencia de diseño del cliente:** `TheHybridProject_v0_1/` es el prototipo que envía el cliente. Todos los estilos nuevos deben seguir su design system. NO usar estilos alternativos sin consultar.
+
+### Design Tokens (del cliente)
+
+```
+Colors:
+  background:     #050505  (fondo general)
+  backgroundSoft: #0B0B0C  (fondo secundario)
+  card:           #171719  (superficie de tarjetas)
+  cardSoft:       #222225  (tarjetas hover/secundarias)
+  border:         #343437  (bordes sutiles)
+  text:           #F4F4F2  (texto principal)
+  textMuted:      #A4A4A8  (texto secundario)
+  textSubtle:     #707074  (texto terciario)
+  titanium:       #B9B9B6  (gris claro decorativo)
+  graphite:       #2C2C2E  (gris oscuro)
+  success:        #D7D7D2  (éxito)
+  danger:         #D65F5F  (error/peligro)
+
+Spacing:  xs:6, sm:10, md:16, lg:24, xl:32, xxl:44
+BorderRadius:  18px (buttons/cards), 26px (containers grandes)
+BorderWidth:   1px (cards, buttons)
+FontWeights:   title/h2:800, h3:700, body:500, small:600
+```
 
 ### 1. Auth
 

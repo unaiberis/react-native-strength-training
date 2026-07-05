@@ -6,6 +6,7 @@ context: |
   Architecture: Feature-based (src/features/), Zustand v5 stores, TanStack React Query v5.
   Backend: Supabase (being replaced by PocketBase v0.27.0). expo-sqlite planned.
   Styling: NativeWind v4 (TailwindCSS v3), dark-mode UI (userInterfaceStyle: dark).
+  Design Reference: TheHybridProject v0.1 (client prototype) — openspec/specs/design-system/spec.md.
   Testing: Jest 29.7.0 via jest-expo, @testing-library/react-native ~12.9.0.
   TypeScript: strict: true, path alias @/ → src/.
   Strict TDD: true (test runner available, 128 tests passing).
