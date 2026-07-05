@@ -52,8 +52,8 @@ describe("useAuth integration", () => {
 
     expect(result.current.isAuthenticated).toBe(true);
     expect(result.current.isLoading).toBe(false);
-    // Note: setSession does NOT set user — that's a separate action
-    expect(result.current.user).toBeNull();
+    // setSession now also sets user from session.user
+    expect(result.current.user).toEqual(mockSession.user);
   });
 
   it("sets unauthenticated on initialize when no session", async () => {
