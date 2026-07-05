@@ -1,0 +1,41 @@
+# expo-metro.service — systemd unit for Expo Metro bundler
+#
+# Instalación en el servidor de producción:
+#   sudo cp scripts/expo-metro.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable expo-metro
+#   sudo systemctl start expo-metro
+#
+# Logs:
+#   sudo journalctl -u expo-metro -f
+#
+# Estado:
+#   sudo systemctl status expo-metro
+
+[Unit]
+Description=Expo Metro Bundler — Web + Expo Go
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root/react-native-strength-training
+
+Environment=EXPO_PACKAGER_PROXY_URL=https://entrenamentua.musikak.com
+Environment=REACT_NATIVE_PACKAGER_HOSTNAME=entrenamentua.musikak.com
+
+ExecStart=/usr/bin/npx expo start --web
+
+Restart=on-failure
+RestartSec=5
+
+# Timeout para evitar zombie processes si el stop se cuelga
+TimeoutStopSec=10
+
+# Standard output goes to journal
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
