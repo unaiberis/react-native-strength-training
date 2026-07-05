@@ -76,16 +76,19 @@ function flattenPR(computed: ComputedPR): PRDisplayItem[] {
 /**
  * Query hook for all personal records, computed on-the-fly from exercise_sets.
  *
- * Returns PRs grouped by exercise, with display-ready PRDisplayItem records.
+ * PRs are expensive to compute (fetches all user sets, groups, calculates).
+ * We use a longer staleTime (5 min) and gcTime (30 min) to avoid refetching
+ * during the same session. PRs only change when a new workout is logged.
  */
 export function usePersonalRecords() {
   const userId = useAuthStore((s) => s.user?.id);
 
   const query = useQuery({
-    queryKey: [PRS_QUERY_KEY],
+    queryKey: [PRS_QUERY_KEY, userId],
     queryFn: () => PRsService.listPRs(userId!),
     enabled: !!userId,
-    staleTime: 1000 * 60 * 2,
+    staleTime: 1000 * 60 * 5,   // 5 min — PRs change slowly
+    gcTime: 1000 * 60 * 30,      // 30 min — keep in memory across navigations
   });
 
   const computedPRs = query.data ?? [];
@@ -122,10 +125,11 @@ export function useExercisePRs(exerciseId: string | undefined) {
   const userId = useAuthStore((s) => s.user?.id);
 
   return useQuery({
-    queryKey: [PRS_QUERY_KEY, exerciseId],
+    queryKey: [PRS_QUERY_KEY, userId, exerciseId],
     queryFn: () => PRsService.getExercisePRs(userId!, exerciseId!),
     enabled: !!userId && !!exerciseId,
-    staleTime: 1000 * 60 * 2,
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 30,
   });
 }
 
