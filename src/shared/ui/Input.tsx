@@ -29,7 +29,7 @@ export const Input = forwardRef<TextInput, InputProps>(
           ref={ref}
           placeholderTextColor="#707074"
           className={`
-            bg-card-soft border rounded-xl px-4 py-3.5 text-surface-50 text-[15px] font-medium
+            bg-card border rounded-xl px-4 py-3.5 text-surface-50 text-[15px] font-medium
             ${isFocused ? "border-surface-400" : "border-border"}
             ${error ? "border-danger" : ""}
           `}
