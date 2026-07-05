@@ -2,6 +2,8 @@ import { useEffect, useMemo } from "react";
 import { Tabs, useRouter } from "expo-router";
 import { useAuthStore } from "../../src/stores/auth-store";
 import { Text, View } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { GradientBackground } from "../../src/shared/ui/GradientBackground";
 
 function SyncBanner() {
   const isOnline = useAuthStore((s) => s.isOnline);
@@ -27,21 +29,13 @@ function SyncBanner() {
   );
 }
 
-function TabIcon({ name, focused }: { name: string; focused: boolean }) {
-  const icons: Record<string, string> = {
-    index: "🏠",
-    train: "💪",
-    programs: "📋",
-    progress: "📈",
-    profile: "👤",
-  };
-
-  return (
-    <Text className={focused ? "text-brand-500" : "text-surface-500"}>
-      {icons[name] ?? "•"}
-    </Text>
-  );
-}
+const tabIcons: Record<string, keyof typeof Ionicons.glyphMap> = {
+  index: "home-outline",
+  train: "barbell-outline",
+  programs: "document-text-outline",
+  progress: "trending-up-outline",
+  profile: "person-outline",
+};
 
 export default function TabsLayout() {
   const router = useRouter();
@@ -60,7 +54,8 @@ export default function TabsLayout() {
   }, [state, router]);
 
   return (
-    <View className="flex-1 bg-surface-950">
+    <GradientBackground>
+      <View className="flex-1">
       <SyncBanner />
       <Tabs
         screenOptions={{
@@ -71,7 +66,7 @@ export default function TabsLayout() {
             borderTopWidth: 1,
             paddingTop: 4,
           },
-          tabBarActiveTintColor: "#22c55e",
+          tabBarActiveTintColor: "#B9B9B6",
           tabBarInactiveTintColor: "#71717a",
         }}
       >
@@ -79,38 +74,49 @@ export default function TabsLayout() {
         name="index"
         options={{
           title: "Home",
-          tabBarIcon: ({ focused }) => <TabIcon name="index" focused={focused} />,
+          tabBarIcon: ({ focused }) => (
+            <Ionicons name={tabIcons.index} size={22} color={focused ? "#B9B9B6" : "#71717a"} />
+          ),
         }}
       />
       <Tabs.Screen
         name="train"
         options={{
           title: "Train",
-          tabBarIcon: ({ focused }) => <TabIcon name="train" focused={focused} />,
+          tabBarIcon: ({ focused }) => (
+            <Ionicons name={tabIcons.train} size={22} color={focused ? "#B9B9B6" : "#71717a"} />
+          ),
         }}
       />
       <Tabs.Screen
         name="programs"
         options={{
           title: "Programs",
-          tabBarIcon: ({ focused }) => <TabIcon name="programs" focused={focused} />,
+          tabBarIcon: ({ focused }) => (
+            <Ionicons name={tabIcons.programs} size={22} color={focused ? "#B9B9B6" : "#71717a"} />
+          ),
         }}
       />
       <Tabs.Screen
         name="progress"
         options={{
           title: "Progress",
-          tabBarIcon: ({ focused }) => <TabIcon name="progress" focused={focused} />,
+          tabBarIcon: ({ focused }) => (
+            <Ionicons name={tabIcons.progress} size={22} color={focused ? "#B9B9B6" : "#71717a"} />
+          ),
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
           title: "Profile",
-          tabBarIcon: ({ focused }) => <TabIcon name="profile" focused={focused} />,
+          tabBarIcon: ({ focused }) => (
+            <Ionicons name={tabIcons.profile} size={22} color={focused ? "#B9B9B6" : "#71717a"} />
+          ),
         }}
       />
     </Tabs>
-    </View>
+      </View>
+    </GradientBackground>
   );
 }
