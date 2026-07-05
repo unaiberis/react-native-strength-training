@@ -1,8 +1,8 @@
 import { View, Text, ScrollView, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
-import { Card } from "../../src/shared/ui/Card";
-import { Button } from "../../src/shared/ui/Button";
-import { GradientBackground } from "../../src/shared/ui/GradientBackground";
+import { Card } from "@/shared/ui/Card";
+import { Button } from "@/shared/ui/Button";
+import { GradientBackground } from "@/shared/ui/GradientBackground";
 
 export default function ProgramsScreen() {
   const router = useRouter();

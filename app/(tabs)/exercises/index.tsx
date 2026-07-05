@@ -1,4 +1,4 @@
-import { ExerciseListScreen } from "../../src/features/exercises/screens/ExerciseListScreen";
+import { ExerciseListScreen } from "@/features/exercises/screens/ExerciseListScreen";
 
 export default function ExerciseListRoute() {
   return <ExerciseListScreen />;

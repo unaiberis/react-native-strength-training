@@ -9,7 +9,7 @@
  * `@/lib/pocketbase`.
  */
 
-export { pb, ExpoSecureStoreAuth } from "./client";
+export { pb } from "./client";
 export * from "./services/auth";
 export * from "./services/exercises";
 export * from "./services/templates";

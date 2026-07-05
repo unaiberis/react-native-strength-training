@@ -9,6 +9,8 @@ import "../global.css";
 import { View, ActivityIndicator, Text, Platform } from "react-native";
 import { GradientBackground } from "../src/shared/ui/GradientBackground";
 import { useColorScheme } from "nativewind";
+import { I18nProvider } from "@lingui/react";
+import { i18n, initI18n } from "../src/i18n";
 
 const OFFLINE_ENABLED = process.env.EXPO_PUBLIC_OFFLINE_ENABLED === "true";
 const IS_WEB = Platform.OS === "web";
@@ -216,16 +218,23 @@ function AuthGate({ children }: { children: React.ReactNode }) {
 }
 
 export default function RootLayout() {
+  // Initialize i18n on mount — detects locale and loads common catalog
+  useEffect(() => {
+    initI18n();
+  }, []);
+
   return (
     <ForceDarkMode>
       <QueryClientProvider client={queryClient}>
         <AuthGate>
-          <StatusBar style="light" />
-          <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="(auth)" />
-            <Stack.Screen name="(tabs)" />
-            <Stack.Screen name="(workout)/active" options={{ headerShown: false, presentation: "fullScreenModal" }} />
-          </Stack>
+          <I18nProvider i18n={i18n} defaultComponent={({ children }: { children: React.ReactNode }) => <Text>{children}</Text>}>
+            <StatusBar style="light" />
+            <Stack screenOptions={{ headerShown: false }}>
+              <Stack.Screen name="(auth)" />
+              <Stack.Screen name="(tabs)" />
+              <Stack.Screen name="(workout)/active" options={{ headerShown: false, presentation: "fullScreenModal" }} />
+            </Stack>
+          </I18nProvider>
         </AuthGate>
       </QueryClientProvider>
     </ForceDarkMode>

@@ -7,10 +7,10 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { Card } from "../../src/shared/ui/Card";
-import { Button } from "../../src/shared/ui/Button";
-import { useTemplates } from "../../src/features/routines/hooks/useTemplates";
-import { GradientBackground } from "../../src/shared/ui/GradientBackground";
+import { Card } from "@/shared/ui/Card";
+import { Button } from "@/shared/ui/Button";
+import { useTemplates } from "@/features/routines/hooks/useTemplates";
+import { GradientBackground } from "@/shared/ui/GradientBackground";
 
 export default function TrainScreen() {
   const router = useRouter();

@@ -1,9 +1,9 @@
 import { useEffect, useMemo } from "react";
 import { Tabs, useRouter } from "expo-router";
-import { useAuthStore } from "../../src/stores/auth-store";
+import { useAuthStore } from "@/stores/auth-store";
 import { Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { GradientBackground } from "../../src/shared/ui/GradientBackground";
+import { GradientBackground } from "@/shared/ui/GradientBackground";
 
 function SyncBanner() {
   const isOnline = useAuthStore((s) => s.isOnline);

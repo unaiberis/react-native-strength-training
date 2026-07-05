@@ -6,6 +6,8 @@ module.exports = function (api) {
       "nativewind/babel",
     ],
     plugins: [
+      // Lingui macro plugin — compiles t(), <Trans>, plural() at build time
+      ["@lingui/babel-plugin-lingui-macro", { async: true }],
       "react-native-worklets/plugin",
     ],
   };

@@ -1,6 +1,6 @@
 import { useLocalSearchParams } from "expo-router";
-import { ActiveWorkoutScreen } from "../../src/features/workout/screens/ActiveWorkoutScreen";
-import { WorkoutCompleteScreen } from "../../src/features/workout/screens/WorkoutCompleteScreen";
+import { ActiveWorkoutScreen } from "@/features/workout/screens/ActiveWorkoutScreen";
+import { WorkoutCompleteScreen } from "@/features/workout/screens/WorkoutCompleteScreen";
 
 /**
  * Active workout route.
