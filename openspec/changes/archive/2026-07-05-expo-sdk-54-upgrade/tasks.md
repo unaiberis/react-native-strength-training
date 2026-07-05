@@ -49,5 +49,5 @@ Chain strategy: stacked-to-main
 
 ## Phase 5: Commit
 
-- [ ] 5.1 Stage all changes (`package.json`, `babel.config.js`, `package-lock.json`)
-- [ ] 5.2 Commit with message `feat: upgrade expo sdk 52 to sdk 54`
+- [x] 5.1 Stage all changes (`package.json`, `babel.config.js`, `package-lock.json`)
+- [x] 5.2 Commit with message `feat: upgrade expo sdk 52 to sdk 54`
