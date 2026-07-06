@@ -201,6 +201,32 @@ export class OfflineSessionsService {
   }
 
   /**
+   * Delete a session and all its sets locally, then enqueue a DELETE
+   * change for later sync.
+   *
+   * Deletes child rows first (FK constraint), then the session itself.
+   */
+  async deleteSession(sessionId: string): Promise<void> {
+    // Delete sets first (FK constraint)
+    await this.db.runAsync(
+      "DELETE FROM exercise_sets WHERE session_id = ?",
+      [sessionId],
+    );
+
+    // Delete the session itself
+    await this.db.runAsync(
+      "DELETE FROM workout_sessions WHERE id = ?",
+      [sessionId],
+    );
+
+    await this.changeQueue.enqueue({
+      action: "delete",
+      collection: "workout_sessions",
+      recordId: sessionId,
+    });
+  }
+
+  /**
    * Retrieve all sets logged for a session, ordered by set_number.
    */
   async getSessionSets(sessionId: string): Promise<ExerciseSetRow[]> {

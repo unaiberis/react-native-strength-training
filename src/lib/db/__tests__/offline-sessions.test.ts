@@ -32,6 +32,9 @@ describe("OfflineSessionsService", () => {
       resetAuthErrors: jest.fn(),
       incrementRetry: jest.fn(),
       getPendingCount: jest.fn(),
+      retry: jest.fn(),
+      discard: jest.fn(),
+      getDeadLetterEntries: jest.fn(),
     };
   }
 
@@ -344,6 +347,38 @@ describe("OfflineSessionsService", () => {
       const sets = await service.getSessionSets("session-1");
 
       expect(sets).toEqual([]);
+    });
+  });
+
+  // ─── deleteSession ──────────────────────────────────────────────
+
+  describe("deleteSession", () => {
+    it("deletes session and sets locally and enqueues a DELETE change", async () => {
+      const { service, db, queue } = createService();
+      db.runAsync.mockResolvedValue({ lastInsertRowId: 0, changes: 1 });
+
+      await service.deleteSession("session-1");
+
+      // Should delete sets first (FK constraint)
+      expect(db.runAsync).toHaveBeenCalledWith(
+        expect.stringContaining("DELETE FROM exercise_sets"),
+        expect.arrayContaining(["session-1"]),
+      );
+
+      // Then delete the session
+      expect(db.runAsync).toHaveBeenCalledWith(
+        expect.stringContaining("DELETE FROM workout_sessions"),
+        expect.arrayContaining(["session-1"]),
+      );
+
+      // Should enqueue a DELETE change
+      expect(queue.enqueue).toHaveBeenCalledWith(
+        expect.objectContaining({
+          action: "delete",
+          collection: "workout_sessions",
+          recordId: "session-1",
+        }),
+      );
     });
   });
 });

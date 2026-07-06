@@ -24,6 +24,10 @@ interface AuthStore {
   syncStatus: SyncStatus;
   /** Human-readable message for the current init/sync step */
   initMessage: string;
+  /** Timestamp of the last successful sync (ISO string), null if never synced */
+  lastSyncedAt: string | null;
+  /** Number of pending changes in the offline queue */
+  pendingCount: number;
 
   // Actions
   setSession: (session: PocketBaseSession | null) => void;
@@ -33,6 +37,8 @@ interface AuthStore {
   setIsOnline: (online: boolean) => void;
   setSyncStatus: (status: SyncStatus) => void;
   setInitMessage: (msg: string) => void;
+  setLastSyncedAt: (timestamp: string | null) => void;
+  setPendingCount: (count: number) => void;
 }
 
 const initialSyncStatus: SyncStatus = "idle";
@@ -44,6 +50,8 @@ export const useAuthStore = create<AuthStore>((set) => ({
   isOnline: true,
   syncStatus: initialSyncStatus,
   initMessage: "Starting...",
+  lastSyncedAt: null,
+  pendingCount: 0,
 
   setSession: (session) => {
     console.log("[AuthStore] setSession:", session ? { userId: session.user?.id, email: session.user?.email } : null);
@@ -62,6 +70,8 @@ export const useAuthStore = create<AuthStore>((set) => ({
 
   setSyncStatus: (status) => set({ syncStatus: status }),
   setInitMessage: (msg) => set({ initMessage: msg }),
+  setLastSyncedAt: (timestamp) => set({ lastSyncedAt: timestamp }),
+  setPendingCount: (count) => set({ pendingCount: count }),
 
   reset: () =>
     set({

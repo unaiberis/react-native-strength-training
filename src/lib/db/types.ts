@@ -37,7 +37,17 @@ export type SyncEventType =
   | "SYNC_PARTIAL"
   | "AUTH_EXPIRED"
   | "AUTH_CLEARED"
-  | "DEAD_LETTER";
+  | "DEAD_LETTER"
+  | "CONFLICT"
+  | "PROGRESS";
+
+export interface SyncProgressEvent {
+  type: "PROGRESS";
+  detail: {
+    processed: number;
+    total: number;
+  };
+}
 
 export interface SyncEvent {
   type: SyncEventType;
@@ -45,6 +55,9 @@ export interface SyncEvent {
     deadLetterCount?: number;
     collection?: string;
     error?: string;
+    processed?: number;
+    total?: number;
+    lastSyncedAt?: string;
   };
 }
 

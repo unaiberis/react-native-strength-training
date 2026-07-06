@@ -32,6 +32,11 @@ export interface TemplateExerciseInput {
   notes?: string;
 }
 
+export interface ReorderInput {
+  exerciseId: string;
+  sortOrder: number;
+}
+
 export class OfflineTemplatesService {
   constructor(
     private db: SQLiteDatabase,
@@ -182,6 +187,34 @@ export class OfflineTemplatesService {
       collection: "workout_templates",
       recordId: id,
     });
+  }
+
+  /**
+   * Reorder exercises within a template.
+   *
+   * Accepts an array of {exerciseId, sortOrder} pairs and updates
+   * each exercise's sort_order in the local SQLite table. Enqueues
+   * an UPDATE change for each reordered exercise.
+   *
+   * Does nothing when the reorder list is empty.
+   */
+  async reorderExercises(
+    templateId: string,
+    reorders: ReorderInput[],
+  ): Promise<void> {
+    for (const item of reorders) {
+      await this.db.runAsync(
+        `UPDATE workout_template_exercises SET sort_order = ?, dirty = 1 WHERE id = ? AND template_id = ?`,
+        [item.sortOrder, item.exerciseId, templateId],
+      );
+
+      await this.changeQueue.enqueue({
+        action: "update",
+        collection: "workout_template_exercises",
+        recordId: item.exerciseId,
+        data: { sort_order: item.sortOrder },
+      });
+    }
   }
 
   /**

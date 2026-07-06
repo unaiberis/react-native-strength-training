@@ -133,12 +133,16 @@ export class SyncEngine {
       }
     }
 
+    const lastSyncedAt = new Date().toISOString();
     this.emit({
       type: flushResult.deadLettered > 0 ? "SYNC_PARTIAL" : "SYNC_COMPLETE",
       detail: {
         deadLetterCount: flushResult.deadLettered,
+        lastSyncedAt,
       },
     });
+
+    flushResult.timestamp = lastSyncedAt;
 
     return flushResult;
   }
@@ -185,6 +189,13 @@ export class SyncEngine {
         switch (outcome) {
           case "success":
             result.synced++;
+            this.emit({
+              type: "PROGRESS",
+              detail: {
+                processed: result.synced,
+                total: entries.length,
+              },
+            });
             break;
           case "auth_error":
             result.authExpired = true;
@@ -287,6 +298,11 @@ export class SyncEngine {
   /**
    * Process a single queue entry: call PocketBase, handle remapping
    * for CREATE, and dequeue on success.
+   *
+   * After successful CREATE/UPDATE, compares `updated_at` between the
+   * local entry data and the server response. If the server timestamp
+   * is newer, emits a CONFLICT event (server-wins — the entry is still
+   * dequeued).
    */
   private async processEntry(
     entry: QueueEntry,
@@ -326,12 +342,19 @@ export class SyncEngine {
           await this.idMapping.patchPendingQueue(localId, serverId);
         }
 
+        // Conflict detection for create
+        this.emitConflictIfNeeded(entry, response);
+
         await this.changeQueue.dequeue(entry.id);
         return "success";
       }
 
       if (entry.action === "update" && entry.record_id) {
-        await pbCollection.update(entry.record_id, entry.data ?? {});
+        const response = await pbCollection.update(entry.record_id, entry.data ?? {});
+
+        // Conflict detection for update
+        this.emitConflictIfNeeded(entry, response);
+
         await this.changeQueue.dequeue(entry.id);
         return "success";
       }
@@ -351,8 +374,8 @@ export class SyncEngine {
         return "auth_error";
       }
 
-      // Exceeded retries — dead letter
-      if (entry.retry_count >= 10) {
+      // Exceeded retries — dead letter (ceiling reduced to 3 per design)
+      if (entry.retry_count >= 3) {
         const errorMsg = err?.message ?? String(err);
         await this.changeQueue.markDeadLetter(entry.id, errorMsg);
         return "dead_letter";
@@ -362,6 +385,38 @@ export class SyncEngine {
       const errorMsg = err?.message ?? String(err);
       await this.changeQueue.incrementRetry(entry.id, errorMsg);
       return "retry";
+    }
+  }
+
+  /**
+   * Compare `updated_at` between the local entry data and the server
+   * response. If the server timestamp is strictly newer, emit a CONFLICT
+   * event.
+   *
+   * Safe to call even if either side lacks `updated_at` — does nothing
+   * in that case.
+   */
+  private emitConflictIfNeeded(
+    entry: QueueEntry,
+    response: Record<string, unknown> | null | undefined,
+  ): void {
+    if (!response?.updated_at || !entry.data?.updated_at) return;
+
+    try {
+      const serverTime = new Date(response.updated_at as string).getTime();
+      const localTime = new Date(entry.data.updated_at as string).getTime();
+
+      if (serverTime > localTime) {
+        this.emit({
+          type: "CONFLICT",
+          detail: {
+            collection: entry.collection,
+            error: "Server version is newer than local version",
+          },
+        });
+      }
+    } catch {
+      // Date parsing failure — skip conflict detection
     }
   }
 

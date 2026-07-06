@@ -30,13 +30,24 @@ export type {
   CreateTemplateInput,
   UpdateTemplateInput,
   TemplateExerciseInput,
+  ReorderInput,
 } from "./services/offline-templates";
+
+export { OfflineExercisesService } from "./services/offline-exercises";
+export type { ExerciseFilter } from "./services/offline-exercises";
+
+export { OfflineHistoryService } from "./services/offline-history";
+export type { SessionDetail } from "./services/offline-history";
+
+export { OfflineRecordsService } from "./services/offline-records";
+export type { PersonalRecord } from "./services/offline-records";
 
 export type {
   QueueAction,
   QueueStatus,
   QueueEntry,
   SyncEventType,
+  SyncProgressEvent,
   SyncEvent,
   ExerciseRow,
   WorkoutTemplateRow,

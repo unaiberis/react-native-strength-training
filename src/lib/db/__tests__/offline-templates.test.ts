@@ -31,6 +31,9 @@ describe("OfflineTemplatesService", () => {
       resetAuthErrors: jest.fn(),
       incrementRetry: jest.fn(),
       getPendingCount: jest.fn(),
+      retry: jest.fn(),
+      discard: jest.fn(),
+      getDeadLetterEntries: jest.fn(),
     };
   }
 
@@ -252,6 +255,47 @@ describe("OfflineTemplatesService", () => {
       const exercises = await service.getTemplateExercises("tpl-1");
 
       expect(exercises).toEqual([]);
+    });
+  });
+
+  // ─── reorderExercises ───────────────────────────────────────────
+
+  describe("reorderExercises", () => {
+    it("updates sort_order for multiple exercises and enqueues UPDATEs", async () => {
+      const { service, db, queue } = createService();
+      db.runAsync.mockResolvedValue({ lastInsertRowId: 0, changes: 1 });
+
+      await service.reorderExercises("tpl-1", [
+        { exerciseId: "wte-1", sortOrder: 2 },
+        { exerciseId: "wte-2", sortOrder: 1 },
+      ]);
+
+      // Should update each exercise's sort_order
+      expect(db.runAsync).toHaveBeenCalledWith(
+        expect.stringContaining("UPDATE workout_template_exercises"),
+        expect.arrayContaining([2, "wte-1"]),
+      );
+      expect(db.runAsync).toHaveBeenCalledWith(
+        expect.stringContaining("UPDATE workout_template_exercises"),
+        expect.arrayContaining([1, "wte-2"]),
+      );
+
+      // Should enqueue an UPDATE change for each reorder
+      expect(queue.enqueue).toHaveBeenCalledWith(
+        expect.objectContaining({
+          action: "update",
+          collection: "workout_template_exercises",
+        }),
+      );
+    });
+
+    it("handles empty reorder list gracefully", async () => {
+      const { service, db, queue } = createService();
+
+      await service.reorderExercises("tpl-1", []);
+
+      expect(db.runAsync).not.toHaveBeenCalled();
+      expect(queue.enqueue).not.toHaveBeenCalled();
     });
   });
 });
