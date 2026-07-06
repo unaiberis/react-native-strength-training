@@ -13,6 +13,7 @@ import { useRouter, useLocalSearchParams, Stack } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useCoachDashboard } from "@/features/coach/hooks/useCoachDashboard";
 import { useAssignProgram } from "@/features/coach/hooks/useProgramAssignment";
+import { useTemplates } from "@/features/routines/hooks/useTemplates";
 
 export default function ProgramAssignmentScreen() {
   const router = useRouter();
@@ -33,23 +34,14 @@ export default function ProgramAssignmentScreen() {
 
   const assignMutation = useAssignProgram();
   const { athletes } = useCoachDashboard();
-
-  // Mock templates — in production these would come from a templates query
-  const mockTemplates = [
-    { id: "t1", name: "Upper Body Push" },
-    { id: "t2", name: "Lower Body Strength" },
-    { id: "t3", name: "Full Body" },
-    { id: "t4", name: "Pull Day" },
-    { id: "t5", name: "Leg Day" },
-    { id: "t6", name: "Conditioning" },
-  ];
+  const { data: templates } = useTemplates();
 
   const athleteName = params.athleteName
     ? decodeURIComponent(params.athleteName)
     : athletes.find((a) => a.id === selectedAthlete)?.displayName ?? "";
 
-  const selectedTemplateName = mockTemplates.find(
-    (t) => t.id === selectedTemplate,
+  const selectedTemplateName = (templates ?? []).find(
+    (t: any) => t.id === selectedTemplate,
   )?.name;
 
   const handleConfirm = async () => {
@@ -181,7 +173,7 @@ export default function ProgramAssignmentScreen() {
             <Text className="text-surface-50 text-lg font-bold mb-4">
               Select Program for {athleteName}
             </Text>
-            {mockTemplates.map((t) => (
+            {(templates ?? []).map((t: any) => (
               <TouchableOpacity
                 key={t.id}
                 className={`bg-card border rounded-2xl p-4 mb-3 ${
