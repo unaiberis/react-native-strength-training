@@ -8,6 +8,8 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { useLingui } from "@lingui/react/macro";
+import { Trans } from "@lingui/react/macro";
 import { Card } from "../../../shared/ui/Card";
 import { GradientBackground } from "../../../shared/ui/GradientBackground";
 import { useExercises, useCategories } from "../hooks/useExercises";
@@ -74,6 +76,7 @@ function ExerciseItem({ exercise }: { exercise: ExerciseRow }) {
 }
 
 export function ExerciseListScreen() {
+  const { t } = useLingui();
   const router = useRouter();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [page, setPage] = useState(0);
@@ -129,12 +132,12 @@ export function ExerciseListScreen() {
       <View className="flex-1 items-center justify-center py-16">
         <Text className="text-surface-500 text-base mb-2">
           {selectedCategory
-            ? "No exercises found in this category"
-            : "No exercises available"}
+            ? <Trans>No exercises found in this category</Trans>
+            : <Trans>No exercises available</Trans>}
         </Text>
         {selectedCategory && (
           <TouchableOpacity onPress={() => handleCategoryPress(null)}>
-            <Text className="text-brand-500 text-sm">Clear filter</Text>
+            <Text className="text-brand-500 text-sm"><Trans>Clear filter</Trans></Text>
           </TouchableOpacity>
         )}
       </View>
@@ -153,7 +156,7 @@ export function ExerciseListScreen() {
           keyExtractor={(item) => item}
           renderItem={({ item }) => (
             <CategoryChip
-              label={item === "all" ? "All" : item}
+              label={item === "all" ? t`All` : item}
               selected={
                 item === "all" ? selectedCategory === null : selectedCategory === item
               }
