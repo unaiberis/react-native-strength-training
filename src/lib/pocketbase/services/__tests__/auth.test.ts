@@ -67,6 +67,7 @@ describe("PocketBase auth service", () => {
       email: "test@test.com",
       password: "StrongPass1",
       displayName: "Test User",
+      role: "athlete",
     });
 
     expect(mockCreate).toHaveBeenCalledWith({
@@ -74,6 +75,28 @@ describe("PocketBase auth service", () => {
       password: "StrongPass1",
       passwordConfirm: "StrongPass1",
       displayName: "Test User",
+      role: "athlete",
+    });
+    expect(result).toEqual({ error: null, user: mockRecord });
+  });
+
+  it("signUp passes coach role to PocketBase when provided", async () => {
+    const mockRecord = { id: "coach-1", email: "coach@test.com", role: "coach" };
+    mockCreate.mockResolvedValue(mockRecord);
+
+    const result = await signUp({
+      email: "coach@test.com",
+      password: "StrongPass1",
+      displayName: "Coach User",
+      role: "coach",
+    });
+
+    expect(mockCreate).toHaveBeenCalledWith({
+      email: "coach@test.com",
+      password: "StrongPass1",
+      passwordConfirm: "StrongPass1",
+      displayName: "Coach User",
+      role: "coach",
     });
     expect(result).toEqual({ error: null, user: mockRecord });
   });
@@ -88,6 +111,7 @@ describe("PocketBase auth service", () => {
       email: "existing@test.com",
       password: "StrongPass1",
       displayName: "Existing",
+      role: "athlete",
     });
 
     expect(result.error).toBeTruthy();
@@ -104,6 +128,7 @@ describe("PocketBase auth service", () => {
       email: "dup@test.com",
       password: "StrongPass1",
       displayName: "Dup",
+      role: "athlete",
     });
 
     expect(result.error).toBe("An account with this email already exists");

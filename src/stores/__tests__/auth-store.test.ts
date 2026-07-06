@@ -1,4 +1,4 @@
-import { useAuthStore } from "../auth-store";
+import { useAuthStore, extractRole } from "../auth-store";
 
 // Reset the store before each test
 beforeEach(() => {
@@ -6,6 +6,7 @@ beforeEach(() => {
     state: "loading",
     session: null,
     user: null,
+    role: null,
   });
 });
 
@@ -93,5 +94,91 @@ describe("auth-store", () => {
   it("supports direct state transition to loading", () => {
     useAuthStore.getState().setState("loading");
     expect(useAuthStore.getState().state).toBe("loading");
+  });
+
+  // ─── Role Extraction ─────────────────────────────────────────────────────
+
+  describe("role extraction", () => {
+    it("extracts 'coach' role from session.user", () => {
+      const mockSession = { user: { id: "abc", role: "coach" }, token: "tok" } as any;
+      useAuthStore.getState().setSession(mockSession);
+      expect(useAuthStore.getState().role).toBe("coach");
+    });
+
+    it("extracts 'athlete' role from session.user", () => {
+      const mockSession = { user: { id: "abc", role: "athlete" }, token: "tok" } as any;
+      useAuthStore.getState().setSession(mockSession);
+      expect(useAuthStore.getState().role).toBe("athlete");
+    });
+
+    it("defaults to 'athlete' when role field is missing", () => {
+      const mockSession = { user: { id: "abc" }, token: "tok" } as any;
+      useAuthStore.getState().setSession(mockSession);
+      expect(useAuthStore.getState().role).toBe("athlete");
+    });
+
+    it("defaults to 'athlete' when role is unknown", () => {
+      const mockSession = { user: { id: "abc", role: "admin" }, token: "tok" } as any;
+      useAuthStore.getState().setSession(mockSession);
+      expect(useAuthStore.getState().role).toBe("athlete");
+    });
+
+    it("sets role to null when session is cleared", () => {
+      useAuthStore.getState().setSession({ user: { id: "abc", role: "coach" } } as any);
+      expect(useAuthStore.getState().role).toBe("coach");
+      useAuthStore.getState().setSession(null);
+      expect(useAuthStore.getState().role).toBeNull();
+    });
+
+    it("sets role to null on reset", () => {
+      useAuthStore.getState().setSession({ user: { id: "abc", role: "coach" } } as any);
+      useAuthStore.getState().reset();
+      expect(useAuthStore.getState().role).toBeNull();
+    });
+  });
+
+  // ─── isCoach / isAthlete ─────────────────────────────────────────────────
+
+  describe("isCoach / isAthlete", () => {
+    it("returns true for isCoach when role is coach", () => {
+      useAuthStore.getState().setSession({ user: { id: "abc", role: "coach" } } as any);
+      expect(useAuthStore.getState().isCoach()).toBe(true);
+      expect(useAuthStore.getState().isAthlete()).toBe(false);
+    });
+
+    it("returns false for isCoach when role is athlete", () => {
+      useAuthStore.getState().setSession({ user: { id: "abc", role: "athlete" } } as any);
+      expect(useAuthStore.getState().isCoach()).toBe(false);
+      expect(useAuthStore.getState().isAthlete()).toBe(true);
+    });
+
+    it("returns false for isCoach when role is null", () => {
+      expect(useAuthStore.getState().isCoach()).toBe(false);
+      expect(useAuthStore.getState().isAthlete()).toBe(true);
+    });
+  });
+
+  // ─── extractRole Pure Function ───────────────────────────────────────────
+
+  describe("extractRole", () => {
+    it("returns 'coach' for a coach user", () => {
+      expect(extractRole({ role: "coach" } as any)).toBe("coach");
+    });
+
+    it("returns 'athlete' for an athlete user", () => {
+      expect(extractRole({ role: "athlete" } as any)).toBe("athlete");
+    });
+
+    it("returns 'athlete' for null user", () => {
+      expect(extractRole(null)).toBe("athlete");
+    });
+
+    it("returns 'athlete' when role field is missing", () => {
+      expect(extractRole({ id: "abc" } as any)).toBe("athlete");
+    });
+
+    it("returns 'athlete' for unknown role value", () => {
+      expect(extractRole({ role: "admin" } as any)).toBe("athlete");
+    });
   });
 });

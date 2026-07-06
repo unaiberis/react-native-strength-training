@@ -23,6 +23,7 @@ export async function signUp(input: RegisterInput): Promise<AuthResult> {
       password: input.password,
       passwordConfirm: input.password,
       displayName: input.displayName,
+      role: input.role ?? "athlete",
     });
 
     return { error: null, user: record ?? null };

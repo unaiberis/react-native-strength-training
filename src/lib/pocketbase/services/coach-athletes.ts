@@ -1,0 +1,113 @@
+import { pb } from "../client";
+import type { UserRow, AthleteSummary } from "../../../types/pocketbase";
+
+/**
+ * List all athletes linked to a coach via the `coach` field on the user record.
+ */
+export async function listAthletes(coachId: string): Promise<AthleteSummary[]> {
+  try {
+    const users = await pb.collection("users").getFullList({
+      filter: `coach = '${coachId}'`,
+      sort: "displayName",
+    });
+
+    const athleteRows = (users ?? []) as unknown as UserRow[];
+
+    // Enrich each athlete with workout stats
+    const summaries = await Promise.all(
+      athleteRows.map(async (user) => {
+        const sessions = await pb.collection("workout_sessions").getFullList({
+          filter: `user_id = '${user.id}' && status = 'completed'`,
+          sort: "-started_at",
+          fields: "id,started_at",
+        });
+
+        const totalWorkouts = sessions.length;
+
+        // This week boundary
+        const weekAgo = new Date();
+        weekAgo.setDate(weekAgo.getDate() - 7);
+        const weekAgoStr = weekAgo.toISOString();
+        const thisWeekWorkouts = sessions.filter(
+          (s) => s.started_at >= weekAgoStr,
+        ).length;
+
+        const lastWorkoutDate =
+          sessions.length > 0 ? sessions[0].started_at : null;
+
+        // Total volume: sum of all set volumes
+        const sessionIds = sessions.map((s) => s.id);
+        let totalVolumeKg = 0;
+        const BATCH = 50;
+        for (let i = 0; i < sessionIds.length; i += BATCH) {
+          const chunk = sessionIds.slice(i, i + BATCH);
+          const filter = chunk
+            .map((id) => `workout_session_id = '${id}'`)
+            .join(" || ");
+          const sets = await pb.collection("exercise_sets").getFullList({
+            filter,
+            fields: "weight_kg,reps",
+          });
+          for (const s of sets) {
+            totalVolumeKg += (s.weight_kg ?? 0) * (s.reps ?? 0);
+          }
+        }
+
+        // Compliance: very basic — ratio of completed to total assigned sessions
+        const assignedSessions = await pb
+          .collection("workout_sessions")
+          .getFullList({
+            filter: `user_id = '${user.id}'`,
+            fields: "id,status",
+          });
+        const totalAssigned = assignedSessions.length;
+        const complianceRate =
+          totalAssigned > 0 ? totalWorkouts / totalAssigned : 0;
+
+        return {
+          id: user.id,
+          displayName: user.displayName,
+          email: user.email,
+          lastWorkoutDate,
+          totalWorkouts,
+          thisWeekWorkouts,
+          complianceRate: Math.round(complianceRate * 100) / 100,
+          totalVolumeKg: Math.round(totalVolumeKg * 100) / 100,
+        };
+      }),
+    );
+
+    return summaries;
+  } catch (err: any) {
+    throw new Error(err.message ?? "Failed to fetch athletes");
+  }
+}
+
+/**
+ * Get a single athlete's profile by user ID.
+ */
+export async function getAthlete(userId: string): Promise<UserRow | null> {
+  try {
+    const record = await pb.collection("users").getOne(userId);
+    return record as unknown as UserRow;
+  } catch (err: any) {
+    if (
+      err?.status === 404 ||
+      err?.message?.includes("The requested resource wasn't found")
+    ) {
+      return null;
+    }
+    throw new Error(err.message ?? "Failed to fetch athlete");
+  }
+}
+
+/**
+ * Unlink an athlete from a coach by clearing the `coach` field.
+ */
+export async function unlinkAthlete(athleteId: string): Promise<void> {
+  try {
+    await pb.collection("users").update(athleteId, { coach: null });
+  } catch (err: any) {
+    throw new Error(err.message ?? "Failed to unlink athlete");
+  }
+}

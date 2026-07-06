@@ -121,6 +121,58 @@ describe("registerSchema (legacy)", () => {
     });
     expect(result.success).toBe(false);
   });
+
+  // ─── Role Field ────────────────────────────────────────────────────────────
+
+  describe("role field", () => {
+    it("accepts registration with 'athlete' role", () => {
+      const result = registerSchema.safeParse({
+        email: "user@example.com",
+        password: "StrongPass1",
+        displayName: "Test User",
+        role: "athlete",
+      });
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.role).toBe("athlete");
+      }
+    });
+
+    it("accepts registration with 'coach' role", () => {
+      const result = registerSchema.safeParse({
+        email: "coach@example.com",
+        password: "StrongPass1",
+        displayName: "Coach User",
+        role: "coach",
+      });
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.role).toBe("coach");
+      }
+    });
+
+    it("defaults to 'athlete' when role is omitted", () => {
+      const result = registerSchema.safeParse({
+        email: "user@example.com",
+        password: "StrongPass1",
+        displayName: "Test User",
+      });
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.role).toBe("athlete");
+      }
+    });
+
+    it("rejects invalid role value", () => {
+      const result = registerSchema.safeParse({
+        email: "user@example.com",
+        password: "StrongPass1",
+        displayName: "Test User",
+        role: "admin",
+      });
+      expect(result.success).toBe(false);
+    });
+  });
 });
 
 // ─── Factory functions (i18n-aware) ────────────────────────────────────────
