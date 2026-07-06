@@ -1,6 +1,8 @@
 import { useCallback } from "react";
 import { View, Text, ScrollView } from "react-native";
 import { useRouter } from "expo-router";
+import { useLingui } from "@lingui/react/macro";
+import { Trans } from "@lingui/react/macro";
 import { Button } from "../../../shared/ui/Button";
 import { Card } from "../../../shared/ui/Card";
 import { GradientBackground } from "../../../shared/ui/GradientBackground";
@@ -17,6 +19,7 @@ import { useClearSession } from "../hooks/useWorkoutSession";
  * Falls back gracefully if the store has been cleared (e.g. after app restart).
  */
 export function WorkoutCompleteScreen() {
+  const { t } = useLingui();
   const router = useRouter();
   const clearSession = useClearSession();
   const exercises = useSessionStore((s) => s.exercises);
@@ -59,16 +62,16 @@ export function WorkoutCompleteScreen() {
         {/* Celebration */}
         <Text className="text-6xl mb-4">🎉</Text>
         <Text className="text-surface-50 text-2xl font-bold mb-2">
-          Workout Complete!
+          <Trans>Workout Complete!</Trans>
         </Text>
         <Text className="text-surface-400 text-base mb-8 text-center">
-          Great effort — keep up the momentum.
+          <Trans>Great effort — keep up the momentum.</Trans>
         </Text>
 
         {/* Summary cards */}
         <Card className="w-full mb-3">
           <View className="flex-row justify-between items-center py-2">
-            <Text className="text-surface-400">Sets logged</Text>
+            <Text className="text-surface-400"><Trans>Sets logged</Trans></Text>
             <Text className="text-surface-50 text-lg font-bold">
               {totalLoggedSets}
             </Text>
@@ -78,7 +81,7 @@ export function WorkoutCompleteScreen() {
         {durationMinutes > 0 && (
           <Card className="w-full mb-3">
             <View className="flex-row justify-between items-center py-2">
-              <Text className="text-surface-400">Duration</Text>
+              <Text className="text-surface-400"><Trans>Duration</Trans></Text>
               <Text className="text-surface-50 text-lg font-bold">
                 {durationMinutes} min
               </Text>
@@ -89,7 +92,7 @@ export function WorkoutCompleteScreen() {
         {totalExercises > 0 && (
           <Card className="w-full mb-3">
             <View className="flex-row justify-between items-center py-2">
-              <Text className="text-surface-400">Exercises completed</Text>
+              <Text className="text-surface-400"><Trans>Exercises completed</Trans></Text>
               <Text className="text-surface-50 text-lg font-bold">
                 {completedExercises} / {totalExercises}
               </Text>
@@ -99,7 +102,7 @@ export function WorkoutCompleteScreen() {
 
         {/* Exercise breakdown */}
         {exercises.length > 0 && (
-          <Card title="Exercise Summary" className="w-full mb-8">
+          <Card title={t`Exercise Summary`} className="w-full mb-8">
             {exercises.map((ex, idx) => (
               <View
                 key={ex.exerciseId}
@@ -125,7 +128,7 @@ export function WorkoutCompleteScreen() {
         {exercises.length === 0 && (
           <Card className="w-full mb-8">
             <Text className="text-surface-400 text-center py-4">
-              Free workout completed with no logged sets.
+              <Trans>Free workout completed with no logged sets.</Trans>
             </Text>
           </Card>
         )}
@@ -133,12 +136,12 @@ export function WorkoutCompleteScreen() {
         {/* Actions */}
         <View className="w-full gap-3">
           <Button
-            title="Back to Training"
+            title={t`Back to Training`}
             variant="primary"
             onPress={handleGoTrain}
           />
           <Button
-            title="Go Home"
+            title={t`Go Home`}
             variant="secondary"
             onPress={handleGoHome}
           />
