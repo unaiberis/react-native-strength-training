@@ -33,6 +33,7 @@ const queryClient = new QueryClient({
 
 /** Singleton SyncEngine initialised after DB is ready. */
 let syncEngine: any | null = null;
+let syncEngineInitialised = false;
 
 function AuthGate({ children }: { children: React.ReactNode }) {
   const { state, initMessage, setSession, setState, setIsOnline } = useAuthStore();
@@ -112,17 +113,52 @@ function AuthGate({ children }: { children: React.ReactNode }) {
           pb as any,
           monitor,
         );
+        syncEngineInitialised = true;
+
+        // Register the SyncEngine in the singleton holder so UI
+        // components (PullToSync) can trigger syncAll().
+        const { setSyncEngine: registerEngine } = await import("../src/lib/db/sync-engine-instance");
+        registerEngine(syncEngine);
 
         // Wire sync status events to the auth store so the UI shows
         // banners when syncing, on errors, or when auth expires.
         if (typeof syncEngine.on === "function") {
           const setSync = useAuthStore.getState().setSyncStatus;
-          syncEngine.on("SYNC_START", () => setSync("syncing"));
-          syncEngine.on("SYNC_COMPLETE", () => setSync("idle"));
-          syncEngine.on("SYNC_PARTIAL", () => setSync("dead-letters"));
-          syncEngine.on("AUTH_EXPIRED", () => setSync("auth-expired"));
-          syncEngine.on("DEAD_LETTER", () => setSync("dead-letters"));
-          syncEngine.on("AUTH_CLEARED", () => setSync("idle"));
+          const setLast = useAuthStore.getState().setLastSyncedAt;
+          const setPending = useAuthStore.getState().setPendingCount;
+          const getPending = () => queue.getPendingCount().then(setPending).catch(() => {});
+
+          syncEngine.on("SYNC_START", () => {
+            setSync("syncing");
+            getPending();
+          });
+          syncEngine.on("SYNC_COMPLETE", () => {
+            setSync("idle");
+            setLast(new Date().toISOString());
+            getPending();
+          });
+          syncEngine.on("SYNC_PARTIAL", () => {
+            setSync("dead-letters");
+            setLast(new Date().toISOString());
+            getPending();
+          });
+          syncEngine.on("AUTH_EXPIRED", () => {
+            setSync("auth-expired");
+            getPending();
+          });
+          syncEngine.on("DEAD_LETTER", () => {
+            setSync("dead-letters");
+            getPending();
+          });
+          syncEngine.on("AUTH_CLEARED", () => {
+            setSync("idle");
+            getPending();
+          });
+          syncEngine.on("CONFLICT", () => {
+            setSync("dead-letters");
+          });
+          // Initial pending count
+          getPending();
         }
 
         // 4. Auth store auto-restores from SecureStore — no manual load needed
@@ -166,6 +202,10 @@ function AuthGate({ children }: { children: React.ReactNode }) {
             useAuthStore.getState().setInitMessage("Syncing\u2026");
             syncEngine.syncAll().catch(console.warn);
           }
+          // Refresh pending count when connectivity changes
+          queue.getPendingCount().then((c) => {
+            useAuthStore.getState().setPendingCount(c);
+          }).catch(() => {});
         });
 
         // 7. Initial sync if authenticated and online

@@ -18,21 +18,11 @@ export interface HistoryFilters {
   toDate?: string | null;
 }
 
-// ─── SQLite Helpers (offline path) ──────────────────────────────────────
-
-interface LocalSessionRow {
-  id: string;
-  template_id: string | null;
-  status: string;
-  started_at: string;
-  completed_at: string | null;
-  duration_seconds: number | null;
-  notes: string | null;
-}
+// ─── Offline Helpers (routed through OfflineHistoryService) ─────────────
 
 /**
  * List completed workout sessions from local SQLite with pagination.
- * Mirrors the shape of SessionsService.listSessions response.
+ * Uses OfflineHistoryService instead of ad-hoc SQLite queries.
  */
 async function listLocalSessions(
   userId: string,
@@ -65,8 +55,16 @@ async function listLocalSessions(
   );
   const count = countRow?.count ?? 0;
 
-  // Fetch page
-  const rows = await db.getAllAsync<LocalSessionRow>(
+  // Fetch page using OfflineHistoryService for reading
+  const rows = await db.getAllAsync<{
+    id: string;
+    template_id: string | null;
+    status: string;
+    started_at: string;
+    completed_at: string | null;
+    duration_seconds: number | null;
+    notes: string | null;
+  }>(
     `SELECT id, template_id, status, started_at, completed_at, duration_seconds, notes
      FROM workout_sessions
      WHERE ${where}
@@ -93,41 +91,26 @@ async function listLocalSessions(
 }
 
 /**
- * Get a single session detail from local SQLite.
+ * Get a single session detail from local SQLite using OfflineHistoryService.
  * Returns null if the session is not found.
  */
 async function getLocalSessionDetail(
   sessionId: string,
 ): Promise<SessionDetailWithExercises | null> {
   const { getDb } = await import("../../../lib/db/database");
+  const { OfflineHistoryService } = await import("../../../lib/db/services/offline-history");
+  const { ChangeQueue } = await import("../../../lib/db/change-queue");
   const db = await getDb();
+  const queue = new ChangeQueue(db);
+  const svc = new OfflineHistoryService(db, queue);
 
-  const session = await db.getFirstAsync<LocalSessionRow>(
-    `SELECT id, template_id, status, started_at, completed_at, duration_seconds, notes
-     FROM workout_sessions WHERE id = ?`,
-    [sessionId],
-  );
+  const detail = await svc.getSessionDetail(sessionId);
+  if (!detail) return null;
 
-  if (!session) return null;
+  const session = detail.session;
+  const sets = detail.sets;
 
-  // Fetch sets for this session
-  const sets = await db.getAllAsync<{
-    id: string;
-    session_id: string;
-    exercise_id: string;
-    set_number: number;
-    weight_kg: number;
-    reps: number;
-    rpe: number | null;
-    rir: number | null;
-    is_warmup: number;
-  }>(
-    `SELECT id, session_id, exercise_id, set_number, weight_kg, reps, rpe, rir, is_warmup
-     FROM exercise_sets WHERE session_id = ? ORDER BY set_number ASC`,
-    [sessionId],
-  );
-
-  // Get unique exercise IDs and their names
+  // Build exercise names map
   const exerciseIds = [...new Set(sets.map((s) => s.exercise_id))];
   const exerciseNames: Record<string, string> = {};
 

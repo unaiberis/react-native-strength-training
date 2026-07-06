@@ -4,6 +4,7 @@ import type { RecordModel } from "pocketbase";
 import { useAuthStore } from "@/stores/auth-store";
 import { pb } from "@/lib/pocketbase/client";
 import { calculateE1RM } from "@/shared/utils/pr-calc";
+import type { SQLiteDatabase } from "expo-sqlite";
 
 const HOME_STATS_QUERY_KEY = "home-stats";
 
@@ -172,18 +173,116 @@ async function fetchHomeStats(userId: string): Promise<HomeStats> {
 
 // ─── Hook ───────────────────────────────────────────────────────────────
 
+// ─── Offline data fetching ──────────────────────────────────────────────
+
+/**
+ * Fetch home stats from local SQLite when offline.
+ *
+ * Mirrors fetchHomeStats but reads from local tables instead of PocketBase.
+ */
+async function fetchHomeStatsOffline(
+  db: SQLiteDatabase,
+  userId: string,
+): Promise<HomeStats> {
+  // 1. Completed sessions
+  const sessions = await db.getAllAsync<{
+    id: string;
+    template_id: string | null;
+    started_at: string;
+    duration_seconds: number | null;
+  }>(
+    "SELECT id, template_id, started_at, duration_seconds FROM workout_sessions WHERE status = 'completed' ORDER BY started_at DESC",
+  );
+
+  const totalWorkouts = sessions.length;
+
+  // 2. This week
+  const weekAgo = new Date();
+  weekAgo.setDate(weekAgo.getDate() - 7);
+  const weekAgoStr = weekAgo.toISOString();
+  const thisWeekWorkouts = sessions.filter((s) => s.started_at >= weekAgoStr).length;
+
+  // 3. Total sets
+  const setCount = await db.getFirstAsync<{ count: number }>(
+    "SELECT COUNT(*) as count FROM exercise_sets WHERE is_warmup = 0",
+  );
+  const totalSets = setCount?.count ?? 0;
+
+  // 4. Best e1RM
+  const workingSets = await db.getAllAsync<{ weight_kg: number; reps: number }>(
+    "SELECT weight_kg, reps FROM exercise_sets WHERE is_warmup = 0 AND reps > 0 AND weight_kg > 0",
+  );
+  let bestE1RM: number | null = null;
+  for (const s of workingSets) {
+    const e1rm = calculateE1RM(s.weight_kg, s.reps);
+    if (e1rm > (bestE1RM ?? 0)) bestE1RM = e1rm;
+  }
+
+  // 5. Recent 5 sessions
+  const recentRaw = sessions.slice(0, 5);
+  const recentSessions: RecentSession[] = await Promise.all(
+    recentRaw.map(async (session) => {
+      // Count unique exercises
+      const sets = await db.getAllAsync<{ exercise_id: string }>(
+        "SELECT DISTINCT exercise_id FROM exercise_sets WHERE session_id = ?",
+        [session.id],
+      );
+
+      // Template name
+      let templateName = "Custom Workout";
+      if (session.template_id) {
+        const tmpl = await db.getFirstAsync<{ name: string }>(
+          "SELECT name FROM workout_templates WHERE id = ?",
+          [session.template_id],
+        );
+        if (tmpl) templateName = tmpl.name;
+      }
+
+      return {
+        id: session.id,
+        templateName,
+        startedAt: session.started_at,
+        durationMinutes: session.duration_seconds
+          ? Math.round(session.duration_seconds / 60)
+          : null,
+        exerciseCount: sets.length,
+      };
+    }),
+  );
+
+  return {
+    totalWorkouts,
+    totalSets,
+    thisWeekWorkouts,
+    bestE1RM,
+    recentSessions,
+  };
+}
+
+// ─── Hook ───────────────────────────────────────────────────────────────
+
 /**
  * Home dashboard data hook.
  *
  * Fetches all stats in a single query to reduce network chatter.
+ * Branches on connectivity: offline → reads from local SQLite;
+ * online → PocketBase service.
  * Uses staleTime: 5 min, gcTime: 30 min — same as PRs.
  */
 export function useHomeStats() {
   const userId = useAuthStore((s) => s.user?.id);
+  const isOnline = useAuthStore((s) => s.isOnline);
 
   const query = useQuery({
-    queryKey: [HOME_STATS_QUERY_KEY, userId],
-    queryFn: () => fetchHomeStats(userId!),
+    queryKey: [HOME_STATS_QUERY_KEY, userId, isOnline ? "online" : "offline"],
+    queryFn: async () => {
+      if (!isOnline) {
+        const { getDb } = await import("@/lib/db/database");
+        const db = await getDb();
+        return fetchHomeStatsOffline(db, userId!);
+      }
+      return fetchHomeStats(userId!);
+    },
     enabled: !!userId,
     staleTime: 1000 * 60 * 5,
     gcTime: 1000 * 60 * 30,

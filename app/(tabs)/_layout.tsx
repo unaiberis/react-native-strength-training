@@ -1,33 +1,11 @@
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import { Tabs, useRouter } from "expo-router";
 import { useAuthStore } from "../../src/stores/auth-store";
-import { Text, View } from "react-native";
+import { View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { GradientBackground } from "../../src/shared/ui/GradientBackground";
-
-function SyncBanner() {
-  const isOnline = useAuthStore((s) => s.isOnline);
-  const syncStatus = useAuthStore((s) => s.syncStatus);
-
-  const banner = useMemo(() => {
-    if (!isOnline) return { text: "You're offline — changes sync when connected", bg: "bg-amber-900/60", textColor: "text-amber-300" };
-    if (syncStatus === "syncing") return { text: "Syncing\u2026", bg: "bg-brand-900/40", textColor: "text-brand-300" };
-    if (syncStatus === "dead-letters") return { text: "Some changes couldn't sync", bg: "bg-red-900/40", textColor: "text-red-300" };
-    if (syncStatus === "auth-expired") return { text: "Session expired. Log in again to sync.", bg: "bg-red-900/40", textColor: "text-red-300" };
-    if (syncStatus === "error") return { text: "Sync error", bg: "bg-amber-900/40", textColor: "text-amber-300" };
-    return null;
-  }, [isOnline, syncStatus]);
-
-  if (!banner) return null;
-
-  return (
-    <View className={`${banner.bg} py-1.5 px-4`}>
-      <Text className={`${banner.textColor} text-xs text-center font-medium`}>
-        {banner.text}
-      </Text>
-    </View>
-  );
-}
+import { SyncStatusBanner } from "../../src/shared/ui/SyncStatusBanner";
+import { SyncIndicator } from "../../src/shared/ui/SyncIndicator";
 
 const tabIcons: Record<string, keyof typeof Ionicons.glyphMap> = {
   index: "home-outline",
@@ -56,7 +34,7 @@ export default function TabsLayout() {
   return (
     <GradientBackground>
       <View className="flex-1">
-      <SyncBanner />
+      <SyncStatusBanner />
       <Tabs
         screenOptions={{
           headerShown: false,
@@ -84,7 +62,10 @@ export default function TabsLayout() {
         options={{
           title: "Train",
           tabBarIcon: ({ focused }) => (
-            <Ionicons name={tabIcons.train} size={22} color={focused ? "#B9B9B6" : "#71717a"} />
+            <View>
+              <Ionicons name={tabIcons.train} size={22} color={focused ? "#B9B9B6" : "#71717a"} />
+              <SyncIndicator />
+            </View>
           ),
         }}
       />
