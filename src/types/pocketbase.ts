@@ -90,3 +90,14 @@ export interface ExerciseSetRow {
   created: string;
   updated: string;
 }
+
+export interface WorkoutFeedbackRow {
+  id: string;
+  session_id: string;
+  athlete_id: string;
+  coach_id: string | null;
+  rating: number;
+  notes: string | null;
+  created_at: string;
+  updated: string;
+}

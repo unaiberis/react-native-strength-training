@@ -1,5 +1,5 @@
-import { useCallback } from "react";
-import { View, Text, ScrollView } from "react-native";
+import { useCallback, useState } from "react";
+import { View, Text, ScrollView, TouchableOpacity, TextInput } from "react-native";
 import { useRouter } from "expo-router";
 import { useLingui } from "@lingui/react/macro";
 import { Trans } from "@lingui/react/macro";
@@ -7,7 +7,9 @@ import { Button } from "../../../shared/ui/Button";
 import { Card } from "../../../shared/ui/Card";
 import { GradientBackground } from "../../../shared/ui/GradientBackground";
 import { useSessionStore } from "../../../stores/session-store";
+import { useAuthStore } from "../../../stores/auth-store";
 import { useClearSession } from "../hooks/useWorkoutSession";
+import { useSubmitFeedback } from "../hooks/useSubmitFeedback";
 
 /**
  * Workout Complete Screen
@@ -24,6 +26,14 @@ export function WorkoutCompleteScreen() {
   const clearSession = useClearSession();
   const exercises = useSessionStore((s) => s.exercises);
   const startedAt = useSessionStore((s) => s.startedAt);
+  const sessionId = useSessionStore((s) => s.activeSessionId);
+  const user = useAuthStore((s) => s.user);
+
+  // Feedback state
+  const [rating, setRating] = useState<number>(0);
+  const [feedbackNotes, setFeedbackNotes] = useState("");
+  const submitFeedback = useSubmitFeedback();
+  const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
 
   // Compute summary
   const totalLoggedSets = exercises.reduce(
@@ -132,6 +142,68 @@ export function WorkoutCompleteScreen() {
             </Text>
           </Card>
         )}
+
+        {/* Feedback section */}
+        <Card title="How was the workout?" className="w-full mb-8">
+          {feedbackSubmitted ? (
+            <Text className="text-surface-400 text-center py-4">
+              Thanks for your feedback!
+            </Text>
+          ) : (
+            <>
+              {/* Star rating */}
+              <View className="flex-row justify-center gap-2 mb-4" testID="feedback-rating">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <TouchableOpacity
+                    key={star}
+                    onPress={() => setRating(star)}
+                    activeOpacity={0.7}
+                    testID={`star-${star}`}
+                  >
+                    <Text className={`text-3xl ${star <= rating ? "text-yellow-400" : "text-surface-700"}`}>
+                      {star <= rating ? "★" : "☆"}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              {/* Notes input */}
+              <TextInput
+                className="bg-cardSoft border border-border rounded-xl px-4 py-3 text-surface-50 text-[15px] mb-4 min-h-[80px]"
+                placeholder="How did it feel? (optional)"
+                placeholderTextColor="#707074"
+                multiline
+                value={feedbackNotes}
+                onChangeText={setFeedbackNotes}
+                maxLength={500}
+                testID="feedback-notes"
+              />
+
+              {/* Submit button */}
+              <Button
+                title={submitFeedback.isPending ? "Submitting..." : "Submit Feedback"}
+                variant="primary"
+                disabled={rating === 0 || submitFeedback.isPending}
+                onPress={() => {
+                  if (!sessionId || !user?.id) return;
+                  submitFeedback.mutate(
+                    {
+                      sessionId,
+                      athleteId: user.id,
+                      coachId: (user as any).coach_id ?? null,
+                      rating,
+                      notes: feedbackNotes || null,
+                    },
+                    {
+                      onSuccess: () => setFeedbackSubmitted(true),
+                    },
+                  );
+                }}
+                testID="submit-feedback"
+              />
+            </>
+          )}
+        </Card>
 
         {/* Actions */}
         <View className="w-full gap-3">

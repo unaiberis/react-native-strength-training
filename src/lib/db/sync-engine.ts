@@ -33,6 +33,7 @@ const DEFAULT_PULL_COLLECTIONS = [
   "workout_template_exercises",
   "workout_sessions",
   "exercise_sets",
+  "workout_feedback",
 ];
 
 // ─── Collection-Specific FK Relationships for ID Remapping ─────────────

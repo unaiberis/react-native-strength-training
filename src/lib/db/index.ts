@@ -26,6 +26,7 @@ export { createSqlitePersister } from "./sqlite-storage";
 
 export { OfflineSessionsService } from "./services/offline-sessions";
 export { OfflineTemplatesService } from "./services/offline-templates";
+export { OfflineFeedbackService } from "./services/offline-feedback";
 export type {
   CreateTemplateInput,
   UpdateTemplateInput,
@@ -45,4 +46,6 @@ export type {
   ExerciseSetRow,
   LogSetInput,
   CompleteSessionInput,
+  WorkoutFeedbackRow,
+  FeedbackInput,
 } from "./types";
