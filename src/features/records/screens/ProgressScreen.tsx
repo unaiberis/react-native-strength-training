@@ -1,6 +1,8 @@
 import { useState, useCallback } from "react";
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl } from "react-native";
 import { useRouter } from "expo-router";
+import { useLingui } from "@lingui/react/macro";
+import { Trans } from "@lingui/react/macro";
 import { Card } from "../../../shared/ui/Card";
 import { Button } from "../../../shared/ui/Button";
 import { GradientBackground } from "../../../shared/ui/GradientBackground";
@@ -110,6 +112,7 @@ function ExercisePRGroup({
 // ─── Main Screen ──────────────────────────────────────────────────────────
 
 export function ProgressScreen() {
+  const { t } = useLingui();
   const router = useRouter();
   const {
     groupedByExercise,
@@ -150,12 +153,12 @@ export function ProgressScreen() {
       }
     >
       {/* Header */}
-      <Text className="text-surface-50 text-2xl font-bold mb-2">Progress</Text>
+      <Text className="text-surface-50 text-2xl font-bold mb-2"><Trans>Progress</Trans></Text>
       {hasRecords && (
         <Text className="text-surface-400 text-sm mb-4">
-          {totalPRs} personal record{totalPRs !== 1 ? "s" : ""} across{" "}
+          {totalPRs} <Trans>personal record{totalPRs !== 1 ? "s" : ""} across{" "}
           {groupedByExercise.length} exercise
-          {groupedByExercise.length !== 1 ? "s" : ""}
+          {groupedByExercise.length !== 1 ? "s" : ""}</Trans>
         </Text>
       )}
 
@@ -171,14 +174,14 @@ export function ProgressScreen() {
         <View className="items-center justify-center py-16 px-6">
           <Text className="text-5xl mb-4">🏆</Text>
           <Text className="text-surface-100 text-lg font-semibold mb-2">
-            No records yet
+            <Trans>No records yet</Trans>
           </Text>
           <Text className="text-surface-400 text-center mb-6">
-            Complete workouts to start tracking your personal records. PRs are
-            automatically detected when you beat your previous best.
+            <Trans>Complete workouts to start tracking your personal records. PRs are
+            automatically detected when you beat your previous best.</Trans>
           </Text>
           <Button
-            title="Start a Workout"
+            title={t`Start a Workout`}
             variant="primary"
             onPress={() => router.push("/(tabs)/train")}
           />
