@@ -13,6 +13,8 @@ import {
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useLingui } from "@lingui/react/macro";
+import { Trans } from "@lingui/react/macro";
 import { Card } from "../../../shared/ui/Card";
 import { Button } from "../../../shared/ui/Button";
 import { Input } from "../../../shared/ui/Input";
@@ -55,6 +57,7 @@ function ExercisePickerModal({
   onClose: () => void;
   selectedIds: Set<string>;
 }) {
+  const { t } = useLingui();
   const [searchQuery, setSearchQuery] = useState("");
   const { data: results, isLoading } = useExerciseSearch(searchQuery);
 
@@ -68,14 +71,14 @@ function ExercisePickerModal({
       <GradientBackground>
       <View className="flex-1 pt-16 px-4">
         <View className="flex-row justify-between items-center mb-4">
-          <Text className="text-surface-50 text-xl font-bold">Add Exercise</Text>
+          <Text className="text-surface-50 text-xl font-bold"><Trans>Add Exercise</Trans></Text>
           <TouchableOpacity onPress={onClose} className="p-2">
-            <Text className="text-brand-500 text-base font-medium">Cancel</Text>
+            <Text className="text-brand-500 text-base font-medium"><Trans>Cancel</Trans></Text>
           </TouchableOpacity>
         </View>
 
         <TextInput
-          placeholder="Search exercises..."
+          placeholder={t`Search exercises...`}
           placeholderTextColor="#71717a"
           value={searchQuery}
           onChangeText={setSearchQuery}
@@ -91,13 +94,13 @@ function ExercisePickerModal({
 
         {searchQuery.length < 2 && (
           <Text className="text-surface-500 text-center py-8">
-            Type at least 2 characters to search
+            <Trans>Type at least 2 characters to search</Trans>
           </Text>
         )}
 
         {searchQuery.length >= 2 && !isLoading && filteredResults.length === 0 && (
           <Text className="text-surface-500 text-center py-8">
-            No exercises found
+            <Trans>No exercises found</Trans>
           </Text>
         )}
 
@@ -145,6 +148,7 @@ function ExerciseConfigCard({
   isFirst: boolean;
   isLast: boolean;
 }) {
+  const { t } = useLingui();
   return (
     <Card className="mb-3">
       {/* Header with exercise name and controls */}
@@ -188,7 +192,7 @@ function ExerciseConfigCard({
       {/* Target fields row */}
       <View className="flex-row gap-3">
         <View className="flex-1">
-          <Text className="text-surface-400 text-xs mb-1">Sets</Text>
+          <Text className="text-surface-400 text-xs mb-1"><Trans>Sets</Trans></Text>
           <TextInput
             keyboardType="number-pad"
             value={String(item.targetSets)}
@@ -199,7 +203,7 @@ function ExerciseConfigCard({
           />
         </View>
         <View className="flex-1">
-          <Text className="text-surface-400 text-xs mb-1">Reps</Text>
+          <Text className="text-surface-400 text-xs mb-1"><Trans>Reps</Trans></Text>
           <TextInput
             keyboardType="number-pad"
             value={String(item.targetReps)}
@@ -210,7 +214,7 @@ function ExerciseConfigCard({
           />
         </View>
         <View className="flex-1">
-          <Text className="text-surface-400 text-xs mb-1">Rest (s)</Text>
+          <Text className="text-surface-400 text-xs mb-1"><Trans>Rest (s)</Trans></Text>
           <TextInput
             keyboardType="number-pad"
             value={String(item.restSeconds)}
@@ -225,7 +229,7 @@ function ExerciseConfigCard({
       {/* RPE row */}
       <View className="flex-row gap-3 mt-2">
         <View className="flex-1">
-          <Text className="text-surface-400 text-xs mb-1">RPE Low</Text>
+          <Text className="text-surface-400 text-xs mb-1"><Trans>RPE Low</Trans></Text>
           <TextInput
             keyboardType="decimal-pad"
             value={item.targetRpeLow != null ? String(item.targetRpeLow) : ""}
@@ -240,7 +244,7 @@ function ExerciseConfigCard({
           />
         </View>
         <View className="flex-1">
-          <Text className="text-surface-400 text-xs mb-1">RPE High</Text>
+          <Text className="text-surface-400 text-xs mb-1"><Trans>RPE High</Trans></Text>
           <TextInput
             keyboardType="decimal-pad"
             value={item.targetRpeHigh != null ? String(item.targetRpeHigh) : ""}
@@ -263,7 +267,7 @@ function ExerciseConfigCard({
         onChangeText={(text) =>
           onUpdate(index, { notes: text || null })
         }
-        placeholder="Notes (optional)"
+        placeholder={t`Notes (optional)`}
         placeholderTextColor="#52525b"
         className="bg-surface-800 border border-surface-700 rounded-lg px-3 py-2 text-surface-400 text-sm mt-2"
       />
@@ -272,6 +276,7 @@ function ExerciseConfigCard({
 }
 
 export function RoutineFormScreen() {
+  const { t } = useLingui();
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id?: string }>();
   const isEditing = !!id;
@@ -377,7 +382,7 @@ export function RoutineFormScreen() {
   const onSubmit = useCallback(
     async (formData: WorkoutTemplateInput) => {
       if (exercises.length === 0) {
-        Alert.alert("Validation", "Add at least one exercise to the routine.");
+        Alert.alert(t`Validation`, t`Add at least one exercise to the routine.`);
         return;
       }
 
@@ -403,7 +408,7 @@ export function RoutineFormScreen() {
         }
         router.back();
       } catch (err) {
-        Alert.alert("Error", (err as Error).message ?? "Failed to save routine");
+        Alert.alert(t`Error`, (err as Error).message ?? t`Failed to save routine`);
       }
     },
     [exercises, isEditing, id, createTemplate, updateTemplate, router],
@@ -434,8 +439,8 @@ export function RoutineFormScreen() {
           name="name"
           render={({ field: { onChange, onBlur, value } }) => (
             <Input
-              label="Routine Name"
-              placeholder="e.g., Push Day"
+              label={t`Routine Name`}
+              placeholder={t`e.g., Push Day`}
               value={value}
               onChangeText={onChange}
               onBlur={onBlur}
@@ -450,8 +455,8 @@ export function RoutineFormScreen() {
           name="description"
           render={({ field: { onChange, onBlur, value } }) => (
             <Input
-              label="Description (optional)"
-              placeholder="Describe this routine..."
+              label={t`Description (optional)`}
+              placeholder={t`Describe this routine...`}
               value={value ?? ""}
               onChangeText={onChange}
               onBlur={onBlur}
@@ -461,13 +466,13 @@ export function RoutineFormScreen() {
 
         {/* Exercises section */}
         <Text className="text-surface-100 text-lg font-semibold mb-3 mt-2">
-          Exercises
+          <Trans>Exercises</Trans>
         </Text>
 
         {exercises.length === 0 && (
           <Card className="mb-4">
             <Text className="text-surface-400 text-center py-4">
-              No exercises yet. Tap "Add Exercise" to get started.
+              <Trans>No exercises yet. Tap "Add Exercise" to get started.</Trans>
             </Text>
           </Card>
         )}
@@ -492,13 +497,13 @@ export function RoutineFormScreen() {
           className="border-2 border-dashed border-surface-700 rounded-2xl py-4 items-center mb-6 active:opacity-70"
         >
           <Text className="text-brand-500 text-base font-medium">
-            + Add Exercise
+            <Trans>+ Add Exercise</Trans>
           </Text>
         </TouchableOpacity>
 
         {/* Save button */}
         <Button
-          title={isEditing ? "Update Routine" : "Create Routine"}
+          title={isEditing ? t`Update Routine` : t`Create Routine`}
           variant="primary"
           loading={isSaving}
           onPress={handleSubmit(onSubmit)}
