@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { i18n } from "../../../i18n";
 import { useAuthStore } from "../../../stores/auth-store";
 import * as PRsService from "../../../lib/pocketbase/services/prs";
 import type { ComputedPR, PRType } from "../../../lib/pocketbase/services/prs";
@@ -150,7 +151,7 @@ const PR_TYPE_UNITS: Record<PRType, string> = {
 };
 
 export function getPRTypeLabel(prType: PRType): string {
-  return PR_TYPE_LABELS[prType] ?? prType;
+  return i18n.t(PR_TYPE_LABELS[prType] ?? prType);
 }
 
 export function getPRTypeUnit(prType: PRType): string {

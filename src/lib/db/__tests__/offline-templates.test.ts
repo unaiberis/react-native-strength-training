@@ -4,7 +4,7 @@
  * Verifies template CRUD operations: create, update, delete, and read.
  */
 
-jest.mock("expo-sqlite", () => ({}));
+vi.mock("expo-sqlite", () => ({}));
 
 import { OfflineTemplatesService } from "../services/offline-templates";
 import type { WorkoutTemplateRow, WorkoutTemplateExerciseRow } from "../types";
@@ -12,25 +12,25 @@ import type { WorkoutTemplateRow, WorkoutTemplateExerciseRow } from "../types";
 describe("OfflineTemplatesService", () => {
   function createMockDb() {
     return {
-      runAsync: jest.fn<
+      runAsync: vi.fn<
         Promise<{ lastInsertRowId: number; changes: number }>,
         [string, ...unknown[]]
       >(),
-      getFirstAsync: jest.fn<Promise<unknown>, [string, ...unknown[]]>(),
-      getAllAsync: jest.fn<Promise<unknown[]>, [string, ...unknown[]]>(),
+      getFirstAsync: vi.fn<Promise<unknown>, [string, ...unknown[]]>(),
+      getAllAsync: vi.fn<Promise<unknown[]>, [string, ...unknown[]]>(),
     };
   }
 
   function createMockChangeQueue() {
     return {
-      enqueue: jest.fn(),
-      peek: jest.fn(),
-      dequeue: jest.fn(),
-      markDeadLetter: jest.fn(),
-      markAllAuthError: jest.fn(),
-      resetAuthErrors: jest.fn(),
-      incrementRetry: jest.fn(),
-      getPendingCount: jest.fn(),
+      enqueue: vi.fn(),
+      peek: vi.fn(),
+      dequeue: vi.fn(),
+      markDeadLetter: vi.fn(),
+      markAllAuthError: vi.fn(),
+      resetAuthErrors: vi.fn(),
+      incrementRetry: vi.fn(),
+      getPendingCount: vi.fn(),
     };
   }
 
@@ -46,7 +46,7 @@ describe("OfflineTemplatesService", () => {
   }
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   // ─── createTemplate ───────────────────────────────────────────────

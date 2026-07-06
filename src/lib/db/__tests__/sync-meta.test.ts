@@ -5,18 +5,18 @@
  * for active session, auth expiry, and last-synced timestamps.
  */
 
-jest.mock("expo-sqlite", () => ({}));
+vi.mock("expo-sqlite", () => ({}));
 
 import { SyncMeta } from "../sync-meta";
 
 describe("SyncMeta", () => {
   function createMockDb() {
     return {
-      runAsync: jest.fn<
+      runAsync: vi.fn<
         Promise<{ lastInsertRowId: number; changes: number }>,
         [string, ...unknown[]]
       >(),
-      getFirstAsync: jest.fn<Promise<unknown>, [string, ...unknown[]]>(),
+      getFirstAsync: vi.fn<Promise<unknown>, [string, ...unknown[]]>(),
     };
   }
 
@@ -27,7 +27,7 @@ describe("SyncMeta", () => {
   }
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   // ─── set / get ─────────────────────────────────────────────────────

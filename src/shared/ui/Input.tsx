@@ -9,20 +9,26 @@ import {
 
 interface InputProps extends Omit<TextInputProps, "className" | "style"> {
   label?: string;
+  /** Pre-translated label — overrides `label` when provided */
+  translatedLabel?: string;
   error?: string;
+  /** Pre-translated error — overrides `error` when provided */
+  translatedError?: string;
   containerClassName?: string;
   containerStyle?: ViewStyle;
 }
 
 export const Input = forwardRef<TextInput, InputProps>(
-  ({ label, error, containerClassName, containerStyle, ...props }, ref) => {
+  ({ label, translatedLabel, error, translatedError, containerClassName, containerStyle, ...props }, ref) => {
+    const displayLabel = translatedLabel ?? label;
+    const displayError = translatedError ?? error;
     const [isFocused, setIsFocused] = useState(false);
 
     return (
       <View className={`mb-4 ${containerClassName ?? ""}`} style={containerStyle}>
-        {label && (
+        {displayLabel && (
           <Text className="text-surface-400 text-[13px] font-semibold mb-1.5">
-            {label}
+            {displayLabel}
           </Text>
         )}
         <TextInput
@@ -31,7 +37,7 @@ export const Input = forwardRef<TextInput, InputProps>(
           className={`
             bg-card border rounded-xl px-4 py-3.5 text-surface-50 text-[15px] font-medium
             ${isFocused ? "border-surface-400" : "border-border"}
-            ${error ? "border-danger" : ""}
+            ${displayError ? "border-danger" : ""}
           `}
           onFocus={(e) => {
             setIsFocused(true);
@@ -43,8 +49,8 @@ export const Input = forwardRef<TextInput, InputProps>(
           }}
           {...props}
         />
-        {error && (
-          <Text className="text-danger text-[13px] font-semibold mt-1 ml-1">{error}</Text>
+        {displayError && (
+          <Text className="text-danger text-[13px] font-semibold mt-1 ml-1">{displayError}</Text>
         )}
       </View>
     );

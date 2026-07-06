@@ -2,17 +2,19 @@ import { useState } from "react";
 import { View, Text, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { Button } from "../../../shared/ui/Button";
 import { Input } from "../../../shared/ui/Input";
 import { GradientBackground } from "../../../shared/ui/GradientBackground";
 import {
-  registerSchema,
+  getRegisterSchema,
   registerDefaults,
   type RegisterInput,
 } from "../../../shared/schemas/auth";
 import { useAuth } from "../hooks/useAuth";
 
 export function RegisterScreen() {
+  const { t } = useLingui();
   const { register } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -22,7 +24,7 @@ export function RegisterScreen() {
     handleSubmit,
     formState: { errors },
   } = useForm<RegisterInput>({
-    resolver: zodResolver(registerSchema),
+    resolver: zodResolver(getRegisterSchema()),
     defaultValues: registerDefaults,
   });
 
@@ -55,13 +57,13 @@ export function RegisterScreen() {
             className="text-surface-50"
             style={{ fontSize: 32, fontWeight: "900" }}
           >
-            Registro de atleta
+            <Trans>Athlete registration</Trans>
           </Text>
           <Text
             className="text-surface-400 mt-2"
             style={{ fontSize: 15, lineHeight: 22 }}
           >
-            Crea tu cuenta para empezar a entrenar.
+            <Trans>Create your account to start training.</Trans>
           </Text>
         </View>
 
@@ -77,8 +79,8 @@ export function RegisterScreen() {
             name="displayName"
             render={({ field: { onChange, onBlur, value } }) => (
               <Input
-                label="Display Name"
-                placeholder="Your name"
+                label={t`Display Name`}
+                placeholder={t`Your name`}
                 autoCapitalize="words"
                 autoComplete="name"
                 value={value}
@@ -94,7 +96,7 @@ export function RegisterScreen() {
             name="email"
             render={({ field: { onChange, onBlur, value } }) => (
               <Input
-                label="Email"
+                label={t`Email`}
                 placeholder="you@example.com"
                 keyboardType="email-address"
                 autoCapitalize="none"
@@ -112,8 +114,8 @@ export function RegisterScreen() {
             name="password"
             render={({ field: { onChange, onBlur, value } }) => (
               <Input
-                label="Password"
-                placeholder="At least 8 characters, 1 uppercase"
+                label={t`Password`}
+                placeholder={t`At least 8 characters, 1 uppercase`}
                 secureTextEntry
                 autoCapitalize="none"
                 autoComplete="new-password"
@@ -126,7 +128,7 @@ export function RegisterScreen() {
           />
 
           <Button
-            title="Crear cuenta"
+            title={t`Create account`}
             loading={isSubmitting}
             onPress={handleSubmit(onSubmit)}
           />

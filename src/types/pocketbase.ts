@@ -17,6 +17,7 @@ export interface ExerciseRow {
   default_reps: number;
   default_rest_seconds: number;
   is_public: boolean;
+  video_url: string | null;
   created: string;
   updated: string;
 }
@@ -32,6 +33,15 @@ export interface TemplateRow {
   updated: string;
 }
 
+export type BlockType = "straight_set" | "amrap" | "emom" | "circuit";
+
+export type PrescriptionWeightType = "absolute" | "bw_percent" | "one_rm_percent" | "difficulty";
+
+export interface PrescriptionConfig {
+  weight_type: PrescriptionWeightType;
+  value: number;
+}
+
 export interface TemplateExerciseRow {
   id: string;
   workout_template_id: string;
@@ -43,6 +53,10 @@ export interface TemplateExerciseRow {
   target_rpe_high: number | null;
   rest_seconds: number;
   notes: string | null;
+  block_type: BlockType;
+  prescription: PrescriptionConfig | null;
+  round: number | null;
+  timer_minutes: number | null;
 }
 
 export interface SessionRow {
@@ -70,6 +84,8 @@ export interface ExerciseSetRow {
   rir: number | null;
   is_warmup: boolean;
   tempo?: string | null;
+  round: number | null;
+  timer_remaining: number | null;
   logged_at: string;
   created: string;
   updated: string;

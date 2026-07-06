@@ -6,9 +6,9 @@
  */
 
 // Mock expo-sqlite before importing the module under test
-const execAsyncMock = jest.fn();
-const getFirstAsyncMock = jest.fn();
-jest.mock("expo-sqlite", () => ({}));
+const execAsyncMock = vi.fn();
+const getFirstAsyncMock = vi.fn();
+vi.mock("expo-sqlite", () => ({}));
 
 import { runMigrations, TABLES } from "../schema";
 
@@ -19,7 +19,7 @@ describe("schema migrations", () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     execAsyncMock.mockResolvedValue(undefined);
     getFirstAsyncMock.mockRejectedValue(new Error("no sync_meta yet"));
   });
@@ -35,7 +35,7 @@ describe("schema migrations", () => {
           sql.trim().toUpperCase().startsWith("CREATE TABLE"),
         );
 
-      expect(createTableCalls).toHaveLength(9);
+      expect(createTableCalls).toHaveLength(10);
 
       // Verify each table name appears
       const allSql = execAsyncMock.mock.calls
@@ -63,7 +63,14 @@ describe("schema migrations", () => {
       // workout_sessions: 2 (status, dirty)
       // exercise_sets: 2 (session, dirty)
       // change_queue: 3 (status, created, group)
-      expect(indexCalls).toHaveLength(12);
+      // daily_wellness: 2 (user_date, session)
+      // exercises: 2 (category, synced)
+      // workout_templates: 1 (dirty)
+      // workout_template_exercises: 2 (template, dirty)
+      // workout_sessions: 2 (status, dirty)
+      // exercise_sets: 2 (session, dirty)
+      // change_queue: 3 (status, created, group)
+      expect(indexCalls).toHaveLength(14);
     });
 
     it("creates exercises table with expected columns", async () => {
@@ -151,21 +158,21 @@ describe("schema migrations", () => {
 
       expect(seedCall).toBeDefined();
       expect(seedCall).toContain("schema_version");
-      expect(seedCall).toContain("'2'");
+      expect(seedCall).toContain("'3'");
     });
 
     it("is idempotent — can be called twice", async () => {
       await runMigrations(mockDb as any);
       await runMigrations(mockDb as any);
 
-      // Count CREATE TABLE calls — should be 18 (9 per run)
+      // Count CREATE TABLE calls — should be 20 (10 per run)
       const createTableCalls = execAsyncMock.mock.calls
         .map(([sql]: [string]) => sql)
         .filter((sql: string) =>
           sql.trim().toUpperCase().startsWith("CREATE TABLE"),
         );
 
-      expect(createTableCalls).toHaveLength(18);
+      expect(createTableCalls).toHaveLength(20);
     });
 
     it("executes tables in the correct dependency order", async () => {
@@ -231,7 +238,7 @@ describe("schema migrations", () => {
     });
 
     it("skips migrations when schema is already at current version", async () => {
-      getFirstAsyncMock.mockResolvedValue({ value: "2" });
+      getFirstAsyncMock.mockResolvedValue({ value: "3" });
       execAsyncMock.mockClear();
 
       await runMigrations(mockDb as any);

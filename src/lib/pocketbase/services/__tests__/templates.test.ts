@@ -1,23 +1,25 @@
-// Mock the client module so we control pb behavior
-const mockCreate = jest.fn();
-const mockGetOne = jest.fn();
-const mockGetFullList = jest.fn();
-const mockUpdate = jest.fn();
-const mockDelete = jest.fn();
+// Vitest v4: hoisted mock variables (referenced in vi.mock factory)
+const pbMocks = vi.hoisted(() => {
+  const mockCreate = vi.fn();
+  const mockGetOne = vi.fn();
+  const mockGetFullList = vi.fn();
+  const mockUpdate = vi.fn();
+  const mockDelete = vi.fn();
+  const mockPb = {
+    collection: vi.fn(() => ({
+      create: mockCreate,
+      getOne: mockGetOne,
+      getFullList: mockGetFullList,
+      update: mockUpdate,
+      delete: mockDelete,
+    })),
+  };
+  return { mockCreate, mockGetOne, mockGetFullList, mockUpdate, mockDelete, mockPb };
+});
 
-const mockPb = {
-  collection: jest.fn(() => ({
-    create: mockCreate,
-    getOne: mockGetOne,
-    getFullList: mockGetFullList,
-    update: mockUpdate,
-    delete: mockDelete,
-  })),
-};
+const { mockCreate, mockGetOne, mockGetFullList, mockUpdate, mockDelete } = pbMocks;
 
-jest.mock("../../client", () => ({
-  pb: mockPb,
-}));
+vi.mock("../../client", () => ({ pb: pbMocks.mockPb }));
 
 import type { TemplateRow, TemplateExerciseRow } from "../../../../types/pocketbase";
 import type { WorkoutTemplateInput } from "../../../../shared/schemas/template";
@@ -79,7 +81,7 @@ const validInput: WorkoutTemplateInput = {
 
 describe("PocketBase templates service", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   // ─── createTemplate ─────────────────────────────────────────────

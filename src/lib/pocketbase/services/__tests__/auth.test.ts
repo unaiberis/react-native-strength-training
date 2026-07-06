@@ -1,36 +1,45 @@
-// Mock the client module so we control pb behavior
-const mockAuthWithPassword = jest.fn();
-const mockCreate = jest.fn();
-const mockAuthRefresh = jest.fn();
-const mockClear = jest.fn();
-/** Stores callbacks registered via pb.authStore.onChange() */
-let mockOnChangeRegistered: (token: string, record: any) => void = () => {};
-const mockOnChange = jest.fn().mockImplementation(
-  (cb: (token: string, record: any) => void) => {
-    mockOnChangeRegistered = cb;
-    return jest.fn();
-  },
-);
-const mockIsValid = { value: false };
+// Wrapper for vi.mock factory — Vitest v4 requires vi.hoisted() for
+// module-level variables referenced in vi.mock() factories.
+// eslint-disable-next-line prefer-const
+const pbMocks = vi.hoisted(() => {
+  const mockAuthWithPassword = vi.fn();
+  const mockCreate = vi.fn();
+  const mockAuthRefresh = vi.fn();
+  const mockClear = vi.fn();
+  // Use object wrapper so both hoisted and test scope share same ref
+  const mockOnChangeRegistered = { current: (() => {}) as (token: string, record: any) => void };
+  const mockOnChange = vi.fn().mockImplementation(
+    (cb: (token: string, record: any) => void) => {
+      mockOnChangeRegistered.current = cb;
+      return vi.fn();
+    },
+  );
+  const mockIsValid = { value: false };
 
-const mockPb = {
-  authStore: {
-    clear: mockClear,
-    onChange: mockOnChange,
-    get isValid() { return mockIsValid.value; },
-    token: "",
-    record: null,
-    model: null,
-  },
-  collection: jest.fn(() => ({
-    authWithPassword: mockAuthWithPassword,
-    create: mockCreate,
-    authRefresh: mockAuthRefresh,
-  })),
-};
+  const mockPb = {
+    authStore: {
+      clear: mockClear,
+      onChange: mockOnChange,
+      get isValid() { return mockIsValid.value; },
+      token: "",
+      record: null,
+      model: null,
+    },
+    collection: vi.fn(() => ({
+      authWithPassword: mockAuthWithPassword,
+      create: mockCreate,
+      authRefresh: mockAuthRefresh,
+    })),
+  };
 
-jest.mock("../../client", () => ({
-  pb: mockPb,
+  return { mockAuthWithPassword, mockCreate, mockAuthRefresh, mockClear, mockOnChangeRegistered, mockOnChange, mockIsValid, mockPb };
+});
+
+// Destructure after hoisted block — references accessed through pbMocks in vi.mock()
+const { mockAuthWithPassword, mockCreate, mockAuthRefresh, mockClear, mockOnChangeRegistered, mockOnChange, mockIsValid } = pbMocks;
+
+vi.mock("../../client", () => ({
+  pb: pbMocks.mockPb,
 }));
 
 import {
@@ -44,7 +53,7 @@ import {
 
 describe("PocketBase auth service", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockIsValid.value = false;
   });
 
@@ -200,29 +209,29 @@ describe("PocketBase auth service", () => {
   // ─── onAuthStateChange ───────────────────────────────────────
 
   it("onAuthStateChange subscribes to pb.authStore.onChange", () => {
-    const callback = jest.fn();
+    const callback = vi.fn();
     onAuthStateChange(callback);
 
     expect(mockOnChange).toHaveBeenCalledWith(expect.any(Function));
   });
 
   it("onAuthStateChange fires callback when auth state changes", () => {
-    const userCallback = jest.fn();
+    const userCallback = vi.fn();
     onAuthStateChange(userCallback);
 
     // Simulate auth state change via the registered onChange callback
-    mockOnChangeRegistered("tok-1", { id: "user-1" });
+    mockOnChangeRegistered.current("tok-1", { id: "user-1" });
     expect(userCallback).toHaveBeenCalledWith("tok-1", { id: "user-1" });
 
-    mockOnChangeRegistered("", null);
+    mockOnChangeRegistered.current("", null);
     expect(userCallback).toHaveBeenCalledWith("", null);
   });
 
   it("onAuthStateChange returns unsubscribe function", () => {
-    const mockUnsubscribe = jest.fn();
+    const mockUnsubscribe = vi.fn();
     mockOnChange.mockReturnValue(mockUnsubscribe);
 
-    const unsubscribe = onAuthStateChange(jest.fn());
+    const unsubscribe = onAuthStateChange(vi.fn());
     expect(typeof unsubscribe).toBe("function");
 
     unsubscribe();

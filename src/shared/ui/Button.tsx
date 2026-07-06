@@ -11,6 +11,8 @@ type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
 
 interface ButtonProps extends ComponentProps<typeof TouchableOpacity> {
   title: string;
+  /** Pre-translated title — overrides `title` when provided */
+  translatedTitle?: string;
   variant?: ButtonVariant;
   loading?: boolean;
   icon?: keyof typeof Ionicons.glyphMap;
@@ -62,6 +64,7 @@ const shadowStyles: Record<ButtonVariant, ViewStyle> = {
 
 export function Button({
   title,
+  translatedTitle,
   variant = "primary",
   loading = false,
   disabled,
@@ -70,6 +73,7 @@ export function Button({
   style,
   ...props
 }: ButtonProps) {
+  const displayTitle = translatedTitle ?? title;
   const styles = variantStyles[variant];
   const isDisabled = disabled || loading;
 
@@ -98,7 +102,7 @@ export function Button({
           color={variant === "primary" ? "#F4F4F2" : variant === "ghost" ? "#A4A4A8" : "#F4F4F2"}
         />
       )}
-      <Text className={`text-[17px] font-extrabold ${styles.text}`}>{title}</Text>
+      <Text className={`text-[17px] font-extrabold ${styles.text}`}>{displayTitle}</Text>
     </TouchableOpacity>
   );
 }

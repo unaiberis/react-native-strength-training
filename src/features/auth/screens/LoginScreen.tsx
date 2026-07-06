@@ -2,13 +2,15 @@ import { useState } from "react";
 import { View, Text, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { Button } from "../../../shared/ui/Button";
 import { Input } from "../../../shared/ui/Input";
 import { GradientBackground } from "../../../shared/ui/GradientBackground";
-import { loginSchema, loginDefaults, type LoginInput } from "../../../shared/schemas/auth";
+import { getLoginSchema, loginDefaults, type LoginInput } from "../../../shared/schemas/auth";
 import { useAuth } from "../hooks/useAuth";
 
 export function LoginScreen() {
+  const { t } = useLingui();
   const { login } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -18,7 +20,7 @@ export function LoginScreen() {
     handleSubmit,
     formState: { errors },
   } = useForm<LoginInput>({
-    resolver: zodResolver(loginSchema),
+    resolver: zodResolver(getLoginSchema()),
     defaultValues: loginDefaults,
   });
 
@@ -51,13 +53,13 @@ export function LoginScreen() {
             className="text-surface-50"
             style={{ fontSize: 32, fontWeight: "900" }}
           >
-            Accede a tu cuenta
+            <Trans>Sign in to your account</Trans>
           </Text>
           <Text
             className="text-surface-400 mt-2"
             style={{ fontSize: 15, lineHeight: 22 }}
           >
-            Introduce tus credenciales para ver tu planificación.
+            <Trans>Enter your credentials to view your plan.</Trans>
           </Text>
         </View>
 
@@ -73,7 +75,7 @@ export function LoginScreen() {
             name="email"
             render={({ field: { onChange, onBlur, value } }) => (
               <Input
-                label="Email"
+                label={t`Email`}
                 placeholder="you@example.com"
                 keyboardType="email-address"
                 autoCapitalize="none"
@@ -91,8 +93,8 @@ export function LoginScreen() {
             name="password"
             render={({ field: { onChange, onBlur, value } }) => (
               <Input
-                label="Password"
-                placeholder="Enter your password"
+                label={t`Password`}
+                placeholder={t`Enter your password`}
                 secureTextEntry
                 autoCapitalize="none"
                 autoComplete="password"
@@ -105,7 +107,7 @@ export function LoginScreen() {
           />
 
           <Button
-            title="Entrar"
+            title={t`Sign in`}
             loading={isSubmitting}
             onPress={handleSubmit(onSubmit)}
           />

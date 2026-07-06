@@ -1,4 +1,5 @@
 import { View, Text, TouchableOpacity } from "react-native";
+import { useLingui } from "@lingui/react/macro";
 import { useRestTimer, formatRestTime } from "../../features/workout/hooks/useRestTimer";
 
 /**
@@ -8,6 +9,7 @@ import { useRestTimer, formatRestTime } from "../../features/workout/hooks/useRe
  * The user can tap "Skip" to dismiss the timer early.
  */
 export function RestTimer() {
+  const { t } = useLingui();
   const { remainingSeconds, isRunning, stopRest } = useRestTimer();
 
   if (!isRunning) return null;
@@ -25,7 +27,7 @@ export function RestTimer() {
           {formatRestTime(remainingSeconds)}
         </Text>
 
-        <Text className="text-surface-400 text-[13px] font-semibold mb-6">Rest between sets</Text>
+        <Text className="text-surface-400 text-[13px] font-semibold mb-6">{t`Rest between sets`}</Text>
 
         {/* Progress bar */}
         <View className="w-full h-1.5 bg-card-soft rounded-full overflow-hidden mb-6">
@@ -40,7 +42,7 @@ export function RestTimer() {
           onPress={stopRest}
           className="bg-card-soft active:bg-surface-800 rounded-xl py-3 px-8 border border-border"
         >
-          <Text className="text-surface-50 text-[15px] font-bold">Skip Rest</Text>
+          <Text className="text-surface-50 text-[15px] font-bold">{t`Skip rest`}</Text>
         </TouchableOpacity>
       </View>
     </View>

@@ -2,6 +2,7 @@ import { ScrollView, View, Text, ActivityIndicator } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { Card } from "../../../shared/ui/Card";
 import { GradientBackground } from "../../../shared/ui/GradientBackground";
+import { ExerciseVideo } from "../../../shared/ui/ExerciseVideo";
 import { useExercise } from "../hooks/useExercises";
 
 export function ExerciseDetailScreen() {
@@ -63,6 +64,12 @@ export function ExerciseDetailScreen() {
         )}
       </View>
 
+      {/* Exercise video */}
+      <ExerciseVideo
+        videoUrl={exercise.video_url}
+        exerciseName={exercise.name}
+      />
+
       {/* Description */}
       {exercise.description && (
         <Card className="mb-4">
@@ -81,8 +88,7 @@ export function ExerciseDetailScreen() {
           >
             <Text className="text-surface-400 text-sm">{row.label}</Text>
             <Text className="text-surface-100 text-sm font-medium capitalize">
-              {row.value}
-            </Text>
+              {row.value}</Text>
           </View>
         ))}
       </Card>

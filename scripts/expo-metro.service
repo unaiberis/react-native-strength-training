@@ -18,20 +18,26 @@ After=network-online.target
 Wants=network-online.target
 
 [Service]
-Type=simple
+Type=exec
 User=root
 WorkingDirectory=/root/react-native-strength-training
 
 Environment=EXPO_PACKAGER_PROXY_URL=https://entrenamentua.musikak.com
 Environment=REACT_NATIVE_PACKAGER_HOSTNAME=entrenamentua.musikak.com
 
-ExecStart=/usr/bin/npx expo start --web
+# Puerto 8082 para no competir con expo-entrenamentua.service (8081)
+ExecStart=/root/react-native-strength-training/node_modules/.bin/expo start --web --port 8082 --clear
 
-Restart=on-failure
-RestartSec=5
+# Timeout generoso para startup con cache limpia
+TimeoutStartSec=120
 
 # Timeout para evitar zombie processes si el stop se cuelga
-TimeoutStopSec=10
+TimeoutStopSec=30
+
+# Mata todo el control group al hacer stop (evita huérfanos)
+KillMode=mixed
+KillSignal=SIGTERM
+SendSIGKILL=yes
 
 # Standard output goes to journal
 StandardOutput=journal
