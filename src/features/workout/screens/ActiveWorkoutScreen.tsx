@@ -10,6 +10,8 @@ import {
   FlatList,
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
+import { useLingui } from "@lingui/react/macro";
+import { Trans } from "@lingui/react/macro";
 import { Card } from "../../../shared/ui/Card";
 import { Button } from "../../../shared/ui/Button";
 import { GradientBackground } from "../../../shared/ui/GradientBackground";
@@ -99,6 +101,7 @@ function SetInputForm({
   onSkip: () => void;
   isLastSet: boolean;
 }) {
+  const { t } = useLingui();
   const [form, setForm] = useState<SetFormState>(emptyForm);
 
   const updateField = useCallback(
@@ -116,27 +119,27 @@ function SetInputForm({
     const tempo = form.tempo.trim() || null;
 
     if (isNaN(weightKg) || weightKg < 0) {
-      Alert.alert("Validation", "Enter a valid weight.");
+      Alert.alert(t`Validation`, t`Enter a valid weight.`);
       return;
     }
     if (isNaN(reps) || reps < 1) {
-      Alert.alert("Validation", "Reps must be at least 1.");
+      Alert.alert(t`Validation`, t`Reps must be at least 1.`);
       return;
     }
     if (rpe != null && (rpe < 1 || rpe > 10)) {
-      Alert.alert("Validation", "RPE must be between 1 and 10.");
+      Alert.alert(t`Validation`, t`RPE must be between 1 and 10.`);
       return;
     }
     if (rpe != null && rpe % 0.5 !== 0) {
-      Alert.alert("Validation", "RPE must be in 0.5 increments.");
+      Alert.alert(t`Validation`, t`RPE must be in 0.5 increments.`);
       return;
     }
     if (rir != null && (rir < 0 || rir > 10)) {
-      Alert.alert("Validation", "RIR must be between 0 and 10.");
+      Alert.alert(t`Validation`, t`RIR must be between 0 and 10.`);
       return;
     }
     if (tempo != null && !/^\d{3,4}$/.test(tempo)) {
-      Alert.alert("Validation", "Tempo must be 3 or 4 digits (e.g. 2020).");
+      Alert.alert(t`Validation`, t`Tempo must be 3 or 4 digits (e.g. 2020).`);
       return;
     }
 
@@ -151,13 +154,13 @@ function SetInputForm({
 
   const rpeHint =
     targetRpeLow != null || targetRpeHigh != null
-      ? `Target RPE ${targetRpeLow ?? "?"}–${targetRpeHigh ?? "?"}`
+      ? t`Target RPE ${targetRpeLow ?? "?"}–${targetRpeHigh ?? "?"}`
       : null;
 
   return (
     <Card className="mt-3">
       <Text className="text-surface-100 text-sm font-semibold mb-3">
-        Set #{setNumber}
+        <Trans>Set #{setNumber}</Trans>
       </Text>
 
       {rpeHint && (
@@ -166,7 +169,7 @@ function SetInputForm({
 
       <View className="flex-row gap-3 mb-3">
         <View className="flex-1">
-          <Text className="text-surface-400 text-xs mb-1">Weight (kg)</Text>
+          <Text className="text-surface-400 text-xs mb-1"><Trans>Weight (kg)</Trans></Text>
           <TextInput
             ref={weightRef}
             keyboardType="decimal-pad"
@@ -178,7 +181,7 @@ function SetInputForm({
           />
         </View>
         <View className="flex-1">
-          <Text className="text-surface-400 text-xs mb-1">Reps</Text>
+          <Text className="text-surface-400 text-xs mb-1"><Trans>Reps</Trans></Text>
           <TextInput
             keyboardType="number-pad"
             placeholder={String(targetReps)}
@@ -189,7 +192,7 @@ function SetInputForm({
           />
         </View>
         <View className="flex-1">
-          <Text className="text-surface-400 text-xs mb-1">Tempo</Text>
+          <Text className="text-surface-400 text-xs mb-1"><Trans>Tempo</Trans></Text>
           <TextInput
             keyboardType="number-pad"
             placeholder="2020"
@@ -203,7 +206,7 @@ function SetInputForm({
 
       <View className="flex-row gap-3 mb-4">
         <View className="flex-1">
-          <Text className="text-surface-400 text-xs mb-1">RPE (1–10)</Text>
+          <Text className="text-surface-400 text-xs mb-1"><Trans>RPE (1–10)</Trans></Text>
           <TextInput
             keyboardType="decimal-pad"
             placeholder="—"
@@ -214,7 +217,7 @@ function SetInputForm({
           />
         </View>
         <View className="flex-1">
-          <Text className="text-surface-400 text-xs mb-1">RIR (0–5)</Text>
+          <Text className="text-surface-400 text-xs mb-1"><Trans>RIR (0–5)</Trans></Text>
           <TextInput
             keyboardType="number-pad"
             placeholder="—"
@@ -228,13 +231,13 @@ function SetInputForm({
 
       <View className="flex-row gap-3">
         <Button
-          title="Log Set"
+          title={t`Log Set`}
           variant="primary"
           className="flex-1"
           onPress={handleLog}
         />
         {isLastSet && (
-          <Button title="Skip" variant="ghost" onPress={onSkip} />
+          <Button title={t`Skip`} variant="ghost" onPress={onSkip} />
         )}
       </View>
     </Card>
@@ -244,6 +247,7 @@ function SetInputForm({
 // ─── Active Workout Screen ───────────────────────────────────────────────
 
 export function ActiveWorkoutScreen() {
+  const { t } = useLingui();
   const router = useRouter();
   const params = useLocalSearchParams<{
     mode?: string;
@@ -311,7 +315,7 @@ export function ActiveWorkoutScreen() {
           startRest(currentExercise.restSeconds);
         }
       } catch (err) {
-        Alert.alert("Error", (err as Error).message ?? "Failed to log set");
+        Alert.alert(t`Error`, (err as Error).message ?? t`Failed to log set`);
       }
     },
     [currentExercise, activeSessionId, logSetMutation, startRest],
@@ -335,12 +339,12 @@ export function ActiveWorkoutScreen() {
   const handleSkipExercise = useCallback(() => {
     if (!isLastExercise && nextExerciseName) {
       Alert.alert(
-        "Skip Exercise",
-        "This exercise will remain incomplete.",
+        t`Skip Exercise`,
+        t`This exercise will remain incomplete.`,
         [
-          { text: "Stay", style: "cancel" },
+          { text: t`Stay`, style: "cancel" },
           {
-            text: `Skip to ${nextExerciseName}`,
+            text: t`Skip to ${nextExerciseName}`,
             onPress: handleAdvance,
           },
         ],
@@ -356,10 +360,10 @@ export function ActiveWorkoutScreen() {
   // ─── Finish / Complete ────────────────────────────────────────────────
 
   const handleFinish = useCallback(() => {
-    Alert.alert("Finish Workout", "Mark this workout as complete?", [
-      { text: "Cancel", style: "cancel" },
+    Alert.alert(t`Finish Workout`, t`Mark this workout as complete?`, [
+      { text: t`Cancel`, style: "cancel" },
       {
-        text: "Complete",
+        text: t`Complete`,
         onPress: async () => {
           try {
             await completeMutation.mutateAsync({});
@@ -368,25 +372,25 @@ export function ActiveWorkoutScreen() {
             router.replace("/(workout)/active?completed=true");
           } catch (err) {
             Alert.alert(
-              "Error",
-              (err as Error).message ?? "Failed to complete workout",
+              t`Error`,
+              (err as Error).message ?? t`Failed to complete workout`,
             );
           }
         },
       },
     ]);
-  }, [completeMutation, exercises, router]);
+  }, [completeMutation, exercises, router, t]);
 
   // ─── Cancel ────────────────────────────────────────────────────────────
 
   const handleCancel = useCallback(() => {
     Alert.alert(
-      "Cancel Workout",
-      "Are you sure? This workout will be marked as cancelled.",
+      t`Cancel Workout`,
+      t`Are you sure? This workout will be marked as cancelled.`,
       [
-        { text: "Keep Going", style: "cancel" },
+        { text: t`Keep Going`, style: "cancel" },
         {
-          text: "Cancel Workout",
+          text: t`Cancel Workout`,
           style: "destructive",
           onPress: async () => {
             try {
@@ -394,15 +398,15 @@ export function ActiveWorkoutScreen() {
               router.back();
             } catch (err) {
               Alert.alert(
-                "Error",
-                (err as Error).message ?? "Failed to cancel workout",
+                t`Error`,
+                (err as Error).message ?? t`Failed to cancel workout`,
               );
             }
           },
         },
       ],
     );
-  }, [cancelMutation, router]);
+  }, [cancelMutation, router, t]);
 
   // ─── Loading state (session being created) ─────────────────────────────
 
@@ -412,7 +416,7 @@ export function ActiveWorkoutScreen() {
         <View className="flex-1 items-center justify-center">
         <ActivityIndicator size="large" color="#A4A4A8" />
         <Text className="text-surface-400 text-sm mt-4">
-          Starting workout...
+          <Trans>Starting workout...</Trans>
         </Text>
         </View>
       </GradientBackground>
@@ -425,13 +429,13 @@ export function ActiveWorkoutScreen() {
         <View className="flex-1 items-center justify-center px-6">
         <Text className="text-4xl mb-4">⚠️</Text>
         <Text className="text-surface-100 text-lg font-semibold mb-2">
-          Could not start workout
+          <Trans>Could not start workout</Trans>
         </Text>
         <Text className="text-surface-400 text-center mb-6">
-          {(createSession.error as Error)?.message ?? "An error occurred"}
+          {(createSession.error as Error)?.message ?? <Trans>An error occurred</Trans>}
         </Text>
         <Button
-          title="Go Back"
+          title={t`Go Back`}
           variant="primary"
           onPress={() => router.back()}
         />
@@ -448,29 +452,29 @@ export function ActiveWorkoutScreen() {
         <View className="flex-1 items-center justify-center px-6">
         <Text className="text-5xl mb-4">🏋️</Text>
         <Text className="text-surface-100 text-lg font-semibold mb-2">
-          Workout Started
+          <Trans>Workout Started</Trans>
         </Text>
         <Text className="text-surface-400 text-center mb-6">
-          This is a blank workout. Log sets for exercises as you go, or finish
-          when done.
+          <Trans>This is a blank workout. Log sets for exercises as you go, or finish
+          when done.</Trans>
         </Text>
 
         {createSession.isSuccess && (
           <Card className="w-full mb-4">
             <Text className="text-surface-400 text-center py-2">
-              ✓ Session created — ready to log sets
+              <Trans>✓ Session created — ready to log sets</Trans>
             </Text>
           </Card>
         )}
 
         <View className="flex-row gap-3">
           <Button
-            title="Finish Workout"
+            title={t`Finish Workout`}
             variant="primary"
             onPress={handleFinish}
           />
           <Button
-            title="Cancel"
+            title={t`Cancel`}
             variant="ghost"
             onPress={handleCancel}
           />
@@ -501,15 +505,15 @@ export function ActiveWorkoutScreen() {
       {/* Top bar */}
       <View className="flex-row items-center justify-between px-4 pt-14 pb-2 bg-surface-950/90">
         <TouchableOpacity onPress={handleCancel} className="p-2 -ml-2">
-          <Text className="text-surface-400 text-sm">Cancel</Text>
+          <Text className="text-surface-400 text-sm"><Trans>Cancel</Trans></Text>
         </TouchableOpacity>
 
         <Text className="text-surface-500 text-xs">
-          Exercise {currentIndex + 1} of {exercises.length}
+          <Trans>Exercise {currentIndex + 1} of {exercises.length}</Trans>
         </Text>
 
         <TouchableOpacity onPress={handleFinish} className="p-2 -mr-2">
-          <Text className="text-brand-500 text-sm font-medium">Finish</Text>
+          <Text className="text-brand-500 text-sm font-medium"><Trans>Finish</Trans></Text>
         </TouchableOpacity>
       </View>
 
@@ -538,10 +542,9 @@ export function ActiveWorkoutScreen() {
           {currentExercise.exerciseName}
         </Text>
         <Text className="text-surface-400 text-sm mt-1">
-          Target: {currentExercise.targetSets} × {currentExercise.targetReps}{" "}
-          reps
+          <Trans>Target: {currentExercise.targetSets} × {currentExercise.targetReps} reps</Trans>
           {currentExercise.targetRpeHigh != null
-            ? ` @ RPE ${currentExercise.targetRpeLow ?? ""}–${currentExercise.targetRpeHigh}`
+            ? t` @ RPE ${currentExercise.targetRpeLow ?? ""}–${currentExercise.targetRpeHigh}`
             : ""}
         </Text>
       </View>
@@ -555,22 +558,22 @@ export function ActiveWorkoutScreen() {
         {currentExercise.loggedSets.length > 0 && (
           <View className="flex-row py-1 px-3 mb-1">
             <Text className="text-surface-500 text-xs font-semibold w-8">
-              Set
+              <Trans>Set</Trans>
             </Text>
             <Text className="text-surface-500 text-xs font-semibold flex-1 text-center">
-              Weight
+              <Trans>Weight</Trans>
             </Text>
             <Text className="text-surface-500 text-xs font-semibold flex-1 text-center">
-              Reps
+              <Trans>Reps</Trans>
             </Text>
             <Text className="text-surface-500 text-xs font-semibold flex-1 text-center">
-              RPE
+              <Trans>RPE</Trans>
             </Text>
             <Text className="text-surface-500 text-xs font-semibold flex-1 text-center">
-              RIR
+              <Trans>RIR</Trans>
             </Text>
             <Text className="text-surface-500 text-xs font-semibold w-12 text-right">
-              Tempo
+              <Trans>Tempo</Trans>
             </Text>
           </View>
         )}
@@ -601,13 +604,13 @@ export function ActiveWorkoutScreen() {
           <View className="mt-4 mb-8 gap-3">
             <Card>
               <Text className="text-surface-400 text-center py-2">
-                ✓ All {currentExercise.targetSets} sets logged
+                <Trans>✓ All {currentExercise.targetSets} sets logged</Trans>
               </Text>
             </Card>
 
             {!isLastExercise && (
               <Button
-                title={`Next: ${nextExerciseName ?? "Next Exercise"}`}
+                title={t`Next: ${nextExerciseName ?? "Next Exercise"}`}
                 variant="primary"
                 onPress={handleAdvance}
               />
@@ -615,7 +618,7 @@ export function ActiveWorkoutScreen() {
 
             {isLastExercise && (
               <Button
-                title="Finish Workout"
+                title={t`Finish Workout`}
                 variant="primary"
                 onPress={handleFinish}
               />
