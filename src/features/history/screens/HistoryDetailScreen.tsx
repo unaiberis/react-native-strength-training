@@ -1,6 +1,8 @@
 import { useMemo } from "react";
 import { View, Text, ScrollView, ActivityIndicator } from "react-native";
 import { useLocalSearchParams } from "expo-router";
+import { useLingui } from "@lingui/react/macro";
+import { Trans } from "@lingui/react/macro";
 import { Card } from "../../../shared/ui/Card";
 import { GradientBackground } from "../../../shared/ui/GradientBackground";
 import { useSessionDetail } from "../hooks/useHistory";
@@ -68,14 +70,14 @@ function SetRow({
             <Text className="text-surface-500 text-xs">RIR {set.rir}</Text>
           )}
           {set.isWarmup && (
-            <Text className="text-amber-500 text-xs font-medium">Warmup</Text>
+            <Text className="text-amber-500 text-xs font-medium"><Trans>Warmup</Trans></Text>
           )}
         </View>
       </View>
       <View className="items-end">
-        <Text className="text-surface-400 text-xs">Vol {volume.toFixed(0)}</Text>
+        <Text className="text-surface-400 text-xs"><Trans>Vol {volume.toFixed(0)}</Trans></Text>
         {e1rm > 0 && (
-          <Text className="text-surface-500 text-xs">e1RM {e1rm.toFixed(1)}</Text>
+          <Text className="text-surface-500 text-xs"><Trans>e1RM {e1rm.toFixed(1)}</Trans></Text>
         )}
       </View>
     </View>
@@ -108,25 +110,25 @@ function ExerciseSection({
       {/* Summary row */}
       <View className="flex-row justify-between items-center mb-2 pb-2 border-b border-surface-800">
         <Text className="text-surface-400 text-xs">
-          {workingSetCount} working set{workingSetCount !== 1 ? "s" : ""}
+          {workingSetCount} <Trans>working set{workingSetCount !== 1 ? "s" : ""}</Trans>
           {totalSets > workingSetCount && (
             <Text className="text-surface-500">
-              {" "}· {totalSets} total
+              {" "}· {totalSets} <Trans>total</Trans>
             </Text>
           )}
         </Text>
         <Text className="text-surface-300 text-xs font-semibold">
-          Volume: {tonnage.toFixed(0)} kg
+          <Trans>Volume: {tonnage.toFixed(0)} kg</Trans>
         </Text>
       </View>
 
       {/* Column headers */}
       <View className="flex-row py-1 mb-1">
-        <Text className="text-surface-500 text-xs font-semibold w-8">Set</Text>
+        <Text className="text-surface-500 text-xs font-semibold w-8"><Trans>Set</Trans></Text>
         <Text className="text-surface-500 text-xs font-semibold flex-1">
-          Load
+          <Trans>Load</Trans>
         </Text>
-        <Text className="text-surface-500 text-xs font-semibold">Metrics</Text>
+        <Text className="text-surface-500 text-xs font-semibold"><Trans>Metrics</Trans></Text>
       </View>
 
       {/* Sets */}
@@ -140,7 +142,7 @@ function ExerciseSection({
 
       {sets.length === 0 && (
         <Text className="text-surface-500 text-xs text-center py-2">
-          No sets logged for this exercise.
+          <Trans>No sets logged for this exercise.</Trans>
         </Text>
       )}
     </Card>
@@ -150,6 +152,7 @@ function ExerciseSection({
 // ─── Main Screen ──────────────────────────────────────────────────────────
 
 export function HistoryDetailScreen() {
+  const { t } = useLingui();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data: detail, isLoading, error } = useSessionDetail(id);
 
@@ -169,10 +172,10 @@ export function HistoryDetailScreen() {
         <View className="flex-1 items-center justify-center px-6">
         <Text className="text-4xl mb-4">⚠️</Text>
         <Text className="text-surface-100 text-lg font-semibold mb-2">
-          Could not load workout
+          <Trans>Could not load workout</Trans>
         </Text>
         <Text className="text-surface-400 text-center">
-          {error ? (error as Error).message : "Workout not found"}
+          {error ? (error as Error).message : <Trans>Workout not found</Trans>}
         </Text>
       </View>
       </GradientBackground>
@@ -219,7 +222,7 @@ export function HistoryDetailScreen() {
       <View className="flex-row gap-3 mb-4">
         {detail.duration_minutes != null && (
           <Card className="flex-1">
-            <Text className="text-surface-400 text-xs mb-1">Duration</Text>
+            <Text className="text-surface-400 text-xs mb-1"><Trans>Duration</Trans></Text>
             <Text className="text-surface-50 text-lg font-bold">
               {detail.duration_minutes} min
             </Text>
@@ -227,14 +230,14 @@ export function HistoryDetailScreen() {
         )}
 
         <Card className="flex-1">
-          <Text className="text-surface-400 text-xs mb-1">Volume</Text>
+          <Text className="text-surface-400 text-xs mb-1"><Trans>Volume</Trans></Text>
           <Text className="text-surface-50 text-lg font-bold">
             {totalVolume.toFixed(0)} kg
           </Text>
         </Card>
 
         <Card className="flex-1">
-          <Text className="text-surface-400 text-xs mb-1">Sets</Text>
+          <Text className="text-surface-400 text-xs mb-1"><Trans>Sets</Trans></Text>
           <Text className="text-surface-50 text-lg font-bold">
             {totalSets}
           </Text>
@@ -244,14 +247,14 @@ export function HistoryDetailScreen() {
       {/* Notes */}
       {detail.notes && (
         <Card className="mb-4">
-          <Text className="text-surface-400 text-xs mb-1">Notes</Text>
+          <Text className="text-surface-400 text-xs mb-1"><Trans>Notes</Trans></Text>
           <Text className="text-surface-100 text-sm">{detail.notes}</Text>
         </Card>
       )}
 
       {/* Exercise sections */}
       <Text className="text-surface-100 text-base font-semibold mb-3">
-        Exercise Breakdown
+        <Trans>Exercise Breakdown</Trans>
       </Text>
 
       {exerciseGroups.map((group) => (
