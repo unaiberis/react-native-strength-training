@@ -1,10 +1,13 @@
 import { ScrollView, View, Text, ActivityIndicator } from "react-native";
 import { useLocalSearchParams } from "expo-router";
+import { useLingui } from "@lingui/react/macro";
+import { Trans } from "@lingui/react/macro";
 import { Card } from "../../../shared/ui/Card";
 import { GradientBackground } from "../../../shared/ui/GradientBackground";
 import { useExercise } from "../hooks/useExercises";
 
 export function ExerciseDetailScreen() {
+  const { t } = useLingui();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data: exercise, isLoading, error } = useExercise(id);
 
@@ -23,7 +26,7 @@ export function ExerciseDetailScreen() {
       <GradientBackground>
         <View className="flex-1 items-center justify-center px-4">
         <Text className="text-surface-400 text-base">
-          {error ? (error as Error).message : "Exercise not found"}
+          {error ? (error as Error).message : <Trans>Exercise not found</Trans>}
         </Text>
       </View>
       </GradientBackground>
@@ -31,12 +34,12 @@ export function ExerciseDetailScreen() {
   }
 
   const detailRows = [
-    { label: "Category", value: exercise.category.charAt(0).toUpperCase() + exercise.category.slice(1) },
-    { label: "Body Region", value: exercise.body_region ? exercise.body_region.replace(/_/g, " ") : "—" },
-    { label: "Equipment", value: exercise.equipment?.length ? exercise.equipment.join(", ") : "—" },
-    { label: "Default Sets", value: String(exercise.default_sets) },
-    { label: "Default Reps", value: String(exercise.default_reps) },
-    { label: "Rest Interval", value: `${exercise.default_rest_seconds}s` },
+    { label: t`Category`, value: exercise.category.charAt(0).toUpperCase() + exercise.category.slice(1) },
+    { label: t`Body Region`, value: exercise.body_region ? exercise.body_region.replace(/_/g, " ") : "—" },
+    { label: t`Equipment`, value: exercise.equipment?.length ? exercise.equipment.join(", ") : "—" },
+    { label: t`Default Sets`, value: String(exercise.default_sets) },
+    { label: t`Default Reps`, value: String(exercise.default_reps) },
+    { label: t`Rest Interval`, value: `${exercise.default_rest_seconds}s` },
   ];
 
   return (
@@ -73,7 +76,7 @@ export function ExerciseDetailScreen() {
       )}
 
       {/* Details grid */}
-      <Card title="Default Settings" className="mb-6">
+      <Card title={t`Default Settings`} className="mb-6">
         {detailRows.map((row) => (
           <View
             key={row.label}
