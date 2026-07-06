@@ -1,1 +1,15 @@
-{}
+{
+  "Progress": "Progreso",
+  "personal record": "récord personal",
+  "personal records": "récords personales",
+  "across": "en",
+  "exercise": "ejercicio",
+  "exercises": "ejercicios",
+  "No records yet": "Aún no hay récords",
+  "Complete workouts to start tracking your personal records. PRs are automatically detected when you beat your previous best.": "Completa entrenamientos para empezar a rastrear tus récords personales. Los PRs se detectan automáticamente cuando superas tu mejor marca.",
+  "Start a Workout": "Iniciar Entrenamiento",
+  "1RM": "1RM",
+  "Estimated 1RM": "1RM Estimado",
+  "Best Volume Set": "Mejor Serie por Volumen",
+  "Best Reps at Weight": "Mejor Repeticiones a Peso"
+}

@@ -1,1 +1,15 @@
-{}
+{
+  "Progress": "Progress",
+  "personal record": "personal record",
+  "personal records": "personal records",
+  "across": "across",
+  "exercise": "exercise",
+  "exercises": "exercises",
+  "No records yet": "No records yet",
+  "Complete workouts to start tracking your personal records. PRs are automatically detected when you beat your previous best.": "Complete workouts to start tracking your personal records. PRs are automatically detected when you beat your previous best.",
+  "Start a Workout": "Start a Workout",
+  "1RM": "1RM",
+  "Estimated 1RM": "Estimated 1RM",
+  "Best Volume Set": "Best Volume Set",
+  "Best Reps at Weight": "Best Reps at Weight"
+}
