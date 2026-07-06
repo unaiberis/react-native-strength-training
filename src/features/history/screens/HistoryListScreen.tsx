@@ -8,6 +8,8 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { useLingui } from "@lingui/react/macro";
+import { Trans } from "@lingui/react/macro";
 import { Card } from "../../../shared/ui/Card";
 import { Button } from "../../../shared/ui/Button";
 import { GradientBackground } from "../../../shared/ui/GradientBackground";
@@ -44,6 +46,7 @@ function SessionRow({
   session: SessionListItem;
   onPress: () => void;
 }) {
+  const { t } = useLingui();
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -55,7 +58,7 @@ function SessionRow({
             className="text-surface-100 text-base font-semibold"
             numberOfLines={1}
           >
-            {session.templateName ?? "Free Workout"}
+            {session.templateName ?? <Trans>Free Workout</Trans>}
           </Text>
           <Text className="text-surface-400 text-xs mt-0.5">
             {formatDate(session.started_at)} · {formatTime(session.started_at)}
@@ -76,7 +79,7 @@ function SessionRow({
           <View className="flex-row items-center gap-1">
             <Text className="text-surface-500 text-xs">🏋️</Text>
             <Text className="text-surface-400 text-xs">
-              {session.exerciseCount} exercise{session.exerciseCount !== 1 ? "s" : ""}
+              {session.exerciseCount} <Trans>exercise{session.exerciseCount !== 1 ? "s" : ""}</Trans>
             </Text>
           </View>
         )}
@@ -84,7 +87,7 @@ function SessionRow({
           <View className="flex-row items-center gap-1">
             <Text className="text-surface-500 text-xs">🎯</Text>
             <Text className="text-surface-400 text-xs">
-              {session.totalSets} set{session.totalSets !== 1 ? "s" : ""}
+              {session.totalSets} <Trans>set{session.totalSets !== 1 ? "s" : ""}</Trans>
             </Text>
           </View>
         )}
@@ -106,11 +109,12 @@ function FilterBar({
   filters: HistoryFiltersState;
   onChange: (f: HistoryFiltersState) => void;
 }) {
+  const { t } = useLingui();
   const { data: exercises } = useExercises();
   const [showPicker, setShowPicker] = useState(false);
 
   const selectedName = filters.exerciseId
-    ? exercises?.data?.find((e) => e.id === filters.exerciseId)?.name ?? "Unknown"
+    ? exercises?.data?.find((e) => e.id === filters.exerciseId)?.name ?? t`Unknown`
     : null;
 
   return (
@@ -122,12 +126,12 @@ function FilterBar({
             filters.exerciseId ? "" : ""
           }`}
         >
-          <Text className="text-surface-500 text-xs mr-2">Filter:</Text>
+          <Text className="text-surface-500 text-xs mr-2"><Trans>Filter:</Trans></Text>
           <Text
             className={`text-sm flex-1 ${filters.exerciseId ? "text-surface-100" : "text-surface-500"}`}
             numberOfLines={1}
           >
-            {selectedName ?? "All exercises"}
+            {selectedName ?? <Trans>All exercises</Trans>}
           </Text>
           <Text className="text-surface-500 text-xs">
             {showPicker ? "▲" : "▼"}
@@ -139,7 +143,7 @@ function FilterBar({
             onPress={() => onChange({ exerciseId: null })}
             className="bg-surface-800 rounded-xl px-3 py-2.5 border border-surface-700"
           >
-            <Text className="text-surface-400 text-xs">Clear</Text>
+            <Text className="text-surface-400 text-xs"><Trans>Clear</Trans></Text>
           </TouchableOpacity>
         )}
       </View>
@@ -148,7 +152,7 @@ function FilterBar({
       {showPicker && (
         <View className="mt-2 bg-surface-800 border border-surface-700 rounded-xl max-h-48">
           <FlatList
-            data={[{ id: null, name: "All exercises" } as { id: string | null; name: string }, ...(exercises?.data ?? [])]}
+            data={[{ id: null, name: t`All exercises` } as { id: string | null; name: string }, ...(exercises?.data ?? [])]}
             keyExtractor={(item) => item.id ?? "__all__"}
             renderItem={({ item }) => (
               <TouchableOpacity
@@ -182,6 +186,7 @@ function FilterBar({
 // ─── Main Screen ──────────────────────────────────────────────────────────
 
 export function HistoryListScreen() {
+  const { t } = useLingui();
   const router = useRouter();
   const [page, setPage] = useState(0);
   const [filters, setFilters] = useState<HistoryFiltersState>({ exerciseId: null });
@@ -248,13 +253,13 @@ export function HistoryListScreen() {
       <View className="items-center justify-center py-16 px-6">
         <Text className="text-5xl mb-4">📋</Text>
         <Text className="text-surface-100 text-lg font-semibold mb-2">
-          No workouts yet
+          <Trans>No workouts yet</Trans>
         </Text>
         <Text className="text-surface-400 text-center mb-6">
-          Complete your first workout to see your history here.
+          <Trans>Complete your first workout to see your history here.</Trans>
         </Text>
         <Button
-          title="Start a Workout"
+          title={t`Start a Workout`}
           variant="primary"
           onPress={() => router.push("/(tabs)/train")}
         />
@@ -291,7 +296,7 @@ export function HistoryListScreen() {
       {totalCount > 0 && (
         <View className="px-4 pb-4 pt-2">
           <Text className="text-surface-500 text-xs text-center">
-            {totalCount} workout{totalCount !== 1 ? "s" : ""} total
+            {totalCount} <Trans>workout{totalCount !== 1 ? "s" : ""} total</Trans>
           </Text>
         </View>
       )}
