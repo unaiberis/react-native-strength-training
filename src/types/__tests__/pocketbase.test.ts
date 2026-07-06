@@ -19,6 +19,9 @@ describe("PocketBase type shapes", () => {
       default_reps: 8,
       default_rest_seconds: 90,
       is_public: true,
+      is_archived: false,
+      created_by: null,
+      video_url: null,
       created: "2024-01-01T00:00:00Z",
       updated: "2024-01-02T00:00:00Z",
     };
@@ -33,6 +36,9 @@ describe("PocketBase type shapes", () => {
     expect(exercise.default_reps).toBe(8);
     expect(exercise.default_rest_seconds).toBe(90);
     expect(exercise.is_public).toBe(true);
+    expect(exercise.is_archived).toBe(false);
+    expect(exercise.created_by).toBeNull();
+    expect(exercise.video_url).toBeNull();
     expect(exercise.created).toBe("2024-01-01T00:00:00Z");
     expect(exercise.updated).toBe("2024-01-02T00:00:00Z");
   });
@@ -49,6 +55,9 @@ describe("PocketBase type shapes", () => {
       default_reps: 15,
       default_rest_seconds: 60,
       is_public: false,
+      is_archived: false,
+      created_by: null,
+      video_url: null,
       created: "2024-01-01T00:00:00Z",
       updated: "2024-01-02T00:00:00Z",
     };

@@ -17,6 +17,9 @@ export interface ExerciseRow {
   default_reps: number;
   default_rest_seconds: number;
   is_public: boolean;
+  is_archived: boolean;
+  created_by: string | null;
+  video_url: string | null;
   created: string;
   updated: string;
 }
@@ -73,4 +76,61 @@ export interface ExerciseSetRow {
   logged_at: string;
   created: string;
   updated: string;
+}
+
+/** User record from PocketBase `users` collection. */
+export interface UserRow {
+  id: string;
+  email: string;
+  displayName: string;
+  role: "athlete" | "coach";
+  coach: string | null;
+  created: string;
+  updated: string;
+}
+
+/** Program assignment row — maps a coach-assigned template to an athlete. */
+export interface ProgramAssignmentRow {
+  id: string;
+  athlete: string;
+  coach: string;
+  template: string;
+  start_date: string;
+  status: "active" | "completed" | "cancelled";
+  created: string;
+  updated: string;
+}
+
+/** Athlete summary for coach dashboard. */
+export interface AthleteSummary {
+  id: string;
+  displayName: string;
+  email: string;
+  lastWorkoutDate: string | null;
+  totalWorkouts: number;
+  thisWeekWorkouts: number;
+  complianceRate: number;
+  totalVolumeKg: number;
+}
+
+/** Volume data point for coach analytics charts. */
+export interface VolumeDataPoint {
+  date: string;
+  totalVolumeKg: number;
+  sessionCount: number;
+}
+
+/** Compliance data point for weekly adherence chart. */
+export interface ComplianceDataPoint {
+  weekStart: string;
+  assigned: number;
+  completed: number;
+  rate: number;
+}
+
+/** PR evolution point for a specific exercise. */
+export interface PREvolutionPoint {
+  date: string;
+  value: number;
+  exerciseName: string;
 }

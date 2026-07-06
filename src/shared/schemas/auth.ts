@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+export const CoachRoleEnum = z.enum(["athlete", "coach"]);
+
 export const loginSchema = z.object({
   email: z
     .string()
@@ -23,6 +25,7 @@ export const registerSchema = z.object({
     .string()
     .min(1, "Display name is required")
     .max(50, "Display name must be 50 characters or less"),
+  role: CoachRoleEnum.optional().default("athlete"),
 });
 
 export type LoginInput = z.infer<typeof loginSchema>;
@@ -37,4 +40,5 @@ export const registerDefaults: RegisterInput = {
   email: "",
   password: "",
   displayName: "",
+  role: "athlete",
 };
