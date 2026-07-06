@@ -4,6 +4,7 @@ import { i18n } from "@lingui/core";
 import { useAuthStore } from "../../../stores/auth-store";
 import * as PRsService from "../../../lib/pocketbase/services/prs";
 import type { ComputedPR, PRType } from "../../../lib/pocketbase/services/prs";
+import { calculateE1RM, calculateVolume } from "../../../shared/utils/pr-calc";
 
 const PRS_QUERY_KEY = "personal-records";
 
@@ -83,10 +84,52 @@ function flattenPR(computed: ComputedPR): PRDisplayItem[] {
  */
 export function usePersonalRecords() {
   const userId = useAuthStore((s) => s.user?.id);
+  const isOnline = useAuthStore((s) => s.isOnline);
 
   const query = useQuery({
-    queryKey: [PRS_QUERY_KEY, userId],
-    queryFn: () => PRsService.listPRs(userId!),
+    queryKey: [PRS_QUERY_KEY, userId, isOnline ? "online" : "offline"],
+    queryFn: async () => {
+      if (!isOnline) {
+        const { OfflineRecordsService } = await import("../../../lib/db/services/offline-records");
+        const { OfflineExercisesService } = await import("../../../lib/db/services/offline-exercises");
+        const { getDb } = await import("../../../lib/db/database");
+        const db = await getDb();
+        const svc = new OfflineRecordsService(db);
+        const exSvc = new OfflineExercisesService(db);
+
+        // Get all personal records from local SQLite
+        const records = await svc.getPersonalRecords();
+
+        // Build ComputedPR[] matching the online shape
+        const results: ComputedPR[] = [];
+        const seen = new Set<string>();
+
+        for (const r of records) {
+          if (seen.has(r.exercise_id)) continue;
+          seen.add(r.exercise_id);
+
+          // Fetch exercise name from local SQLite
+          const ex = await exSvc.getExerciseById(r.exercise_id);
+          const exerciseName = ex?.name ?? "Unknown Exercise";
+          const bestSet = await svc.getBestSet(r.exercise_id);
+          const e1rm = await svc.getEstimated1RM(r.exercise_id);
+
+          results.push({
+            exerciseId: r.exercise_id,
+            exerciseName,
+            oneRepMax: r.reps === 1 ? r.weight_kg : null,
+            estimatedOneRepMax: e1rm,
+            bestVolumeSet: bestSet ? calculateVolume(bestSet.weight_kg, bestSet.reps) : null,
+            maxWeight: r.weight_kg,
+            maxReps: r.reps,
+            totalTonnage: null,
+          });
+        }
+
+        return results;
+      }
+      return PRsService.listPRs(userId!);
+    },
     enabled: !!userId,
     staleTime: 1000 * 60 * 5,   // 5 min — PRs change slowly
     gcTime: 1000 * 60 * 30,      // 30 min — keep in memory across navigations

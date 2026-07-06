@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useAuthStore } from "../../../stores/auth-store";
 import * as ExercisesService from "../../../lib/pocketbase/services/exercises";
 
 const EXERCISES_QUERY_KEY = "exercises";
@@ -6,11 +7,37 @@ const CATEGORIES_QUERY_KEY = "exercise-categories";
 
 /**
  * Query hook for paginated exercise list with optional category filter.
+ *
+ * Branches on connectivity: offline → reads from local SQLite via
+ * OfflineExercisesService; online → PocketBase service.
+ *
+ * When offline, returns the full data as { data, count, page, perPage, totalPages }
+ * to match the online service shape.
  */
 export function useExercises(category?: string | null, page = 0, pageSize = 20) {
+  const isOnline = useAuthStore((s) => s.isOnline);
+
   return useQuery({
-    queryKey: [EXERCISES_QUERY_KEY, category, page, pageSize],
-    queryFn: () => ExercisesService.listExercises(category, page, pageSize),
+    queryKey: [EXERCISES_QUERY_KEY, category, page, pageSize, isOnline ? "online" : "offline"],
+    queryFn: async () => {
+      if (!isOnline) {
+        const { OfflineExercisesService } = await import("../../../lib/db/services/offline-exercises");
+        const { getDb } = await import("../../../lib/db/database");
+        const db = await getDb();
+        const svc = new OfflineExercisesService(db);
+        const exercises = await svc.getExercises({
+          category: category ?? undefined,
+        } as any);
+        return {
+          data: exercises,
+          count: exercises.length,
+          page: 0,
+          perPage: pageSize,
+          totalPages: 1,
+        };
+      }
+      return ExercisesService.listExercises(category, page, pageSize);
+    },
     staleTime: 1000 * 60 * 5,
   });
 }

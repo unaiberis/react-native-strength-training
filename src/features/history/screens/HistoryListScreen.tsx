@@ -4,7 +4,6 @@ import {
   Text,
   FlatList,
   TouchableOpacity,
-  RefreshControl,
   ActivityIndicator,
 } from "react-native";
 import { useRouter } from "expo-router";
@@ -13,6 +12,7 @@ import { Trans } from "@lingui/react/macro";
 import { Card } from "../../../shared/ui/Card";
 import { Button } from "../../../shared/ui/Button";
 import { GradientBackground } from "../../../shared/ui/GradientBackground";
+import { PullToSync } from "../../../shared/ui/PullToSync";
 import { useHistory } from "../hooks/useHistory";
 import { useExercises } from "../../exercises/hooks/useExercises";
 import type { SessionListItem } from "../../../lib/pocketbase/services/sessions";
@@ -280,7 +280,7 @@ export function HistoryListScreen() {
         keyExtractor={keyExtractor}
         contentContainerClassName="px-4 pb-8"
         refreshControl={
-          <RefreshControl
+          <PullToSync
             refreshing={isRefetching}
             onRefresh={onRefresh}
             tintColor="#B9B9B6"

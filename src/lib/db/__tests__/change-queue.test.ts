@@ -290,6 +290,74 @@ describe("ChangeQueue", () => {
     });
   });
 
+  // ─── retry ────────────────────────────────────────────────────────
+
+  describe("retry", () => {
+    it("moves dead_letter entry back to pending with retry_count reset", async () => {
+      const db = createMockDb();
+      db.runAsync.mockResolvedValue({ lastInsertRowId: 0, changes: 1 });
+      const queue = createQueue(db);
+
+      await queue.retry(7);
+
+      const [sql, params] = db.runAsync.mock.calls[0];
+      expect(sql).toContain("UPDATE change_queue");
+      expect(sql).toContain("'pending'");
+      expect(sql).toContain("retry_count = 0");
+      expect(sql).toContain("WHERE id = ?");
+      expect((params as unknown[])[0]).toBe(7);
+    });
+  });
+
+  // ─── discard ──────────────────────────────────────────────────────
+
+  describe("discard", () => {
+    it("deletes a dead_letter entry from change_queue", async () => {
+      const db = createMockDb();
+      db.runAsync.mockResolvedValue({ lastInsertRowId: 0, changes: 1 });
+      const queue = createQueue(db);
+
+      await queue.discard(42);
+
+      const [sql, params] = db.runAsync.mock.calls[0];
+      expect(sql).toContain("DELETE FROM change_queue");
+      expect(sql).toContain("WHERE id = ?");
+      expect((params as unknown[])[0]).toBe(42);
+    });
+  });
+
+  // ─── getDeadLetterEntries ─────────────────────────────────────────
+
+  describe("getDeadLetterEntries", () => {
+    it("returns dead_letter entries ordered by created_at ASC", async () => {
+      const db = createMockDb();
+      db.getAllAsync.mockResolvedValue([
+        makeRow({ id: 1, status: "dead_letter", last_error: "Timeout" }),
+        makeRow({ id: 2, status: "dead_letter", last_error: "500" }),
+      ]);
+      const queue = createQueue(db);
+
+      const entries = await queue.getDeadLetterEntries();
+
+      const [sql] = db.getAllAsync.mock.calls[0];
+      expect(sql).toContain("dead_letter");
+      expect(sql).toContain("ORDER BY created_at ASC");
+      expect(entries).toHaveLength(2);
+      expect(entries[0].id).toBe(1);
+      expect(entries[1].last_error).toBe("500");
+    });
+
+    it("returns empty array when no dead_letter entries", async () => {
+      const db = createMockDb();
+      db.getAllAsync.mockResolvedValue([]);
+      const queue = createQueue(db);
+
+      const entries = await queue.getDeadLetterEntries();
+
+      expect(entries).toEqual([]);
+    });
+  });
+
   // ─── getPendingCount ──────────────────────────────────────────────
 
   describe("getPendingCount", () => {

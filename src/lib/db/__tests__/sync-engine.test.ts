@@ -253,12 +253,12 @@ describe("SyncEngine", () => {
       expect(result.authExpired).toBe(true);
     });
 
-    it("marks dead letter after 10 retries and emits DEAD_LETTER", async () => {
+    it("marks dead letter after 3 retries and emits DEAD_LETTER", async () => {
       const changeQueue = createMockChangeQueue();
       const pb = createMockPocketBase();
 
       changeQueue.peek.mockResolvedValue([
-        makeQueueEntry({ retry_count: 10 }),
+        makeQueueEntry({ retry_count: 3 }),
       ]);
       changeQueue.markDeadLetter.mockResolvedValue(undefined);
       const error = new Error("Server error");
@@ -485,6 +485,173 @@ describe("SyncEngine", () => {
 
       expect(startListener).toHaveBeenCalled();
       expect(completeListener).toHaveBeenCalled();
+    });
+  });
+
+  // ─── Conflict detection ─────────────────────────────────────────
+
+  describe("conflict detection", () => {
+    it("emits CONFLICT when server updated_at is greater than local for update entries", async () => {
+      const changeQueue = createMockChangeQueue();
+      const pb = createMockPocketBase();
+
+      changeQueue.peek.mockResolvedValue([
+        makeQueueEntry({
+          action: "update",
+          record_id: "server-1",
+          data: { name: "Test", updated_at: "2026-07-01T00:00:00Z" },
+        }),
+      ]);
+      changeQueue.dequeue.mockResolvedValue(undefined);
+      // Server returns a newer updated_at
+      pb.collection().update.mockResolvedValue({
+        id: "server-1",
+        updated_at: "2026-07-02T00:00:00Z",
+      });
+
+      const { engine } = createEngine({ changeQueue, pocketbase: pb });
+      const conflictListener = jest.fn();
+      engine.on("CONFLICT", conflictListener);
+
+      const result = await engine.flushQueue();
+
+      expect(changeQueue.dequeue).toHaveBeenCalledWith(1);
+      expect(conflictListener).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: "CONFLICT",
+          detail: expect.objectContaining({
+            collection: "workout_sessions",
+          }),
+        }),
+      );
+      expect(result.synced).toBe(1);
+    });
+
+    it("does NOT emit CONFLICT when timestamps are equal", async () => {
+      const changeQueue = createMockChangeQueue();
+      const pb = createMockPocketBase();
+
+      changeQueue.peek.mockResolvedValue([
+        makeQueueEntry({
+          action: "update",
+          record_id: "server-1",
+          data: { name: "Test", updated_at: "2026-07-01T00:00:00Z" },
+        }),
+      ]);
+      changeQueue.dequeue.mockResolvedValue(undefined);
+      pb.collection().update.mockResolvedValue({
+        id: "server-1",
+        updated_at: "2026-07-01T00:00:00Z",
+      });
+
+      const { engine } = createEngine({ changeQueue, pocketbase: pb });
+      const conflictListener = jest.fn();
+      engine.on("CONFLICT", conflictListener);
+
+      const result = await engine.flushQueue();
+
+      expect(conflictListener).not.toHaveBeenCalled();
+      expect(result.synced).toBe(1);
+    });
+
+    it("does NOT emit CONFLICT when entry data has no updated_at", async () => {
+      const changeQueue = createMockChangeQueue();
+      const pb = createMockPocketBase();
+
+      changeQueue.peek.mockResolvedValue([
+        makeQueueEntry({ action: "delete", record_id: "server-1", data: null }),
+      ]);
+      changeQueue.dequeue.mockResolvedValue(undefined);
+      pb.collection().delete.mockResolvedValue(true);
+
+      const { engine } = createEngine({ changeQueue, pocketbase: pb });
+      const conflictListener = jest.fn();
+      engine.on("CONFLICT", conflictListener);
+
+      await engine.flushQueue();
+
+      expect(conflictListener).not.toHaveBeenCalled();
+    });
+  });
+
+  // ─── Progress events ────────────────────────────────────────────
+
+  describe("progress events", () => {
+    it("emits PROGRESS during flushQueue with processed/total counts", async () => {
+      const changeQueue = createMockChangeQueue();
+      const idMapping = createMockIdMapping();
+      const db = { runAsync: jest.fn() };
+      const pb = createMockPocketBase();
+
+      changeQueue.peek.mockResolvedValue([
+        makeQueueEntry({ id: 1 }),
+        makeQueueEntry({ id: 2 }),
+      ]);
+      changeQueue.dequeue.mockResolvedValue(undefined);
+      idMapping.updateChildFKs.mockResolvedValue(0);
+      db.runAsync.mockResolvedValue({ lastInsertRowId: 0, changes: 1 });
+      pb.collection().create
+        .mockResolvedValueOnce({ id: "server-1" })
+        .mockResolvedValueOnce({ id: "server-2" });
+
+      const { engine } = createEngine({
+        changeQueue,
+        idMapping,
+        pocketbase: pb,
+        db,
+      });
+      const progressListener = jest.fn();
+      engine.on("PROGRESS", progressListener);
+
+      await engine.flushQueue();
+
+      expect(progressListener).toHaveBeenCalledTimes(2);
+      expect(progressListener).toHaveBeenNthCalledWith(1, {
+        type: "PROGRESS",
+        detail: { processed: 1, total: 2 },
+      });
+      expect(progressListener).toHaveBeenNthCalledWith(2, {
+        type: "PROGRESS",
+        detail: { processed: 2, total: 2 },
+      });
+    });
+  });
+
+  // ─── lastSyncedAt on syncAll ────────────────────────────────────
+
+  describe("syncAll lastSyncedAt", () => {
+    it("includes lastSyncedAt in SYNC_COMPLETE event detail", async () => {
+      const changeQueue = createMockChangeQueue();
+      const pb = createMockPocketBase();
+      const syncMeta = createMockSyncMeta();
+      const db = { runAsync: jest.fn() };
+
+      changeQueue.peek.mockResolvedValue([]);
+      pb.collection().getFullList.mockResolvedValue([]);
+      db.runAsync.mockResolvedValue({ changes: 1, lastInsertRowId: 0 });
+
+      const engine = new SyncEngine(
+        db as any,
+        changeQueue as any,
+        createMockIdMapping() as any,
+        syncMeta as any,
+        pb as any,
+        createMockNetworkMonitor(),
+      );
+
+      const completeListener = jest.fn();
+      engine.on("SYNC_COMPLETE", completeListener);
+
+      await engine.syncAll();
+
+      expect(completeListener).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: "SYNC_COMPLETE",
+          detail: expect.objectContaining({
+            lastSyncedAt: expect.any(String),
+          }),
+        }),
+      );
     });
   });
 

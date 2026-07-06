@@ -141,6 +141,41 @@ export class ChangeQueue {
   }
 
   /**
+   * Move a dead_letter entry back to pending and reset its retry count.
+   *
+   * This lets the SyncEngine retry the operation on the next sync cycle.
+   */
+  async retry(id: number): Promise<void> {
+    await this.db.runAsync(
+      `UPDATE change_queue SET status = 'pending', retry_count = 0 WHERE id = ?`,
+      [id],
+    );
+  }
+
+  /**
+   * Permanently discard a dead_letter entry from the queue.
+   *
+   * The entry is deleted — there is no undo. The local record should
+   * already be cleaned up before calling this.
+   */
+  async discard(id: number): Promise<void> {
+    await this.db.runAsync("DELETE FROM change_queue WHERE id = ?", [id]);
+  }
+
+  /**
+   * Return all dead_letter queue entries in FIFO order.
+   *
+   * Each entry includes the `last_error` field so callers can display
+   * the failure reason to the user.
+   */
+  async getDeadLetterEntries(): Promise<QueueEntry[]> {
+    const rows = await this.db.getAllAsync<RawQueueRow>(
+      `SELECT * FROM change_queue WHERE status = 'dead_letter' ORDER BY created_at ASC`,
+    );
+    return rows.map(toQueueEntry);
+  }
+
+  /**
    * Return the count of currently pending queue entries.
    */
   async getPendingCount(): Promise<number> {
