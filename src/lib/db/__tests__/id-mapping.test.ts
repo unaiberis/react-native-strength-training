@@ -6,19 +6,19 @@
  * pending queue JSON data.
  */
 
-jest.mock("expo-sqlite", () => ({}));
+vi.mock("expo-sqlite", () => ({}));
 
 import { IdMapping } from "../id-mapping";
 
 describe("IdMapping", () => {
   function createMockDb() {
     return {
-      runAsync: jest.fn<
+      runAsync: vi.fn<
         Promise<{ lastInsertRowId: number; changes: number }>,
         [string, ...unknown[]]
       >(),
-      getFirstAsync: jest.fn<Promise<unknown>, [string, ...unknown[]]>(),
-      getAllAsync: jest.fn<Promise<unknown[]>, [string, ...unknown[]]>(),
+      getFirstAsync: vi.fn<Promise<unknown>, [string, ...unknown[]]>(),
+      getAllAsync: vi.fn<Promise<unknown[]>, [string, ...unknown[]]>(),
     };
   }
 
@@ -29,7 +29,7 @@ describe("IdMapping", () => {
   }
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   // ─── storeMapping ────────────────────────────────────────────────

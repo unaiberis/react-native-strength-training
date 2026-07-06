@@ -7,6 +7,8 @@ interface StatCardProps {
   value: string | number;
   /** Descriptive label below the value */
   label: string;
+  /** Pre-translated label — overrides `label` when provided */
+  translatedLabel?: string;
   /** Optional accent color for the value text (defaults to surface-50) */
   color?: string;
   /** Optional additional class names */
@@ -25,10 +27,12 @@ export function StatCard({
   icon,
   value,
   label,
+  translatedLabel,
   color,
   className,
   style,
 }: StatCardProps) {
+  const displayLabel = translatedLabel ?? label;
   return (
     <View
       className={`bg-card rounded-xl p-4 border border-border ${className ?? ""}`}
@@ -41,7 +45,7 @@ export function StatCard({
       >
         {value}
       </Text>
-      <Text className="text-surface-400 text-xs font-medium mt-1">{label}</Text>
+      <Text className="text-surface-400 text-xs font-medium mt-1">{displayLabel}</Text>
     </View>
   );
 }

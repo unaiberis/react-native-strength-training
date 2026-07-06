@@ -1,8 +1,8 @@
-import { loginSchema, registerSchema } from "../auth";
+import { loginSchema, registerSchema, getLoginSchema, getRegisterSchema } from "../auth";
 
-// ─── loginSchema ───────────────────────────────────────────────────────────
+// ─── Legacy schemas (backward compatibility) ────────────────────────────────
 
-describe("loginSchema", () => {
+describe("loginSchema (legacy)", () => {
   it("accepts valid login input", () => {
     const result = loginSchema.safeParse({
       email: "user@example.com",
@@ -39,7 +39,6 @@ describe("loginSchema", () => {
   });
 
   it("accepts password with 8+ chars (login has no min length rule)", () => {
-    // loginSchema only requires password to be non-empty
     const result = loginSchema.safeParse({
       email: "user@example.com",
       password: "short",
@@ -48,9 +47,9 @@ describe("loginSchema", () => {
   });
 });
 
-// ─── registerSchema ────────────────────────────────────────────────────────
+// ─── registerSchema (legacy) ────────────────────────────────────────────────
 
-describe("registerSchema", () => {
+describe("registerSchema (legacy)", () => {
   it("accepts valid registration input", () => {
     const result = registerSchema.safeParse({
       email: "user@example.com",
@@ -121,5 +120,122 @@ describe("registerSchema", () => {
       displayName: "Test User",
     });
     expect(result.success).toBe(false);
+  });
+});
+
+// ─── Factory functions (i18n-aware) ────────────────────────────────────────
+
+describe("getLoginSchema (factory)", () => {
+  it("returns a valid Zod schema", () => {
+    const schema = getLoginSchema();
+    const result = schema.safeParse({
+      email: "user@example.com",
+      password: "myPassword1",
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects empty email with i18n message", () => {
+    const schema = getLoginSchema();
+    const result = schema.safeParse({
+      email: "",
+      password: "myPassword1",
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      // i18n.t returns the key as-is in test environment
+      expect(result.error.issues[0].message).toBe("Email is required");
+    }
+  });
+
+  it("rejects invalid email with i18n message", () => {
+    const schema = getLoginSchema();
+    const result = schema.safeParse({
+      email: "not-an-email",
+      password: "myPassword1",
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0].message).toBe("Invalid email address");
+    }
+  });
+
+  it("rejects empty password with i18n message", () => {
+    const schema = getLoginSchema();
+    const result = schema.safeParse({
+      email: "user@example.com",
+      password: "",
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0].message).toBe("Password is required");
+    }
+  });
+
+  it("each call returns a fresh schema instance", () => {
+    const schema1 = getLoginSchema();
+    const schema2 = getLoginSchema();
+    expect(schema1).not.toBe(schema2);
+  });
+});
+
+describe("getRegisterSchema (factory)", () => {
+  it("returns a valid Zod schema", () => {
+    const schema = getRegisterSchema();
+    const result = schema.safeParse({
+      email: "user@example.com",
+      password: "StrongPass1",
+      displayName: "Test User",
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects short password with i18n message", () => {
+    const schema = getRegisterSchema();
+    const result = schema.safeParse({
+      email: "user@example.com",
+      password: "Short1A",
+      displayName: "Test User",
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0].message).toBe(
+        "Password must be at least 8 characters"
+      );
+    }
+  });
+
+  it("rejects password without uppercase with i18n message", () => {
+    const schema = getRegisterSchema();
+    const result = schema.safeParse({
+      email: "user@example.com",
+      password: "alllowercase1",
+      displayName: "Test User",
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0].message).toBe(
+        "Password must contain at least one uppercase letter"
+      );
+    }
+  });
+
+  it("rejects empty display name with i18n message", () => {
+    const schema = getRegisterSchema();
+    const result = schema.safeParse({
+      email: "user@example.com",
+      password: "StrongPass1",
+      displayName: "",
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0].message).toBe("Display name is required");
+    }
+  });
+
+  it("each call returns a fresh schema instance", () => {
+    const schema1 = getRegisterSchema();
+    const schema2 = getRegisterSchema();
+    expect(schema1).not.toBe(schema2);
   });
 });

@@ -1,24 +1,26 @@
-// Mock the client module so we control pb behavior
-const mockCreate = jest.fn();
-const mockGetOne = jest.fn();
-const mockGetFullList = jest.fn();
-const mockUpdate = jest.fn();
-const mockGetList = jest.fn();
+// Vitest v4: hoisted mock variables (referenced in vi.mock factory)
+const pbMocks = vi.hoisted(() => {
+  const mockCreate = vi.fn();
+  const mockGetOne = vi.fn();
+  const mockGetFullList = vi.fn();
+  const mockUpdate = vi.fn();
+  const mockGetList = vi.fn();
+  const mockPb = {
+    collection: vi.fn(() => ({
+      create: mockCreate,
+      getOne: mockGetOne,
+      getFullList: mockGetFullList,
+      update: mockUpdate,
+      getList: mockGetList,
+    })),
+    filter: vi.fn((s: string) => s),
+  };
+  return { mockCreate, mockGetOne, mockGetFullList, mockUpdate, mockGetList, mockPb };
+});
 
-const mockPb = {
-  collection: jest.fn(() => ({
-    create: mockCreate,
-    getOne: mockGetOne,
-    getFullList: mockGetFullList,
-    update: mockUpdate,
-    getList: mockGetList,
-  })),
-  filter: jest.fn((s: string) => s),
-};
+const { mockCreate, mockGetOne, mockGetFullList, mockUpdate, mockGetList } = pbMocks;
 
-jest.mock("../../client", () => ({
-  pb: mockPb,
-}));
+vi.mock("../../client", () => ({ pb: pbMocks.mockPb }));
 
 import type { SessionRow, ExerciseSetRow } from "../../../../types/pocketbase";
 import {
@@ -68,7 +70,7 @@ const makeSet = (overrides: Partial<ExerciseSetRow> = {}): ExerciseSetRow => ({
 
 describe("PocketBase sessions service", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   // ─── createSession ─────────────────────────────────────────────
@@ -171,6 +173,8 @@ describe("PocketBase sessions service", () => {
       rir: null,
       is_warmup: false,
       tempo: null,
+      round: null,
+      timer_remaining: null,
     });
     expect(result.weight_kg).toBe(80);
     expect(result.reps).toBe(10);

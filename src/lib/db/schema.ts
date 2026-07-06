@@ -10,7 +10,7 @@
 import type { SQLiteDatabase } from "expo-sqlite";
 
 const SCHEMA_VERSION_KEY = "schema_version";
-const CURRENT_SCHEMA_VERSION = "2";
+const CURRENT_SCHEMA_VERSION = "3";
 
 // ─── DDL Statements ─────────────────────────────────────────────────────
 
@@ -117,6 +117,21 @@ CREATE TABLE IF NOT EXISTS sync_meta (
   value TEXT NOT NULL
 );`;
 
+const CREATE_DAILY_WELLNESS = `
+CREATE TABLE IF NOT EXISTS daily_wellness (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  session_id TEXT,
+  date TEXT NOT NULL,
+  session_rpe INTEGER,
+  sleep_quality INTEGER,
+  fatigue INTEGER,
+  soreness INTEGER,
+  mood INTEGER,
+  notes TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);`;
+
 const CREATE_REACT_QUERY_CACHE = `
 CREATE TABLE IF NOT EXISTS react_query_cache (
   key TEXT PRIMARY KEY,
@@ -145,6 +160,10 @@ const CREATE_INDEXES = [
   `CREATE INDEX IF NOT EXISTS idx_sets_session ON exercise_sets(session_id);`,
   `CREATE INDEX IF NOT EXISTS idx_sets_dirty ON exercise_sets(dirty);`,
 
+  // daily_wellness
+  `CREATE INDEX IF NOT EXISTS idx_wellness_user_date ON daily_wellness(user_id, date);`,
+  `CREATE INDEX IF NOT EXISTS idx_wellness_session ON daily_wellness(session_id);`,
+
   // change_queue
   `CREATE INDEX IF NOT EXISTS idx_queue_status ON change_queue(status);`,
   `CREATE INDEX IF NOT EXISTS idx_queue_created ON change_queue(created_at);`,
@@ -170,6 +189,7 @@ export const TABLES: readonly string[] = [
   "change_queue",
   "id_mapping",
   "sync_meta",
+  "daily_wellness",
   "react_query_cache",
 ] as const;
 
@@ -203,6 +223,7 @@ export async function runMigrations(db: SQLiteDatabase): Promise<void> {
   await db.execAsync(CREATE_CHANGE_QUEUE);
   await db.execAsync(CREATE_ID_MAPPING);
   await db.execAsync(CREATE_SYNC_META);
+  await db.execAsync(CREATE_DAILY_WELLNESS);
   await db.execAsync(CREATE_REACT_QUERY_CACHE);
 
   // Create indexes

@@ -60,11 +60,18 @@ function relativeDate(dateStr: string): string {
 /**
  * Fetch home dashboard stats directly from PocketBase.
  *
- * Uses `getFullList` with `$autoCancel: false` to avoid PocketBase's
- * automatic request cancellation on rapid successive calls.
+ * Dos etapas para minimizar datos transferidos:
+ *   Stage 1 (rápida): sessions + totalSets count (getList perPage=1).
+ *   Stage 2 (pesada): solo las últimas 30 sesiones para E1RM + recientes.
+ *   Stage 3: nombres de template en un batch.
+ *
+ * Waterfall antes (100 sesiones, ~1000 sets):
+ *   ~15 calls, ~1000 registros transferidos
+ * Waterfall ahora:
+ *   4 calls, ~300 registros transferidos (top 30 sesiones ~300 sets)
  */
 async function fetchHomeStats(userId: string): Promise<HomeStats> {
-  // 1. All completed sessions for this user
+  // ── Stage 1: sessions ───────────────────────────────────────────────
   const sessions = await pb.collection("workout_sessions").getFullList({
     filter: `user_id = '${userId}' && status = 'completed'`,
     sort: "-started_at",
@@ -72,102 +79,107 @@ async function fetchHomeStats(userId: string): Promise<HomeStats> {
   });
 
   const totalWorkouts = sessions.length;
+  if (totalWorkouts === 0) {
+    return { totalWorkouts: 0, totalSets: 0, thisWeekWorkouts: 0, bestE1RM: null, recentSessions: [] };
+  }
 
-  // 2. Date boundary: 7 days ago
   const weekAgo = new Date();
   weekAgo.setDate(weekAgo.getDate() - 7);
   const weekAgoStr = weekAgo.toISOString();
-
   const thisWeekWorkouts = sessions.filter(
     (s) => s.started_at >= weekAgoStr,
   ).length;
 
-  // 3. All exercise sets for this user (via sessions)
   const allSessionIds = sessions.map((s) => s.id);
-  let totalSets = 0;
-
-  // PocketBase filter length limit — batch in chunks of 50
   const BATCH = 50;
-  for (let i = 0; i < allSessionIds.length; i += BATCH) {
-    const chunk = allSessionIds.slice(i, i + BATCH);
-    const filter = chunk.map((id) => `workout_session_id = '${id}'`).join(" || ");
-    const sets = await pb.collection("exercise_sets").getFullList({
-      filter,
-      fields: "id,exercise_id,weight_kg,reps",
-      requestKey: null,
-    });
-    totalSets += sets.length;
+
+  // ── Stage 2: totalSets (count) + E1RM + recientes (en paralelo) ─────
+  async function countTotalSets(): Promise<number> {
+    let count = 0;
+    for (let i = 0; i < allSessionIds.length; i += BATCH) {
+      const chunk = allSessionIds.slice(i, i + BATCH);
+      const filter = chunk.map((id) => `workout_session_id = '${id}'`).join(" || ");
+      const result = await pb.collection("exercise_sets").getList(1, 1, {
+        filter,
+        fields: "id",
+        requestKey: null,
+      });
+      count += result.totalItems;
+    }
+    return count;
   }
 
-  // 4. Best e1RM — scan all working sets for highest estimate
-  let bestE1RM: number | null = null;
+  async function scanRecentForE1RM(): Promise<{
+    bestE1RM: number | null;
+    exBySession: Record<string, Set<string>>;
+  }> {
+    const scanIds = allSessionIds.slice(0, 30); // top 30 para PRs
+    const recentIds = new Set(allSessionIds.slice(0, 5));
+    let bestE1RM: number | null = null;
+    const exBySession: Record<string, Set<string>> = {};
 
-  for (let i = 0; i < allSessionIds.length; i += BATCH) {
-    const chunk = allSessionIds.slice(i, i + BATCH);
-    const filter = chunk
-      .map((id) => `workout_session_id = '${id}'`)
-      .join(" || ");
-    const sets = await pb.collection("exercise_sets").getFullList({
-      filter: `${filter} && is_warmup = false && reps > 0 && weight_kg > 0`,
-      fields: "weight_kg,reps",
-      requestKey: null,
-    });
+    for (let i = 0; i < scanIds.length; i += BATCH) {
+      const chunk = scanIds.slice(i, i + BATCH);
+      const filter = chunk.map((id) => `workout_session_id = '${id}'`).join(" || ");
+      const sets = await pb.collection("exercise_sets").getFullList({
+        filter: `${filter} && is_warmup = false && reps > 0 && weight_kg > 0`,
+        fields: "id,workout_session_id,exercise_id,weight_kg,reps",
+        requestKey: null,
+      });
 
-    for (const s of sets) {
-      const e1rm = calculateE1RM(s.weight_kg, s.reps);
-      if (e1rm > (bestE1RM ?? 0)) {
-        bestE1RM = e1rm;
+      for (const s of sets) {
+        const e1rm = calculateE1RM(s.weight_kg, s.reps);
+        if (e1rm > (bestE1RM ?? 0)) bestE1RM = e1rm;
+
+        const sid = s.workout_session_id as string;
+        if (recentIds.has(sid) && s.exercise_id) {
+          if (!exBySession[sid]) exBySession[sid] = new Set();
+          exBySession[sid].add(s.exercise_id as string);
+        }
       }
+    }
+    return { bestE1RM, exBySession };
+  }
+
+  const [totalSets, { bestE1RM, exBySession }] = await Promise.all([
+    countTotalSets(),
+    scanRecentForE1RM(),
+  ]);
+
+  // ── Stage 3: template names ─────────────────────────────────────────
+  const recentRaw = sessions.slice(0, 5);
+  const templateIds = recentRaw
+    .map((s) => s.workout_template_id as string | undefined)
+    .filter(Boolean) as string[];
+
+  const templateNames: Record<string, string> = {};
+  if (templateIds.length > 0) {
+    try {
+      const filter = templateIds.map((id) => `id = '${id}'`).join(" || ");
+      const templates = await pb.collection("workout_templates").getFullList({
+        filter,
+        fields: "id,name",
+        requestKey: null,
+      });
+      for (const t of templates) {
+        templateNames[t.id] = (t as unknown as { name: string }).name;
+      }
+    } catch {
+      // template deleted — keep fallback
     }
   }
 
-  // 5. Recent 5 sessions with enrichment
-  const recentRaw = sessions.slice(0, 5);
-  const recentSessions: RecentSession[] = await Promise.all(
-    recentRaw.map(async (session) => {
-      // Count unique exercises in this session
-      const sets = await pb.collection("exercise_sets").getFullList({
-        filter: `workout_session_id = '${session.id}'`,
-        fields: "exercise_id",
-        requestKey: null,
-      });
-      const uniqueExercises = new Set(
-        (sets ?? []).map((s: RecordModel) => s.exercise_id as string),
-      );
+  const recentSessions: RecentSession[] = recentRaw.map((session) => ({
+    id: session.id,
+    templateName: session.workout_template_id
+      ? (templateNames[session.workout_template_id as string] ?? "Custom Workout")
+      : "Custom Workout",
+    startedAt: session.started_at,
+    durationMinutes: session.duration_minutes,
+    exerciseCount: exBySession[session.id]?.size ?? 0,
+  }));
 
-      // Template name
-      let templateName = "Custom Workout";
-      if (session.workout_template_id) {
-        try {
-          const tmpl = await pb
-            .collection("workout_templates")
-            .getOne(session.workout_template_id, {
-              fields: "name",
-              requestKey: null,
-            });
-          templateName = (tmpl as unknown as { name: string }).name;
-        } catch {
-          // template deleted — keep fallback
-        }
-      }
-
-      return {
-        id: session.id,
-        templateName,
-        startedAt: session.started_at,
-        durationMinutes: session.duration_minutes,
-        exerciseCount: uniqueExercises.size,
-      };
-    }),
-  );
-
-  return {
-    totalWorkouts,
-    totalSets,
-    thisWeekWorkouts,
-    bestE1RM,
-    recentSessions,
-  };
+  return { totalWorkouts, totalSets, thisWeekWorkouts, bestE1RM, recentSessions };
 }
 
 // ─── Hook ───────────────────────────────────────────────────────────────

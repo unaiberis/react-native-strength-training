@@ -1,5 +1,5 @@
 // Mock expo-sqlite before any imports (needed by database.ts which session-store imports)
-jest.mock("expo-sqlite", () => ({}));
+vi.mock("expo-sqlite", () => ({}));
 
 import { useSessionStore, type LoggedSet } from "../session-store";
 

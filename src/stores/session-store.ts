@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import type { BlockType, PrescriptionConfig } from "../types/pocketbase";
 
 // ─── Types ───────────────────────────────────────────────────────────────
 
@@ -10,6 +11,8 @@ export interface LoggedSet {
   rir: number | null;
   isWarmup: boolean;
   tempo?: string | null;
+  round?: number | null;
+  timerRemaining?: number | null;
   loggedAt: string;
 }
 
@@ -22,7 +25,34 @@ export interface ExerciseInSession {
   targetRpeHigh: number | null;
   restSeconds: number;
   notes: string | null;
+  blockType: BlockType;
+  prescription: PrescriptionConfig | null;
+  round: number | null;
+  timerMinutes: number | null;
   loggedSets: LoggedSet[];
+}
+
+export const DEFAULT_BLOCK_TYPE: BlockType = "straight_set";
+
+export function createDefaultExercise(
+  overrides: Partial<ExerciseInSession> = {},
+): ExerciseInSession {
+  return {
+    exerciseId: "",
+    exerciseName: "",
+    targetSets: 3,
+    targetReps: 10,
+    targetRpeLow: null,
+    targetRpeHigh: null,
+    restSeconds: 90,
+    notes: null,
+    blockType: DEFAULT_BLOCK_TYPE,
+    prescription: null,
+    round: null,
+    timerMinutes: null,
+    loggedSets: [],
+    ...overrides,
+  };
 }
 
 interface RestTimerState {
@@ -47,6 +77,12 @@ interface SessionStore {
   restTimer: RestTimerState;
 
   // ─── Actions ───────────────────────────────────────────────────────────
+
+  /** Set the block type on the current exercise */
+  setBlockType: (exerciseId: string, blockType: BlockType) => void;
+
+  /** Set the prescription on the current exercise */
+  setPrescription: (exerciseId: string, prescription: PrescriptionConfig | null) => void;
 
   /** Start a new session — populates the store from the service response */
   startSession: (
@@ -103,12 +139,33 @@ export const useSessionStore = create<SessionStore>((set) => ({
     return set({
       activeSessionId: sessionId,
       workoutTemplateId: templateId,
-      exercises: exercises.map((ex) => ({ ...ex, loggedSets: [] })),
+      exercises: exercises.map((ex) => ({
+        ...ex,
+        blockType: ex.blockType ?? DEFAULT_BLOCK_TYPE,
+        prescription: ex.prescription ?? null,
+        round: ex.round ?? null,
+        timerMinutes: ex.timerMinutes ?? null,
+        loggedSets: [],
+      })),
       currentExerciseIndex: 0,
       startedAt: new Date().toISOString(),
       restTimer: { ...initialRestTimer },
     });
   },
+
+  setBlockType: (exerciseId, blockType) =>
+    set((state) => ({
+      exercises: state.exercises.map((ex) =>
+        ex.exerciseId === exerciseId ? { ...ex, blockType } : ex,
+      ),
+    })),
+
+  setPrescription: (exerciseId, prescription) =>
+    set((state) => ({
+      exercises: state.exercises.map((ex) =>
+        ex.exerciseId === exerciseId ? { ...ex, prescription } : ex,
+      ),
+    })),
 
   setCurrentExerciseIndex: (index) =>
     set({ currentExerciseIndex: index }),

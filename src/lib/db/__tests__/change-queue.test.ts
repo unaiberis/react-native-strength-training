@@ -6,7 +6,7 @@
  */
 
 // Mock expo-sqlite — the module under test uses SQLiteDatabase as a type
-jest.mock("expo-sqlite", () => ({}));
+vi.mock("expo-sqlite", () => ({}));
 
 import { ChangeQueue } from "../change-queue";
 import type { QueueAction } from "../types";
@@ -16,12 +16,12 @@ describe("ChangeQueue", () => {
 
   function createMockDb() {
     return {
-      runAsync: jest.fn<
+      runAsync: vi.fn<
         Promise<{ lastInsertRowId: number; changes: number }>,
         [string, ...unknown[]]
       >(),
-      getAllAsync: jest.fn<Promise<unknown[]>, [string, ...unknown[]]>(),
-      getFirstAsync: jest.fn<Promise<unknown>, [string, ...unknown[]]>(),
+      getAllAsync: vi.fn<Promise<unknown[]>, [string, ...unknown[]]>(),
+      getFirstAsync: vi.fn<Promise<unknown>, [string, ...unknown[]]>(),
     };
   }
 
@@ -49,7 +49,7 @@ describe("ChangeQueue", () => {
   }
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   // ─── enqueue ──────────────────────────────────────────────────────

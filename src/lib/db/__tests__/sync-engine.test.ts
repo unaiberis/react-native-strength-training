@@ -6,7 +6,7 @@
  * collection pulling, and event emission.
  */
 
-jest.mock("expo-sqlite", () => ({}));
+vi.mock("expo-sqlite", () => ({}));
 
 import { SyncEngine } from "../sync-engine";
 import type { QueueEntry } from "../types";
@@ -16,50 +16,50 @@ describe("SyncEngine", () => {
 
   function createMockChangeQueue() {
     return {
-      enqueue: jest.fn(),
-      peek: jest.fn<Promise<QueueEntry[]>, [number?]>(),
-      dequeue: jest.fn(),
-      markDeadLetter: jest.fn(),
-      markAllAuthError: jest.fn<Promise<number>, []>(),
-      resetAuthErrors: jest.fn<Promise<number>, []>(),
-      incrementRetry: jest.fn(),
-      getPendingCount: jest.fn<Promise<number>, []>(),
+      enqueue: vi.fn(),
+      peek: vi.fn<Promise<QueueEntry[]>, [number?]>(),
+      dequeue: vi.fn(),
+      markDeadLetter: vi.fn(),
+      markAllAuthError: vi.fn<Promise<number>, []>(),
+      resetAuthErrors: vi.fn<Promise<number>, []>(),
+      incrementRetry: vi.fn(),
+      getPendingCount: vi.fn<Promise<number>, []>(),
     };
   }
 
   function createMockIdMapping() {
     return {
-      storeMapping: jest.fn(),
-      lookup: jest.fn(),
-      updateChildFKs: jest.fn<Promise<number>, [string, string, string, string]>(),
-      patchPendingQueue: jest.fn(),
+      storeMapping: vi.fn(),
+      lookup: vi.fn(),
+      updateChildFKs: vi.fn<Promise<number>, [string, string, string, string]>(),
+      patchPendingQueue: vi.fn(),
     };
   }
 
   function createMockSyncMeta() {
     return {
-      set: jest.fn(),
-      get: jest.fn(),
-      delete: jest.fn(),
-      setActiveSessionId: jest.fn(),
-      getActiveSessionId: jest.fn(),
-      clearActiveSessionId: jest.fn(),
-      setAuthExpired: jest.fn(),
-      getAuthExpired: jest.fn<Promise<boolean>, []>(),
-      setLastSyncedAt: jest.fn(),
-      getLastSyncedAt: jest.fn(),
+      set: vi.fn(),
+      get: vi.fn(),
+      delete: vi.fn(),
+      setActiveSessionId: vi.fn(),
+      getActiveSessionId: vi.fn(),
+      clearActiveSessionId: vi.fn(),
+      setAuthExpired: vi.fn(),
+      getAuthExpired: vi.fn<Promise<boolean>, []>(),
+      setLastSyncedAt: vi.fn(),
+      getLastSyncedAt: vi.fn(),
     };
   }
 
   function createMockPocketBase() {
     const mockCollection = {
-      create: jest.fn(),
-      update: jest.fn(),
-      delete: jest.fn(),
-      getFullList: jest.fn(),
+      create: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
+      getFullList: vi.fn(),
     };
     return {
-      collection: jest.fn().mockReturnValue(mockCollection),
+      collection: vi.fn().mockReturnValue(mockCollection),
     };
   }
 
@@ -74,10 +74,10 @@ describe("SyncEngine", () => {
       syncMeta?: ReturnType<typeof createMockSyncMeta>;
       pocketbase?: ReturnType<typeof createMockPocketBase>;
       networkMonitor?: ReturnType<typeof createMockNetworkMonitor>;
-      db?: { runAsync: jest.Mock };
+      db?: { runAsync: vi.Mock };
     } = {},
   ) {
-    const db = overrides.db ?? { runAsync: jest.fn() };
+    const db = overrides.db ?? { runAsync: vi.fn() };
     return {
       engine: new SyncEngine(
         db as any,
@@ -109,7 +109,7 @@ describe("SyncEngine", () => {
   }
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   // ─── Constructor & event helpers ──────────────────────────────────
@@ -124,7 +124,7 @@ describe("SyncEngine", () => {
   describe("on / off", () => {
     it("registers and invokes event listeners", () => {
       const { engine } = createEngine();
-      const listener = jest.fn();
+      const listener = vi.fn();
 
       engine.on("SYNC_START", listener);
       // Manually emit via the internal method
@@ -135,7 +135,7 @@ describe("SyncEngine", () => {
 
     it("removes listeners via off", () => {
       const { engine } = createEngine();
-      const listener = jest.fn();
+      const listener = vi.fn();
 
       engine.on("SYNC_START", listener);
       engine.off("SYNC_START", listener);
@@ -146,8 +146,8 @@ describe("SyncEngine", () => {
 
     it("supports multiple listeners on the same event", () => {
       const { engine } = createEngine();
-      const listener1 = jest.fn();
-      const listener2 = jest.fn();
+      const listener1 = vi.fn();
+      const listener2 = vi.fn();
 
       engine.on("SYNC_COMPLETE", listener1);
       engine.on("SYNC_COMPLETE", listener2);
@@ -164,7 +164,7 @@ describe("SyncEngine", () => {
     it("processes create entries and dequeues them", async () => {
       const changeQueue = createMockChangeQueue();
       const idMapping = createMockIdMapping();
-      const db = { runAsync: jest.fn() };
+      const db = { runAsync: vi.fn() };
       const pb = createMockPocketBase();
 
       changeQueue.peek.mockResolvedValue([makeQueueEntry()]);
@@ -241,7 +241,7 @@ describe("SyncEngine", () => {
       pb.collection().create.mockRejectedValue(authError);
 
       const { engine } = createEngine({ changeQueue, pocketbase: pb });
-      const listener = jest.fn();
+      const listener = vi.fn();
       engine.on("AUTH_EXPIRED", listener);
 
       const result = await engine.flushQueue();
@@ -265,7 +265,7 @@ describe("SyncEngine", () => {
       pb.collection().create.mockRejectedValue(error);
 
       const { engine } = createEngine({ changeQueue, pocketbase: pb });
-      const listener = jest.fn();
+      const listener = vi.fn();
       engine.on("DEAD_LETTER", listener);
 
       const result = await engine.flushQueue();
@@ -280,7 +280,7 @@ describe("SyncEngine", () => {
     it("respects group atomicity — stops group on first failure", async () => {
       const changeQueue = createMockChangeQueue();
       const idMapping = createMockIdMapping();
-      const db = { runAsync: jest.fn() };
+      const db = { runAsync: vi.fn() };
       const pb = createMockPocketBase();
 
       changeQueue.peek.mockResolvedValue([
@@ -331,7 +331,7 @@ describe("SyncEngine", () => {
     it("fetches records from PocketBase and upserts to SQLite", async () => {
       const pb = createMockPocketBase();
       const syncMeta = createMockSyncMeta();
-      const db = { runAsync: jest.fn() };
+      const db = { runAsync: vi.fn() };
 
       pb.collection().getFullList.mockResolvedValue([
         { id: "ex-1", name: "Bench Press", category: "strength" },
@@ -370,7 +370,7 @@ describe("SyncEngine", () => {
     it("handles empty response from PocketBase", async () => {
       const pb = createMockPocketBase();
       const syncMeta = createMockSyncMeta();
-      const db = { runAsync: jest.fn() };
+      const db = { runAsync: vi.fn() };
 
       pb.collection().getFullList.mockResolvedValue([]);
 
@@ -391,9 +391,9 @@ describe("SyncEngine", () => {
 
     it("logs warning and skips on PocketBase error", async () => {
       const pb = createMockPocketBase();
-      const consoleWarn = jest.spyOn(console, "warn").mockImplementation();
+      const consoleWarn = vi.spyOn(console, "warn").mockImplementation();
       const syncMeta = createMockSyncMeta();
-      const db = { runAsync: jest.fn() };
+      const db = { runAsync: vi.fn() };
 
       pb.collection().getFullList.mockRejectedValue(new Error("Network error"));
 
@@ -420,7 +420,7 @@ describe("SyncEngine", () => {
       const changeQueue = createMockChangeQueue();
       const pb = createMockPocketBase();
       const syncMeta = createMockSyncMeta();
-      const db = { runAsync: jest.fn() };
+      const db = { runAsync: vi.fn() };
 
       changeQueue.peek.mockResolvedValue([]);
       pb.collection().getFullList.mockResolvedValue([]);
@@ -461,7 +461,7 @@ describe("SyncEngine", () => {
       const changeQueue = createMockChangeQueue();
       const pb = createMockPocketBase();
       const syncMeta = createMockSyncMeta();
-      const db = { runAsync: jest.fn() };
+      const db = { runAsync: vi.fn() };
 
       changeQueue.peek.mockResolvedValue([]);
       pb.collection().getFullList.mockResolvedValue([]);
@@ -476,8 +476,8 @@ describe("SyncEngine", () => {
         createMockNetworkMonitor(),
       );
 
-      const startListener = jest.fn();
-      const completeListener = jest.fn();
+      const startListener = vi.fn();
+      const completeListener = vi.fn();
       engine.on("SYNC_START", startListener);
       engine.on("SYNC_COMPLETE", completeListener);
 

@@ -4,14 +4,19 @@
  * Uses a mock for expo-sqlite since the node test environment
  * does not have native SQLite support.
  */
-
 // Mock expo-sqlite before importing the module under test
-const mockExecAsync = jest.fn();
-const mockCloseAsync = jest.fn();
-const mockOpenDatabaseAsync = jest.fn();
 
-jest.mock("expo-sqlite", () => ({
-  openDatabaseAsync: mockOpenDatabaseAsync,
+// Vitest v4: hoisted mock variables
+const dbMocks = vi.hoisted(() => {
+  const mockExecAsync = vi.fn();
+  const mockCloseAsync = vi.fn();
+  const mockOpenDatabaseAsync = vi.fn();
+    return { mockExecAsync, mockCloseAsync, mockOpenDatabaseAsync };
+});
+const { mockExecAsync, mockCloseAsync, mockOpenDatabaseAsync } = dbMocks;
+
+vi.mock("expo-sqlite", () => ({
+  openDatabaseAsync: dbMocks.mockOpenDatabaseAsync,
 }));
 
 import { getDb, closeDb, isOpen, resetDb } from "../database";
@@ -23,7 +28,7 @@ describe("database module", () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     resetDb();
     mockOpenDatabaseAsync.mockResolvedValue(mockDb);
     mockExecAsync.mockResolvedValue(undefined);

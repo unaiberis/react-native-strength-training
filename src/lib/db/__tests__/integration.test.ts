@@ -7,7 +7,7 @@
  * 3. Auth offline preservation — getSession with network errors
  */
 
-jest.mock("expo-sqlite", () => ({}));
+vi.mock("expo-sqlite", () => ({}));
 
 import { createSqlitePersister } from "../sqlite-storage";
 import type { SQLiteDatabase } from "expo-sqlite";
@@ -19,7 +19,7 @@ function createMockDb() {
   const store = new Map<string, string>();
 
   return {
-    runAsync: jest.fn(async (_sql: string, ...params: unknown[]) => {
+    runAsync: vi.fn(async (_sql: string, ...params: unknown[]) => {
       const [sql] = [_sql];
       if (sql.includes("INSERT OR REPLACE INTO react_query_cache")) {
         const p = params[0] as [string, string];
@@ -32,18 +32,18 @@ function createMockDb() {
         return { lastInsertRowId: 0, changes: 1 };
       }
       return { lastInsertRowId: 1, changes: 1 };
-    }) as jest.Mock,
-    getFirstAsync: jest.fn(async (_sql: string, ...params: unknown[]) => {
+    }) as vi.Mock,
+    getFirstAsync: vi.fn(async (_sql: string, ...params: unknown[]) => {
       const [sql] = [_sql];
       if (sql.includes("SELECT value FROM react_query_cache")) {
         const p = params[0] as [string];
         return store.has(p[0]) ? { value: store.get(p[0]) } : null;
       }
       return null;
-    }) as jest.Mock,
-    getAllAsync: jest.fn() as jest.Mock,
-    execAsync: jest.fn() as jest.Mock,
-    closeAsync: jest.fn() as jest.Mock,
+    }) as vi.Mock,
+    getAllAsync: vi.fn() as vi.Mock,
+    execAsync: vi.fn() as vi.Mock,
+    closeAsync: vi.fn() as vi.Mock,
   };
 }
 
@@ -145,7 +145,7 @@ describe("React Query persister cache roundtrip", () => {
     const persister = createSqlitePersister(db as unknown as SQLiteDatabase);
 
     // Override the persistent behavior: restore from store
-    (db.getFirstAsync as jest.Mock).mockImplementation(
+    (db.getFirstAsync as vi.Mock).mockImplementation(
       async (_sql: string, ...params: unknown[]) => {
         const [sql] = [_sql];
         if (sql.includes("SELECT value FROM react_query_cache")) {
@@ -251,7 +251,7 @@ describe("auth offline preservation", () => {
       isValid: true,
       record: { id: "user-1", email: "test@test.com" },
       token: "valid-token",
-      clear: jest.fn(),
+      clear: vi.fn(),
     };
 
     async function getSession() {
@@ -284,7 +284,7 @@ describe("auth offline preservation", () => {
       isValid: true,
       record: { id: "user-1" },
       token: "valid-token",
-      clear: jest.fn(),
+      clear: vi.fn(),
     };
 
     async function getSession() {

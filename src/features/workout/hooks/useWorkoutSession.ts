@@ -102,6 +102,8 @@ export function useLogSet() {
         rir: input.rir ?? null,
         isWarmup: input.isWarmup ?? false,
         tempo: input.tempo ?? null,
+        round: input.round ?? null,
+        timerRemaining: input.timerRemaining ?? null,
         loggedAt: new Date().toISOString(),
       });
 

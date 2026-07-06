@@ -1,5 +1,5 @@
 import { pb } from "../client";
-import type { SessionRow, ExerciseSetRow } from "../../../types/pocketbase";
+import type { SessionRow, ExerciseSetRow, BlockType, PrescriptionConfig } from "../../../types/pocketbase";
 
 // ─── Row Types ───────────────────────────────────────────────────────────
 
@@ -13,6 +13,8 @@ export interface LogSetInput {
   rir?: number | null;
   isWarmup?: boolean;
   tempo?: string | null;
+  round?: number | null;
+  timerRemaining?: number | null;
 }
 
 // ─── Pre-built exercise from a template ──────────────────────────────────
@@ -26,6 +28,10 @@ export interface SessionExercise {
   targetRpeHigh: number | null;
   restSeconds: number;
   notes: string | null;
+  blockType: BlockType;
+  prescription: PrescriptionConfig | null;
+  round: number | null;
+  timerMinutes: number | null;
 }
 
 // ─── Session detail (session + sets + exercise names) ────────────────────
@@ -111,6 +117,10 @@ async function fetchTemplateExercises(
     target_rpe_high: number | null;
     rest_seconds: number;
     notes: string | null;
+    block_type: BlockType;
+    prescription: PrescriptionConfig | null;
+    round: number | null;
+    timer_minutes: number | null;
   }>;
 
   if (templateExercises.length === 0) return [];
@@ -137,6 +147,10 @@ async function fetchTemplateExercises(
     targetRpeHigh: r.target_rpe_high,
     restSeconds: r.rest_seconds,
     notes: r.notes,
+    blockType: r.block_type ?? "straight_set",
+    prescription: r.prescription ?? null,
+    round: r.round ?? null,
+    timerMinutes: r.timer_minutes ?? null,
   }));
 }
 
@@ -157,6 +171,8 @@ export async function logSet(
       rir: input.rir ?? null,
       is_warmup: input.isWarmup ?? false,
       tempo: input.tempo ?? null,
+      round: input.round ?? null,
+      timer_remaining: input.timerRemaining ?? null,
     });
 
     if (!record) throw new Error("Failed to log set");

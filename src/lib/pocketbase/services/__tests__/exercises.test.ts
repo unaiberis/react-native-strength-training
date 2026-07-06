@@ -1,20 +1,22 @@
-// Mock the client module so we control pb behavior
-const mockGetList = jest.fn();
-const mockGetOne = jest.fn();
-const mockGetFullList = jest.fn();
+// Vitest v4: hoisted mock variables (referenced in vi.mock factory)
+const pbMocks = vi.hoisted(() => {
+  const mockGetList = vi.fn();
+  const mockGetOne = vi.fn();
+  const mockGetFullList = vi.fn();
+  const mockPb = {
+    collection: vi.fn(() => ({
+      getList: mockGetList,
+      getOne: mockGetOne,
+      getFullList: mockGetFullList,
+    })),
+    filter: vi.fn((s: string) => s),
+  };
+  return { mockGetList, mockGetOne, mockGetFullList, mockPb };
+});
 
-const mockPb = {
-  collection: jest.fn(() => ({
-    getList: mockGetList,
-    getOne: mockGetOne,
-    getFullList: mockGetFullList,
-  })),
-  filter: jest.fn((s: string) => s),
-};
+const { mockGetList, mockGetOne, mockGetFullList } = pbMocks;
 
-jest.mock("../../client", () => ({
-  pb: mockPb,
-}));
+vi.mock("../../client", () => ({ pb: pbMocks.mockPb }));
 
 import type { ExerciseRow } from "../../../../types/pocketbase";
 import {
@@ -42,7 +44,7 @@ const makeExercise = (overrides: Partial<ExerciseRow> = {}): ExerciseRow => ({
 
 describe("PocketBase exercises service", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   // ─── listExercises ──────────────────────────────────────────────
