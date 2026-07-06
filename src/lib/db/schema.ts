@@ -10,7 +10,7 @@
 import type { SQLiteDatabase } from "expo-sqlite";
 
 const SCHEMA_VERSION_KEY = "schema_version";
-const CURRENT_SCHEMA_VERSION = "2";
+const CURRENT_SCHEMA_VERSION = "3";
 
 // ─── DDL Statements ─────────────────────────────────────────────────────
 
@@ -123,6 +123,19 @@ CREATE TABLE IF NOT EXISTS react_query_cache (
   value TEXT NOT NULL
 );`;
 
+const CREATE_WORKOUT_FEEDBACK = `
+CREATE TABLE IF NOT EXISTS workout_feedback (
+  id TEXT PRIMARY KEY,
+  local_id TEXT UNIQUE,
+  session_id TEXT NOT NULL,
+  athlete_id TEXT NOT NULL,
+  coach_id TEXT,
+  rating INTEGER NOT NULL CHECK(rating >= 1 AND rating <= 5),
+  notes TEXT,
+  synced INTEGER NOT NULL DEFAULT 0,
+  created_at TEXT NOT NULL
+);`;
+
 // ─── Indexes ────────────────────────────────────────────────────────────
 
 const CREATE_INDEXES = [
@@ -149,6 +162,10 @@ const CREATE_INDEXES = [
   `CREATE INDEX IF NOT EXISTS idx_queue_status ON change_queue(status);`,
   `CREATE INDEX IF NOT EXISTS idx_queue_created ON change_queue(created_at);`,
   `CREATE INDEX IF NOT EXISTS idx_queue_group ON change_queue(group_id);`,
+
+  // workout_feedback
+  `CREATE INDEX IF NOT EXISTS idx_feedback_athlete ON workout_feedback(athlete_id);`,
+  `CREATE INDEX IF NOT EXISTS idx_feedback_synced ON workout_feedback(synced);`,
 ];
 
 const SEED_SCHEMA_VERSION = `
@@ -171,6 +188,7 @@ export const TABLES: readonly string[] = [
   "id_mapping",
   "sync_meta",
   "react_query_cache",
+  "workout_feedback",
 ] as const;
 
 // ─── Migration Runner ───────────────────────────────────────────────────
@@ -204,6 +222,7 @@ export async function runMigrations(db: SQLiteDatabase): Promise<void> {
   await db.execAsync(CREATE_ID_MAPPING);
   await db.execAsync(CREATE_SYNC_META);
   await db.execAsync(CREATE_REACT_QUERY_CACHE);
+  await db.execAsync(CREATE_WORKOUT_FEEDBACK);
 
   // Create indexes
   for (const indexSql of CREATE_INDEXES) {

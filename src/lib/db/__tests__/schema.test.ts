@@ -25,7 +25,7 @@ describe("schema migrations", () => {
   });
 
   describe("runMigrations", () => {
-    it("creates all 9 tables", async () => {
+    it("creates all 10 tables", async () => {
       await runMigrations(mockDb as any);
 
       // Collect all SQL calls and check for CREATE TABLE statements
@@ -35,7 +35,7 @@ describe("schema migrations", () => {
           sql.trim().toUpperCase().startsWith("CREATE TABLE"),
         );
 
-      expect(createTableCalls).toHaveLength(9);
+      expect(createTableCalls).toHaveLength(10);
 
       // Verify each table name appears
       const allSql = execAsyncMock.mock.calls
@@ -63,7 +63,8 @@ describe("schema migrations", () => {
       // workout_sessions: 2 (status, dirty)
       // exercise_sets: 2 (session, dirty)
       // change_queue: 3 (status, created, group)
-      expect(indexCalls).toHaveLength(12);
+      // workout_feedback: 2 (athlete, synced)
+      expect(indexCalls).toHaveLength(14);
     });
 
     it("creates exercises table with expected columns", async () => {
@@ -151,21 +152,21 @@ describe("schema migrations", () => {
 
       expect(seedCall).toBeDefined();
       expect(seedCall).toContain("schema_version");
-      expect(seedCall).toContain("'2'");
+      expect(seedCall).toContain("'3'");
     });
 
     it("is idempotent — can be called twice", async () => {
       await runMigrations(mockDb as any);
       await runMigrations(mockDb as any);
 
-      // Count CREATE TABLE calls — should be 18 (9 per run)
+      // Count CREATE TABLE calls — should be 20 (10 per run)
       const createTableCalls = execAsyncMock.mock.calls
         .map(([sql]: [string]) => sql)
         .filter((sql: string) =>
           sql.trim().toUpperCase().startsWith("CREATE TABLE"),
         );
 
-      expect(createTableCalls).toHaveLength(18);
+      expect(createTableCalls).toHaveLength(20);
     });
 
     it("executes tables in the correct dependency order", async () => {
@@ -230,8 +231,29 @@ describe("schema migrations", () => {
       expect(createCache).toContain("value TEXT NOT NULL");
     });
 
+    it("creates workout_feedback table with expected columns and CHECK constraint", async () => {
+      await runMigrations(mockDb as any);
+
+      const execCalls = execAsyncMock.mock.calls
+        .map(([sql]: [string]) => sql);
+      const createFeedback = execCalls.find((sql: string) =>
+        sql.includes("CREATE TABLE IF NOT EXISTS workout_feedback"),
+      );
+
+      expect(createFeedback).toBeDefined();
+      expect(createFeedback).toContain("id TEXT PRIMARY KEY");
+      expect(createFeedback).toContain("local_id TEXT UNIQUE");
+      expect(createFeedback).toContain("session_id TEXT NOT NULL");
+      expect(createFeedback).toContain("athlete_id TEXT NOT NULL");
+      expect(createFeedback).toContain("coach_id TEXT");
+      expect(createFeedback).toContain("rating INTEGER NOT NULL CHECK(rating >= 1 AND rating <= 5)");
+      expect(createFeedback).toContain("notes TEXT");
+      expect(createFeedback).toContain("synced INTEGER NOT NULL DEFAULT 0");
+      expect(createFeedback).toContain("created_at TEXT NOT NULL");
+    });
+
     it("skips migrations when schema is already at current version", async () => {
-      getFirstAsyncMock.mockResolvedValue({ value: "2" });
+      getFirstAsyncMock.mockResolvedValue({ value: "3" });
       execAsyncMock.mockClear();
 
       await runMigrations(mockDb as any);
