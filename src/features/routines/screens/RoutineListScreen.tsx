@@ -9,6 +9,8 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { useLingui } from "@lingui/react/macro";
+import { Trans } from "@lingui/react/macro";
 import { Card } from "../../../shared/ui/Card";
 import { Button } from "../../../shared/ui/Button";
 import { GradientBackground } from "../../../shared/ui/GradientBackground";
@@ -24,6 +26,7 @@ function RoutineItem({
   onPress: () => void;
   onDelete: () => void;
 }) {
+  const { t } = useLingui();
   const exerciseCount = template.exercises.length;
   const totalSets = template.exercises.reduce(
     (sum, ex) => sum + ex.target_sets,
@@ -47,10 +50,10 @@ function RoutineItem({
           )}
           <View className="flex-row gap-3">
             <Text className="text-surface-500 text-xs">
-              {exerciseCount} exercise{exerciseCount !== 1 ? "s" : ""}
+              {exerciseCount} <Trans>exercise{exerciseCount !== 1 ? "s" : ""}</Trans>
             </Text>
             <Text className="text-surface-500 text-xs">
-              {totalSets} total set{totalSets !== 1 ? "s" : ""}
+              {totalSets} <Trans>total set{totalSets !== 1 ? "s" : ""}</Trans>
             </Text>
           </View>
         </View>
@@ -60,7 +63,7 @@ function RoutineItem({
           className="p-2"
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
-          <Text className="text-red-400 text-sm">Delete</Text>
+          <Text className="text-red-400 text-sm"><Trans>Delete</Trans></Text>
         </TouchableOpacity>
       </View>
     </TouchableOpacity>
@@ -68,6 +71,7 @@ function RoutineItem({
 }
 
 export function RoutineListScreen() {
+  const { t } = useLingui();
   const router = useRouter();
   const { data: templates, isLoading, isRefetching, refetch } = useTemplates();
   const deleteTemplate = useDeleteTemplate();
@@ -78,12 +82,12 @@ export function RoutineListScreen() {
   const handleDelete = useCallback(
     (template: TemplateWithExercises) => {
       Alert.alert(
-        "Delete Routine",
-        `Are you sure you want to delete "${template.name}"? This action cannot be undone.`,
+        t`Delete Routine`,
+        t`Are you sure you want to delete "${template.name}"? This action cannot be undone.`,
         [
-          { text: "Cancel", style: "cancel" },
+          { text: t`Cancel`, style: "cancel" },
           {
-            text: "Delete",
+            text: t`Delete`,
             style: "destructive",
             onPress: async () => {
               setDeletingId(template.id);
@@ -91,8 +95,8 @@ export function RoutineListScreen() {
                 await deleteTemplate.mutateAsync(template.id);
               } catch (err) {
                 Alert.alert(
-                  "Error",
-                  (err as Error).message ?? "Failed to delete routine",
+                  t`Error`,
+                  (err as Error).message ?? t`Failed to delete routine`,
                 );
               } finally {
                 setDeletingId(null);
@@ -102,7 +106,7 @@ export function RoutineListScreen() {
         ],
       );
     },
-    [deleteTemplate],
+    [deleteTemplate, t],
   );
 
   const handlePress = useCallback(
@@ -134,13 +138,13 @@ export function RoutineListScreen() {
       <View className="items-center py-16 px-4">
         <Text className="text-4xl mb-4">📋</Text>
         <Text className="text-surface-100 text-lg font-semibold mb-2">
-          No Routines Yet
+          <Trans>No Routines Yet</Trans>
         </Text>
         <Text className="text-surface-400 text-center mb-6">
-          Create your first workout routine to get started.
+          <Trans>Create your first workout routine to get started.</Trans>
         </Text>
         <Button
-          title="Create Routine"
+          title={t`Create Routine`}
           variant="primary"
           onPress={() => router.push("/routines/new")}
         />
@@ -164,10 +168,10 @@ export function RoutineListScreen() {
       {/* Header */}
       <View className="px-4 pt-4 pb-2 flex-row justify-between items-center">
         <Text className="text-surface-400 text-sm">
-          {templates?.length ?? 0} routine{(templates?.length ?? 0) !== 1 ? "s" : ""}
+          {templates?.length ?? 0} <Trans>routine{(templates?.length ?? 0) !== 1 ? "s" : ""}</Trans>
         </Text>
         <Button
-          title="+ New"
+          title={t`+ New`}
           variant="primary"
           onPress={() => router.push("/routines/new")}
         />
