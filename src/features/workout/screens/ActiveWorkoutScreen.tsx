@@ -7,13 +7,16 @@ import {
   TouchableOpacity,
   Alert,
   ActivityIndicator,
-  FlatList,
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { Card } from "../../../shared/ui/Card";
 import { Button } from "../../../shared/ui/Button";
 import { GradientBackground } from "../../../shared/ui/GradientBackground";
 import { RestTimer } from "../../../shared/ui/RestTimer";
+import { RpeSlider } from "../../../shared/ui/RpeSlider";
+import { WeightTypeSelector } from "../../../shared/ui/WeightTypeSelector";
+import { BlockTimer } from "../components/BlockTimer";
+import { AmrapResultInput } from "../components/AmrapResultInput";
 import {
   useSessionStore,
   type LoggedSet,
@@ -26,15 +29,19 @@ import {
   useCurrentExercise,
   useIsCurrentExerciseComplete,
 } from "../hooks/useWorkoutSession";
+import { getBlockTypeStrategy } from "../strategies/BlockTypeStrategy";
+import { computeTargetFromConfig } from "../../../shared/utils/prescription";
 
 // ─── Set Row ─────────────────────────────────────────────────────────────
 
 function SetRow({
   set,
   isActive,
+  showRound = false,
 }: {
   set: LoggedSet;
   isActive: boolean;
+  showRound?: boolean;
 }) {
   return (
     <View
@@ -45,6 +52,11 @@ function SetRow({
       <Text className="text-surface-400 text-sm font-mono w-8">
         #{set.setNumber}
       </Text>
+      {showRound && (
+        <Text className="text-surface-500 text-xs w-10 text-center font-mono">
+          R{set.setNumber}
+        </Text>
+      )}
       <Text className="text-surface-100 text-sm flex-1 text-center">
         {set.weightKg} kg
       </Text>
@@ -69,12 +81,12 @@ function SetRow({
 interface SetFormState {
   weightKg: string;
   reps: string;
-  rpe: string;
+  rpe: number | null;
   rir: string;
   tempo: string;
 }
 
-const emptyForm: SetFormState = { weightKg: "", reps: "", rpe: "", rir: "", tempo: "" };
+const emptyForm: SetFormState = { weightKg: "", reps: "", rpe: null, rir: "", tempo: "" };
 
 function SetInputForm({
   setNumber,
@@ -102,16 +114,20 @@ function SetInputForm({
   const [form, setForm] = useState<SetFormState>(emptyForm);
 
   const updateField = useCallback(
-    (field: keyof SetFormState, value: string) => {
+    (field: "weightKg" | "reps" | "rir" | "tempo", value: string) => {
       setForm((prev) => ({ ...prev, [field]: value }));
     },
     [],
   );
 
+  const handleRpeChange = useCallback((rpe: number) => {
+    setForm((prev) => ({ ...prev, rpe }));
+  }, []);
+
   const handleLog = useCallback(() => {
     const weightKg = parseFloat(form.weightKg);
     const reps = parseInt(form.reps, 10);
-    const rpe = form.rpe ? parseFloat(form.rpe) : null;
+    const rpe = form.rpe;
     const rir = form.rir ? parseInt(form.rir, 10) : null;
     const tempo = form.tempo.trim() || null;
 
@@ -121,14 +137,6 @@ function SetInputForm({
     }
     if (isNaN(reps) || reps < 1) {
       Alert.alert("Validation", "Reps must be at least 1.");
-      return;
-    }
-    if (rpe != null && (rpe < 1 || rpe > 10)) {
-      Alert.alert("Validation", "RPE must be between 1 and 10.");
-      return;
-    }
-    if (rpe != null && rpe % 0.5 !== 0) {
-      Alert.alert("Validation", "RPE must be in 0.5 increments.");
       return;
     }
     if (rir != null && (rir < 0 || rir > 10)) {
@@ -149,71 +157,52 @@ function SetInputForm({
     weightRef.current?.focus();
   }, []);
 
-  const rpeHint =
-    targetRpeLow != null || targetRpeHigh != null
-      ? `Target RPE ${targetRpeLow ?? "?"}–${targetRpeHigh ?? "?"}`
-      : null;
-
   return (
-    <Card className="mt-3">
-      <Text className="text-surface-100 text-sm font-semibold mb-3">
-        Set #{setNumber}
-      </Text>
+    <View className="gap-3 mt-3">
+      {/* Weight, Reps, Tempo row */}
+      <Card>
+        <Text className="text-surface-100 text-sm font-semibold mb-3">
+          Set #{setNumber}
+        </Text>
 
-      {rpeHint && (
-        <Text className="text-surface-500 text-xs mb-3">{rpeHint}</Text>
-      )}
+        <View className="flex-row gap-3 mb-3">
+          <View className="flex-1">
+            <Text className="text-surface-400 text-xs mb-1">Weight (kg)</Text>
+            <TextInput
+              ref={weightRef}
+              keyboardType="decimal-pad"
+              placeholder="0"
+              placeholderTextColor="#52525b"
+              value={form.weightKg}
+              onChangeText={(v) => updateField("weightKg", v)}
+              className="bg-surface-800 border border-surface-700 rounded-lg px-3 py-2.5 text-surface-100 text-sm"
+            />
+          </View>
+          <View className="flex-1">
+            <Text className="text-surface-400 text-xs mb-1">Reps</Text>
+            <TextInput
+              keyboardType="number-pad"
+              placeholder={String(targetReps)}
+              placeholderTextColor="#52525b"
+              value={form.reps}
+              onChangeText={(v) => updateField("reps", v)}
+              className="bg-surface-800 border border-surface-700 rounded-lg px-3 py-2.5 text-surface-100 text-sm"
+            />
+          </View>
+          <View className="flex-1">
+            <Text className="text-surface-400 text-xs mb-1">Tempo</Text>
+            <TextInput
+              keyboardType="number-pad"
+              placeholder="2020"
+              placeholderTextColor="#52525b"
+              value={form.tempo}
+              onChangeText={(v) => updateField("tempo", v)}
+              className="bg-surface-800 border border-surface-700 rounded-lg px-3 py-2.5 text-surface-100 text-sm"
+            />
+          </View>
+        </View>
 
-      <View className="flex-row gap-3 mb-3">
-        <View className="flex-1">
-          <Text className="text-surface-400 text-xs mb-1">Weight (kg)</Text>
-          <TextInput
-            ref={weightRef}
-            keyboardType="decimal-pad"
-            placeholder="0"
-            placeholderTextColor="#52525b"
-            value={form.weightKg}
-            onChangeText={(v) => updateField("weightKg", v)}
-            className="bg-surface-800 border border-surface-700 rounded-lg px-3 py-2.5 text-surface-100 text-sm"
-          />
-        </View>
-        <View className="flex-1">
-          <Text className="text-surface-400 text-xs mb-1">Reps</Text>
-          <TextInput
-            keyboardType="number-pad"
-            placeholder={String(targetReps)}
-            placeholderTextColor="#52525b"
-            value={form.reps}
-            onChangeText={(v) => updateField("reps", v)}
-            className="bg-surface-800 border border-surface-700 rounded-lg px-3 py-2.5 text-surface-100 text-sm"
-          />
-        </View>
-        <View className="flex-1">
-          <Text className="text-surface-400 text-xs mb-1">Tempo</Text>
-          <TextInput
-            keyboardType="number-pad"
-            placeholder="2020"
-            placeholderTextColor="#52525b"
-            value={form.tempo}
-            onChangeText={(v) => updateField("tempo", v)}
-            className="bg-surface-800 border border-surface-700 rounded-lg px-3 py-2.5 text-surface-100 text-sm"
-          />
-        </View>
-      </View>
-
-      <View className="flex-row gap-3 mb-4">
-        <View className="flex-1">
-          <Text className="text-surface-400 text-xs mb-1">RPE (1–10)</Text>
-          <TextInput
-            keyboardType="decimal-pad"
-            placeholder="—"
-            placeholderTextColor="#52525b"
-            value={form.rpe}
-            onChangeText={(v) => updateField("rpe", v)}
-            className="bg-surface-800 border border-surface-700 rounded-lg px-3 py-2.5 text-surface-100 text-sm"
-          />
-        </View>
-        <View className="flex-1">
+        <View className="mb-3">
           <Text className="text-surface-400 text-xs mb-1">RIR (0–5)</Text>
           <TextInput
             keyboardType="number-pad"
@@ -224,8 +213,17 @@ function SetInputForm({
             className="bg-surface-800 border border-surface-700 rounded-lg px-3 py-2.5 text-surface-100 text-sm"
           />
         </View>
-      </View>
+      </Card>
 
+      {/* RPE Slider */}
+      <Card>
+        <RpeSlider
+          value={form.rpe}
+          onChange={handleRpeChange}
+        />
+      </Card>
+
+      {/* Action buttons */}
       <View className="flex-row gap-3">
         <Button
           title="Log Set"
@@ -237,7 +235,7 @@ function SetInputForm({
           <Button title="Skip" variant="ghost" onPress={onSkip} />
         )}
       </View>
-    </Card>
+    </View>
   );
 }
 
@@ -268,6 +266,33 @@ export function ActiveWorkoutScreen() {
   const isCurrentComplete = useIsCurrentExerciseComplete();
 
   const [isAdvancing, setIsAdvancing] = useState(false);
+
+  // ─── Block type state ──────────────────────────────────────────────────
+
+  const blockType = useSessionStore((s) => s.blockType);
+  const prescription = useSessionStore((s) => s.prescription);
+  const timerMinutes = useSessionStore((s) => s.timerMinutes);
+
+  const blockStrategy = getBlockTypeStrategy(blockType);
+  const isTimedBlock = blockType === "amrap" || blockType === "emom";
+
+  const [blockTimerPaused, setBlockTimerPaused] = useState(false);
+  const [amrapDone, setAmrapDone] = useState(false);
+  const [amrapRounds, setAmrapRounds] = useState(0);
+  const [amrapPartialReps, setAmrapPartialReps] = useState(0);
+
+  // Prescription display
+  const prescriptionResult = prescription
+    ? computeTargetFromConfig(prescription, {})
+    : null;
+
+  // Reset AMRAP state when exercise changes
+  useEffect(() => {
+    setAmrapDone(false);
+    setAmrapRounds(0);
+    setAmrapPartialReps(0);
+    setBlockTimerPaused(false);
+  }, [currentExercise?.exerciseId]);
 
   // ─── Auto-create session on initial mount ──────────────────────────────
 
@@ -305,16 +330,18 @@ export function ActiveWorkoutScreen() {
           tempo: data.tempo,
         });
 
-        // Auto-start rest timer only if sets remain
-        const setsAfter = currentExercise.loggedSets.length + 1;
-        if (setsAfter < currentExercise.targetSets) {
-          startRest(currentExercise.restSeconds);
+        // Auto-start rest timer for straight sets (timed blocks handle their own pacing)
+        if (!isTimedBlock) {
+          const setsAfter = currentExercise.loggedSets.length + 1;
+          if (setsAfter < currentExercise.targetSets) {
+            startRest(currentExercise.restSeconds);
+          }
         }
       } catch (err) {
         Alert.alert("Error", (err as Error).message ?? "Failed to log set");
       }
     },
-    [currentExercise, activeSessionId, logSetMutation, startRest],
+    [currentExercise, activeSessionId, logSetMutation, startRest, isTimedBlock],
   );
 
   // ─── Advance to next exercise ──────────────────────────────────────────
@@ -403,6 +430,20 @@ export function ActiveWorkoutScreen() {
       ],
     );
   }, [cancelMutation, router]);
+
+  // ─── Handle AMRAP time up ───────────────────────────────────────────────
+
+  const handleAmrapTimeUp = useCallback(() => {
+    setBlockTimerPaused(true);
+    setAmrapDone(true);
+  }, []);
+
+  // ─── Handle AMRAP result submission ────────────────────────────────────
+
+  const handleAmrapSubmitResult = useCallback(() => {
+    // Store the AMRAP result and close the input
+    setAmrapDone(false);
+  }, []);
 
   // ─── Loading state (session being created) ─────────────────────────────
 
@@ -534,9 +575,16 @@ export function ActiveWorkoutScreen() {
 
       {/* Exercise header */}
       <View className="px-4 pb-2">
-        <Text className="text-surface-50 text-xl font-bold" numberOfLines={2}>
-          {currentExercise.exerciseName}
-        </Text>
+        <View className="flex-row items-center gap-2 mb-1">
+          <Text className="text-surface-50 text-xl font-bold flex-1" numberOfLines={2}>
+            {currentExercise.exerciseName}
+          </Text>
+          {blockType !== "straight_set" && (
+            <View className="bg-brand-500/20 rounded-full px-2.5 py-0.5">
+              <Text className="text-brand-400 text-xs font-bold uppercase">{blockType}</Text>
+            </View>
+          )}
+        </View>
         <Text className="text-surface-400 text-sm mt-1">
           Target: {currentExercise.targetSets} × {currentExercise.targetReps}{" "}
           reps
@@ -545,6 +593,43 @@ export function ActiveWorkoutScreen() {
             : ""}
         </Text>
       </View>
+
+      {/* Block timer for AMRAP/EMOM */}
+      {isTimedBlock && timerMinutes > 0 && (
+        <View className="px-1 mb-1">
+          <BlockTimer
+            blockType={blockType}
+            minutes={timerMinutes}
+            paused={blockTimerPaused}
+            onTimeUp={handleAmrapTimeUp}
+          />
+        </View>
+      )}
+
+      {/* Prescription display */}
+      {prescriptionResult && prescriptionResult.targetKg > 0 && (
+        <View className="px-4 mb-2">
+          <WeightTypeSelector
+            weightType={prescription?.type ?? null}
+            targetKg={prescriptionResult.targetKg}
+            label={prescriptionResult.label}
+            warning={prescriptionResult.warning}
+            showLabel={true}
+          />
+        </View>
+      )}
+
+      {/* AMRAP result input (after timer runs out) */}
+      {blockType === "amrap" && amrapDone && (
+        <View className="px-4 mb-2">
+          <AmrapResultInput
+            rounds={amrapRounds}
+            partialReps={amrapPartialReps}
+            onRoundsChange={setAmrapRounds}
+            onPartialRepsChange={setAmrapPartialReps}
+          />
+        </View>
+      )}
 
       {/* Sets list + input */}
       <ScrollView
@@ -557,6 +642,11 @@ export function ActiveWorkoutScreen() {
             <Text className="text-surface-500 text-xs font-semibold w-8">
               Set
             </Text>
+            {blockType !== "straight_set" && (
+              <Text className="text-surface-500 text-xs font-semibold w-10 text-center">
+                Rd
+              </Text>
+            )}
             <Text className="text-surface-500 text-xs font-semibold flex-1 text-center">
               Weight
             </Text>
@@ -580,11 +670,25 @@ export function ActiveWorkoutScreen() {
             key={`set-${set.setNumber}`}
             set={set}
             isActive={index === currentExercise.loggedSets.length - 1}
+            showRound={blockType !== "straight_set"}
           />
         ))}
 
-        {/* Set input form */}
-        {!isExerciseComplete && (
+        {/* Set input form (always available for timed blocks) */}
+        {isTimedBlock && (
+          <SetInputForm
+            setNumber={nextSetNumber}
+            targetReps={currentExercise.targetReps}
+            targetRpeLow={currentExercise.targetRpeLow}
+            targetRpeHigh={currentExercise.targetRpeHigh}
+            onLog={handleLogSet}
+            onSkip={handleSkipExercise}
+            isLastSet={false}
+          />
+        )}
+
+        {/* Set input form (standard for straight sets) */}
+        {!isTimedBlock && !isExerciseComplete && (
           <SetInputForm
             setNumber={nextSetNumber}
             targetReps={currentExercise.targetReps}
@@ -596,8 +700,8 @@ export function ActiveWorkoutScreen() {
           />
         )}
 
-        {/* Exercise complete state */}
-        {isExerciseComplete && (
+        {/* Exercise complete state (for straight sets only) */}
+        {!isTimedBlock && isExerciseComplete && (
           <View className="mt-4 mb-8 gap-3">
             <Card>
               <Text className="text-surface-400 text-center py-2">

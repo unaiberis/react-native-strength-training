@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import type { BlockType, PrescriptionConfig } from "@/types/pocketbase";
 
 // ─── Types ───────────────────────────────────────────────────────────────
 
@@ -43,6 +44,15 @@ interface SessionStore {
   /** Session start time for computing elapsed duration */
   startedAt: string | null;
 
+  /** Block type for the current workout (prescription context) */
+  blockType: BlockType;
+  /** Prescription configuration for the current block */
+  prescription: PrescriptionConfig | null;
+  /** Current round number (for circuit/EMOM) */
+  round: number;
+  /** Timer minutes for block rest intervals */
+  timerMinutes: number;
+
   // Rest timer
   restTimer: RestTimerState;
 
@@ -72,6 +82,15 @@ interface SessionStore {
 
   /** Reset the entire store (after session complete/cancel) */
   clearSession: () => void;
+
+  /** Set the block type for the current workout */
+  setBlockType: (blockType: BlockType) => void;
+  /** Set the prescription configuration */
+  setPrescription: (prescription: PrescriptionConfig | null) => void;
+  /** Set the current round number */
+  setRound: (round: number) => void;
+  /** Set the timer minutes for rest intervals */
+  setTimerMinutes: (minutes: number) => void;
 }
 
 // ─── Initial state ───────────────────────────────────────────────────────
@@ -88,6 +107,10 @@ const initialState = {
   exercises: [] as ExerciseInSession[],
   currentExerciseIndex: 0,
   startedAt: null as string | null,
+  blockType: "straight_set" as BlockType,
+  prescription: null as PrescriptionConfig | null,
+  round: 0,
+  timerMinutes: 0,
   restTimer: { ...initialRestTimer },
 };
 
@@ -151,6 +174,11 @@ export const useSessionStore = create<SessionStore>((set) => ({
 
     return set({ ...initialState });
   },
+
+  setBlockType: (blockType) => set({ blockType }),
+  setPrescription: (prescription) => set({ prescription }),
+  setRound: (round) => set({ round }),
+  setTimerMinutes: (timerMinutes) => set({ timerMinutes }),
 }));
 
 // ─── Helpers: SyncMeta persistence (fire-and-forget) ────────────────────

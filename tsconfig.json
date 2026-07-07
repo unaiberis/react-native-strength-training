@@ -14,5 +14,9 @@
     "**/*.ts",
     "**/*.tsx",
     "nativewind-env.d.ts"
+  ],
+  "exclude": [
+    "TheHybridProject_v0_1",
+    "node_modules"
   ]
 }

@@ -8,6 +8,7 @@
 // Mock expo-sqlite before importing the module under test
 const execAsyncMock = jest.fn();
 const getFirstAsyncMock = jest.fn();
+const getAllAsyncMock = jest.fn();
 jest.mock("expo-sqlite", () => ({}));
 
 import { runMigrations, TABLES } from "../schema";
@@ -16,16 +17,19 @@ describe("schema migrations", () => {
   const mockDb = {
     execAsync: execAsyncMock,
     getFirstAsync: getFirstAsyncMock,
+    getAllAsync: getAllAsyncMock,
   };
 
   beforeEach(() => {
     jest.clearAllMocks();
     execAsyncMock.mockResolvedValue(undefined);
     getFirstAsyncMock.mockRejectedValue(new Error("no sync_meta yet"));
+    // Simulate tempo column already exists (default for most tests)
+    getAllAsyncMock.mockResolvedValue([{ exists: 1 }]);
   });
 
   describe("runMigrations", () => {
-    it("creates all 9 tables", async () => {
+    it("creates all 10 tables", async () => {
       await runMigrations(mockDb as any);
 
       // Collect all SQL calls and check for CREATE TABLE statements
@@ -35,7 +39,7 @@ describe("schema migrations", () => {
           sql.trim().toUpperCase().startsWith("CREATE TABLE"),
         );
 
-      expect(createTableCalls).toHaveLength(9);
+      expect(createTableCalls).toHaveLength(10);
 
       // Verify each table name appears
       const allSql = execAsyncMock.mock.calls
@@ -151,21 +155,21 @@ describe("schema migrations", () => {
 
       expect(seedCall).toBeDefined();
       expect(seedCall).toContain("schema_version");
-      expect(seedCall).toContain("'2'");
+      expect(seedCall).toContain("'4'");
     });
 
     it("is idempotent — can be called twice", async () => {
       await runMigrations(mockDb as any);
       await runMigrations(mockDb as any);
 
-      // Count CREATE TABLE calls — should be 18 (9 per run)
+      // Count CREATE TABLE calls — should be 20 (10 per run)
       const createTableCalls = execAsyncMock.mock.calls
         .map(([sql]: [string]) => sql)
         .filter((sql: string) =>
           sql.trim().toUpperCase().startsWith("CREATE TABLE"),
         );
 
-      expect(createTableCalls).toHaveLength(18);
+      expect(createTableCalls).toHaveLength(20);
     });
 
     it("executes tables in the correct dependency order", async () => {
@@ -227,11 +231,12 @@ describe("schema migrations", () => {
 
       expect(createCache).toBeDefined();
       expect(createCache).toContain("key TEXT PRIMARY KEY");
-      expect(createCache).toContain("value TEXT NOT NULL");
+      expect(createCache).toContain("data TEXT NOT NULL");
+      expect(createCache).toContain("timestamp INTEGER NOT NULL");
     });
 
     it("skips migrations when schema is already at current version", async () => {
-      getFirstAsyncMock.mockResolvedValue({ value: "2" });
+      getFirstAsyncMock.mockResolvedValue({ value: "4" });
       execAsyncMock.mockClear();
 
       await runMigrations(mockDb as any);
@@ -241,8 +246,9 @@ describe("schema migrations", () => {
     });
 
     it("migrates from v1 to v2 by adding tempo column to exercise_sets", async () => {
-      // Simulate existing v1 schema
+      // Simulate existing v1 schema with no tempo column yet
       getFirstAsyncMock.mockResolvedValue({ value: "1" });
+      getAllAsyncMock.mockResolvedValue([{ exists: 0 }]);
 
       await runMigrations(mockDb as any);
 
@@ -253,32 +259,29 @@ describe("schema migrations", () => {
       expect(allSql).toContain("ALTER TABLE exercise_sets ADD COLUMN tempo");
     });
 
-    it("ALTER TABLE is idempotent — catches error if column already exists", async () => {
+    it("ALTER TABLE is idempotent — skips if column already exists", async () => {
       // Simulate v1 schema with column already existing
       getFirstAsyncMock.mockResolvedValue({ value: "1" });
+      getAllAsyncMock.mockResolvedValue([{ exists: 1 }]);
       execAsyncMock.mockClear();
 
-      // Make execAsync throw for ALTER TABLE, succeed for everything else
-      let callCount = 0;
-      execAsyncMock.mockImplementation((sql: string) => {
-        callCount++;
-        if (sql.includes("ALTER TABLE") && callCount === 1) {
-          return Promise.reject(new Error("duplicate column"));
-        }
-        return Promise.resolve(undefined);
-      });
+      await runMigrations(mockDb as any);
 
-      // Should not throw despite ALTER TABLE error
-      await expect(runMigrations(mockDb as any)).resolves.toBeUndefined();
+      // Should NOT run ALTER TABLE since tempo column already exists
+      const allSql = execAsyncMock.mock.calls
+        .map(([sql]: [string]) => sql)
+        .join(" ");
+      expect(allSql).not.toContain("ALTER TABLE exercise_sets ADD COLUMN tempo");
     });
 
     it("reports current version after v1 to v2 migration", async () => {
       getFirstAsyncMock.mockResolvedValue({ value: "1" });
       execAsyncMock.mockResolvedValue(undefined);
+      getAllAsyncMock.mockResolvedValue([{ exists: 1 }]);
 
       await runMigrations(mockDb as any);
 
-      // Should UPDATE the version from 1 to 2
+      // Should UPDATE the version from 1 to 3
       const updateCalls = execAsyncMock.mock.calls
         .map(([sql]: [string]) => sql)
         .filter((sql: string) =>

@@ -30,9 +30,11 @@ function SyncBanner() {
 }
 
 const tabIcons: Record<string, keyof typeof Ionicons.glyphMap> = {
-  index: "home-outline",
+  index: "calendar-outline",
+  home: "home-outline",
   train: "barbell-outline",
   programs: "document-text-outline",
+  analytics: "stats-chart-outline",
   progress: "trending-up-outline",
   profile: "person-outline",
 };
@@ -73,9 +75,18 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Home",
+          title: "Calendar",
           tabBarIcon: ({ focused }) => (
             <Ionicons name={tabIcons.index} size={22} color={focused ? "#B9B9B6" : "#71717a"} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="home"
+        options={{
+          title: "Home",
+          tabBarIcon: ({ focused }) => (
+            <Ionicons name={tabIcons.home} size={22} color={focused ? "#B9B9B6" : "#71717a"} />
           ),
         }}
       />
@@ -98,6 +109,15 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
+        name="analytics"
+        options={{
+          title: "Analytics",
+          tabBarIcon: ({ focused }) => (
+            <Ionicons name={tabIcons.analytics} size={22} color={focused ? "#B9B9B6" : "#71717a"} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="progress"
         options={{
           title: "Progress",
@@ -116,6 +136,7 @@ export default function TabsLayout() {
         }}
       />
       {/* Hidden routes — navigated to from other screens, not shown in tab bar */}
+      <Tabs.Screen name="calendar" options={{ href: null }} />
       <Tabs.Screen name="exercises/index" options={{ href: null, headerShown: true, headerTitle: "Exercise Library", headerStyle: { backgroundColor: "#18181b" }, headerTintColor: "#fafafa" }} />
       <Tabs.Screen name="exercises/[id]" options={{ href: null, headerShown: true, headerTitle: "Exercise Details", headerStyle: { backgroundColor: "#18181b" }, headerTintColor: "#fafafa" }} />
       <Tabs.Screen name="routines/index" options={{ href: null, headerShown: true, headerTitle: "Routines", headerStyle: { backgroundColor: "#18181b" }, headerTintColor: "#fafafa" }} />
@@ -123,6 +144,7 @@ export default function TabsLayout() {
       <Tabs.Screen name="routines/[id]/edit" options={{ href: null, headerShown: true, headerTitle: "Edit Routine", headerStyle: { backgroundColor: "#18181b" }, headerTintColor: "#fafafa" }} />
       <Tabs.Screen name="history/index" options={{ href: null, headerShown: true, headerTitle: "Workout History", headerStyle: { backgroundColor: "#18181b" }, headerTintColor: "#fafafa" }} />
       <Tabs.Screen name="history/[id]" options={{ href: null, headerShown: true, headerTitle: "Workout Details", headerStyle: { backgroundColor: "#18181b" }, headerTintColor: "#fafafa" }} />
+      <Tabs.Screen name="analytics/exercise/[id]" options={{ href: null, headerShown: true, headerTitle: "Exercise Progress", headerStyle: { backgroundColor: "#18181b" }, headerTintColor: "#fafafa" }} />
     </Tabs>
       </View>
     </GradientBackground>

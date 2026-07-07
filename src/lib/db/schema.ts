@@ -10,7 +10,7 @@
 import type { SQLiteDatabase } from "expo-sqlite";
 
 const SCHEMA_VERSION_KEY = "schema_version";
-const CURRENT_SCHEMA_VERSION = "2";
+const CURRENT_SCHEMA_VERSION = "4";
 
 // ─── DDL Statements ─────────────────────────────────────────────────────
 
@@ -117,10 +117,26 @@ CREATE TABLE IF NOT EXISTS sync_meta (
   value TEXT NOT NULL
 );`;
 
+const CREATE_DAILY_WELLNESS = `
+CREATE TABLE IF NOT EXISTS daily_wellness (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  date TEXT NOT NULL,
+  session_rpe INTEGER,
+  sleep INTEGER,
+  fatigue INTEGER,
+  soreness INTEGER,
+  mood INTEGER,
+  session_id TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  UNIQUE(user_id, date)
+);`;
+
 const CREATE_REACT_QUERY_CACHE = `
 CREATE TABLE IF NOT EXISTS react_query_cache (
   key TEXT PRIMARY KEY,
-  value TEXT NOT NULL
+  data TEXT NOT NULL,
+  timestamp INTEGER NOT NULL
 );`;
 
 // ─── Indexes ────────────────────────────────────────────────────────────
@@ -158,6 +174,7 @@ const UPDATE_SCHEMA_VERSION = `
 UPDATE sync_meta SET value = '${CURRENT_SCHEMA_VERSION}' WHERE key = '${SCHEMA_VERSION_KEY}' AND value != '${CURRENT_SCHEMA_VERSION}';`;
 
 const ALTER_ADD_TEMPO = `ALTER TABLE exercise_sets ADD COLUMN tempo TEXT;`;
+const ALTER_ADD_VIDEO_URL = `ALTER TABLE exercises ADD COLUMN video_url TEXT;`;
 
 // ─── Table Definitions (for testing / introspection) ────────────────────
 
@@ -170,6 +187,7 @@ export const TABLES: readonly string[] = [
   "change_queue",
   "id_mapping",
   "sync_meta",
+  "daily_wellness",
   "react_query_cache",
 ] as const;
 
@@ -203,6 +221,7 @@ export async function runMigrations(db: SQLiteDatabase): Promise<void> {
   await db.execAsync(CREATE_CHANGE_QUEUE);
   await db.execAsync(CREATE_ID_MAPPING);
   await db.execAsync(CREATE_SYNC_META);
+  await db.execAsync(CREATE_DAILY_WELLNESS);
   await db.execAsync(CREATE_REACT_QUERY_CACHE);
 
   // Create indexes
@@ -211,10 +230,19 @@ export async function runMigrations(db: SQLiteDatabase): Promise<void> {
   }
 
   // Migration v1 → v2: add tempo column to exercise_sets
-  try {
-    await db.execAsync(ALTER_ADD_TEMPO);
-  } catch {
-    // Column may already exist — idempotent
+  const tempoCheck = await db.getAllAsync<{ exists: number }>(
+    "SELECT COUNT(*) as exists FROM pragma_table_info('exercise_sets') WHERE name = 'tempo'"
+  );
+  if (tempoCheck[0].exists === 0) {
+    await db.execAsync("ALTER TABLE exercise_sets ADD COLUMN tempo TEXT;");
+  }
+
+  // Migration v3 → v4: add video_url column to exercises
+  const videoCheck = await db.getAllAsync<{ exists: number }>(
+    "SELECT COUNT(*) as exists FROM pragma_table_info('exercises') WHERE name = 'video_url'"
+  );
+  if (videoCheck[0].exists === 0) {
+    await db.execAsync("ALTER TABLE exercises ADD COLUMN video_url TEXT;");
   }
 
   // Seed schema version if not exists, then update if outdated

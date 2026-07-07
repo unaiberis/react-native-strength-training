@@ -173,6 +173,7 @@ async function seedExercises(token, exercises) {
       equipment:          JSON.stringify(ex.equipment || []),
       body_region:        ex.body_region,
       description:        ex.description || '',
+      video_url:          ex.video_url || '',
       default_sets:       ex.default_sets ?? 3,
       default_reps:       ex.default_reps ?? 10,
       default_rest_seconds: ex.default_rest_seconds ?? 90,

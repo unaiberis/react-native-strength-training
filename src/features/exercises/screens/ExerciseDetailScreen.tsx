@@ -1,4 +1,4 @@
-import { ScrollView, View, Text, ActivityIndicator } from "react-native";
+import { ScrollView, View, Text, ActivityIndicator, TouchableOpacity, Linking } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { Card } from "../../../shared/ui/Card";
 import { GradientBackground } from "../../../shared/ui/GradientBackground";
@@ -69,6 +69,20 @@ export function ExerciseDetailScreen() {
           <Text className="text-surface-100 text-sm leading-6">
             {exercise.description}
           </Text>
+        </Card>
+      )}
+
+      {/* Video tutorial link */}
+      {exercise.video_url && (
+        <Card className="mb-4">
+          <TouchableOpacity
+            onPress={() => Linking.openURL(exercise.video_url!)}
+            className="flex-row items-center py-1"
+          >
+            <Text className="text-brand-500 text-sm font-medium">
+              Watch on YouTube ↗
+            </Text>
+          </TouchableOpacity>
         </Card>
       )}
 

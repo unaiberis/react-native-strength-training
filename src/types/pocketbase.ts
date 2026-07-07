@@ -19,6 +19,7 @@ export interface ExerciseRow {
   is_public: boolean;
   created: string;
   updated: string;
+  video_url?: string | null;
 }
 
 export interface TemplateRow {
@@ -73,4 +74,32 @@ export interface ExerciseSetRow {
   logged_at: string;
   created: string;
   updated: string;
+}
+
+// Block Types
+
+export type BlockType = "straight_set" | "amrap" | "emom" | "circuit";
+
+export type PrescriptionWeightType = "absolute" | "bw_percent" | "one_rm_percent" | "difficulty";
+
+export interface PrescriptionConfig {
+  type: PrescriptionWeightType;
+  value: number; // kg, percentage, or RPE
+  minRpe?: number;
+  maxRpe?: number;
+}
+
+// Wellness
+
+export interface WellnessRow {
+  id: string;
+  user_id: string;
+  date: string; // ISO date YYYY-MM-DD
+  session_rpe: number | null; // 1-10
+  sleep: number | null; // 1-5
+  fatigue: number | null; // 1-5
+  soreness: number | null; // 1-5
+  mood: number | null; // 1-5
+  session_id: string | null;
+  created_at: string;
 }

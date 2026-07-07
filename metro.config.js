@@ -7,6 +7,9 @@ const config = getDefaultConfig(__dirname);
 // Some ESM packages (e.g. pocketbase) use .mjs as their main entry
 config.resolver.sourceExts.push("mjs", "cjs");
 
+// Web: expo-sqlite needs .wasm support for the SQLite WebAssembly build
+config.resolver.assetExts.push("wasm");
+
 // Workaround for @expo/metro-runtime RSC module resolution
 // Metro's resolver chain (Expo → NativeWind) can fail to resolve
 // @expo/metro-runtime/rsc/runtime even though the file exists.
