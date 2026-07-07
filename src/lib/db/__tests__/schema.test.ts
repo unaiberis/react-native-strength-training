@@ -35,7 +35,7 @@ describe("schema migrations", () => {
           sql.trim().toUpperCase().startsWith("CREATE TABLE"),
         );
 
-      expect(createTableCalls).toHaveLength(10);
+      expect(createTableCalls).toHaveLength(11);
 
       // Verify each table name appears
       const allSql = execAsyncMock.mock.calls
@@ -70,7 +70,7 @@ describe("schema migrations", () => {
       // workout_sessions: 2 (status, dirty)
       // exercise_sets: 2 (session, dirty)
       // change_queue: 3 (status, created, group)
-      expect(indexCalls).toHaveLength(14);
+      expect(indexCalls).toHaveLength(16);
     });
 
     it("creates exercises table with expected columns", async () => {
@@ -172,7 +172,7 @@ describe("schema migrations", () => {
           sql.trim().toUpperCase().startsWith("CREATE TABLE"),
         );
 
-      expect(createTableCalls).toHaveLength(20);
+      expect(createTableCalls).toHaveLength(22);
     });
 
     it("executes tables in the correct dependency order", async () => {

@@ -8,18 +8,18 @@
 import { renderHook, act, waitFor } from "@testing-library/react-native";
 import { useAuthStore } from "../../../../stores/auth-store";
 
-vi.mock("../../../../lib/pocketbase/services/auth", () => ({
-  getSession: vi.fn(),
-  signIn: vi.fn(),
-  signUp: vi.fn(),
-  signOut: vi.fn(),
-  onAuthStateChange: vi.fn(() => () => {}),
+jest.mock("../../../../lib/pocketbase/services/auth", () => ({
+  getSession: jest.fn(),
+  signIn: jest.fn(),
+  signUp: jest.fn(),
+  signOut: jest.fn(),
+  onAuthStateChange: jest.fn(() => () => {}),
 }));
 
 import * as AuthService from "../../../../lib/pocketbase/services/auth";
 
 beforeEach(() => {
-  vi.clearAllMocks();
+  jest.clearAllMocks();
   useAuthStore.setState({ state: "loading", session: null, user: null });
 });
 

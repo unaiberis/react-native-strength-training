@@ -1,22 +1,19 @@
-// Vitest v4: hoisted mock variables (referenced in vi.mock factory)
-const pbMocks = vi.hoisted(() => {
-  const mockGetList = vi.fn();
-  const mockGetOne = vi.fn();
-  const mockGetFullList = vi.fn();
-  const mockPb = {
-    collection: vi.fn(() => ({
+
+const mockGetList = jest.fn();
+const mockGetOne = jest.fn();
+const mockGetFullList = jest.fn();
+const mockPb = {
+    collection: jest.fn(() => ({
       getList: mockGetList,
       getOne: mockGetOne,
       getFullList: mockGetFullList,
     })),
-    filter: vi.fn((s: string) => s),
+    filter: jest.fn((s: string) => s),
   };
-  return { mockGetList, mockGetOne, mockGetFullList, mockPb };
-});
+  
 
-const { mockGetList, mockGetOne, mockGetFullList } = pbMocks;
 
-vi.mock("../../client", () => ({ pb: pbMocks.mockPb }));
+jest.mock("../../client", () => ({ pb: mockPb }));
 
 import type { ExerciseRow } from "../../../../types/pocketbase";
 import {
@@ -47,13 +44,13 @@ const makeExercise = (overrides: Partial<ExerciseRow> = {}): ExerciseRow => ({
 
 describe("PocketBase exercises service", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    jest.clearAllMocks();
   });
 
   // ─── listExercises ──────────────────────────────────────────────
 
   it("listExercises returns paginated exercises", async () => {
-    const items = [makeExercise(), makeExercise({ id: "ex-2", name: "Squat" })];
+const items = [makeExercise(), makeExercise({ id: "ex-2", name: "Squat" })];
     mockGetList.mockResolvedValue({
       page: 1,
       perPage: 20,
@@ -62,7 +59,7 @@ describe("PocketBase exercises service", () => {
       items,
     });
 
-    const result = await listExercises();
+const result = await listExercises();
 
     expect(mockGetList).toHaveBeenCalledWith(1, 20, {
       filter: "",
@@ -82,7 +79,7 @@ describe("PocketBase exercises service", () => {
       items: [makeExercise()],
     });
 
-    const result = await listExercises("Strength", 0, 20);
+const result = await listExercises("Strength", 0, 20);
 
     expect(mockGetList).toHaveBeenCalledWith(1, 20, {
       filter: "category = 'Strength'",
@@ -100,7 +97,7 @@ describe("PocketBase exercises service", () => {
       items: [],
     });
 
-    const result = await listExercises("all");
+const result = await listExercises("all");
 
     expect(mockGetList).toHaveBeenCalledWith(1, 20, {
       filter: "",
@@ -119,7 +116,7 @@ describe("PocketBase exercises service", () => {
       items: [],
     });
 
-    const result = await listExercises();
+const result = await listExercises();
 
     expect(result.data).toEqual([]);
     expect(result.count).toBe(0);
@@ -134,10 +131,10 @@ describe("PocketBase exercises service", () => {
   // ─── getExercise ────────────────────────────────────────────────
 
   it("getExercise returns a single exercise by id", async () => {
-    const exercise = makeExercise();
+const exercise = makeExercise();
     mockGetOne.mockResolvedValue(exercise);
 
-    const result = await getExercise("ex-1");
+const result = await getExercise("ex-1");
 
     expect(mockGetOne).toHaveBeenCalledWith("ex-1");
     expect(result).toEqual(exercise);
@@ -146,7 +143,7 @@ describe("PocketBase exercises service", () => {
   it("getExercise returns null when exercise not found", async () => {
     mockGetOne.mockRejectedValue(new Error("The requested resource wasn't found."));
 
-    const result = await getExercise("nonexistent");
+const result = await getExercise("nonexistent");
 
     expect(result).toBeNull();
   });
@@ -160,13 +157,13 @@ describe("PocketBase exercises service", () => {
   // ─── searchExercises ────────────────────────────────────────────
 
   it("searchExercises searches by name with case-insensitive match", async () => {
-    const items = [
+const items = [
       makeExercise({ id: "ex-1", name: "Bench Press" }),
       makeExercise({ id: "ex-3", name: "Incline Bench Press" }),
     ];
     mockGetFullList.mockResolvedValue(items);
 
-    const result = await searchExercises("bench", 10);
+const result = await searchExercises("bench", 10);
 
     expect(mockGetFullList).toHaveBeenCalledWith({
       filter: "name ~ 'bench'",
@@ -178,7 +175,7 @@ describe("PocketBase exercises service", () => {
   it("searchExercises returns empty array when no matches", async () => {
     mockGetFullList.mockResolvedValue([]);
 
-    const result = await searchExercises("zzzzz");
+const result = await searchExercises("zzzzz");
 
     expect(result).toEqual([]);
   });
@@ -203,7 +200,7 @@ describe("PocketBase exercises service", () => {
   // ─── getCategories ──────────────────────────────────────────────
 
   it("getCategories returns unique sorted categories", async () => {
-    const items = [
+const items = [
       { category: "Strength" },
       { category: "Cardio" },
       { category: "Strength" },
@@ -211,7 +208,7 @@ describe("PocketBase exercises service", () => {
     ];
     mockGetFullList.mockResolvedValue(items);
 
-    const result = await getCategories();
+const result = await getCategories();
 
     expect(result).toEqual(["Cardio", "Flexibility", "Strength"]);
   });
@@ -219,7 +216,7 @@ describe("PocketBase exercises service", () => {
   it("getCategories returns empty array when no exercises", async () => {
     mockGetFullList.mockResolvedValue([]);
 
-    const result = await getCategories();
+const result = await getCategories();
 
     expect(result).toEqual([]);
   });

@@ -1,22 +1,22 @@
-// Wrapper for vi.mock factory — Vitest v4 requires vi.hoisted() for
-// module-level variables referenced in vi.mock() factories.
+// Wrapper for jest.mock factory — Vitest v4 requires vi.hoisted() for
+// module-level variables referenced in jest.mock() factories.
 // eslint-disable-next-line prefer-const
-const pbMocks = vi.hoisted(() => {
-  const mockAuthWithPassword = vi.fn();
-  const mockCreate = vi.fn();
-  const mockAuthRefresh = vi.fn();
-  const mockClear = vi.fn();
+
+const mockAuthWithPassword = jest.fn();
+const mockCreate = jest.fn();
+const mockAuthRefresh = jest.fn();
+const mockClear = jest.fn();
   // Use object wrapper so both hoisted and test scope share same ref
-  const mockOnChangeRegistered = { current: (() => {}) as (token: string, record: any) => void };
-  const mockOnChange = vi.fn().mockImplementation(
+const mockOnChangeRegistered = { current: (() => {}) as (token: string, record: any) => void };
+const mockOnChange = jest.fn().mockImplementation(
     (cb: (token: string, record: any) => void) => {
       mockOnChangeRegistered.current = cb;
-      return vi.fn();
+      return jest.fn();
     },
   );
-  const mockIsValid = { value: false };
+const mockIsValid = { value: false };
 
-  const mockPb = {
+const mockPb = {
     authStore: {
       clear: mockClear,
       onChange: mockOnChange,
@@ -25,21 +25,18 @@ const pbMocks = vi.hoisted(() => {
       record: null,
       model: null,
     },
-    collection: vi.fn(() => ({
+    collection: jest.fn(() => ({
       authWithPassword: mockAuthWithPassword,
       create: mockCreate,
       authRefresh: mockAuthRefresh,
     })),
   };
 
-  return { mockAuthWithPassword, mockCreate, mockAuthRefresh, mockClear, mockOnChangeRegistered, mockOnChange, mockIsValid, mockPb };
-});
+  
 
-// Destructure after hoisted block — references accessed through pbMocks in vi.mock()
-const { mockAuthWithPassword, mockCreate, mockAuthRefresh, mockClear, mockOnChangeRegistered, mockOnChange, mockIsValid } = pbMocks;
 
-vi.mock("../../client", () => ({
-  pb: pbMocks.mockPb,
+jest.mock("../../client", () => ({
+  pb: mockPb,
 }));
 
 import {
@@ -53,17 +50,17 @@ import {
 
 describe("PocketBase auth service", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    jest.clearAllMocks();
     mockIsValid.value = false;
   });
 
   // ─── signUp ──────────────────────────────────────────────────
 
   it("signUp calls pb.collection('users').create and returns user", async () => {
-    const mockRecord = { id: "user-1", email: "test@test.com" };
+const mockRecord = { id: "user-1", email: "test@test.com" };
     mockCreate.mockResolvedValue(mockRecord);
 
-    const result = await signUp({
+const result = await signUp({
       email: "test@test.com",
       password: "StrongPass1",
       displayName: "Test User",
@@ -81,10 +78,10 @@ describe("PocketBase auth service", () => {
   });
 
   it("signUp passes coach role to PocketBase when provided", async () => {
-    const mockRecord = { id: "coach-1", email: "coach@test.com", role: "coach" };
+const mockRecord = { id: "coach-1", email: "coach@test.com", role: "coach" };
     mockCreate.mockResolvedValue(mockRecord);
 
-    const result = await signUp({
+const result = await signUp({
       email: "coach@test.com",
       password: "StrongPass1",
       displayName: "Coach User",
@@ -102,12 +99,12 @@ describe("PocketBase auth service", () => {
   });
 
   it("signUp returns error on PocketBase error", async () => {
-    const pbError = new Error("Failed to create record.");
+const pbError = new Error("Failed to create record.");
     (pbError as any).status = 400;
     (pbError as any).response = { message: "duplicate email" };
     mockCreate.mockRejectedValue(pbError);
 
-    const result = await signUp({
+const result = await signUp({
       email: "existing@test.com",
       password: "StrongPass1",
       displayName: "Existing",
@@ -119,12 +116,12 @@ describe("PocketBase auth service", () => {
   });
 
   it("signUp maps 'already exists' errors to user-friendly message", async () => {
-    const pbError = new Error("The resource already exists.");
+const pbError = new Error("The resource already exists.");
     (pbError as any).status = 400;
     (pbError as any).response = { message: "The resource already exists." };
     mockCreate.mockRejectedValue(pbError);
 
-    const result = await signUp({
+const result = await signUp({
       email: "dup@test.com",
       password: "StrongPass1",
       displayName: "Dup",
@@ -138,13 +135,13 @@ describe("PocketBase auth service", () => {
   // ─── signIn ──────────────────────────────────────────────────
 
   it("signIn calls authWithPassword and returns user", async () => {
-    const mockRecord = { id: "user-1", email: "test@test.com", displayName: "Test" };
+const mockRecord = { id: "user-1", email: "test@test.com", displayName: "Test" };
     mockAuthWithPassword.mockResolvedValue({
       record: mockRecord,
       token: "jwt-token-123",
     });
 
-    const result = await signIn({
+const result = await signIn({
       email: "test@test.com",
       password: "StrongPass1",
     });
@@ -154,12 +151,12 @@ describe("PocketBase auth service", () => {
   });
 
   it("signIn returns error on invalid credentials", async () => {
-    const pbError = new Error("Invalid login credentials.");
+const pbError = new Error("Invalid login credentials.");
     (pbError as any).status = 400;
     (pbError as any).response = { message: "Invalid login credentials." };
     mockAuthWithPassword.mockRejectedValue(pbError);
 
-    const result = await signIn({
+const result = await signIn({
       email: "wrong@test.com",
       password: "bad",
     });
@@ -169,12 +166,12 @@ describe("PocketBase auth service", () => {
   });
 
   it("signIn returns error for email not confirmed", async () => {
-    const pbError = new Error("The email is not confirmed.");
+const pbError = new Error("The email is not confirmed.");
     (pbError as any).status = 400;
     (pbError as any).response = { message: "The email is not confirmed." };
     mockAuthWithPassword.mockRejectedValue(pbError);
 
-    const result = await signIn({
+const result = await signIn({
       email: "unconfirmed@test.com",
       password: "StrongPass1",
     });
@@ -186,7 +183,7 @@ describe("PocketBase auth service", () => {
   // ─── signOut ─────────────────────────────────────────────────
 
   it("signOut calls authStore.clear()", async () => {
-    const result = await signOut();
+const result = await signOut();
     expect(mockClear).toHaveBeenCalledTimes(1);
     expect(result).toEqual({ error: null });
   });
@@ -195,13 +192,13 @@ describe("PocketBase auth service", () => {
 
   it("getSession returns session when stored token is valid", async () => {
     mockIsValid.value = true;
-    const mockRecord = { id: "user-1", email: "test@test.com" };
+const mockRecord = { id: "user-1", email: "test@test.com" };
     mockAuthRefresh.mockResolvedValue({
       record: mockRecord,
       token: "refreshed-token",
     });
 
-    const result = await getSession();
+const result = await getSession();
 
     expect(mockAuthRefresh).toHaveBeenCalled();
     expect(result).toEqual({
@@ -213,7 +210,7 @@ describe("PocketBase auth service", () => {
   it("getSession returns null when no stored token", async () => {
     mockIsValid.value = false;
 
-    const result = await getSession();
+const result = await getSession();
 
     expect(mockAuthRefresh).not.toHaveBeenCalled();
     expect(result).toEqual({ session: null, error: null });
@@ -221,11 +218,11 @@ describe("PocketBase auth service", () => {
 
   it("getSession clears store and returns null on authRefresh failure", async () => {
     mockIsValid.value = true;
-    const pbError = new Error("Invalid or expired token.");
+const pbError = new Error("Invalid or expired token.");
     (pbError as any).status = 401;
     mockAuthRefresh.mockRejectedValue(pbError);
 
-    const result = await getSession();
+const result = await getSession();
 
     expect(mockClear).toHaveBeenCalled();
     expect(result).toEqual({ session: null, error: "Session expired" });
@@ -234,14 +231,14 @@ describe("PocketBase auth service", () => {
   // ─── onAuthStateChange ───────────────────────────────────────
 
   it("onAuthStateChange subscribes to pb.authStore.onChange", () => {
-    const callback = vi.fn();
+const callback = jest.fn();
     onAuthStateChange(callback);
 
     expect(mockOnChange).toHaveBeenCalledWith(expect.any(Function));
   });
 
   it("onAuthStateChange fires callback when auth state changes", () => {
-    const userCallback = vi.fn();
+const userCallback = jest.fn();
     onAuthStateChange(userCallback);
 
     // Simulate auth state change via the registered onChange callback
@@ -253,10 +250,10 @@ describe("PocketBase auth service", () => {
   });
 
   it("onAuthStateChange returns unsubscribe function", () => {
-    const mockUnsubscribe = vi.fn();
+const mockUnsubscribe = jest.fn();
     mockOnChange.mockReturnValue(mockUnsubscribe);
 
-    const unsubscribe = onAuthStateChange(vi.fn());
+const unsubscribe = onAuthStateChange(jest.fn());
     expect(typeof unsubscribe).toBe("function");
 
     unsubscribe();

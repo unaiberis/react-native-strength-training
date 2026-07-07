@@ -1,11 +1,10 @@
-import { describe, it, expect, vi } from "vitest";
 import { buildCalendarMonth } from "../hooks/useCalendar";
 
 describe("CalendarGrid integration with calendar data", () => {
-  const onSelectDay = vi.fn();
+  const onSelectDay = jest.fn();
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    jest.clearAllMocks();
   });
 
   it("builds correct month grid for January 2026", () => {

@@ -1,26 +1,23 @@
-// Vitest v4: hoisted mock variables (referenced in vi.mock factory)
-const pbMocks = vi.hoisted(() => {
-  const mockCreate = vi.fn();
-  const mockGetOne = vi.fn();
-  const mockGetFullList = vi.fn();
-  const mockUpdate = vi.fn();
-  const mockGetList = vi.fn();
-  const mockPb = {
-    collection: vi.fn(() => ({
+
+const mockCreate = jest.fn();
+const mockGetOne = jest.fn();
+const mockGetFullList = jest.fn();
+const mockUpdate = jest.fn();
+const mockGetList = jest.fn();
+const mockPb = {
+    collection: jest.fn(() => ({
       create: mockCreate,
       getOne: mockGetOne,
       getFullList: mockGetFullList,
       update: mockUpdate,
       getList: mockGetList,
     })),
-    filter: vi.fn((s: string) => s),
+    filter: jest.fn((s: string) => s),
   };
-  return { mockCreate, mockGetOne, mockGetFullList, mockUpdate, mockGetList, mockPb };
-});
+  
 
-const { mockCreate, mockGetOne, mockGetFullList, mockUpdate, mockGetList } = pbMocks;
 
-vi.mock("../../client", () => ({ pb: pbMocks.mockPb }));
+jest.mock("../../client", () => ({ pb: mockPb }));
 
 import type { SessionRow, ExerciseSetRow } from "../../../../types/pocketbase";
 import {
@@ -70,16 +67,16 @@ const makeSet = (overrides: Partial<ExerciseSetRow> = {}): ExerciseSetRow => ({
 
 describe("PocketBase sessions service", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    jest.clearAllMocks();
   });
 
   // ─── createSession ─────────────────────────────────────────────
 
   it("createSession creates a new in-progress session", async () => {
-    const session = makeSession();
+const session = makeSession();
     mockCreate.mockResolvedValueOnce(session);
 
-    const result = await createSession("user-1");
+const result = await createSession("user-1");
 
     expect(mockCreate).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -95,17 +92,17 @@ describe("PocketBase sessions service", () => {
   });
 
   it("createSession fetches template exercises when templateId provided", async () => {
-    const session = makeSession({ workout_template_id: "tmpl-1" });
-    const templateExercises = [
+const session = makeSession({ workout_template_id: "tmpl-1" });
+const templateExercises = [
       { id: "te-1", workout_template_id: "tmpl-1", exercise_id: "ex-1", sort_order: 0, target_sets: 3, target_reps: 10, target_rpe_low: null, target_rpe_high: null, rest_seconds: 90, notes: null },
     ];
-    const exerciseNames = [{ id: "ex-1", name: "Bench Press" }];
+const exerciseNames = [{ id: "ex-1", name: "Bench Press" }];
 
     mockCreate.mockResolvedValueOnce(session);
     mockGetFullList.mockResolvedValueOnce(templateExercises);  // template exercises
     mockGetFullList.mockResolvedValueOnce(exerciseNames);      // exercise names
 
-    const result = await createSession("user-1", { workoutTemplateId: "tmpl-1" });
+const result = await createSession("user-1", { workoutTemplateId: "tmpl-1" });
 
     expect(result.session.workout_template_id).toBe("tmpl-1");
     expect(result.exercises).toHaveLength(1);
@@ -114,21 +111,21 @@ describe("PocketBase sessions service", () => {
   });
 
   it("createSession returns empty exercises when template has no exercises", async () => {
-    const session = makeSession({ workout_template_id: "tmpl-1" });
+const session = makeSession({ workout_template_id: "tmpl-1" });
 
     mockCreate.mockResolvedValueOnce(session);
     mockGetFullList.mockResolvedValueOnce([]);  // empty template exercises
 
-    const result = await createSession("user-1", { workoutTemplateId: "tmpl-1" });
+const result = await createSession("user-1", { workoutTemplateId: "tmpl-1" });
 
     expect(result.exercises).toEqual([]);
   });
 
   it("createSession passes programBlockId when provided", async () => {
-    const session = makeSession();
+const session = makeSession();
     mockCreate.mockResolvedValueOnce(session);
 
-    const result = await createSession("user-1", {
+const result = await createSession("user-1", {
       workoutTemplateId: "tmpl-1",
     });
 
@@ -151,17 +148,17 @@ describe("PocketBase sessions service", () => {
   // ─── logSet ────────────────────────────────────────────────────
 
   it("logSet creates an exercise set record", async () => {
-    const set = makeSet();
+const set = makeSet();
     mockCreate.mockResolvedValueOnce(set);
 
-    const input: LogSetInput = {
+const input: LogSetInput = {
       exerciseId: "ex-1",
       setNumber: 1,
       weightKg: 80,
       reps: 10,
     };
 
-    const result = await logSet("sess-1", input);
+const result = await logSet("sess-1", input);
 
     expect(mockCreate).toHaveBeenCalledWith({
       workout_session_id: "sess-1",
@@ -183,7 +180,7 @@ describe("PocketBase sessions service", () => {
   it("logSet with optional rpe and rir", async () => {
     mockCreate.mockResolvedValueOnce(makeSet({ rpe: 8, rir: 1 }));
 
-    const result = await logSet("sess-1", {
+const result = await logSet("sess-1", {
       exerciseId: "ex-1",
       setNumber: 2,
       weightKg: 85,
@@ -197,10 +194,10 @@ describe("PocketBase sessions service", () => {
   });
 
   it("logSet passes tempo through when provided", async () => {
-    const set = makeSet({ tempo: "2020" });
+const set = makeSet({ tempo: "2020" });
     mockCreate.mockResolvedValueOnce(set);
 
-    const result = await logSet("sess-1", {
+const result = await logSet("sess-1", {
       exerciseId: "ex-1",
       setNumber: 3,
       weightKg: 90,
@@ -240,14 +237,14 @@ describe("PocketBase sessions service", () => {
   // ─── completeSession ───────────────────────────────────────────
 
   it("completeSession updates session to completed with duration", async () => {
-    const completed = makeSession({
+const completed = makeSession({
       status: "completed",
       completed_at: "2026-01-01T11:00:00Z",
       duration_minutes: 60,
     });
     mockUpdate.mockResolvedValueOnce(completed);
 
-    const result = await completeSession("sess-1", {
+const result = await completeSession("sess-1", {
       startedAt: "2026-01-01T10:00:00Z",
     });
 
@@ -261,24 +258,24 @@ describe("PocketBase sessions service", () => {
   });
 
   it("completeSession updates without duration when no startedAt", async () => {
-    const completed = makeSession({ status: "completed" });
+const completed = makeSession({ status: "completed" });
     mockUpdate.mockResolvedValueOnce(completed);
 
-    const result = await completeSession("sess-1");
+const result = await completeSession("sess-1");
 
     // Should not include duration_minutes
-    const callArg = mockUpdate.mock.calls[0][1];
+const callArg = mockUpdate.mock.calls[0][1];
     expect(callArg.duration_minutes).toBeUndefined();
     expect(result.status).toBe("completed");
   });
 
   it("completeSession includes optional notes", async () => {
-    const completed = makeSession({ status: "completed", notes: "Great session" });
+const completed = makeSession({ status: "completed", notes: "Great session" });
     mockUpdate.mockResolvedValueOnce(completed);
 
-    const result = await completeSession("sess-1", { notes: "Great session" });
+const result = await completeSession("sess-1", { notes: "Great session" });
 
-    const callArg = mockUpdate.mock.calls[0][1];
+const callArg = mockUpdate.mock.calls[0][1];
     expect(callArg.notes).toBe("Great session");
     expect(result.notes).toBe("Great session");
   });
@@ -292,10 +289,10 @@ describe("PocketBase sessions service", () => {
   // ─── cancelSession ─────────────────────────────────────────────
 
   it("cancelSession updates session status to cancelled", async () => {
-    const cancelled = makeSession({ status: "cancelled", completed_at: "2026-01-01T10:30:00Z" });
+const cancelled = makeSession({ status: "cancelled", completed_at: "2026-01-01T10:30:00Z" });
     mockUpdate.mockResolvedValueOnce(cancelled);
 
-    const result = await cancelSession("sess-1");
+const result = await cancelSession("sess-1");
 
     expect(mockUpdate).toHaveBeenCalledWith("sess-1", {
       status: "cancelled",
@@ -313,13 +310,13 @@ describe("PocketBase sessions service", () => {
   // ─── getWorkoutSession ─────────────────────────────────────────
 
   it("getWorkoutSession returns session with sets", async () => {
-    const session = makeSession();
-    const sets = [makeSet(), makeSet({ id: "set-2", set_number: 2 })];
+const session = makeSession();
+const sets = [makeSet(), makeSet({ id: "set-2", set_number: 2 })];
 
     mockGetOne.mockResolvedValueOnce(session);
     mockGetFullList.mockResolvedValueOnce(sets);
 
-    const result = await getWorkoutSession("sess-1");
+const result = await getWorkoutSession("sess-1");
 
     expect(result).not.toBeNull();
     expect(result!.id).toBe("sess-1");
@@ -330,7 +327,7 @@ describe("PocketBase sessions service", () => {
   it("getWorkoutSession returns null when not found", async () => {
     mockGetOne.mockRejectedValue(new Error("The requested resource wasn't found."));
 
-    const result = await getWorkoutSession("nonexistent");
+const result = await getWorkoutSession("nonexistent");
 
     expect(result).toBeNull();
   });
@@ -338,13 +335,13 @@ describe("PocketBase sessions service", () => {
   // ─── getSessionDetail ─────────────────────────────────────────
 
   it("getSessionDetail enriches session with exercise names and grouped sets", async () => {
-    const session = makeSession();
-    const sets = [
+const session = makeSession();
+const sets = [
       makeSet({ id: "set-1", exercise_id: "ex-1", set_number: 1 }),
       makeSet({ id: "set-2", exercise_id: "ex-1", set_number: 2 }),
       makeSet({ id: "set-3", exercise_id: "ex-2", set_number: 1 }),
     ];
-    const exercises = [
+const exercises = [
       { id: "ex-1", name: "Bench Press" },
       { id: "ex-2", name: "Squat" },
     ];
@@ -353,7 +350,7 @@ describe("PocketBase sessions service", () => {
     mockGetFullList.mockResolvedValueOnce(sets);
     mockGetFullList.mockResolvedValueOnce(exercises);
 
-    const result = await getSessionDetail("sess-1");
+const result = await getSessionDetail("sess-1");
 
     expect(result).not.toBeNull();
     expect(result!.exerciseNames["ex-1"]).toBe("Bench Press");
@@ -365,7 +362,7 @@ describe("PocketBase sessions service", () => {
   it("getSessionDetail returns null when session not found", async () => {
     mockGetOne.mockRejectedValue(new Error("The requested resource wasn't found."));
 
-    const result = await getSessionDetail("nonexistent");
+const result = await getSessionDetail("nonexistent");
 
     expect(result).toBeNull();
   });
@@ -373,7 +370,7 @@ describe("PocketBase sessions service", () => {
   // ─── listSessions ──────────────────────────────────────────────
 
   it("listSessions returns paginated completed sessions", async () => {
-    const sessions = [
+const sessions = [
       makeSession({ id: "sess-1", status: "completed", started_at: "2026-01-02T10:00:00Z" }),
       makeSession({ id: "sess-2", status: "completed", started_at: "2026-01-01T10:00:00Z" }),
     ];
@@ -389,7 +386,7 @@ describe("PocketBase sessions service", () => {
     // For each session, getFullList for sets
     mockGetFullList.mockResolvedValue([makeSet()]);
 
-    const result = await listSessions("user-1");
+const result = await listSessions("user-1");
 
     expect(result.data).toHaveLength(2);
     expect(result.data[0].totalSets).toBe(1);
@@ -420,7 +417,7 @@ describe("PocketBase sessions service", () => {
       toDate: "2026-01-31T23:59:59Z",
     });
 
-    const filterArg = mockGetList.mock.calls[0][2].filter;
+const filterArg = mockGetList.mock.calls[0][2].filter;
     expect(filterArg).toContain("started_at >= '2026-01-01T00:00:00Z'");
     expect(filterArg).toContain("started_at <= '2026-01-31T23:59:59Z'");
   });
@@ -430,7 +427,7 @@ describe("PocketBase sessions service", () => {
       page: 1, perPage: 20, totalItems: 0, totalPages: 0, items: [],
     });
 
-    const result = await listSessions("user-1");
+const result = await listSessions("user-1");
 
     expect(result.data).toEqual([]);
     expect(result.count).toBe(0);
@@ -438,11 +435,11 @@ describe("PocketBase sessions service", () => {
 
   it("listSessions filters by exerciseId", async () => {
     // exercise_sets query returns session IDs, then sessions query uses those IDs
-    const exerciseSets = [
+const exerciseSets = [
       { id: "es-1", workout_session_id: "sess-1", exercise_id: "ex-1" },
       { id: "es-2", workout_session_id: "sess-3", exercise_id: "ex-1" },
     ];
-    const sessions = [
+const sessions = [
       makeSession({ id: "sess-1", status: "completed", started_at: "2026-01-02T10:00:00Z" }),
       makeSession({ id: "sess-3", status: "completed", started_at: "2026-01-03T10:00:00Z" }),
     ];
@@ -455,7 +452,7 @@ describe("PocketBase sessions service", () => {
     mockGetFullList.mockResolvedValue([makeSet()]);
     mockGetFullList.mockResolvedValue([makeSet()]);
 
-    const result = await listSessions("user-1", { exerciseId: "ex-1" });
+const result = await listSessions("user-1", { exerciseId: "ex-1" });
 
     // First call: exercise_sets lookup for matching session IDs
     expect(mockGetFullList).toHaveBeenNthCalledWith(1, {
@@ -473,19 +470,19 @@ describe("PocketBase sessions service", () => {
   it("listSessions returns empty data when exerciseId has no matches", async () => {
     mockGetFullList.mockResolvedValueOnce([]);  // no exercise_sets found
 
-    const result = await listSessions("user-1", { exerciseId: "nonexistent-ex" });
+const result = await listSessions("user-1", { exerciseId: "nonexistent-ex" });
 
     expect(result.data).toEqual([]);
     expect(result.count).toBe(0);
   });
 
   it("listSessions enriches with templateName", async () => {
-    const sessionWithTmpl = makeSession({
+const sessionWithTmpl = makeSession({
       id: "sess-1",
       status: "completed",
       workout_template_id: "tmpl-1",
     });
-    const sessionNoTmpl = makeSession({
+const sessionNoTmpl = makeSession({
       id: "sess-2",
       status: "completed",
       workout_template_id: null,
@@ -509,7 +506,7 @@ describe("PocketBase sessions service", () => {
     mockGetFullList.mockResolvedValue([makeSet()]);
     mockGetFullList.mockResolvedValue([makeSet()]);
 
-    const result = await listSessions("user-1");
+const result = await listSessions("user-1");
 
     expect(result.data).toHaveLength(2);
     // First session has a template

@@ -1,16 +1,11 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
 import { saveWellness, listWellness } from "../wellness";
 
-// Vitest v4: hoisted mock variables
-const { mockCreate, mockGetList } = vi.hoisted(() => {
-  const mockCreate = vi.fn();
-  const mockGetList = vi.fn();
-  return { mockCreate, mockGetList };
-});
+const mockCreate = jest.fn();
+const mockGetList = jest.fn();
 
-vi.mock("../../client", () => ({
+jest.mock("../../client", () => ({
   pb: {
-    collection: vi.fn(() => ({
+    collection: jest.fn(() => ({
       create: mockCreate,
       getList: mockGetList,
     })),
@@ -31,11 +26,11 @@ const WELLNESS_INPUT = {
 
 describe("saveWellness", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    jest.clearAllMocks();
   });
 
   it("creates a wellness record with all fields mapped correctly", async () => {
-    const expectedRecord = {
+const expectedRecord = {
       id: "wellness_001",
       user_id: USER_ID,
       session_id: "session_xyz",
@@ -50,7 +45,7 @@ describe("saveWellness", () => {
     };
     mockCreate.mockResolvedValue(expectedRecord);
 
-    const result = await saveWellness(USER_ID, WELLNESS_INPUT);
+const result = await saveWellness(USER_ID, WELLNESS_INPUT);
 
     expect(mockCreate).toHaveBeenCalledWith({
       user_id: USER_ID,
@@ -113,7 +108,7 @@ describe("saveWellness", () => {
 
 describe("listWellness", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    jest.clearAllMocks();
   });
 
   it("fetches wellness entries with default pagination", async () => {
@@ -122,7 +117,7 @@ describe("listWellness", () => {
       totalItems: 2,
     });
 
-    const result = await listWellness(USER_ID);
+const result = await listWellness(USER_ID);
 
     expect(mockGetList).toHaveBeenCalledWith(1, 20, {
       filter: "user_id = 'user_abc123'",
@@ -158,7 +153,7 @@ describe("listWellness", () => {
   it("returns empty data when items is null", async () => {
     mockGetList.mockResolvedValue({ items: null, totalItems: 0 });
 
-    const result = await listWellness(USER_ID);
+const result = await listWellness(USER_ID);
 
     expect(result.data).toEqual([]);
     expect(result.count).toBe(0);

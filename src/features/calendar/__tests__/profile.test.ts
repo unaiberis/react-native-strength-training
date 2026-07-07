@@ -4,7 +4,6 @@
  * Verifies profile-related data structures and auth patterns
  * without rendering the component (vitest node environment).
  */
-import { describe, it, expect } from "vitest";
 
 describe("ProfileScreen logic", () => {
   it("displays user display name from metadata or email fallback", () => {

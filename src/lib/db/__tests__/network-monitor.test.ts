@@ -5,22 +5,20 @@
  * and verify that the monitor correctly debounces and propagates changes.
  */
 
-// Vitest v4: hoisted mock variables (referenced in vi.mock factory)
-const netMocks = vi.hoisted(() => {
-  const netInfoCallbacks: Array<(state: { isConnected: boolean | null; type: string }) => void> = [];
-  const mockFetch = vi.fn<Promise<{ isConnected: boolean | null; type: string }>, []>();
-  const mockUnsubscribe = vi.fn();
-  return { netInfoCallbacks, mockFetch, mockUnsubscribe };
-});
+import type { NetworkMonitor as NetworkMonitorType } from "../network-monitor";
 
-const { netInfoCallbacks, mockFetch, mockUnsubscribe } = netMocks;
+// Jest mock for @react-native-community/netinfo
+const netInfoCallbacks: Array<(state: { isConnected: boolean | null; type: string }) => void> = [];
+const mockFetch = jest.fn<Promise<{ isConnected: boolean | null; type: string }>, []>();
+const mockUnsubscribe = jest.fn();
 
-vi.mock("@react-native-community/netinfo", () => ({
+jest.mock("@react-native-community/netinfo", () => ({
+  __esModule: true,
   default: {
-    fetch: () => netMocks.mockFetch(),
+    fetch: () => mockFetch(),
     addEventListener: (cb: (state: { isConnected: boolean | null; type: string }) => void) => {
-      netMocks.netInfoCallbacks.push(cb);
-      return netMocks.mockUnsubscribe;
+      netInfoCallbacks.push(cb);
+      return mockUnsubscribe;
     },
   },
 }));
@@ -31,7 +29,7 @@ describe("NetworkMonitor", () => {
   let monitor: NetworkMonitor;
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    jest.clearAllMocks();
     vi.useFakeTimers();
     netInfoCallbacks.length = 0;
 
@@ -66,13 +64,13 @@ describe("NetworkMonitor", () => {
     });
 
     it("updates to NetInfo fetch result after subscribing", () => {
-      monitor.subscribe(vi.fn());
+      monitor.subscribe(jest.fn());
       expect(mockFetch).toHaveBeenCalledTimes(1);
     });
 
     it("reflects the connected state from fetch", async () => {
       mockFetch.mockResolvedValue({ isConnected: false, type: "none" });
-      monitor.subscribe(vi.fn());
+      monitor.subscribe(jest.fn());
       await vi.runAllTimers();
       expect(monitor.isOnline).toBe(false);
     });
@@ -80,7 +78,7 @@ describe("NetworkMonitor", () => {
 
   describe("subscribe", () => {
     it("registers a listener and returns unsubscribe function", () => {
-      const listener = vi.fn();
+      const listener = jest.fn();
       const unsubscribe = monitor.subscribe(listener);
 
       expect(typeof unsubscribe).toBe("function");
@@ -95,7 +93,7 @@ describe("NetworkMonitor", () => {
     });
 
     it("unsubscribe removes the listener", () => {
-      const listener = vi.fn();
+      const listener = jest.fn();
       const unsubscribe = monitor.subscribe(listener);
       unsubscribe();
 
@@ -106,8 +104,8 @@ describe("NetworkMonitor", () => {
     });
 
     it("supports multiple listeners", () => {
-      const listener1 = vi.fn();
-      const listener2 = vi.fn();
+      const listener1 = jest.fn();
+      const listener2 = jest.fn();
       monitor.subscribe(listener1);
       monitor.subscribe(listener2);
 
@@ -121,7 +119,7 @@ describe("NetworkMonitor", () => {
 
   describe("debounce", () => {
     it("does not fire listener immediately on change", () => {
-      const listener = vi.fn();
+      const listener = jest.fn();
       monitor.subscribe(listener);
 
       simulateConnectivityChange(false);
@@ -130,7 +128,7 @@ describe("NetworkMonitor", () => {
     });
 
     it("fires listener after 2 seconds", () => {
-      const listener = vi.fn();
+      const listener = jest.fn();
       monitor.subscribe(listener);
 
       simulateConnectivityChange(false);
@@ -142,7 +140,7 @@ describe("NetworkMonitor", () => {
     });
 
     it("resets debounce on rapid changes", () => {
-      const listener = vi.fn();
+      const listener = jest.fn();
       monitor.subscribe(listener);
 
       // Toggle rapidly
@@ -163,7 +161,7 @@ describe("NetworkMonitor", () => {
     });
 
     it("does not fire when status has not changed", () => {
-      const listener = vi.fn();
+      const listener = jest.fn();
       monitor.subscribe(listener);
 
       // Same value as initial (true)
@@ -176,8 +174,8 @@ describe("NetworkMonitor", () => {
 
   describe("unsubscribeAll", () => {
     it("removes all listeners", () => {
-      const listener1 = vi.fn();
-      const listener2 = vi.fn();
+      const listener1 = jest.fn();
+      const listener2 = jest.fn();
       monitor.subscribe(listener1);
       monitor.subscribe(listener2);
 
@@ -193,8 +191,8 @@ describe("NetworkMonitor", () => {
 
   describe("destroy", () => {
     it("unsubscribes listeners", () => {
-      monitor.subscribe(vi.fn());
-      const listener = vi.fn();
+      monitor.subscribe(jest.fn());
+      const listener = jest.fn();
       monitor.subscribe(listener);
 
       monitor.destroy();
@@ -206,7 +204,7 @@ describe("NetworkMonitor", () => {
     });
 
     it("unsubscribes from NetInfo event", () => {
-      monitor.subscribe(vi.fn());
+      monitor.subscribe(jest.fn());
       monitor.destroy();
       expect(mockUnsubscribe).toHaveBeenCalled();
     });

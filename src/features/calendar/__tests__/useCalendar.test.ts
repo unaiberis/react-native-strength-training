@@ -1,4 +1,3 @@
-import { describe, it, expect } from "vitest";
 import { buildCalendarMonth } from "../hooks/useCalendar";
 
 describe("buildCalendarMonth", () => {

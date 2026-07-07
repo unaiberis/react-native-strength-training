@@ -4,6 +4,9 @@ module.exports = {
   transform: {
     "^.+\\.tsx?$": ["ts-jest", { tsconfig: "tsconfig.json", diagnostics: false }],
   },
+  transformIgnorePatterns: [
+    "/node_modules/(?!(pocketbase|@lingui)/)",
+  ],
   setupFiles: ["./jest.setup.ts"],
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/src/$1",

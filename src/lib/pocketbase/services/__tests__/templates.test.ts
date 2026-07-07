@@ -1,12 +1,11 @@
-// Vitest v4: hoisted mock variables (referenced in vi.mock factory)
-const pbMocks = vi.hoisted(() => {
-  const mockCreate = vi.fn();
-  const mockGetOne = vi.fn();
-  const mockGetFullList = vi.fn();
-  const mockUpdate = vi.fn();
-  const mockDelete = vi.fn();
-  const mockPb = {
-    collection: vi.fn(() => ({
+
+const mockCreate = jest.fn();
+const mockGetOne = jest.fn();
+const mockGetFullList = jest.fn();
+const mockUpdate = jest.fn();
+const mockDelete = jest.fn();
+const mockPb = {
+    collection: jest.fn(() => ({
       create: mockCreate,
       getOne: mockGetOne,
       getFullList: mockGetFullList,
@@ -14,12 +13,10 @@ const pbMocks = vi.hoisted(() => {
       delete: mockDelete,
     })),
   };
-  return { mockCreate, mockGetOne, mockGetFullList, mockUpdate, mockDelete, mockPb };
-});
+  
 
-const { mockCreate, mockGetOne, mockGetFullList, mockUpdate, mockDelete } = pbMocks;
 
-vi.mock("../../client", () => ({ pb: pbMocks.mockPb }));
+jest.mock("../../client", () => ({ pb: mockPb }));
 
 import type { TemplateRow, TemplateExerciseRow } from "../../../../types/pocketbase";
 import type { WorkoutTemplateInput } from "../../../../shared/schemas/template";
@@ -81,18 +78,18 @@ const validInput: WorkoutTemplateInput = {
 
 describe("PocketBase templates service", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    jest.clearAllMocks();
   });
 
   // ─── createTemplate ─────────────────────────────────────────────
 
   it("createTemplate creates template and exercises", async () => {
-    const template = makeTemplate();
-    const exercise = makeTemplateExercise();
+const template = makeTemplate();
+const exercise = makeTemplateExercise();
     mockCreate.mockResolvedValueOnce(template);
     mockCreate.mockResolvedValueOnce(exercise);
 
-    const result = await createTemplate("user-1", validInput);
+const result = await createTemplate("user-1", validInput);
 
     // First call: create the template
     expect(mockCreate).toHaveBeenNthCalledWith(1, {
@@ -122,8 +119,8 @@ describe("PocketBase templates service", () => {
   });
 
   it("createTemplate creates multiple exercises", async () => {
-    const template = makeTemplate();
-    const input: WorkoutTemplateInput = {
+const template = makeTemplate();
+const input: WorkoutTemplateInput = {
       name: "Full Body",
       isPublic: false,
       exercises: [
@@ -136,7 +133,7 @@ describe("PocketBase templates service", () => {
     mockCreate.mockResolvedValueOnce(makeTemplateExercise({ id: "te-1", exercise_id: "ex-1", sort_order: 0 }));
     mockCreate.mockResolvedValueOnce(makeTemplateExercise({ id: "te-2", exercise_id: "ex-2", sort_order: 1 }));
 
-    const result = await createTemplate("user-1", input);
+const result = await createTemplate("user-1", input);
 
     expect(mockCreate).toHaveBeenCalledTimes(3); // 1 template + 2 exercises
     expect(result.exercises).toHaveLength(2);
@@ -156,8 +153,8 @@ describe("PocketBase templates service", () => {
   });
 
   it("createTemplate passes programBlockId when provided", async () => {
-    const template = makeTemplate();
-    const exercise = makeTemplateExercise();
+const template = makeTemplate();
+const exercise = makeTemplateExercise();
     mockCreate.mockResolvedValueOnce(template);
     mockCreate.mockResolvedValueOnce(exercise);
 
@@ -178,12 +175,12 @@ describe("PocketBase templates service", () => {
   // ─── listTemplates ──────────────────────────────────────────────
 
   it("listTemplates returns templates with exercises", async () => {
-    const templates = [
+const templates = [
       makeTemplate({ id: "tmpl-1", name: "Push Day" }),
       makeTemplate({ id: "tmpl-2", name: "Pull Day" }),
     ];
-    const ex1 = makeTemplateExercise({ workout_template_id: "tmpl-1" });
-    const ex2 = makeTemplateExercise({
+const ex1 = makeTemplateExercise({ workout_template_id: "tmpl-1" });
+const ex2 = makeTemplateExercise({
       id: "te-2",
       workout_template_id: "tmpl-2",
       exercise_id: "ex-2",
@@ -194,7 +191,7 @@ describe("PocketBase templates service", () => {
     mockGetFullList.mockResolvedValueOnce([ex1]);
     mockGetFullList.mockResolvedValueOnce([ex2]);
 
-    const result = await listTemplates("user-1");
+const result = await listTemplates("user-1");
 
     expect(mockGetFullList).toHaveBeenCalledTimes(3);
     expect(result).toHaveLength(2);
@@ -206,7 +203,7 @@ describe("PocketBase templates service", () => {
   it("listTemplates returns empty array when no templates", async () => {
     mockGetFullList.mockResolvedValue([]);
 
-    const result = await listTemplates("user-1");
+const result = await listTemplates("user-1");
 
     expect(result).toEqual([]);
   });
@@ -220,8 +217,8 @@ describe("PocketBase templates service", () => {
   // ─── getTemplate ────────────────────────────────────────────────
 
   it("getTemplate returns template with exercises", async () => {
-    const template = makeTemplate();
-    const exercises = [
+const template = makeTemplate();
+const exercises = [
       makeTemplateExercise(),
       makeTemplateExercise({ id: "te-2", sort_order: 1 }),
     ];
@@ -229,7 +226,7 @@ describe("PocketBase templates service", () => {
     mockGetOne.mockResolvedValueOnce(template);
     mockGetFullList.mockResolvedValueOnce(exercises);
 
-    const result = await getTemplate("tmpl-1");
+const result = await getTemplate("tmpl-1");
 
     expect(result).not.toBeNull();
     expect(result!.id).toBe("tmpl-1");
@@ -239,7 +236,7 @@ describe("PocketBase templates service", () => {
   it("getTemplate returns null when not found", async () => {
     mockGetOne.mockRejectedValue(new Error("The requested resource wasn't found."));
 
-    const result = await getTemplate("nonexistent");
+const result = await getTemplate("nonexistent");
 
     expect(result).toBeNull();
   });
@@ -253,8 +250,8 @@ describe("PocketBase templates service", () => {
   // ─── updateTemplate ─────────────────────────────────────────────
 
   it("updateTemplate updates metadata and replaces exercises", async () => {
-    const updatedTemplate = makeTemplate({ name: "Updated Push" });
-    const existingExercise = makeTemplateExercise({ id: "te-old" });
+const updatedTemplate = makeTemplate({ name: "Updated Push" });
+const existingExercise = makeTemplateExercise({ id: "te-old" });
 
     // Order: 1) update template, 2) get existing exercises, 3) delete each, 4) create new
     mockUpdate.mockResolvedValueOnce(updatedTemplate);
@@ -262,7 +259,7 @@ describe("PocketBase templates service", () => {
     mockDelete.mockResolvedValueOnce(true);                            // delete te-old
     mockCreate.mockResolvedValueOnce(makeTemplateExercise({ id: "te-new" }));
 
-    const result = await updateTemplate("tmpl-1", {
+const result = await updateTemplate("tmpl-1", {
       name: "Updated Push",
       description: null,
       isPublic: false,
@@ -285,8 +282,8 @@ describe("PocketBase templates service", () => {
   });
 
   it("updateTemplate passes programBlockId when provided", async () => {
-    const updatedTemplate = makeTemplate({ name: "Updated Push", program_block_id: "block-1" });
-    const existingExercise = makeTemplateExercise({ id: "te-old" });
+const updatedTemplate = makeTemplate({ name: "Updated Push", program_block_id: "block-1" });
+const existingExercise = makeTemplateExercise({ id: "te-old" });
 
     mockUpdate.mockResolvedValueOnce(updatedTemplate);
     mockGetFullList.mockResolvedValueOnce([existingExercise]);

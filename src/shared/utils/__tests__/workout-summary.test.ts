@@ -1,4 +1,3 @@
-import { describe, it, expect } from "vitest";
 import { computeWorkoutSummary } from "../workout-summary";
 import type { LoggedSet } from "../../../stores/session-store";
 

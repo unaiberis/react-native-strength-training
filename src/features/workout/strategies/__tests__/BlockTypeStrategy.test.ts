@@ -1,4 +1,3 @@
-import { describe, it, expect } from "vitest";
 import type { ExerciseInSession } from "../../../../stores/session-store";
 import {
   getBlockTypeStrategy,
