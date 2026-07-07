@@ -3,13 +3,16 @@ import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from "rea
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { GradientBackground } from "@/shared/ui/GradientBackground";
 import { useAnalytics, type AnalyticsPeriod } from "../hooks/useAnalytics";
+import { useProgression } from "@/features/records/hooks/useProgression";
 import { BarChart, PRTimelineChart } from "../components/BarChart";
+import { LineChart, type LineChartDataPoint } from "../components/LineChart";
 
 /**
  * ExerciseTimelineScreen — Per-exercise progress detail view.
  *
  * Shows full history for a specific exercise: e1RM progression over time,
- * max weight per session, and volume per session.
+ * max weight per session, volume per session, and a max weight progression
+ * line chart with a simple moving average trend line.
  */
 export function ExerciseTimelineScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -20,8 +23,16 @@ export function ExerciseTimelineScreen() {
     getExerciseProgress,
     getPersonalRecordTimeline,
     exercises,
-    isLoading,
+    isLoading: analyticsLoading,
   } = useAnalytics(period);
+
+  const {
+    dataPoints: progressionData,
+    bestWeight,
+    bestE1RM: bestProgressionE1RM,
+    sessionCount: progressionSessionCount,
+    isLoading: progressionLoading,
+  } = useProgression(id);
 
   const exercise = useMemo(
     () => exercises.find((ex) => ex.id === id),
@@ -43,6 +54,18 @@ export function ExerciseTimelineScreen() {
     [timeline],
   );
 
+  // Build data for the progression line chart
+  const progressionChartData = useMemo<LineChartDataPoint[]>(() => {
+    if (progressionData.length === 0) return [];
+    // Take max weight per session for the chart
+    return progressionData.map((d) => ({
+      date: d.date,
+      value: d.maxWeight,
+    }));
+  }, [progressionData]);
+
+  const isLoading = analyticsLoading || progressionLoading;
+
   if (isLoading) {
     return (
       <GradientBackground>
@@ -62,39 +85,55 @@ export function ExerciseTimelineScreen() {
       >
         {/* Back button */}
         <TouchableOpacity onPress={() => router.back()} className="mb-4">
-          <Text className="text-surface-400 text-sm">\u2190 Back to Analytics</Text>
+          <Text className="text-surface-400 text-sm">{"\u2190"} Back to Analytics</Text>
         </TouchableOpacity>
 
         <Text className="text-surface-50 text-2xl font-bold mb-1">
           {exercise?.name ?? "Unknown Exercise"}
         </Text>
         <Text className="text-surface-400 text-sm mb-6">
-          {progress.length > 0
-            ? `${progress.length} sessions logged`
+          {progressionSessionCount > 0
+            ? `${progressionSessionCount} sessions logged`
             : "No sessions logged yet"}
         </Text>
 
         {/* Stats grid */}
-        {progress.length > 0 && (
+        {(progressionSessionCount > 0 || progress.length > 0) && (
           <View className="flex-row gap-3 mb-6">
             <View className="flex-1 bg-card rounded-2xl p-3 items-center border border-border">
               <Text className="text-surface-50 text-xl font-bold">
-                {Math.round(Math.max(...progress.map((p) => p.bestE1RM)))}
+                {Math.round(bestProgressionE1RM || Math.max(...progress.map((p) => p.bestE1RM), 0))}
               </Text>
               <Text className="text-surface-400 text-xs mt-1">Best e1RM</Text>
             </View>
             <View className="flex-1 bg-card rounded-2xl p-3 items-center border border-border">
               <Text className="text-surface-50 text-xl font-bold">
-                {Math.round(Math.max(...progress.map((p) => p.maxWeight)))}
+                {Math.round(bestWeight || Math.max(...progress.map((p) => p.maxWeight), 0))}
               </Text>
               <Text className="text-surface-400 text-xs mt-1">Max Weight</Text>
             </View>
             <View className="flex-1 bg-card rounded-2xl p-3 items-center border border-border">
               <Text className="text-surface-50 text-xl font-bold">
-                {progress.reduce((sum, p) => sum + p.totalSets, 0)}
+                {progressionSessionCount || progress.reduce((sum, p) => sum + p.totalSets, 0)}
               </Text>
-              <Text className="text-surface-400 text-xs mt-1">Total Sets</Text>
+              <Text className="text-surface-400 text-xs mt-1">Sessions</Text>
             </View>
+          </View>
+        )}
+
+        {/* Max Weight Progression — Line Chart with Trend */}
+        {progressionChartData.length > 1 && (
+          <View className="bg-card rounded-2xl p-4 mb-4 border border-border">
+            <Text className="text-surface-50 text-base font-bold mb-3">Max Weight Progression</Text>
+            <LineChart
+              data={progressionChartData}
+              lineColor="#B9B9B6"
+              trendColor="#D7D7D2"
+              showTrend
+              trendWindow={3}
+              yLabel="Weight (kg)"
+              height={180}
+            />
           </View>
         )}
 
@@ -125,7 +164,7 @@ export function ExerciseTimelineScreen() {
         )}
 
         {/* No data state */}
-        {progress.length === 0 && (
+        {progressionSessionCount === 0 && progress.length === 0 && (
           <View className="bg-card rounded-2xl p-6 items-center border border-border">
             <Text className="text-surface-400 text-sm">
               No sessions logged for this exercise yet.
