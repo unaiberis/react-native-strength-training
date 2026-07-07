@@ -9,12 +9,16 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { ErrorBoundary } from "@/shared/ui/ErrorBoundary";
+import { DashboardSkeleton } from "@/shared/ui/SkeletonLoader";
 import { useCoachDashboard } from "@/features/coach/hooks/useCoachDashboard";
 
 function StatusIndicator({ active }: { active: boolean }) {
   return (
     <View
       className={`w-2.5 h-2.5 rounded-full ${active ? "bg-green-500" : "bg-amber-500"}`}
+      accessibilityRole="image"
+      accessibilityLabel={active ? "Active" : "Inactive"}
     />
   );
 }
@@ -39,6 +43,8 @@ export default function CoachDashboardScreen() {
           className="bg-card border border-border rounded-2xl p-4 mb-3"
           onPress={() => router.push(`/(coach)/athlete/${item.id}`)}
           activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel={`View athlete: ${item.displayName}`}
         >
           <View className="flex-row items-center justify-between">
             <View className="flex-row items-center gap-3 flex-1">
@@ -79,65 +85,69 @@ export default function CoachDashboardScreen() {
 
   if (isLoading) {
     return (
-      <View className="flex-1 items-center justify-center">
-        <ActivityIndicator size="large" color="#B9B9B6" />
-      </View>
+      <ErrorBoundary>
+        <View className="flex-1">
+          <DashboardSkeleton />
+        </View>
+      </ErrorBoundary>
     );
   }
 
   return (
-    <View className="flex-1 px-4 pt-4">
-      {/* Stats bar */}
-      <View className="flex-row gap-3 mb-5">
-        <View className="flex-1 bg-card border border-border rounded-2xl p-4">
-          <Text className="text-surface-50 text-2xl font-bold">
-            {totalAthletes}
-          </Text>
-          <Text className="text-surface-400 text-xs mt-1">Total Athletes</Text>
-        </View>
-        <View className="flex-1 bg-card border border-border rounded-2xl p-4">
-          <Text className="text-green-400 text-2xl font-bold">
-            {activeCount}
-          </Text>
-          <Text className="text-surface-400 text-xs mt-1">Active This Week</Text>
-        </View>
-        <View className="flex-1 bg-card border border-border rounded-2xl p-4">
-          <Text className="text-amber-400 text-2xl font-bold">
-            {inactiveCount}
-          </Text>
-          <Text className="text-surface-400 text-xs mt-1">Inactive</Text>
-        </View>
-      </View>
-
-      {/* Athlete list */}
-      {athletes.length === 0 ? (
-        <View className="flex-1 items-center justify-center px-8">
-          <View className="w-16 h-16 rounded-full bg-graphite items-center justify-center mb-4">
-            <Ionicons name="people-outline" size={28} color="#B9B9B6" />
+    <ErrorBoundary>
+      <View className="flex-1 px-4 pt-4">
+        {/* Stats bar */}
+        <View className="flex-row gap-3 mb-5">
+          <View className="flex-1 bg-card border border-border rounded-2xl p-4">
+            <Text className="text-surface-50 text-2xl font-bold">
+              {totalAthletes}
+            </Text>
+            <Text className="text-surface-400 text-xs mt-1">Total Athletes</Text>
           </View>
-          <Text className="text-surface-50 text-lg font-semibold mb-2">
-            No Athletes Yet
-          </Text>
-          <Text className="text-surface-400 text-center text-sm leading-5">
-            Athletes will appear here once they link to you as their coach.
-          </Text>
+          <View className="flex-1 bg-card border border-border rounded-2xl p-4">
+            <Text className="text-green-400 text-2xl font-bold">
+              {activeCount}
+            </Text>
+            <Text className="text-surface-400 text-xs mt-1">Active This Week</Text>
+          </View>
+          <View className="flex-1 bg-card border border-border rounded-2xl p-4">
+            <Text className="text-amber-400 text-2xl font-bold">
+              {inactiveCount}
+            </Text>
+            <Text className="text-surface-400 text-xs mt-1">Inactive</Text>
+          </View>
         </View>
-      ) : (
-        <FlatList
-          data={athletes}
-          keyExtractor={(item) => item.id}
-          renderItem={renderAthlete}
-          refreshControl={
-            <RefreshControl
-              refreshing={isRefetching}
-              onRefresh={refetch}
-              tintColor="#B9B9B6"
-            />
-          }
-          contentContainerStyle={{ paddingBottom: 24 }}
-          showsVerticalScrollIndicator={false}
-        />
-      )}
-    </View>
+
+        {/* Athlete list */}
+        {athletes.length === 0 ? (
+          <View className="flex-1 items-center justify-center px-8">
+            <View className="w-16 h-16 rounded-full bg-graphite items-center justify-center mb-4">
+              <Ionicons name="people-outline" size={28} color="#B9B9B6" />
+            </View>
+            <Text className="text-surface-50 text-lg font-semibold mb-2">
+              No Athletes Yet
+            </Text>
+            <Text className="text-surface-400 text-center text-sm leading-5">
+              Invite athletes to get started. Athletes will appear here once they link to you as their coach.
+            </Text>
+          </View>
+        ) : (
+          <FlatList
+            data={athletes}
+            keyExtractor={(item) => item.id}
+            renderItem={renderAthlete}
+            refreshControl={
+              <RefreshControl
+                refreshing={isRefetching}
+                onRefresh={refetch}
+                tintColor="#B9B9B6"
+              />
+            }
+            contentContainerStyle={{ paddingBottom: 24 }}
+            showsVerticalScrollIndicator={false}
+          />
+        )}
+      </View>
+    </ErrorBoundary>
   );
 }

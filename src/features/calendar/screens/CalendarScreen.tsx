@@ -9,6 +9,9 @@ import {
 import { useRouter } from "expo-router";
 import { GradientBackground } from "@/shared/ui/GradientBackground";
 import { Card } from "@/shared/ui/Card";
+import { EmptyState } from "@/shared/ui/EmptyState";
+import { ErrorBoundary } from "@/shared/ui/ErrorBoundary";
+import { SkeletonCard } from "@/shared/ui/SkeletonLoader";
 import { CalendarGrid } from "../components/CalendarGrid";
 import {
   useCalendar,
@@ -55,7 +58,7 @@ function DayDetailPanel({
       <Card className="mt-4">
         <View className="items-center py-4">
           <ActivityIndicator size="small" color="#A4A4A8" />
-          <Text className="text-surface-400 text-sm mt-2">Loading workouts...</Text>
+          <Text className="text-surface-400 text-sm mt-2" accessibilityRole="text" accessibilityLabel="Loading workouts">Loading workouts...</Text>
         </View>
       </Card>
     );
@@ -81,6 +84,8 @@ function DayDetailPanel({
           key={summary.id}
           onPress={() => onViewWorkout(summary.id)}
           className="flex-row items-center justify-between py-2.5 border-b border-border last:border-b-0 active:opacity-60"
+          accessibilityRole="button"
+          accessibilityLabel={`View workout: ${summary.templateName ?? "Free Workout"}`}
         >
           <View className="flex-1 mr-3">
             <Text className="text-surface-50 text-sm font-semibold">
@@ -174,60 +179,87 @@ export function CalendarScreen() {
     [router],
   );
 
+  // Check if there are any workout days in the calendar
+  const hasWorkoutDays = calendarMonth
+    ? calendarMonth.days.some((day) => day.workoutCount > 0)
+    : false;
+
   return (
-    <GradientBackground>
-      <ScrollView
-        className="flex-1 px-4 pt-16"
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Header */}
-        <Text className="text-surface-50 text-2xl font-bold mb-6">
-          Calendar
-        </Text>
+    <ErrorBoundary>
+      <GradientBackground>
+        <ScrollView
+          className="flex-1 px-4 pt-16"
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Header */}
+          <Text className="text-surface-50 text-2xl font-bold mb-6">
+            Calendar
+          </Text>
 
-        {/* Calendar grid */}
-        {isLoading && (
-          <View className="items-center py-8">
-            <ActivityIndicator size="small" color="#B9B9B6" />
-          </View>
-        )}
+          {/* Calendar grid */}
+          {isLoading && (
+            <View>
+              <SkeletonCard lines={5} className="mb-4" />
+              <SkeletonCard lines={2} lastLineWidth="50%" />
+            </View>
+          )}
 
-        {error && (
-          <View className="items-center py-8">
-            <Text className="text-danger text-sm mb-3">
-              Could not load calendar
-            </Text>
-            <TouchableOpacity onPress={() => refetch()} className="active:opacity-60">
-              <Text className="text-surface-400 text-sm underline">Retry</Text>
-            </TouchableOpacity>
-          </View>
-        )}
+          {error && (
+            <View className="items-center py-8">
+              <Text className="text-danger text-sm mb-3">
+                Could not load calendar
+              </Text>
+              <TouchableOpacity
+                onPress={() => refetch()}
+                className="active:opacity-60"
+                accessibilityRole="button"
+                accessibilityLabel="Retry loading calendar"
+              >
+                <Text className="text-surface-400 text-sm underline">Retry</Text>
+              </TouchableOpacity>
+            </View>
+          )}
 
-        {calendarMonth && !error && (
-          <Card className="mb-2">
-            <CalendarGrid
-              calendarMonth={calendarMonth}
-              selectedDate={selectedDate}
-              onSelectDay={handleSelectDay}
-              onPrevMonth={handlePrevMonth}
-              onNextMonth={handleNextMonth}
+          {calendarMonth && !error && (
+            <Card className="mb-2">
+              <CalendarGrid
+                calendarMonth={calendarMonth}
+                selectedDate={selectedDate}
+                onSelectDay={handleSelectDay}
+                onPrevMonth={handlePrevMonth}
+                onNextMonth={handleNextMonth}
+              />
+            </Card>
+          )}
+
+          {/* Empty state — calendar loaded but no workouts at all */}
+          {!isLoading && !error && calendarMonth && !hasWorkoutDays && !selectedDate && (
+            <EmptyState
+              icon="calendar-outline"
+              title="No Workouts Yet"
+              subtitle="Start your first workout to see your training calendar."
+              action={{
+                label: "Start Workout",
+                onPress: () => router.push("/(tabs)/train"),
+              }}
+              className="py-8"
             />
-          </Card>
-        )}
+          )}
 
-        {/* Selected day detail */}
-        {selectedDate && (
-          <DayDetailPanel
-            dateStr={selectedDate}
-            summaries={daySummaries}
-            isLoading={isLoadingDetail}
-            onViewWorkout={handleViewWorkout}
-          />
-        )}
+          {/* Selected day detail */}
+          {selectedDate && (
+            <DayDetailPanel
+              dateStr={selectedDate}
+              summaries={daySummaries}
+              isLoading={isLoadingDetail}
+              onViewWorkout={handleViewWorkout}
+            />
+          )}
 
-        {/* Bottom spacing */}
-        <View className="h-8" />
-      </ScrollView>
-    </GradientBackground>
+          {/* Bottom spacing */}
+          <View className="h-8" />
+        </ScrollView>
+      </GradientBackground>
+    </ErrorBoundary>
   );
 }

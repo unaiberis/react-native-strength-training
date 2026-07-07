@@ -1,9 +1,10 @@
-import { useState, useCallback } from "react";
+import { memo, useState, useCallback } from "react";
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl } from "react-native";
 import { useRouter } from "expo-router";
 import { Card } from "../../../shared/ui/Card";
 import { Button } from "../../../shared/ui/Button";
 import { GradientBackground } from "../../../shared/ui/GradientBackground";
+import { ErrorBoundary } from "../../../shared/ui/ErrorBoundary";
 import { usePersonalRecords, getPRTypeLabel, formatPRValue } from "../hooks/usePersonalRecords";
 import type { PRDisplayItem } from "../hooks/usePersonalRecords";
 
@@ -20,7 +21,7 @@ function formatDate(iso: string): string {
 
 // ─── PR Card ──────────────────────────────────────────────────────────────
 
-function PRCard({ record }: { record: PRDisplayItem }) {
+const PRCard = memo(function PRCard({ record }: { record: PRDisplayItem }) {
   return (
     <View className="bg-surface-800 rounded-xl p-3 mb-2 border border-surface-700">
       <View className="flex-row justify-between items-center">
@@ -60,11 +61,11 @@ function PRCard({ record }: { record: PRDisplayItem }) {
       )}
     </View>
   );
-}
+});
 
 // ─── Exercise PR Group ────────────────────────────────────────────────────
 
-function ExercisePRGroup({
+const ExercisePRGroup = memo(function ExercisePRGroup({
   exerciseName,
   records,
   isExpanded,
@@ -79,7 +80,9 @@ function ExercisePRGroup({
     <Card className="mb-3">
       <TouchableOpacity
         onPress={onToggle}
-        className="flex-row justify-between items-center active:opacity-80"
+        className="flex-row justify-between items-center active:opacity-80 min-h-[44px]"
+        accessibilityRole="button"
+        accessibilityLabel={`${exerciseName}: ${records.length} PRs. Tap to ${isExpanded ? "collapse" : "expand"}`}
       >
         <Text className="text-surface-100 text-base font-semibold flex-1 mr-2" numberOfLines={1}>
           {exerciseName}
@@ -105,7 +108,7 @@ function ExercisePRGroup({
       )}
     </Card>
   );
-}
+});
 
 // ─── Main Screen ──────────────────────────────────────────────────────────
 

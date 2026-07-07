@@ -11,6 +11,8 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { ErrorBoundary } from "@/shared/ui/ErrorBoundary";
+import { DashboardSkeleton } from "@/shared/ui/SkeletonLoader";
 import { useCoachDashboard } from "@/features/coach/hooks/useCoachDashboard";
 import { useUnlinkAthlete } from "@/features/coach/hooks/useAthleteDetail";
 
@@ -54,6 +56,8 @@ export default function CoachAthletesScreen() {
         <TouchableOpacity
           onPress={() => router.push(`/(coach)/athlete/${item.id}`)}
           activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel={`View athlete details for ${item.displayName}`}
         >
           <View className="flex-row items-center justify-between">
             <View className="flex-row items-center gap-3 flex-1">
@@ -72,13 +76,17 @@ export default function CoachAthletesScreen() {
             <View className="flex-row items-center gap-2">
               <TouchableOpacity
                 onPress={() => router.push(`/(coach)/analytics/${item.id}`)}
-                className="bg-graphite rounded-xl p-2"
+                className="bg-graphite rounded-xl p-2 min-w-[44px] min-h-[44px] items-center justify-center"
+                accessibilityRole="button"
+                accessibilityLabel={`View analytics for ${item.displayName}`}
               >
                 <Ionicons name="trending-up-outline" size={18} color="#B9B9B6" />
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => handleUnlink(item.id, item.displayName)}
-                className="bg-graphite rounded-xl p-2"
+                className="bg-graphite rounded-xl p-2 min-w-[44px] min-h-[44px] items-center justify-center"
+                accessibilityRole="button"
+                accessibilityLabel={`Unlink ${item.displayName}`}
               >
                 <Ionicons name="close-outline" size={18} color="#D65F5F" />
               </TouchableOpacity>
@@ -108,61 +116,71 @@ export default function CoachAthletesScreen() {
 
   if (isLoading) {
     return (
-      <View className="flex-1 items-center justify-center">
-        <ActivityIndicator size="large" color="#B9B9B6" />
-      </View>
+      <ErrorBoundary>
+        <View className="flex-1">
+          <DashboardSkeleton />
+        </View>
+      </ErrorBoundary>
     );
   }
 
   return (
-    <View className="flex-1 px-4 pt-4">
-      {/* Search bar */}
-      <View className="flex-row items-center bg-card border border-border rounded-xl px-3 mb-4 h-11">
-        <Ionicons name="search-outline" size={18} color="#707074" />
-        <TextInput
-          className="flex-1 text-surface-50 text-sm ml-2"
-          placeholder="Search athletes..."
-          placeholderTextColor="#707074"
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-        />
-        {searchQuery.length > 0 && (
-          <TouchableOpacity onPress={() => setSearchQuery("")}>
-            <Ionicons name="close-circle" size={18} color="#707074" />
-          </TouchableOpacity>
+    <ErrorBoundary>
+      <View className="flex-1 px-4 pt-4">
+        {/* Search bar */}
+        <View className="flex-row items-center bg-card border border-border rounded-xl px-3 mb-4 min-h-[44px]">
+          <Ionicons name="search-outline" size={18} color="#707074" />
+          <TextInput
+            className="flex-1 text-surface-50 text-sm ml-2"
+            placeholder="Search athletes..."
+            placeholderTextColor="#707074"
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            accessibilityLabel="Search athletes"
+          />
+          {searchQuery.length > 0 && (
+            <TouchableOpacity
+              onPress={() => setSearchQuery("")}
+              className="min-w-[44px] min-h-[44px] items-center justify-center"
+              accessibilityRole="button"
+              accessibilityLabel="Clear search"
+            >
+              <Ionicons name="close-circle" size={18} color="#707074" />
+            </TouchableOpacity>
+          )}
+        </View>
+
+        {filteredAthletes.length === 0 ? (
+          <View className="flex-1 items-center justify-center px-8">
+            <View className="w-16 h-16 rounded-full bg-graphite items-center justify-center mb-4">
+              <Ionicons name="people-outline" size={28} color="#B9B9B6" />
+            </View>
+            <Text className="text-surface-50 text-lg font-semibold mb-2">
+              {searchQuery ? "No Results" : "No Athletes Yet"}
+            </Text>
+            <Text className="text-surface-400 text-center text-sm leading-5">
+              {searchQuery
+                ? "Try a different name or email."
+                : "Invite athletes to get started. Athletes will appear here once they link to you as their coach."}
+            </Text>
+          </View>
+        ) : (
+          <FlatList
+            data={filteredAthletes}
+            keyExtractor={(item) => item.id}
+            renderItem={renderAthlete}
+            refreshControl={
+              <RefreshControl
+                refreshing={isRefetching}
+                onRefresh={refetch}
+                tintColor="#B9B9B6"
+              />
+            }
+            contentContainerStyle={{ paddingBottom: 24 }}
+            showsVerticalScrollIndicator={false}
+          />
         )}
       </View>
-
-      {filteredAthletes.length === 0 ? (
-        <View className="flex-1 items-center justify-center px-8">
-          <View className="w-16 h-16 rounded-full bg-graphite items-center justify-center mb-4">
-            <Ionicons name="people-outline" size={28} color="#B9B9B6" />
-          </View>
-          <Text className="text-surface-50 text-lg font-semibold mb-2">
-            {searchQuery ? "No Results" : "No Athletes Yet"}
-          </Text>
-          <Text className="text-surface-400 text-center text-sm leading-5">
-            {searchQuery
-              ? "Try a different name or email."
-              : "Athletes will appear here once they link to you as their coach."}
-          </Text>
-        </View>
-      ) : (
-        <FlatList
-          data={filteredAthletes}
-          keyExtractor={(item) => item.id}
-          renderItem={renderAthlete}
-          refreshControl={
-            <RefreshControl
-              refreshing={isRefetching}
-              onRefresh={refetch}
-              tintColor="#B9B9B6"
-            />
-          }
-          contentContainerStyle={{ paddingBottom: 24 }}
-          showsVerticalScrollIndicator={false}
-        />
-      )}
-    </View>
+    </ErrorBoundary>
   );
 }

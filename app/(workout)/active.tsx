@@ -1,4 +1,5 @@
 import { useLocalSearchParams } from "expo-router";
+import { ErrorBoundary } from "../../src/shared/ui/ErrorBoundary";
 import { ActiveWorkoutScreen } from "../../src/features/workout/screens/ActiveWorkoutScreen";
 import { WorkoutCompleteScreen } from "../../src/features/workout/screens/WorkoutCompleteScreen";
 
@@ -15,8 +16,16 @@ export default function WorkoutRoute() {
   const { completed } = useLocalSearchParams<{ completed?: string }>();
 
   if (completed === "true") {
-    return <WorkoutCompleteScreen />;
+    return (
+      <ErrorBoundary>
+        <WorkoutCompleteScreen />
+      </ErrorBoundary>
+    );
   }
 
-  return <ActiveWorkoutScreen />;
+  return (
+    <ErrorBoundary>
+      <ActiveWorkoutScreen />
+    </ErrorBoundary>
+  );
 }

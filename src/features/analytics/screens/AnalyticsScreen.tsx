@@ -2,6 +2,9 @@ import { useState, useMemo } from "react";
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from "react-native";
 import { useRouter } from "expo-router";
 import { GradientBackground } from "@/shared/ui/GradientBackground";
+import { ErrorBoundary } from "@/shared/ui/ErrorBoundary";
+import { EmptyState } from "@/shared/ui/EmptyState";
+import { SkeletonCard } from "@/shared/ui/SkeletonLoader";
 import { useAnalytics, type AnalyticsPeriod } from "../hooks/useAnalytics";
 import { BarChart } from "../components/BarChart";
 
@@ -19,7 +22,9 @@ function PeriodToggleButton({
   return (
     <TouchableOpacity
       onPress={onPress}
-      className={`px-4 py-2 rounded-xl ${active ? "bg-surface-800" : ""}`}
+      className={`px-4 py-2 rounded-xl min-h-[44px] justify-center ${active ? "bg-surface-800" : ""}`}
+      accessibilityRole="button"
+      accessibilityLabel={`${label} view${active ? ", selected" : ""}`}
     >
       <Text className={`text-sm font-semibold ${active ? "text-surface-50" : "text-surface-400"}`}>
         {label}
@@ -69,107 +74,136 @@ export function AnalyticsScreen() {
     return { totalVolume, totalSessions };
   }, [volumeByPeriod]);
 
+  const hasData = volumeByPeriod.length > 0 || exercises.length > 0;
+
   if (isLoading) {
     return (
-      <GradientBackground>
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="small" color="#B9B9B6" />
-          <Text className="text-surface-400 text-lg mt-3">Loading analytics...</Text>
-        </View>
-      </GradientBackground>
+      <ErrorBoundary>
+        <GradientBackground>
+          <View className="flex-1 px-4 pt-16">
+            <SkeletonCard lines={2} className="mb-6" />
+            <SkeletonCard lines={4} className="mb-4" />
+            <SkeletonCard lines={3} lastLineWidth="45%" />
+          </View>
+        </GradientBackground>
+      </ErrorBoundary>
     );
   }
 
   if (error) {
     return (
-      <GradientBackground>
-        <View className="flex-1 items-center justify-center px-6">
-          <Text className="text-danger text-lg mb-2">Failed to load analytics</Text>
-          <TouchableOpacity
-            onPress={() => refetch()}
-            className="bg-card px-6 py-2 rounded-xl border border-border"
-          >
-            <Text className="text-surface-50 font-medium">Retry</Text>
-          </TouchableOpacity>
-        </View>
-      </GradientBackground>
+      <ErrorBoundary>
+        <GradientBackground>
+          <View className="flex-1 items-center justify-center px-6">
+            <Text className="text-danger text-lg mb-2">Failed to load analytics</Text>
+            <TouchableOpacity
+              onPress={() => refetch()}
+              className="bg-card px-6 py-2 rounded-xl border border-border min-h-[44px] justify-center"
+              accessibilityRole="button"
+              accessibilityLabel="Retry loading analytics"
+            >
+              <Text className="text-surface-50 font-medium">Retry</Text>
+            </TouchableOpacity>
+          </View>
+        </GradientBackground>
+      </ErrorBoundary>
     );
   }
 
   return (
-    <GradientBackground>
-      <ScrollView
-        className="flex-1 px-4 pt-16"
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Header */}
-        <Text className="text-surface-50 text-2xl font-bold mb-1">
-          Analytics
-        </Text>
-        <Text className="text-surface-400 text-sm mb-6">
-          Your training trends and progress
-        </Text>
-
-        {/* Period toggle */}
-        <View className="flex-row bg-card rounded-2xl p-1 mb-6 self-start border border-border">
-          <PeriodToggleButton
-            label="Weekly"
-            active={period === "weekly"}
-            onPress={() => setPeriod("weekly")}
-          />
-          <PeriodToggleButton
-            label="Monthly"
-            active={period === "monthly"}
-            onPress={() => setPeriod("monthly")}
-          />
-        </View>
-
-        {/* Summary stats */}
-        <View className="flex-row gap-3 mb-6">
-          <StatCard label="Total Volume" value={formatVolume(totalStats.totalVolume)} />
-          <StatCard label="Workouts" value={String(totalStats.totalSessions)} />
-          <StatCard label="Exercises" value={String(exercises.length)} />
-        </View>
-
-        {/* Volume Trend Chart */}
-        <View className="bg-card rounded-2xl p-4 mb-4 border border-border">
-          <Text className="text-surface-50 text-base font-bold mb-3">
-            {period === "weekly" ? "Weekly Volume" : "Monthly Volume"}
+    <ErrorBoundary>
+      <GradientBackground>
+        <ScrollView
+          className="flex-1 px-4 pt-16"
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Header */}
+          <Text className="text-surface-50 text-2xl font-bold mb-1">
+            Analytics
           </Text>
-          <BarChart
-            data={volumeByPeriod.map((d) => ({ period: d.period, volume: d.volume }))}
-            valueKey="volume"
-            barColor="#B9B9B6"
-            height={Math.max(120, volumeByPeriod.length * 32)}
-          />
-        </View>
+          <Text className="text-surface-400 text-sm mb-6">
+            Your training trends and progress
+          </Text>
 
-        {/* Exercise PR Timelines */}
-        <Text className="text-surface-50 text-lg font-bold mb-3">Exercise Progress</Text>
-        {exercises.length === 0 && (
-          <View className="bg-card rounded-2xl p-6 mb-4 border border-border items-center">
-            <Text className="text-surface-400 text-sm">
-              Complete some workouts to see your exercise progress here.
-            </Text>
+          {/* Period toggle */}
+          <View className="flex-row bg-card rounded-2xl p-1 mb-6 self-start border border-border">
+            <PeriodToggleButton
+              label="Weekly"
+              active={period === "weekly"}
+              onPress={() => setPeriod("weekly")}
+            />
+            <PeriodToggleButton
+              label="Monthly"
+              active={period === "monthly"}
+              onPress={() => setPeriod("monthly")}
+            />
           </View>
-        )}
-        {exercises.map((ex) => (
-          <TouchableOpacity
-            key={ex.id}
-            className="bg-card rounded-2xl p-4 mb-3 border border-border"
-            onPress={() => router.push(`/(tabs)/analytics/exercise/${ex.id}`)}
-            activeOpacity={0.7}
-          >
-            <View className="flex-row justify-between items-center mb-2">
-              <Text className="text-surface-50 font-bold text-base">{ex.name}</Text>
-              <Text className="text-surface-400 text-xs">Tap for details</Text>
-            </View>
-          </TouchableOpacity>
-        ))}
 
-        {/* Bottom spacing */}
-        <View className="h-8" />
-      </ScrollView>
-    </GradientBackground>
+          {/* Empty state — no data at all */}
+          {!hasData ? (
+            <EmptyState
+              icon="stats-chart-outline"
+              title="No Analytics Data"
+              subtitle="Complete a workout to see your analytics."
+              action={{
+                label: "Start Workout",
+                onPress: () => router.push("/(tabs)/train"),
+              }}
+              className="py-8"
+            />
+          ) : (
+            <>
+              {/* Summary stats */}
+              <View className="flex-row gap-3 mb-6">
+                <StatCard label="Total Volume" value={formatVolume(totalStats.totalVolume)} />
+                <StatCard label="Workouts" value={String(totalStats.totalSessions)} />
+                <StatCard label="Exercises" value={String(exercises.length)} />
+              </View>
+
+              {/* Volume Trend Chart */}
+              <View className="bg-card rounded-2xl p-4 mb-4 border border-border">
+                <Text className="text-surface-50 text-base font-bold mb-3">
+                  {period === "weekly" ? "Weekly Volume" : "Monthly Volume"}
+                </Text>
+                <BarChart
+                  data={volumeByPeriod.map((d) => ({ period: d.period, volume: d.volume }))}
+                  valueKey="volume"
+                  barColor="#B9B9B6"
+                  height={Math.max(120, volumeByPeriod.length * 32)}
+                />
+              </View>
+
+              {/* Exercise PR Timelines */}
+              <Text className="text-surface-50 text-lg font-bold mb-3">Exercise Progress</Text>
+              {exercises.length === 0 && (
+                <View className="bg-card rounded-2xl p-6 mb-4 border border-border items-center">
+                  <Text className="text-surface-400 text-sm">
+                    Complete some workouts to see your exercise progress here.
+                  </Text>
+                </View>
+              )}
+              {exercises.map((ex) => (
+                <TouchableOpacity
+                  key={ex.id}
+                  className="bg-card rounded-2xl p-4 mb-3 border border-border min-h-[60px] justify-center"
+                  onPress={() => router.push(`/(tabs)/analytics/exercise/${ex.id}`)}
+                  activeOpacity={0.7}
+                  accessibilityRole="button"
+                  accessibilityLabel={`View progress for ${ex.name}`}
+                >
+                  <View className="flex-row justify-between items-center">
+                    <Text className="text-surface-50 font-bold text-base">{ex.name}</Text>
+                    <Text className="text-surface-400 text-xs">Tap for details</Text>
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </>
+          )}
+
+          {/* Bottom spacing */}
+          <View className="h-8" />
+        </ScrollView>
+      </GradientBackground>
+    </ErrorBoundary>
   );
 }

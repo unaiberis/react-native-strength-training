@@ -1,3 +1,4 @@
+import { ErrorBoundary } from "@/shared/ui/ErrorBoundary";
 import { SelfAssessmentScreen } from "@/features/workout/screens/SelfAssessmentScreen";
 
 /**
@@ -7,5 +8,9 @@ import { SelfAssessmentScreen } from "@/features/workout/screens/SelfAssessmentS
  * soreness, and mood questions.
  */
 export default function SelfAssessmentRoute() {
-  return <SelfAssessmentScreen />;
+  return (
+    <ErrorBoundary>
+      <SelfAssessmentScreen />
+    </ErrorBoundary>
+  );
 }

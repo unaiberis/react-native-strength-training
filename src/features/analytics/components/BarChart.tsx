@@ -70,7 +70,12 @@ export function BarChart({
 
   if (data.length === 0) {
     return (
-      <View className="items-center justify-center py-8" style={{ height }}>
+      <View
+        className="items-center justify-center py-8"
+        style={{ height }}
+        accessibilityRole="image"
+        accessibilityLabel="Bar chart with no data"
+      >
         <Text className="text-surface-500 text-sm">No data yet</Text>
       </View>
     );
@@ -81,6 +86,8 @@ export function BarChart({
       className="flex-1"
       contentContainerStyle={{ paddingVertical: 4 }}
       showsVerticalScrollIndicator={false}
+      accessibilityRole="image"
+      accessibilityLabel={`Bar chart with ${data.length} data points`}
     >
       {data.map((point, index) => {
         const value = (point[valueKey] as number) || 0;
@@ -102,6 +109,8 @@ export function BarChart({
                   backgroundColor: barColor,
                   opacity: Math.max(0.3, value / maxValue),
                 }}
+                accessibilityRole="image"
+                accessibilityLabel={`${label}: ${formatValue(value, valueKey)}`}
               />
             </View>
             {/* Value label */}
@@ -147,14 +156,24 @@ export function PRTimelineChart({
 
   if (sortedData.length === 0) {
     return (
-      <View className="items-center justify-center py-6" style={{ height }}>
+      <View
+        className="items-center justify-center py-6"
+        style={{ height }}
+        accessibilityRole="image"
+        accessibilityLabel={`PR timeline chart for ${exerciseName} with no data`}
+      >
         <Text className="text-surface-500 text-sm">No data for {exerciseName}</Text>
       </View>
     );
   }
 
   return (
-    <View style={{ height }} className="justify-end">
+    <View
+      style={{ height }}
+      className="justify-end"
+      accessibilityRole="image"
+      accessibilityLabel={`PR timeline for ${exerciseName} showing ${sortedData.length} data points`}
+    >
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -182,6 +201,8 @@ export function PRTimelineChart({
                   backgroundColor: barColor,
                   opacity: Math.max(0.4, barHeightPct / 100),
                 }}
+                accessibilityRole="image"
+                accessibilityLabel={`${dateLabel}: ${Math.round(point.e1rm)} kg`}
               />
               <Text className="text-surface-500 text-[9px] mt-1">{dateLabel}</Text>
             </View>

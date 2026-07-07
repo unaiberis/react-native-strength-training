@@ -106,7 +106,12 @@ export function LineChart({
 
   if (sortedData.length === 0) {
     return (
-      <View className="items-center justify-center" style={{ height }}>
+      <View
+        className="items-center justify-center"
+        style={{ height }}
+        accessibilityRole="image"
+        accessibilityLabel="Line chart with no data"
+      >
         <Text className="text-surface-500 text-sm">No data yet</Text>
       </View>
     );
@@ -116,7 +121,11 @@ export function LineChart({
   const segmentHeight = 2;
 
   return (
-    <View style={{ height }}>
+    <View
+      style={{ height }}
+      accessibilityRole="image"
+      accessibilityLabel={`Line chart with ${sortedData.length} data points. ${yLabel ?? ""}`}
+    >
       {yLabel && (
         <Text className="text-surface-500 text-[10px] mb-1">{yLabel}</Text>
       )}
@@ -261,6 +270,8 @@ export function LineChart({
                         top: y,
                         left: 26,
                       }}
+                      accessibilityRole="image"
+                      accessibilityLabel={`${dateLabel}: ${Math.round(point.value)}`}
                     />
                     {/* X axis label */}
                     <Text
