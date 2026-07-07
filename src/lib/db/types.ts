@@ -119,6 +119,18 @@ export interface ExerciseSetRow {
   synced_at: string | null;
 }
 
+export interface WorkoutFeedbackRow {
+  id: string;
+  local_id: string | null;
+  session_id: string;
+  athlete_id: string;
+  coach_id: string | null;
+  rating: number;
+  notes: string | null;
+  synced: number;
+  created_at: string;
+}
+
 // ─── Offline Service Input Types ────────────────────────────────────────
 
 export interface LogSetInput {
@@ -136,4 +148,12 @@ export interface LogSetInput {
 export interface CompleteSessionInput {
   durationSeconds?: number;
   notes?: string;
+}
+
+export interface FeedbackInput {
+  sessionId: string;
+  athleteId: string;
+  coachId?: string | null;
+  rating: number;
+  notes?: string | null;
 }

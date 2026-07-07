@@ -41,10 +41,12 @@ const tabIcons: Record<string, keyof typeof Ionicons.glyphMap> = {
 
 export default function TabsLayout() {
   const router = useRouter();
-  const { state } = useAuthStore();
+  const { state, role } = useAuthStore();
 
   /**
-   * If the user is not authenticated, redirect to the auth flow.
+   * Auth guards:
+   * 1. Unauthenticated → redirect to login
+   * 2. Coach user in athlete tabs → redirect to coach tabs
    * Diferido con setTimeout(0) para que el navegador esté montado
    * antes de intentar la navegación (evita "navigate before mounting Root Layout").
    */
@@ -53,7 +55,11 @@ export default function TabsLayout() {
       const id = setTimeout(() => router.replace("/(auth)/login"), 0);
       return () => clearTimeout(id);
     }
-  }, [state, router]);
+    if (state === "authenticated" && role === "coach") {
+      const id = setTimeout(() => router.replace("/(coach)"), 0);
+      return () => clearTimeout(id);
+    }
+  }, [state, role, router]);
 
   return (
     <GradientBackground>
