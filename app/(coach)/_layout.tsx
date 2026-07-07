@@ -67,6 +67,10 @@ export default function CoachTabsLayout() {
 
           {/* Hidden routes — navigated from screens, not shown in tab bar */}
           <Tabs.Screen
+            name="dashboard"
+            options={{ href: null, headerShown: true, headerTitle: "Dashboard", headerStyle: { backgroundColor: "#050505" }, headerTintColor: "#F4F4F2" }}
+          />
+          <Tabs.Screen
             name="athlete/[id]"
             options={{ href: null, headerShown: false }}
           />

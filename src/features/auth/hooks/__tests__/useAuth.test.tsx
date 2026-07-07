@@ -134,6 +134,7 @@ describe("useAuth integration", () => {
         email: "new@test.com",
         password: "StrongPass1",
         displayName: "New User",
+        role: "athlete",
       });
     });
 
@@ -142,6 +143,7 @@ describe("useAuth integration", () => {
       email: "new@test.com",
       password: "StrongPass1",
       displayName: "New User",
+      role: "athlete",
     });
   });
 
@@ -159,6 +161,7 @@ describe("useAuth integration", () => {
         email: "existing@test.com",
         password: "StrongPass1",
         displayName: "Existing",
+        role: "athlete",
       });
     });
 

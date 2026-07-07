@@ -2,12 +2,16 @@
 const mockGetList = jest.fn();
 const mockGetOne = jest.fn();
 const mockGetFullList = jest.fn();
+const mockCreate = jest.fn();
+const mockUpdate = jest.fn();
 
 const mockPb = {
   collection: jest.fn(() => ({
     getList: mockGetList,
     getOne: mockGetOne,
     getFullList: mockGetFullList,
+    create: mockCreate,
+    update: mockUpdate,
   })),
   filter: jest.fn((s: string) => s),
 };
@@ -22,6 +26,10 @@ import {
   getExercise,
   searchExercises,
   getCategories,
+  createExercise,
+  updateExercise,
+  archiveExercise,
+  unarchiveExercise,
 } from "../exercises";
 
 const makeExercise = (overrides: Partial<ExerciseRow> = {}): ExerciseRow => ({
@@ -35,6 +43,9 @@ const makeExercise = (overrides: Partial<ExerciseRow> = {}): ExerciseRow => ({
   default_reps: 10,
   default_rest_seconds: 90,
   is_public: true,
+  is_archived: false,
+  created_by: null,
+  video_url: null,
   created: "2026-01-01T00:00:00Z",
   updated: "2026-01-01T00:00:00Z",
   ...overrides,
@@ -223,5 +234,100 @@ describe("PocketBase exercises service", () => {
     mockGetFullList.mockRejectedValue(new Error("DB error"));
 
     await expect(getCategories()).rejects.toThrow("DB error");
+  });
+
+  // ─── Coach CRUD Operations ──────────────────────────────────────────
+
+  describe("createExercise", () => {
+    it("creates a new exercise", async () => {
+      mockCreate.mockResolvedValue(makeExercise({ id: "ex-new" }));
+
+      const result = await createExercise(
+        {
+          name: "New Exercise",
+          category: "Strength",
+          description: "Test description",
+          defaultSets: 4,
+          defaultReps: 8,
+          defaultRestSeconds: 60,
+        },
+        "coach-1",
+      );
+
+      expect(mockCreate).toHaveBeenCalledWith({
+        name: "New Exercise",
+        category: "Strength",
+        equipment: null,
+        body_region: null,
+        description: "Test description",
+        default_sets: 4,
+        default_reps: 8,
+        default_rest_seconds: 60,
+        video_url: null,
+        is_public: false,
+        is_archived: false,
+        created_by: "coach-1",
+      });
+      expect(result.name).toBe("Bench Press");
+    });
+
+    it("throws on creation failure", async () => {
+      mockCreate.mockRejectedValue(new Error("Create failed"));
+
+      await expect(
+        createExercise({ name: "Fail", category: "Test" }, "coach-1"),
+      ).rejects.toThrow("Create failed");
+    });
+  });
+
+  describe("updateExercise", () => {
+    it("updates an exercise with partial fields", async () => {
+      mockUpdate.mockResolvedValue(makeExercise({ name: "Updated" }));
+
+      const result = await updateExercise("ex-1", { name: "Updated" });
+
+      expect(mockUpdate).toHaveBeenCalledWith("ex-1", { name: "Updated" });
+      expect(result.name).toBe("Updated");
+    });
+
+    it("throws when exercise not found", async () => {
+      mockUpdate.mockRejectedValue(new Error("Exercise not found"));
+
+      await expect(
+        updateExercise("nonexistent", { name: "Nope" }),
+      ).rejects.toThrow("Exercise not found");
+    });
+  });
+
+  describe("archiveExercise", () => {
+    it("sets is_archived to true", async () => {
+      mockUpdate.mockResolvedValue(true);
+
+      await archiveExercise("ex-1");
+
+      expect(mockUpdate).toHaveBeenCalledWith("ex-1", { is_archived: true });
+    });
+
+    it("throws on failure", async () => {
+      mockUpdate.mockRejectedValue(new Error("Archive failed"));
+
+      await expect(archiveExercise("ex-1")).rejects.toThrow("Archive failed");
+    });
+  });
+
+  describe("unarchiveExercise", () => {
+    it("sets is_archived to false", async () => {
+      mockUpdate.mockResolvedValue(true);
+
+      await unarchiveExercise("ex-1");
+
+      expect(mockUpdate).toHaveBeenCalledWith("ex-1", { is_archived: false });
+    });
+
+    it("throws on failure", async () => {
+      mockUpdate.mockRejectedValue(new Error("Restore failed"));
+
+      await expect(unarchiveExercise("ex-1")).rejects.toThrow("Restore failed");
+    });
   });
 });

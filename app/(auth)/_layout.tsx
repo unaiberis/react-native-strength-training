@@ -4,19 +4,20 @@ import { useAuthStore } from "../../src/stores/auth-store";
 
 export default function AuthLayout() {
   const router = useRouter();
-  const { state } = useAuthStore();
+  const { state, role } = useAuthStore();
 
   /**
-   * If the user is already authenticated, redirect to the tabs.
-   * This prevents showing the login screen to a signed-in user.
+   * If the user is already authenticated, redirect based on role.
+   * Coach → (coach)/, Athlete → (tabs)/
    * Diferido con setTimeout(0) para evitar "navigate before mounting Root Layout".
    */
   useEffect(() => {
     if (state === "authenticated") {
-      const id = setTimeout(() => router.replace("/(tabs)"), 0);
+      const destination = role === "coach" ? "/(coach)" : "/(tabs)";
+      const id = setTimeout(() => router.replace(destination), 0);
       return () => clearTimeout(id);
     }
-  }, [state, router]);
+  }, [state, role, router]);
 
   return (
     <Stack screenOptions={{ headerShown: false }}>

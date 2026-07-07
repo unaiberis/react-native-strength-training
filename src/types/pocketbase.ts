@@ -17,9 +17,11 @@ export interface ExerciseRow {
   default_reps: number;
   default_rest_seconds: number;
   is_public: boolean;
+  is_archived: boolean;
+  created_by: string | null;
+  video_url: string | null;
   created: string;
   updated: string;
-  video_url?: string | null;
 }
 
 export interface TemplateRow {

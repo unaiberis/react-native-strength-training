@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View, Text, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
+import { View, Text, KeyboardAvoidingView, Platform, ScrollView, Pressable } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "../../../shared/ui/Button";
@@ -122,6 +122,52 @@ export function RegisterScreen() {
                 onBlur={onBlur}
                 error={errors.password?.message}
               />
+            )}
+          />
+
+          <Controller
+            control={control}
+            name="role"
+            render={({ field: { onChange, value } }) => (
+              <View>
+                <Text className="text-surface-400 text-sm mb-2 font-medium">
+                  I am a...
+                </Text>
+                <View className="flex-row gap-3">
+                  <Pressable
+                    onPress={() => onChange("athlete")}
+                    className={`flex-1 py-3 px-4 rounded-xl border ${
+                      value === "athlete"
+                        ? "border-titanium bg-cardSoft"
+                        : "border-border bg-card"
+                    }`}
+                  >
+                    <Text
+                      className={`text-center font-semibold ${
+                        value === "athlete" ? "text-titanium" : "text-surface-400"
+                      }`}
+                    >
+                      Athlete
+                    </Text>
+                  </Pressable>
+                  <Pressable
+                    onPress={() => onChange("coach")}
+                    className={`flex-1 py-3 px-4 rounded-xl border ${
+                      value === "coach"
+                        ? "border-titanium bg-cardSoft"
+                        : "border-border bg-card"
+                    }`}
+                  >
+                    <Text
+                      className={`text-center font-semibold ${
+                        value === "coach" ? "text-titanium" : "text-surface-400"
+                      }`}
+                    >
+                      Coach
+                    </Text>
+                  </Pressable>
+                </View>
+              </View>
             )}
           />
 
