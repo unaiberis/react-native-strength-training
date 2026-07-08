@@ -357,6 +357,7 @@ git commit -m "docs: document PocketBase collection schema"
 | `src/lib/db/change-queue.ts` | Estados críticos. Puede perder datos del usuario |
 | `src/lib/db/sync-engine.ts` | Corazón del offline. Cualquier cambio → judgment-day |
 | `src/lib/pocketbase/client.ts` | Mock client frágil. Cambiar mock rompe 5+ test files |
+| `package.json` (expo, react, react-native, react-dom) | SDK baseline — NO bajar de Expo SDK 54 sin aprobación explícita del usuario |
 | `scripts/seed-demo-data.mjs` | 181 registros con IDs referenciados |
 | `tailwind.config.js` | Paleta design system. No añadir colores sin documentar |
 
