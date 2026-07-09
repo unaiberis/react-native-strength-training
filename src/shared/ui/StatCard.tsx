@@ -32,7 +32,7 @@ export function StatCard({
 }: StatCardProps) {
   return (
     <View
-      className={`bg-card rounded-xl p-4 border border-border shadow-card ${className ?? ""}`}
+      className={`w-full bg-card rounded-xl p-4 border border-border shadow-card ${className ?? ""}`}
       style={style}
     >
       <View className="mb-2">

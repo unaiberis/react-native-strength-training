@@ -57,8 +57,8 @@ export default function HomeScreen() {
             Quick Stats
           </Text>
 
-          <View className="flex-row flex-wrap gap-3 mb-6">
-            <View className="w-[48%]">
+          <View className="flex-row gap-3 mb-6">
+            <View className="flex-1">
               {isLoading ? (
                 <View className="bg-card rounded-xl p-4 border border-border shadow-card">
                   <View className="w-8 h-8 rounded bg-surface-700 mb-2" />
@@ -73,7 +73,7 @@ export default function HomeScreen() {
                 />
               )}
             </View>
-            <View className="w-[48%]">
+            <View className="flex-1">
               {isLoading ? (
                 <View className="bg-card rounded-xl p-4 border border-border shadow-card">
                   <View className="w-8 h-8 rounded bg-surface-700 mb-2" />
@@ -88,7 +88,10 @@ export default function HomeScreen() {
                 />
               )}
             </View>
-            <View className="w-[48%]">
+          </View>
+
+          <View className="flex-row gap-3 mb-6">
+            <View className="flex-1">
               {isLoading ? (
                 <View className="bg-card rounded-xl p-4 border border-border shadow-card">
                   <View className="w-8 h-8 rounded bg-surface-700 mb-2" />
@@ -103,7 +106,7 @@ export default function HomeScreen() {
                 />
               )}
             </View>
-            <View className="w-[48%]">
+            <View className="flex-1">
               {isLoading ? (
                 <View className="bg-card rounded-xl p-4 border border-border shadow-card">
                   <View className="w-8 h-8 rounded bg-surface-700 mb-2" />
