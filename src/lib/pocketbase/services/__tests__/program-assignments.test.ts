@@ -92,7 +92,8 @@ describe("PocketBase program-assignments service", () => {
         athleteId: "athlete-1",
         coachId: "coach-1",
         templateId: "tmpl-1",
-        startDate: "2026-07-15",
+        startedAt: "2026-07-15",
+        assignedAt: "2026-07-01",
       });
 
       expect(mockUpdate).toHaveBeenCalledWith("pa-existing", {
@@ -111,7 +112,8 @@ describe("PocketBase program-assignments service", () => {
           athleteId: "athlete-1",
           coachId: "coach-1",
           templateId: "tmpl-1",
-          startDate: "2026-07-15",
+          startedAt: "2026-07-15",
+          assignedAt: "2026-07-01",
         }),
       ).rejects.toThrow("Create failed");
     });

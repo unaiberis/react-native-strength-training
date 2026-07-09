@@ -1,13 +1,14 @@
 /**
  * Hook to fetch a single program's detail (phases, workouts, progress).
  *
- * Reads the coach-assigned `program_assignment` by id (expanding `template`)
- * and maps it into the `ProgramSummary` shape used by `ProgramDetailScreen`.
+ * Reads the coach-assigned `program_assignment` by id and maps it into the
+ * `ProgramSummary` shape used by `ProgramDetailScreen`.
  * Falls back to `null` only on hard error / no data.
  */
 import { useQuery } from "@tanstack/react-query";
 import { getAssignment } from "../../../lib/pocketbase/services/program-assignments";
-import { mapAssignmentToProgramSummary, type AssignmentWithTemplate } from "./useAthleteAssignments";
+import { mapAssignmentToProgramSummary } from "./useAthleteAssignments";
+import type { ProgramAssignmentRow } from "../../../types/pocketbase";
 import type { ProgramSummary } from "./usePrograms";
 
 export interface UseProgramDetailResult {
@@ -28,7 +29,7 @@ export function useProgramDetail(programId: string): UseProgramDetailResult {
 
   return {
     program: query.data
-      ? mapAssignmentToProgramSummary(query.data as AssignmentWithTemplate)
+      ? mapAssignmentToProgramSummary(query.data as ProgramAssignmentRow)
       : null,
     isLoading: query.isLoading,
     error: query.error,
