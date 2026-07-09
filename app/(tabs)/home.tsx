@@ -57,69 +57,71 @@ export default function HomeScreen() {
             Quick Stats
           </Text>
 
-          <View className="flex-row gap-3 mb-6">
-            <View className="flex-1">
-              {isLoading ? (
-                <View className="bg-card rounded-xl p-4 border border-border shadow-card">
-                  <View className="w-8 h-8 rounded bg-surface-700 mb-2" />
-                  <View className="w-16 h-7 rounded bg-surface-700 mb-1" />
-                  <View className="w-20 h-3 rounded bg-surface-700" />
-                </View>
-              ) : (
-                <StatCard
-                  icon="fitness-outline"
-                  value={totalWorkouts}
-                  label="Total Workouts"
-                />
-              )}
+          {/* 2x2 grid — explicit width to guarantee equal columns */}
+          <View className="mb-6" style={{ gap: 12 }}>
+            <View className="flex-row" style={{ gap: 12 }}>
+              <View style={{ flex: 1, minWidth: 0 }}>
+                {isLoading ? (
+                  <View className="bg-card rounded-xl p-4 border border-border shadow-card">
+                    <View className="w-8 h-8 rounded bg-surface-700 mb-2" />
+                    <View className="w-16 h-7 rounded bg-surface-700 mb-1" />
+                    <View className="w-20 h-3 rounded bg-surface-700" />
+                  </View>
+                ) : (
+                  <StatCard
+                    icon="fitness-outline"
+                    value={totalWorkouts}
+                    label="Total Workouts"
+                  />
+                )}
+              </View>
+              <View style={{ flex: 1, minWidth: 0 }}>
+                {isLoading ? (
+                  <View className="bg-card rounded-xl p-4 border border-border shadow-card">
+                    <View className="w-8 h-8 rounded bg-surface-700 mb-2" />
+                    <View className="w-16 h-7 rounded bg-surface-700 mb-1" />
+                    <View className="w-20 h-3 rounded bg-surface-700" />
+                  </View>
+                ) : (
+                  <StatCard
+                    icon="barbell-outline"
+                    value={totalSets}
+                    label="Total Sets"
+                  />
+                )}
+              </View>
             </View>
-            <View className="flex-1">
-              {isLoading ? (
-                <View className="bg-card rounded-xl p-4 border border-border shadow-card">
-                  <View className="w-8 h-8 rounded bg-surface-700 mb-2" />
-                  <View className="w-16 h-7 rounded bg-surface-700 mb-1" />
-                  <View className="w-20 h-3 rounded bg-surface-700" />
-                </View>
-              ) : (
-                <StatCard
-                  icon="barbell-outline"
-                  value={totalSets}
-                  label="Total Sets"
-                />
-              )}
-            </View>
-          </View>
-
-          <View className="flex-row gap-3 mb-6">
-            <View className="flex-1">
-              {isLoading ? (
-                <View className="bg-card rounded-xl p-4 border border-border shadow-card">
-                  <View className="w-8 h-8 rounded bg-surface-700 mb-2" />
-                  <View className="w-16 h-7 rounded bg-surface-700 mb-1" />
-                  <View className="w-20 h-3 rounded bg-surface-700" />
-                </View>
-              ) : (
-                <StatCard
-                  icon="calendar-outline"
-                  value={thisWeekWorkouts}
-                  label="This Week"
-                />
-              )}
-            </View>
-            <View className="flex-1">
-              {isLoading ? (
-                <View className="bg-card rounded-xl p-4 border border-border shadow-card">
-                  <View className="w-8 h-8 rounded bg-surface-700 mb-2" />
-                  <View className="w-16 h-7 rounded bg-surface-700 mb-1" />
-                  <View className="w-20 h-3 rounded bg-surface-700" />
-                </View>
-              ) : (
-                <StatCard
-                  icon="trophy-outline"
-                  value={bestE1RM !== null ? `${bestE1RM.toFixed(1)} kg` : "—"}
-                  label="Best e1RM"
-                />
-              )}
+            <View className="flex-row" style={{ gap: 12 }}>
+              <View style={{ flex: 1, minWidth: 0 }}>
+                {isLoading ? (
+                  <View className="bg-card rounded-xl p-4 border border-border shadow-card">
+                    <View className="w-8 h-8 rounded bg-surface-700 mb-2" />
+                    <View className="w-16 h-7 rounded bg-surface-700 mb-1" />
+                    <View className="w-20 h-3 rounded bg-surface-700" />
+                  </View>
+                ) : (
+                  <StatCard
+                    icon="calendar-outline"
+                    value={thisWeekWorkouts}
+                    label="This Week"
+                  />
+                )}
+              </View>
+              <View style={{ flex: 1, minWidth: 0 }}>
+                {isLoading ? (
+                  <View className="bg-card rounded-xl p-4 border border-border shadow-card">
+                    <View className="w-8 h-8 rounded bg-surface-700 mb-2" />
+                    <View className="w-16 h-7 rounded bg-surface-700 mb-1" />
+                    <View className="w-20 h-3 rounded bg-surface-700" />
+                  </View>
+                ) : (
+                  <StatCard
+                    icon="trophy-outline"
+                    value={bestE1RM !== null ? `${bestE1RM.toFixed(1)} kg` : "—"}
+                    label="Best e1RM"
+                  />
+                )}
+              </View>
             </View>
           </View>
 
