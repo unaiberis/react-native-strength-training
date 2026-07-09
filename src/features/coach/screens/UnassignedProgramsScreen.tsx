@@ -209,7 +209,7 @@ function AssignModal({
       {
         athleteId: selectedAthleteId,
         templateId: template.id,
-        startDate,
+        startedAt: startDate,
         teamId: selectedTeamId ?? undefined,
       },
       {
@@ -376,7 +376,7 @@ export function UnassignedProgramsScreen() {
     if (!templates || !assignments) return templates ?? [];
     const assignedTemplateIds = new Set<string>();
     for (const a of assignments as AssignmentWithExpand[]) {
-      if (a.template) assignedTemplateIds.add(a.template);
+      if (a.template_id) assignedTemplateIds.add(a.template_id);
     }
     return templates.filter((t) => !assignedTemplateIds.has(t.id));
   }, [templates, assignments]);

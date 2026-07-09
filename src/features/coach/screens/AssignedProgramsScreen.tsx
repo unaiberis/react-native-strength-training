@@ -73,8 +73,8 @@ function AssignmentCard({
   const athlete = assignment.expand?.athlete;
   const status = STATUS_BADGE[assignment.status] ?? STATUS_BADGE.active;
 
-  // Compute weeks progress (rough estimate based on time since start_date)
-  const startDate = new Date(assignment.start_date);
+  // Compute weeks progress (rough estimate based on time since started_at)
+  const startDate = new Date(assignment.started_at);
   const now = new Date();
   const weeksElapsed = Math.max(
     0,
@@ -113,7 +113,7 @@ function AssignmentCard({
 
       {/* Start date */}
       <Text className="text-surface-400 text-xs mb-3">
-        Started {formatDate(assignment.start_date)}
+        Started {formatDate(assignment.started_at)}
       </Text>
 
       {/* Progress bar */}

@@ -162,10 +162,10 @@ export default function AthleteDetailScreen() {
               <View className="flex-row items-center justify-between">
                 <View className="flex-1">
                   <Text className="text-surface-50 font-semibold">
-                    {a.template}
+                    {a.template_id}
                   </Text>
                   <Text className="text-surface-400 text-xs mt-1">
-                    Starts {new Date(a.start_date).toLocaleDateString()}
+                    Starts {new Date(a.started_at).toLocaleDateString()}
                   </Text>
                 </View>
                 <View className="bg-green-900/40 px-3 py-1 rounded-full">
@@ -192,10 +192,10 @@ export default function AthleteDetailScreen() {
                 <View className="flex-row items-center justify-between">
                   <View className="flex-1">
                     <Text className="text-surface-50 font-semibold">
-                      {a.template}
+                      {a.template_id}
                     </Text>
                     <Text className="text-surface-400 text-xs mt-1">
-                      {new Date(a.start_date).toLocaleDateString()}
+                      {new Date(a.started_at).toLocaleDateString()}
                     </Text>
                   </View>
                   <View

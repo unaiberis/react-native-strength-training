@@ -6,14 +6,15 @@ export interface CreateAssignmentInput {
   athleteId: string;
   coachId: string;
   templateId: string;
-  startDate: string;
+  startedAt: string;
   teamId?: string;
+  assignedAt: string;
 }
 
 /** Input for updating an existing assignment. */
 export interface UpdateAssignmentInput {
-  status?: "active" | "completed" | "cancelled";
-  startDate?: string;
+  status?: "active" | "completed" | "paused" | "cancelled";
+  startedAt?: string;
 }
 
 /**
@@ -25,11 +26,11 @@ export async function assignProgram(
   input: CreateAssignmentInput,
 ): Promise<ProgramAssignmentRow> {
   try {
-    // Check for existing assignment with same athlete + template + start_date
+    // Check for existing assignment with same athlete + template + started_at
     const existing = await pb
       .collection("program_assignments")
       .getFullList({
-        filter: `athlete = '${input.athleteId}' && template = '${input.templateId}' && start_date = '${input.startDate}'`,
+        filter: `athlete_id = '${input.athleteId}' && template_id = '${input.templateId}' && started_at = '${input.startedAt}'`,
         $autoCancel: false,
       });
 
@@ -40,17 +41,18 @@ export async function assignProgram(
         .collection("program_assignments")
         .update(record.id, {
           status: "active",
-          coach: input.coachId,
+          coach_id: input.coachId,
         });
       return updated as unknown as ProgramAssignmentRow;
     }
 
     // Create new assignment
     const record = await pb.collection("program_assignments").create({
-      athlete: input.athleteId,
-      coach: input.coachId,
-      template: input.templateId,
-      start_date: input.startDate,
+      athlete_id: input.athleteId,
+      coach_id: input.coachId,
+      template_id: input.templateId,
+      assigned_at: input.assignedAt,
+      started_at: input.startedAt,
       team_id: input.teamId ?? null,
       status: "active",
     });
@@ -64,7 +66,6 @@ export async function assignProgram(
 
 /**
  * List all program assignments for a given athlete.
- * Includes the template name via expand.
  */
 export async function listAssignments(
   athleteId: string,
@@ -73,9 +74,8 @@ export async function listAssignments(
     const records = await pb
       .collection("program_assignments")
       .getFullList({
-        filter: `athlete = '${athleteId}'`,
-        sort: "-start_date",
-        expand: "template",
+        filter: `athlete_id = '${athleteId}'`,
+        sort: "-started_at",
       });
 
     return (records ?? []) as unknown as ProgramAssignmentRow[];
@@ -105,7 +105,6 @@ export async function listCoachAssignments(
       .getFullList({
         filter: `(${teamFilter})`,
         sort: "-created",
-        expand: "template,athlete",
         $autoCancel: false,
       });
 
@@ -129,7 +128,7 @@ export async function unassignProgram(
 }
 
 /**
- * Update an existing assignment (status, start_date).
+ * Update an existing assignment (status, started_at).
  */
 export async function updateAssignment(
   assignmentId: string,
@@ -140,7 +139,7 @@ export async function updateAssignment(
       .collection("program_assignments")
       .update(assignmentId, {
         status: input.status,
-        start_date: input.startDate,
+        started_at: input.startedAt,
       });
 
     if (!record) throw new Error("Assignment not found");
@@ -151,7 +150,7 @@ export async function updateAssignment(
 }
 
 /**
- * Get a single program assignment by ID with expanded template and athlete.
+ * Get a single program assignment by ID.
  */
 export async function getAssignment(
   id: string,
@@ -159,7 +158,7 @@ export async function getAssignment(
   try {
     const record = await pb
       .collection("program_assignments")
-      .getOne(id, { expand: "template,athlete", $autoCancel: false });
+      .getOne(id, { $autoCancel: false });
     if (!record) throw new Error("Assignment not found");
     return record as unknown as ProgramAssignmentRow;
   } catch (err: any) {
@@ -179,7 +178,7 @@ export async function hasActiveAssignment(
     const records = await pb
       .collection("program_assignments")
       .getFullList({
-        filter: `athlete = '${athleteId}' && template = '${templateId}' && start_date = '${startDate}' && status = 'active'`,
+        filter: `athlete_id = '${athleteId}' && template_id = '${templateId}' && started_at = '${startDate}' && status = 'active'`,
         fields: "id",
         $autoCancel: false,
       });

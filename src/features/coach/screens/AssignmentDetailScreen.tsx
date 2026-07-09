@@ -90,7 +90,7 @@ export function AssignmentDetailScreen() {
   const athlete = assignment?.expand?.athlete;
 
   // Compute progress
-  const startDate = assignment ? new Date(assignment.start_date) : null;
+  const startDate = assignment ? new Date(assignment.started_at) : null;
   const now = new Date();
   const weeksElapsed = startDate
     ? Math.max(0, Math.floor((now.getTime() - startDate.getTime()) / (7 * 24 * 60 * 60 * 1000)))
@@ -218,7 +218,7 @@ export function AssignmentDetailScreen() {
           <View className="flex-row items-center justify-between mb-3">
             <Text className="text-surface-400 text-sm">Start Date</Text>
             <Text className="text-surface-50 font-semibold">
-              {formatDate(assignment.start_date)}
+               {formatDate(assignment.started_at)}
             </Text>
           </View>
           <View className="flex-row items-center justify-between mb-3">

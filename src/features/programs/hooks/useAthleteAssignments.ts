@@ -13,7 +13,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useAuthStore } from "../../../stores/auth-store";
 import { listAssignments } from "../../../lib/pocketbase/services/program-assignments";
-import type { ProgramAssignmentRow, TemplateRow } from "../../../types/pocketbase";
+import type { ProgramAssignmentRow } from "../../../types/pocketbase";
 import {
   computeProgramProgress,
   type ProgramPhaseSummary,
@@ -24,7 +24,7 @@ import {
 
 /**
  * Format a `Date` as a local-time `YYYY-MM-DD` string (no timezone shift).
- * Used to compare an assignment `start_date` against "today" (R5).
+ * Used to compare an assignment `started_at` against "today" (R5).
  */
 export function todayStr(date: Date = new Date()): string {
   const y = date.getFullYear();
@@ -60,11 +60,6 @@ export function findAssignedToday(
 }
 
 // ─── Types ─────────────────────────────────────────────────────────────────
-
-/** Assignment row enriched with the expanded `template` relation. */
-export type AssignmentWithTemplate = ProgramAssignmentRow & {
-  expand?: { template?: TemplateRow | null };
-};
 
 /** Options for the pure mapping function. */
 export interface MapOptions {
@@ -102,22 +97,22 @@ function addWeeks(startDate: string, weeks: number): string {
 }
 
 /**
- * Map a single `ProgramAssignmentRow` (with expanded `template`) into the
- * existing `ProgramSummary` shape.
+ * Map a single `ProgramAssignmentRow` into the existing `ProgramSummary`
+ * shape.
  *
- * Null-guards a missing / absent `expand.template` (orphaned assignment after
- * template deletion) — returns a placeholder name, empty description, and an
- * empty `phases` array without dereferencing the template (R1 edge case).
+ * Program assignments on PocketBase store text fields (not relations), so
+ * template metadata is not expandable. Returns a placeholder name for the
+ * program, empty description, and an empty `phases` array (R1 edge case:
+ * orphaned assignment after template deletion).
  */
 export function mapAssignmentToProgramSummary(
-  row: AssignmentWithTemplate,
+  row: ProgramAssignmentRow,
   opts: MapOptions = {},
 ): ProgramSummary {
   const totalWeeks = opts.totalWeeks ?? DEFAULT_PROGRAM_WEEKS;
   const today = opts.today ?? new Date();
-  const tpl = row.expand?.template ?? null;
 
-  const startDate = row.start_date;
+  const startDate = row.started_at;
   const endDate = addWeeks(startDate, totalWeeks);
   const isUpcoming = new Date(startDate).getTime() > today.getTime();
 
@@ -133,29 +128,16 @@ export function mapAssignmentToProgramSummary(
     totalWeeks,
   );
 
-  // Single-phase fallback (D2): one phase built from the whole template.
-  const phases: ProgramPhaseSummary[] = tpl
-    ? [
-        {
-          id: `phase-${tpl.id}`,
-          name: tpl.name,
-          weekStart: 1,
-          weekEnd: totalWeeks,
-          workoutCount: DEFAULT_WORKOUT_COUNT,
-        },
-      ]
-    : [];
-
   return {
     id: row.id,
-    name: tpl?.name ?? "Untitled Program",
-    description: tpl?.description ?? "",
+    name: "Untitled Program",
+    description: "",
     startDate,
     endDate,
     totalWeeks,
     weeksCompleted,
     progressPercent,
-    phases,
+    phases: [],
     status,
   };
 }
@@ -166,15 +148,15 @@ export function mapAssignmentToProgramSummary(
  *
  * Rules (D4 / D6):
  *  - skip `cancelled` rows;
- *  - `currentProgram` = the `active` assignment with the latest `start_date`
- *    that is `<= today` (nearest start_date, not after today);
- *  - `upcomingPrograms` = assignments whose `start_date > today`
+ *  - `currentProgram` = the `active` assignment with the latest `started_at`
+ *    that is `<= today` (nearest started_at, not after today);
+ *  - `upcomingPrograms` = assignments whose `started_at > today`
  *    (status-driven to "upcoming");
- *  - `completed` rows with `start_date <= today` are NOT surfaced (history is
+ *  - `completed` rows with `started_at <= today` are NOT surfaced (history is
  *    out of scope).
  */
 export function deriveCurrentAndUpcoming(
-  rows: AssignmentWithTemplate[],
+  rows: ProgramAssignmentRow[],
   today: Date = new Date(),
 ): { currentProgram: ProgramSummary | null; upcomingPrograms: ProgramSummary[] } {
   const visible = rows.filter((r) => r.status !== "cancelled");
@@ -182,18 +164,18 @@ export function deriveCurrentAndUpcoming(
   const currentRow = visible
     .filter(
       (r) =>
-        r.status === "active" && new Date(r.start_date).getTime() <= today.getTime(),
+        r.status === "active" && new Date(r.started_at).getTime() <= today.getTime(),
     )
     .sort(
       (a, b) =>
-        new Date(b.start_date).getTime() - new Date(a.start_date).getTime(),
+        new Date(b.started_at).getTime() - new Date(a.started_at).getTime(),
     )[0];
 
   const upcomingRows = visible
-    .filter((r) => new Date(r.start_date).getTime() > today.getTime())
+    .filter((r) => new Date(r.started_at).getTime() > today.getTime())
     .sort(
       (a, b) =>
-        new Date(a.start_date).getTime() - new Date(b.start_date).getTime(),
+        new Date(a.started_at).getTime() - new Date(b.started_at).getTime(),
     );
 
   return {
@@ -230,7 +212,7 @@ export function useAthleteAssignments(): {
     enabled: !!userId,
   });
 
-  const rows = (query.data ?? []) as AssignmentWithTemplate[];
+  const rows = query.data ?? [];
   const { currentProgram, upcomingPrograms } = deriveCurrentAndUpcoming(rows);
 
   return {

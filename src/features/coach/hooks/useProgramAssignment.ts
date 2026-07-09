@@ -62,15 +62,16 @@ export function useAssignProgram() {
     mutationFn: (input: {
       athleteId: string;
       templateId: string;
-      startDate: string;
+      startedAt: string;
       teamId?: string;
     }) =>
       assignProgram({
         athleteId: input.athleteId,
         coachId: userId!,
         templateId: input.templateId,
-        startDate: input.startDate,
+        startedAt: input.startedAt,
         teamId: input.teamId,
+        assignedAt: new Date().toISOString(),
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [ASSIGNMENTS_QUERY_KEY] });
@@ -106,8 +107,8 @@ export function useUpdateAssignment() {
       ...input
     }: {
       assignmentId: string;
-      status?: "active" | "completed" | "cancelled";
-      startDate?: string;
+      status?: "active" | "completed" | "paused" | "cancelled";
+      startedAt?: string;
     }) => updateAssignment(assignmentId, input),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [ASSIGNMENTS_QUERY_KEY] });

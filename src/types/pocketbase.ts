@@ -158,12 +158,16 @@ export interface UserRow {
 /** Program assignment row — maps a coach-assigned template to an athlete. */
 export interface ProgramAssignmentRow {
   id: string;
-  athlete: string;
-  coach: string;
-  template: string;
-  start_date: string;
+  athlete_id: string;
+  coach_id: string;
+  template_id: string;
+  assigned_at: string;
+  started_at: string;
+  completed_at: string | null;
+  program_id: string | null;
+  notes: string | null;
   team_id: string | null;
-  status: "active" | "completed" | "cancelled";
+  status: "active" | "completed" | "paused" | "cancelled";
   created: string;
   updated: string;
 }
