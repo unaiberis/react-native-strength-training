@@ -80,7 +80,7 @@ export default function TabsLayout() {
         }}
       >
       <Tabs.Screen
-        name="index"
+        name="calendar"
         options={{
           title: "Calendar",
           tabBarIcon: ({ focused }) => (
@@ -143,7 +143,7 @@ export default function TabsLayout() {
         }}
       />
       {/* Hidden routes — navigated to from other screens, not shown in tab bar */}
-      <Tabs.Screen name="calendar" options={{ href: null }} />
+      <Tabs.Screen name="index" options={{ href: null }} />
       <Tabs.Screen name="exercises/index" options={{ href: null, headerShown: true, headerTitle: "Exercise Library", headerStyle: { backgroundColor: "#18181b" }, headerTintColor: "#fafafa" }} />
       <Tabs.Screen name="exercises/[id]" options={{ href: null, headerShown: true, headerTitle: "Exercise Details", headerStyle: { backgroundColor: "#18181b" }, headerTintColor: "#fafafa" }} />
       <Tabs.Screen name="routines/index" options={{ href: null, headerShown: true, headerTitle: "Routines", headerStyle: { backgroundColor: "#18181b" }, headerTintColor: "#fafafa" }} />

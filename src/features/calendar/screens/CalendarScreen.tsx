@@ -66,8 +66,8 @@ export function CalendarScreen() {
   const userId = useAuthStore((s) => s.user?.id);
   const scrollRef = useRef<ScrollView>(null);
 
-  // View mode toggle
-  const [viewMode, setViewMode] = useState<ViewMode>("week");
+  // View mode toggle — month by default (CoachAthletic-style)
+  const [viewMode, setViewMode] = useState<ViewMode>("month");
 
   // Week calendar hook
   const {
