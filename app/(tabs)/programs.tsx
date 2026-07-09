@@ -12,7 +12,7 @@ import { GradientBackground } from "../../src/shared/ui/GradientBackground";
 
 export default function ProgramsScreen() {
   const router = useRouter();
-  const { currentProgram, upcomingPrograms, isLoading } = usePrograms();
+  const { currentProgram, upcomingPrograms, isLoading, refetch } = usePrograms();
 
   if (isLoading) {
     return (
@@ -32,7 +32,7 @@ export default function ProgramsScreen() {
           refreshControl={
             <RefreshControl
               refreshing={isLoading}
-              onRefresh={() => {}}
+              onRefresh={() => refetch()}
               tintColor="#B9B9B6"
             />
           }

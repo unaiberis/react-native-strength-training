@@ -5,6 +5,8 @@
  * composed of phases, each containing workouts.
  */
 
+import { useAthleteAssignments } from "./useAthleteAssignments";
+
 // ─── Types ─────────────────────────────────────────────────────────────────
 
 export interface ProgramPhaseSummary {
@@ -32,6 +34,8 @@ export interface UseProgramsResult {
   currentProgram: ProgramSummary | null;
   upcomingPrograms: ProgramSummary[];
   isLoading: boolean;
+  error: unknown;
+  refetch: () => void;
 }
 
 // ─── Helper ─────────────────────────────────────────────────────────────────
@@ -39,7 +43,7 @@ export interface UseProgramsResult {
 /**
  * Compute progress metrics from program dates.
  */
-function computeProgramProgress(
+export function computeProgramProgress(
   startDate: string,
   endDate: string,
   totalWeeks: number,
@@ -72,30 +76,20 @@ function computeProgramProgress(
 /**
  * Hook to fetch the athlete's programs.
  *
- * Fetches from `program_assignments` PocketBase service and computes
- * progress metrics. Returns the current active program (if any) plus
- * a list of upcoming queued programs.
- *
- * For now, returns empty data — ready for when the full program backend
- * is wired with phase and workout data.
+ * Delegates to `useAthleteAssignments`, which calls `listAssignments(user.id)`
+ * and maps each assignment into the `ProgramSummary` shape consumed by the
+ * Programs tab and detail screens. The public return shape (`UseProgramsResult`)
+ * is unchanged so existing screens need no prop changes (R2, R6).
  */
 export function usePrograms(): UseProgramsResult {
-  // TODO: Wire up with full program backend.
-  // Current state: the service (listAssignments) exists but we need
-  // template expansion + phase/workout data to build ProgramSummary.
-  //
-  // Expected integration:
-  //   const userId = useAuthStore((s) => s.user?.id);
-  //   const { data: assignments } = useQuery({
-  //     queryKey: [PROGRAMS_QUERY_KEY, userId],
-  //     queryFn: () => listAssignments(userId!),
-  //     enabled: !!userId,
-  //   });
-  //   → map assignments to ProgramSummary using template expand + phases
+  const { currentProgram, upcomingPrograms, isLoading, error, refetch } =
+    useAthleteAssignments();
 
   return {
-    currentProgram: null,
-    upcomingPrograms: [],
-    isLoading: false,
+    currentProgram,
+    upcomingPrograms,
+    isLoading,
+    error,
+    refetch,
   };
 }
