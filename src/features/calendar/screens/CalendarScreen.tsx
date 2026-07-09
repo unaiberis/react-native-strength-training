@@ -16,6 +16,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
 import { GradientBackground } from "@/shared/ui/GradientBackground";
 import { Card } from "@/shared/ui/Card";
 import { EmptyState } from "@/shared/ui/EmptyState";
@@ -36,6 +37,11 @@ import {
   type CalendarWorkoutSummary,
 } from "../hooks/useCalendar";
 import { useAuthStore } from "@/stores/auth-store";
+import {
+  useAthleteAssignments,
+  findAssignedOnDate,
+  todayStr,
+} from "@/features/programs/hooks/useAthleteAssignments";
 
 // ─── Types ──────────────────────────────────────────────────────────────
 
@@ -166,6 +172,15 @@ export function CalendarScreen() {
     }
   }, [router, dayWorkout]);
 
+  // Assigned-today indicator (R5): surface a chip when an assignment start_date
+  // matches today or the selected calendar day, deep-linking to its detail.
+  const { currentProgram, upcomingPrograms } = useAthleteAssignments();
+  const todayStrVal = todayStr();
+  const matchDate = selectedDate ?? todayStrVal;
+  const assignedChip =
+    findAssignedOnDate([currentProgram, ...upcomingPrograms], matchDate) ??
+    findAssignedOnDate([currentProgram, ...upcomingPrograms], todayStrVal);
+
   // Determine loading state
   const isLoading = viewMode === "week" ? isWeekLoading : isMonthLoading;
 
@@ -222,6 +237,23 @@ export function CalendarScreen() {
               </Text>
             </TouchableOpacity>
           </View>
+
+          {/* Assigned-today chip (R5) */}
+          {assignedChip && (
+            <TouchableOpacity
+              onPress={() =>
+                router.push(`/programs/program-detail/${assignedChip.id}`)
+              }
+              className="flex-row items-center gap-2 bg-cardSoft rounded-full px-4 py-2 mb-4 border border-border self-start"
+              accessibilityRole="button"
+              accessibilityLabel="Entrenamiento asignado hoy"
+            >
+              <Ionicons name="calendar-outline" size={16} color="#B9B9B6" />
+              <Text className="text-surface-100 text-sm font-semibold">
+                Entrenamiento asignado hoy
+              </Text>
+            </TouchableOpacity>
+          )}
 
           {/* Loading state */}
           {isLoading && (

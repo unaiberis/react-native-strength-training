@@ -10,6 +10,10 @@ import { ErrorBoundary } from "@/shared/ui/ErrorBoundary";
 import { SkeletonCard } from "@/shared/ui/SkeletonLoader";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { useHomeStats, relativeDate } from "@/features/home/hooks/useHomeStats";
+import {
+  useAthleteAssignments,
+  findAssignedToday,
+} from "@/features/programs/hooks/useAthleteAssignments";
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -27,6 +31,9 @@ export default function HomeScreen() {
     refetch,
     isRefetching,
   } = useHomeStats();
+
+  const { currentProgram, upcomingPrograms } = useAthleteAssignments();
+  const assignedToday = findAssignedToday([currentProgram, ...upcomingPrograms]);
 
   const onRefresh = useCallback(() => {
     refetch();
@@ -52,6 +59,23 @@ export default function HomeScreen() {
           <Text className="text-surface-400 text-base mb-6">
             Ready to train?
           </Text>
+
+          {/* ── Assigned Today Chip ─────────────────────────────────────── */}
+          {assignedToday && (
+            <TouchableOpacity
+              onPress={() =>
+                router.push(`/programs/program-detail/${assignedToday.id}`)
+              }
+              className="flex-row items-center gap-2 bg-cardSoft rounded-full px-4 py-2 mb-4 border border-border self-start"
+              accessibilityRole="button"
+              accessibilityLabel="Entrenamiento asignado hoy"
+            >
+              <Ionicons name="calendar-outline" size={16} color="#B9B9B6" />
+              <Text className="text-surface-100 text-sm font-semibold">
+                Entrenamiento asignado hoy
+              </Text>
+            </TouchableOpacity>
+          )}
 
           {/* ── Quick Stats ─────────────────────────────────────────────── */}
           <Text className="text-surface-50 text-xl font-extrabold tracking-[-0.5] mb-3">
