@@ -19,29 +19,21 @@ function createWrapper() {
     React.createElement(QueryClientProvider, { client: queryClient }, children);
 }
 
-function rowWithTemplate(templateName = "Hypertrophy Block") {
+function rowWithTemplate() {
   return {
     id: "asg-b",
-    athlete: "ath-1",
-    coach: "coach-1",
-    template: "tpl-1",
-    start_date: "2026-07-05",
+    athlete_id: "ath-1",
+    coach_id: "coach-1",
+    template_id: "tpl-1",
+    assigned_at: "2026-07-01T00:00:00Z",
+    started_at: "2026-07-05",
+    completed_at: null,
+    program_id: null,
+    notes: null,
     team_id: null,
     status: "active" as const,
     created: "2026-07-01T00:00:00Z",
     updated: "2026-07-01T00:00:00Z",
-    expand: {
-      template: {
-        id: "tpl-1",
-        user_id: "coach-1",
-        name: templateName,
-        description: "8-week plan",
-        program_block_id: null,
-        is_public: false,
-        created: "",
-        updated: "",
-      },
-    },
   };
 }
 
@@ -50,8 +42,8 @@ describe("useProgramDetail", () => {
     jest.clearAllMocks();
   });
 
-  it("calls getAssignment(id) and maps the template name into program.name", async () => {
-    mockGetAssignment.mockResolvedValue(rowWithTemplate("Strength Phase"));
+  it("calls getAssignment(id) and returns program with placeholder name", async () => {
+    mockGetAssignment.mockResolvedValue(rowWithTemplate());
 
     const { result } = renderHook(() => useProgramDetail("asg-b"), {
       wrapper: createWrapper(),
@@ -59,17 +51,13 @@ describe("useProgramDetail", () => {
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
     expect(mockGetAssignment).toHaveBeenCalledWith("asg-b");
-    expect(result.current.program?.name).toBe("Strength Phase");
-    expect(result.current.program?.phases).toHaveLength(1);
+    expect(result.current.program?.name).toBe("Untitled Program");
+    expect(result.current.program?.phases).toEqual([]);
     expect(result.current.error).toBeNull();
   });
 
-  it("null-guards when expand.template is absent (no throw, phases empty)", async () => {
-    const row = {
-      ...rowWithTemplate(),
-      expand: { template: null },
-    };
-    mockGetAssignment.mockResolvedValue(row);
+  it("handles missing data gracefully (no throw, phases empty)", async () => {
+    mockGetAssignment.mockResolvedValue(rowWithTemplate());
 
     const { result } = renderHook(() => useProgramDetail("asg-x"), {
       wrapper: createWrapper(),

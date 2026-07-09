@@ -33,10 +33,14 @@ const makeAssignment = (
   overrides: Partial<ProgramAssignmentRow> = {},
 ): ProgramAssignmentRow => ({
   id: "pa-1",
-  athlete: "athlete-1",
-  coach: "coach-1",
-  template: "tmpl-1",
-  start_date: "2026-07-15",
+  athlete_id: "athlete-1",
+  coach_id: "coach-1",
+  template_id: "tmpl-1",
+  assigned_at: "2026-07-01",
+  started_at: "2026-07-15",
+  completed_at: null,
+  program_id: null,
+  notes: null,
   team_id: null,
   status: "active",
   created: "2026-07-01T00:00:00Z",
@@ -58,19 +62,21 @@ describe("PocketBase program-assignments service", () => {
         athleteId: "athlete-1",
         coachId: "coach-1",
         templateId: "tmpl-1",
-        startDate: "2026-07-15",
+        startedAt: "2026-07-15",
+        assignedAt: "2026-07-01",
       });
 
       expect(mockGetFullList).toHaveBeenCalledWith({
         filter:
-          "athlete = 'athlete-1' && template = 'tmpl-1' && start_date = '2026-07-15'",
+          "athlete_id = 'athlete-1' && template_id = 'tmpl-1' && started_at = '2026-07-15'",
         $autoCancel: false,
       });
       expect(mockCreate).toHaveBeenCalledWith({
-        athlete: "athlete-1",
-        coach: "coach-1",
-        template: "tmpl-1",
-        start_date: "2026-07-15",
+        athlete_id: "athlete-1",
+        coach_id: "coach-1",
+        template_id: "tmpl-1",
+        assigned_at: "2026-07-01",
+        started_at: "2026-07-15",
         team_id: null,
         status: "active",
       });
@@ -91,7 +97,7 @@ describe("PocketBase program-assignments service", () => {
 
       expect(mockUpdate).toHaveBeenCalledWith("pa-existing", {
         status: "active",
-        coach: "coach-1",
+        coach_id: "coach-1",
       });
       expect(result.id).toBe("pa-existing");
     });
@@ -115,16 +121,15 @@ describe("PocketBase program-assignments service", () => {
     it("returns assignments for an athlete", async () => {
       const assignments = [
         makeAssignment(),
-        makeAssignment({ id: "pa-2", start_date: "2026-08-01" }),
+        makeAssignment({ id: "pa-2", started_at: "2026-08-01" }),
       ];
       mockGetFullList.mockResolvedValueOnce(assignments);
 
       const result = await listAssignments("athlete-1");
 
       expect(mockGetFullList).toHaveBeenCalledWith({
-        filter: "athlete = 'athlete-1'",
-        sort: "-start_date",
-        expand: "template",
+        filter: "athlete_id = 'athlete-1'",
+        sort: "-started_at",
       });
       expect(result).toHaveLength(2);
     });
@@ -183,14 +188,14 @@ describe("PocketBase program-assignments service", () => {
   });
 
   describe("updateAssignment", () => {
-    it("updates status and start_date", async () => {
+    it("updates status and started_at", async () => {
       mockUpdate.mockResolvedValueOnce(makeAssignment({ status: "completed" }));
 
       const result = await updateAssignment("pa-1", { status: "completed" });
 
       expect(mockUpdate).toHaveBeenCalledWith("pa-1", {
         status: "completed",
-        start_date: undefined,
+        started_at: undefined,
       });
       expect(result.status).toBe("completed");
     });

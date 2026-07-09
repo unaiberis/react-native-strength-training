@@ -294,7 +294,7 @@ async function main() {
   // Assign first template (or any) to each athlete in their teams
   const existingAssignments = await listAll(headers, "program_assignments");
   const existingAssignmentKeys = new Set(
-    existingAssignments.map((a) => `${a.athlete}:${a.template}:${(a.team_id || "")}`),
+    existingAssignments.map((a) => `${a.athlete_id}:${a.template_id}:${(a.team_id || "")}`),
   );
   let assignmentsCreated = 0;
 

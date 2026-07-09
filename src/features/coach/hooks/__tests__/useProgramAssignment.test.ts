@@ -62,17 +62,20 @@ describe("Coach program assignment hooks", () => {
       result.current.mutate({
         athleteId: "a1",
         templateId: "tmpl-1",
-        startDate: "2026-07-15",
+        startedAt: "2026-07-15",
       });
 
       await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
-      expect(mockAssignProgram).toHaveBeenCalledWith({
-        athleteId: "a1",
-        coachId: "coach-1",
-        templateId: "tmpl-1",
-        startDate: "2026-07-15",
-      });
+      expect(mockAssignProgram).toHaveBeenCalledWith(
+        expect.objectContaining({
+          athleteId: "a1",
+          coachId: "coach-1",
+          templateId: "tmpl-1",
+          startedAt: "2026-07-15",
+          assignedAt: expect.any(String),
+        }),
+      );
     });
   });
 
@@ -109,7 +112,7 @@ describe("Coach program assignment hooks", () => {
 
       expect(mockUpdateAssignment).toHaveBeenCalledWith("pa-1", {
         status: "completed",
-        startDate: undefined,
+        startedAt: undefined,
       });
     });
   });

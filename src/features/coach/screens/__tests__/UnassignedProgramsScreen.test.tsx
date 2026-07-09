@@ -197,10 +197,14 @@ const mockTemplates = [
 const mockAssignments = [
   {
     id: "assign-1",
-    athlete: "athlete-1",
-    coach: "coach-1",
-    template: "tpl-1", // tpl-1 is assigned
-    start_date: "2026-06-01",
+    athlete_id: "athlete-1",
+    coach_id: "coach-1",
+    template_id: "tpl-1", // tpl-1 is assigned
+    assigned_at: "2026-05-25",
+    started_at: "2026-06-01",
+    completed_at: null,
+    program_id: null,
+    notes: null,
     team_id: "team-1",
     status: "active",
     created: "2026-05-25",
@@ -275,10 +279,14 @@ describe("UnassignedProgramsScreen", () => {
       { ...mockAssignments[0] },
       {
         id: "assign-2",
-        athlete: "athlete-1",
-        coach: "coach-1",
-        template: "tpl-2", // tpl-2 also assigned
-        start_date: "2026-06-01",
+        athlete_id: "athlete-1",
+        coach_id: "coach-1",
+        template_id: "tpl-2", // tpl-2 also assigned
+        assigned_at: "2026-05-25",
+        started_at: "2026-06-01",
+        completed_at: null,
+        program_id: null,
+        notes: null,
         team_id: "team-1",
         status: "active",
         created: "2026-05-25",

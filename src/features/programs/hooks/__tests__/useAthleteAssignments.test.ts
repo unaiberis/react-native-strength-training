@@ -12,7 +12,7 @@ import { renderHook, waitFor } from "@testing-library/react-native";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useAuthStore } from "@/stores/auth-store";
 import { mapAssignmentToProgramSummary, deriveCurrentAndUpcoming, useAthleteAssignments } from "../useAthleteAssignments";
-import type { AssignmentWithTemplate } from "../useAthleteAssignments";
+import type { ProgramAssignmentRow } from "@/types/pocketbase";
 
 function createWrapper() {
   const queryClient = new QueryClient({
@@ -25,94 +25,67 @@ function createWrapper() {
 
 const TODAY = new Date("2026-07-09T00:00:00Z");
 
-function makeRow(overrides: Partial<AssignmentWithTemplate> = {}): AssignmentWithTemplate {
-  const base: AssignmentWithTemplate = {
+function makeRow(overrides: Partial<ProgramAssignmentRow> = {}): ProgramAssignmentRow {
+  const base: ProgramAssignmentRow = {
     id: "asg-1",
-    athlete: "ath-1",
-    coach: "coach-1",
-    template: "tpl-1",
-    start_date: "2026-06-01",
+    athlete_id: "ath-1",
+    coach_id: "coach-1",
+    template_id: "tpl-1",
+    assigned_at: "2026-06-01T00:00:00Z",
+    started_at: "2026-06-01",
+    completed_at: null,
+    program_id: null,
+    notes: null,
     team_id: null,
     status: "active",
     created: "2026-06-01T00:00:00Z",
     updated: "2026-06-01T00:00:00Z",
-    expand: {
-      template: {
-        id: "tpl-1",
-        user_id: "coach-1",
-        name: "Hypertrophy Block",
-        description: "8-week plan",
-        program_block_id: null,
-        is_public: false,
-        created: "2026-06-01T00:00:00Z",
-        updated: "2026-06-01T00:00:00Z",
-      },
-    },
   };
   return { ...base, ...overrides };
 }
 
 describe("mapAssignmentToProgramSummary", () => {
-  it("maps an active assignment with template into ProgramSummary (R1 happy path)", () => {
-    const row = makeRow({ start_date: "2026-07-01" });
+  it("maps an active assignment into ProgramSummary (R1 happy path)", () => {
+    const row = makeRow({ started_at: "2026-07-01" });
     const summary = mapAssignmentToProgramSummary(row, { today: TODAY });
 
     expect(summary.id).toBe("asg-1");
-    expect(summary.name).toBe("Hypertrophy Block");
-    expect(summary.description).toBe("8-week plan");
+    expect(summary.name).toBe("Untitled Program");
+    expect(summary.description).toBe("");
     expect(summary.startDate).toBe("2026-07-01");
     expect(summary.endDate).toBe("2026-08-26"); // +8 weeks
     expect(summary.totalWeeks).toBe(8);
     expect(summary.status).toBe("active");
-    expect(summary.phases).toHaveLength(1);
-    expect(summary.phases[0]).toEqual({
-      id: "phase-tpl-1",
-      name: "Hypertrophy Block",
-      weekStart: 1,
-      weekEnd: 8,
-      workoutCount: 1,
-    });
+    expect(summary.phases).toEqual([]);
   });
 
   it("honors totalWeeks override via MapOptions", () => {
-    const row = makeRow({ start_date: "2026-07-01" });
+    const row = makeRow({ started_at: "2026-07-01" });
     const summary = mapAssignmentToProgramSummary(row, {
       today: TODAY,
       totalWeeks: 12,
     });
     expect(summary.totalWeeks).toBe(12);
     expect(summary.endDate).toBe("2026-09-23");
-    expect(summary.phases[0].weekEnd).toBe(12);
-  });
-
-  it("null-guards a missing template (no throw, empty phases, placeholder name)", () => {
-    const row = makeRow({ expand: { template: null } });
-    let summary;
-    expect(() => {
-      summary = mapAssignmentToProgramSummary(row, { today: TODAY });
-    }).not.toThrow();
-
-    expect(summary!.name).toBe("Untitled Program");
-    expect(summary!.description).toBe("");
-    expect(summary!.phases).toEqual([]);
-  });
-
-  it("null-guards an absent expand block", () => {
-    const { expand, ...rest } = makeRow();
-    const row: AssignmentWithTemplate = { ...rest } as AssignmentWithTemplate;
-    const summary = mapAssignmentToProgramSummary(row, { today: TODAY });
     expect(summary.phases).toEqual([]);
-    expect(summary.name).toBe("Untitled Program");
   });
 
-  it("marks future start_date as upcoming status", () => {
-    const row = makeRow({ start_date: "2026-08-01" });
+  it("uses placeholder name with empty phases (no template expand available)", () => {
+    const row = makeRow();
+    const summary = mapAssignmentToProgramSummary(row, { today: TODAY });
+    expect(summary.name).toBe("Untitled Program");
+    expect(summary.description).toBe("");
+    expect(summary.phases).toEqual([]);
+  });
+
+  it("marks future started_at as upcoming status", () => {
+    const row = makeRow({ started_at: "2026-08-01" });
     const summary = mapAssignmentToProgramSummary(row, { today: TODAY });
     expect(summary.status).toBe("upcoming");
   });
 
-  it("maps completed row with past start_date to completed status", () => {
-    const row = makeRow({ start_date: "2026-06-01", status: "completed" });
+  it("maps completed row with past started_at to completed status", () => {
+    const row = makeRow({ started_at: "2026-06-01", status: "completed" });
     const summary = mapAssignmentToProgramSummary(row, { today: TODAY });
     expect(summary.status).toBe("completed");
   });
@@ -125,39 +98,15 @@ describe("deriveCurrentAndUpcoming", () => {
     expect(upcomingPrograms).toEqual([]);
   });
 
-  it("picks the active assignment with the latest start_date <= today (R1 multiple active)", () => {
-    const A = makeRow({ id: "asg-a", start_date: "2026-06-01" });
+  it("picks the active assignment with the latest started_at <= today (R1 multiple active)", () => {
+    const A = makeRow({ id: "asg-a", started_at: "2026-06-01" });
     const B = makeRow({
       id: "asg-b",
-      start_date: "2026-07-05",
-      expand: {
-        template: {
-          id: "tpl-b",
-          user_id: "coach-1",
-          name: "Strength Phase",
-          description: "4-week plan",
-          program_block_id: null,
-          is_public: false,
-          created: "",
-          updated: "",
-        },
-      },
+      started_at: "2026-07-05",
     });
     const C = makeRow({
       id: "asg-c",
-      start_date: "2026-08-01",
-      expand: {
-        template: {
-          id: "tpl-c",
-          user_id: "coach-1",
-          name: "Peaking Phase",
-          description: "3-week plan",
-          program_block_id: null,
-          is_public: false,
-          created: "",
-          updated: "",
-        },
-      },
+      started_at: "2026-08-01",
     });
 
     const { currentProgram, upcomingPrograms } = deriveCurrentAndUpcoming(
@@ -171,13 +120,13 @@ describe("deriveCurrentAndUpcoming", () => {
   });
 
   it("skips cancelled rows", () => {
-    const cancelled = makeRow({ id: "asg-x", start_date: "2026-07-01", status: "cancelled" });
+    const cancelled = makeRow({ id: "asg-x", started_at: "2026-07-01", status: "cancelled" });
     const { currentProgram } = deriveCurrentAndUpcoming([cancelled], TODAY);
     expect(currentProgram).toBeNull();
   });
 
   it("does not surface completed past rows", () => {
-    const completed = makeRow({ id: "asg-done", start_date: "2026-06-01", status: "completed" });
+    const completed = makeRow({ id: "asg-done", started_at: "2026-06-01", status: "completed" });
     const { currentProgram, upcomingPrograms } = deriveCurrentAndUpcoming(
       [completed],
       TODAY,
@@ -187,7 +136,7 @@ describe("deriveCurrentAndUpcoming", () => {
   });
 
   it("boundary: future-only assignment → current null, upcoming length 1", () => {
-    const future = makeRow({ id: "asg-future", start_date: "2026-08-01" });
+    const future = makeRow({ id: "asg-future", started_at: "2026-08-01" });
     const { currentProgram, upcomingPrograms } = deriveCurrentAndUpcoming(
       [future],
       TODAY,
@@ -198,7 +147,7 @@ describe("deriveCurrentAndUpcoming", () => {
   });
 
   it("upcoming-only assignment is not classified as current", () => {
-    const future = makeRow({ id: "asg-future", start_date: "2026-08-01" });
+    const future = makeRow({ id: "asg-future", started_at: "2026-08-01" });
     const { currentProgram } = deriveCurrentAndUpcoming([future], TODAY);
     expect(currentProgram).toBeNull();
   });
@@ -213,19 +162,7 @@ describe("useAthleteAssignments (hook)", () => {
   it("calls listAssignments(user.id) and surfaces the current program", async () => {
     const B = makeRow({
       id: "asg-b",
-      start_date: "2026-07-05",
-      expand: {
-        template: {
-          id: "tpl-b",
-          user_id: "coach-1",
-          name: "Strength Phase",
-          description: "4-week plan",
-          program_block_id: null,
-          is_public: false,
-          created: "",
-          updated: "",
-        },
-      },
+      started_at: "2026-07-05",
     });
     mockListAssignments.mockResolvedValue([B]);
 
@@ -276,9 +213,9 @@ describe("useAthleteAssignments (hook)", () => {
     expect(result.current.currentProgram).toBeNull();
   });
 
-  it("refetch re-invokes listAssignments and sorts multiple upcoming by start_date", async () => {
-    const futureA = makeRow({ id: "asg-a", start_date: "2026-09-01" });
-    const futureB = makeRow({ id: "asg-b", start_date: "2026-08-01" });
+  it("refetch re-invokes listAssignments and sorts multiple upcoming by started_at", async () => {
+    const futureA = makeRow({ id: "asg-a", started_at: "2026-09-01" });
+    const futureB = makeRow({ id: "asg-b", started_at: "2026-08-01" });
     mockListAssignments.mockResolvedValue([futureA, futureB]);
 
     const { result } = renderHook(() => useAthleteAssignments(), {
