@@ -96,11 +96,14 @@ export function AnalyticsScreen() {
   }
 
   if (error) {
+    const message =
+      error instanceof Error ? error.message : "Unknown error loading analytics";
     return (
       <ErrorBoundary>
         <GradientBackground>
           <View className="flex-1 items-center justify-center px-6">
             <Text className="text-danger text-lg mb-2">Failed to load analytics</Text>
+            <Text className="text-surface-400 text-xs mb-4 text-center px-4">{message}</Text>
             <TouchableOpacity
               onPress={() => refetch()}
               className="bg-card px-6 py-2 rounded-xl border border-border min-h-[44px] justify-center"

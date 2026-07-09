@@ -66,8 +66,8 @@ async function fetchAnalyticsFromLocal() {
     }
 
     return results;
-  } catch {
-    console.warn("[analytics] SQLite unavailable (web?), returning empty");
+  } catch (err) {
+    console.warn("[analytics] fetchAnalyticsFromLocal failed:", err);
     return [];
   }
 }
@@ -84,15 +84,15 @@ async function fetchExercisesFromLocal(): Promise<
     const { getDb } = await import("@/lib/db/database");
     const db = await getDb();
 
-    return db.getAllAsync<{ id: string; name: string }>(
+    return await db.getAllAsync<{ id: string; name: string }>(
       `SELECT DISTINCT e.id, e.name FROM exercises e
        INNER JOIN exercise_sets es ON es.exercise_id = e.id
        INNER JOIN workout_sessions ws ON ws.id = es.session_id
        WHERE ws.status = 'completed' AND es.is_warmup = 0
        ORDER BY e.name ASC`,
     );
-  } catch {
-    console.warn("[analytics] SQLite unavailable (web?), returning empty exercises");
+  } catch (err) {
+    console.warn("[analytics] fetchExercisesFromLocal failed:", err);
     return [];
   }
 }
@@ -109,21 +109,20 @@ async function fetchExerciseSetsFromLocal(
     const { getDb } = await import("@/lib/db/database");
     const db = await getDb();
 
-    return db.getAllAsync<{ weight_kg: number; reps: number; created: string }>(
+    const rows = await db.getAllAsync<{ weight_kg: number; reps: number; created: string }>(
       `SELECT es.weight_kg, es.reps, es.created FROM exercise_sets es
        INNER JOIN workout_sessions ws ON ws.id = es.session_id
        WHERE es.exercise_id = ? AND ws.status = 'completed' AND es.is_warmup = 0
        ORDER BY es.created ASC`,
       [exerciseId],
-    ).then((rows) =>
-      rows.map((r) => ({
-        weight: r.weight_kg,
-        reps: r.reps,
-        created_at: r.created,
-      })),
     );
-  } catch {
-    console.warn("[analytics] SQLite unavailable (web?), returning empty sets");
+    return rows.map((r) => ({
+      weight: r.weight_kg,
+      reps: r.reps,
+      created_at: r.created,
+    }));
+  } catch (err) {
+    console.warn("[analytics] fetchExerciseSetsFromLocal failed:", err);
     return [];
   }
 }
