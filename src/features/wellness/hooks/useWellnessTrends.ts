@@ -98,13 +98,16 @@ function average(values: (number | null)[]): number | null {
 
 /**
  * Calculate rolling average trends for a given time window.
+ * Accepts an optional referenceDate for deterministic testing.
  */
 function calcPeriodTrends(
   entries: WellnessRow[],
   days: number,
   period: string,
+  referenceDate?: Date,
 ): WellnessTrendPeriod {
-  const cutoff = new Date();
+  const ref = referenceDate ?? new Date();
+  const cutoff = new Date(ref);
   cutoff.setDate(cutoff.getDate() - days);
   const cutoffStr = cutoff.toISOString().substring(0, 10);
 
@@ -137,14 +140,16 @@ function buildTimeSeries(entries: WellnessRow[]): WellnessTimeSeries[] {
 
 /**
  * Compute all wellness trend periods from raw entries.
+ * Accepts an optional referenceDate for deterministic testing.
  */
 export function computeWellnessTrends(
   entries: WellnessRow[],
+  referenceDate?: Date,
 ): Pick<WellnessTrends, "periods" | "timeSeries"> {
   const periods = [
-    calcPeriodTrends(entries, 7, "7d"),
-    calcPeriodTrends(entries, 30, "30d"),
-    calcPeriodTrends(entries, 90, "90d"),
+    calcPeriodTrends(entries, 7, "7d", referenceDate),
+    calcPeriodTrends(entries, 30, "30d", referenceDate),
+    calcPeriodTrends(entries, 90, "90d", referenceDate),
   ];
 
   const timeSeries = buildTimeSeries(entries);

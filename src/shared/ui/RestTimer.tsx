@@ -1,4 +1,5 @@
 import { View, Text, TouchableOpacity } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { useRestTimer, formatRestTime } from "../../features/workout/hooks/useRestTimer";
 
 /**
@@ -18,7 +19,9 @@ export function RestTimer() {
     <View className="absolute inset-0 z-50 bg-[#050505]/90 items-center justify-center">
       <View className="bg-card rounded-2xl p-8 items-center w-72 border border-border">
         {/* Icon */}
-        <Text className="text-5xl mb-4">⏱️</Text>
+        <View className="mb-4">
+          <Ionicons name="timer-outline" size={48} color="#B9B9B6" />
+        </View>
 
         {/* Timer display */}
         <Text className="text-surface-50 text-5xl font-extrabold tracking-widest mb-2">

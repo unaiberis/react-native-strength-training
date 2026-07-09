@@ -1,11 +1,12 @@
 // Mock expo-sqlite before any imports (needed by database.ts via dynamic import)
 const mockGetAllAsync = jest.fn();
+const mockGetFirstAsync = jest.fn();
 
 jest.mock("expo-sqlite", () => ({
   openDatabaseAsync: jest.fn().mockResolvedValue({
     getAllAsync: mockGetAllAsync,
     execAsync: jest.fn(),
-    getFirstAsync: jest.fn(),
+    getFirstAsync: mockGetFirstAsync,
     closeAsync: jest.fn(),
   }),
 }));
@@ -35,6 +36,15 @@ function createWrapper() {
 }
 
 describe("useProfileStats", () => {
+  beforeAll(() => {
+    // Fix the system date so streak calculations are deterministic
+    jest.useFakeTimers({ now: new Date("2026-07-07T12:00:00Z") });
+  });
+
+  afterAll(() => {
+    jest.useRealTimers();
+  });
+
   beforeEach(() => {
     jest.clearAllMocks();
     resetDb();
@@ -42,6 +52,7 @@ describe("useProfileStats", () => {
 
   it("returns zero stats when no completed sessions exist", async () => {
     mockGetAllAsync.mockResolvedValue([]);
+    mockGetFirstAsync.mockResolvedValue(undefined);
 
     const { result } = renderHook(() => useProfileStats(), {
       wrapper: createWrapper(),
@@ -51,6 +62,8 @@ describe("useProfileStats", () => {
     expect(result.current.data).toEqual({
       totalWorkouts: 0,
       currentStreak: 0,
+      personalRecords: 0,
+      totalVolume: 0,
     });
   });
 
@@ -60,6 +73,7 @@ describe("useProfileStats", () => {
       { workout_date: "2026-07-05" },
       { workout_date: "2026-07-03" },
     ]);
+    mockGetFirstAsync.mockResolvedValue(undefined);
 
     const { result } = renderHook(() => useProfileStats(), {
       wrapper: createWrapper(),
@@ -77,6 +91,7 @@ describe("useProfileStats", () => {
       { workout_date: "2026-07-05" },
       { workout_date: "2026-07-03" }, // gap here
     ]);
+    mockGetFirstAsync.mockResolvedValue(undefined);
 
     const { result } = renderHook(() => useProfileStats(), {
       wrapper: createWrapper(),
@@ -92,6 +107,7 @@ describe("useProfileStats", () => {
       { workout_date: "2026-07-05" },
       { workout_date: "2026-07-04" },
     ]);
+    mockGetFirstAsync.mockResolvedValue(undefined);
 
     const { result } = renderHook(() => useProfileStats(), {
       wrapper: createWrapper(),
@@ -106,6 +122,7 @@ describe("useProfileStats", () => {
     mockGetAllAsync.mockResolvedValue([
       { workout_date: "2026-07-07" },
     ]);
+    mockGetFirstAsync.mockResolvedValue(undefined);
 
     const { result } = renderHook(() => useProfileStats(), {
       wrapper: createWrapper(),
@@ -113,6 +130,39 @@ describe("useProfileStats", () => {
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(result.current.data?.currentStreak).toBe(1);
+  });
+
+  it("computes total volume from exercise_sets", async () => {
+    mockGetAllAsync.mockResolvedValue([
+      { workout_date: "2026-07-07" },
+      { workout_date: "2026-07-06" },
+    ]);
+    mockGetFirstAsync.mockResolvedValue({ total: 12500 });
+
+    const { result } = renderHook(() => useProfileStats(), {
+      wrapper: createWrapper(),
+    });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(result.current.data?.totalVolume).toBe(12500);
+  });
+
+  it("computes personal records count from distinct exercises", async () => {
+    mockGetAllAsync.mockResolvedValue([
+      { workout_date: "2026-07-07" },
+    ]);
+    // First getFirstAsync call (volume) returns undefined
+    // Second getFirstAsync call (PRs) returns { count: 12 }
+    mockGetFirstAsync
+      .mockResolvedValueOnce(undefined)
+      .mockResolvedValueOnce({ count: 12 });
+
+    const { result } = renderHook(() => useProfileStats(), {
+      wrapper: createWrapper(),
+    });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(result.current.data?.personalRecords).toBe(12);
   });
 
   it("handles query error gracefully", async () => {

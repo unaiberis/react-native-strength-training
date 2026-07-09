@@ -43,7 +43,8 @@ export function useUnlinkAthlete() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (athleteId: string) => unlinkAthlete(athleteId),
+    mutationFn: (input: { athleteId: string; teamId?: string }) =>
+      unlinkAthlete(input.athleteId, input.teamId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [ATHLETE_DETAIL_QUERY_KEY] });
       queryClient.invalidateQueries({ queryKey: ["coach-dashboard"] });

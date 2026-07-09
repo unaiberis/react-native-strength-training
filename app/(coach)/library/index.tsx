@@ -7,7 +7,9 @@ import {
   RefreshControl,
   ActivityIndicator,
   Alert,
+  Platform,
 } from "react-native";
+import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { ErrorBoundary } from "@/shared/ui/ErrorBoundary";
@@ -37,7 +39,12 @@ export default function CoachExerciseLibraryScreen() {
         {
           text: "Archive",
           style: "destructive",
-          onPress: () => archiveMutation.mutate(id),
+          onPress: () => {
+            if (Platform.OS !== "web") {
+              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning).catch(() => {});
+            }
+            archiveMutation.mutate(id);
+          },
         },
       ]);
     },
@@ -47,7 +54,7 @@ export default function CoachExerciseLibraryScreen() {
   const renderExercise = useCallback(
     ({ item }: { item: (typeof exercises)[0] }) => (
       <TouchableOpacity
-        className="bg-card border border-border rounded-2xl p-4 mb-3"
+        className="bg-card border border-border rounded-2xl p-4 mb-3 shadow-button"
         onPress={() => router.push(`/(coach)/library/${item.id}/edit`)}
         activeOpacity={0.7}
         accessibilityRole="button"
@@ -118,7 +125,7 @@ export default function CoachExerciseLibraryScreen() {
       <View className="flex-1 px-4 pt-4">
         {/* Header actions */}
         <TouchableOpacity
-          className="flex-row items-center bg-card border border-border rounded-xl px-4 py-3 mb-4 min-h-[52px]"
+          className="flex-row items-center bg-card border border-border rounded-xl px-4 py-3 mb-4 min-h-[52px] shadow-button"
           onPress={() => router.push("/(coach)/library/create")}
           activeOpacity={0.7}
           accessibilityRole="button"

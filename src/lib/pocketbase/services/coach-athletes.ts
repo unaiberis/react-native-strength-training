@@ -2,12 +2,36 @@ import { pb } from "../client";
 import type { UserRow, AthleteSummary } from "../../../types/pocketbase";
 
 /**
- * List all athletes linked to a coach via the `coach` field on the user record.
+ * List all athletes across teams where the user is a coach or admin.
+ * Uses team-based filtering instead of the deprecated `coach` field.
  */
-export async function listAthletes(coachId: string): Promise<AthleteSummary[]> {
+export async function listAthletes(userId: string): Promise<AthleteSummary[]> {
   try {
+    // Step 1: Get memberships where user is coach or admin
+    const memberships = await pb.collection("team_memberships").getFullList({
+      filter: `user_id = '${userId}' && (role = 'coach' || role = 'admin')`,
+      $autoCancel: false,
+    });
+    if (memberships.length === 0) return [];
+
+    const teamIds = memberships.map((m: any) => m.team_id);
+    const teamFilter = teamIds.map((id: string) => `team_id = '${id}'`).join(" || ");
+
+    // Step 2: Get athlete memberships in those teams
+    const athleteMemberships = await pb.collection("team_memberships").getFullList({
+      filter: `(${teamFilter}) && role = 'athlete'`,
+      expand: "user_id",
+      $autoCancel: false,
+    });
+
+    // Step 3: Unique athlete IDs
+    const athleteIds = [...new Set(athleteMemberships.map((m: any) => m.user_id))] as string[];
+    if (athleteIds.length === 0) return [];
+
+    // Step 4: Fetch user records and enrich with stats
+    const userFilter = athleteIds.map((id: string) => `id = '${id}'`).join(" || ");
     const users = await pb.collection("users").getFullList({
-      filter: `coach = '${coachId}'`,
+      filter: userFilter,
       sort: "displayName",
     });
 
@@ -29,20 +53,20 @@ export async function listAthletes(coachId: string): Promise<AthleteSummary[]> {
         weekAgo.setDate(weekAgo.getDate() - 7);
         const weekAgoStr = weekAgo.toISOString();
         const thisWeekWorkouts = sessions.filter(
-          (s) => s.started_at >= weekAgoStr,
+          (s: any) => s.started_at >= weekAgoStr,
         ).length;
 
         const lastWorkoutDate =
           sessions.length > 0 ? sessions[0].started_at : null;
 
         // Total volume: sum of all set volumes
-        const sessionIds = sessions.map((s) => s.id);
+        const sessionIds = sessions.map((s: any) => s.id);
         let totalVolumeKg = 0;
         const BATCH = 50;
         for (let i = 0; i < sessionIds.length; i += BATCH) {
           const chunk = sessionIds.slice(i, i + BATCH);
           const filter = chunk
-            .map((id) => `workout_session_id = '${id}'`)
+            .map((id: string) => `workout_session_id = '${id}'`)
             .join(" || ");
           const sets = await pb.collection("exercise_sets").getFullList({
             filter,
@@ -102,11 +126,20 @@ export async function getAthlete(userId: string): Promise<UserRow | null> {
 }
 
 /**
- * Unlink an athlete from a coach by clearing the `coach` field.
+ * Unlink an athlete from a team by removing their team membership.
  */
-export async function unlinkAthlete(athleteId: string): Promise<void> {
+export async function unlinkAthlete(athleteId: string, teamId?: string): Promise<void> {
   try {
-    await pb.collection("users").update(athleteId, { coach: null });
+    const filter = teamId
+      ? `user_id = '${athleteId}' && team_id = '${teamId}'`
+      : `user_id = '${athleteId}'`;
+    const memberships = await pb.collection("team_memberships").getFullList({
+      filter,
+      $autoCancel: false,
+    });
+    for (const m of memberships) {
+      await pb.collection("team_memberships").delete(m.id);
+    }
   } catch (err: any) {
     throw new Error(err.message ?? "Failed to unlink athlete");
   }

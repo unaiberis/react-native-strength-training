@@ -1,6 +1,9 @@
 import { computeWellnessTrends, type WellnessRow } from "../useWellnessTrends";
 
 describe("computeWellnessTrends", () => {
+  // Fixed reference date so tests are deterministic regardless of when they run
+  const REFERENCE_DATE = new Date("2026-07-05T12:00:00Z");
+
   const baseEntries: WellnessRow[] = [
     {
       id: "1",
@@ -41,13 +44,13 @@ describe("computeWellnessTrends", () => {
   ];
 
   it("returns three period buckets", () => {
-    const result = computeWellnessTrends(baseEntries);
+    const result = computeWellnessTrends(baseEntries, REFERENCE_DATE);
     expect(result.periods).toHaveLength(3);
     expect(result.periods.map((p) => p.period)).toEqual(["7d", "30d", "90d"]);
   });
 
   it("computes correct averages for 7d period with recent data", () => {
-    const result = computeWellnessTrends(baseEntries);
+    const result = computeWellnessTrends(baseEntries, REFERENCE_DATE);
     const sevenDay = result.periods.find((p) => p.period === "7d")!;
     // Avg RPE: (7 + 8 + 6) / 3 = 7
     expect(sevenDay.avgSessionRpe).toBeCloseTo(7, 1);
@@ -63,7 +66,7 @@ describe("computeWellnessTrends", () => {
   });
 
   it("returns null averages for empty entries", () => {
-    const result = computeWellnessTrends([]);
+    const result = computeWellnessTrends([], REFERENCE_DATE);
     result.periods.forEach((period) => {
       expect(period.avgSessionRpe).toBeNull();
       expect(period.avgSleep).toBeNull();
@@ -75,7 +78,7 @@ describe("computeWellnessTrends", () => {
   });
 
   it("builds time series sorted by date", () => {
-    const result = computeWellnessTrends(baseEntries);
+    const result = computeWellnessTrends(baseEntries, REFERENCE_DATE);
     expect(result.timeSeries).toHaveLength(3);
     expect(result.timeSeries[0].date).toBe("2026-07-01");
     expect(result.timeSeries[1].date).toBe("2026-07-02");
@@ -85,6 +88,8 @@ describe("computeWellnessTrends", () => {
   });
 
   it("handles entries with null values", () => {
+    // Use a reference date close to the entry so it falls within the 7d window
+    const refForNullTest = new Date("2026-07-03T12:00:00Z");
     const entriesWithNulls: WellnessRow[] = [
       {
         id: "1",
@@ -100,7 +105,7 @@ describe("computeWellnessTrends", () => {
       },
     ];
 
-    const result = computeWellnessTrends(entriesWithNulls);
+    const result = computeWellnessTrends(entriesWithNulls, refForNullTest);
     expect(result.timeSeries).toHaveLength(1);
     result.periods.forEach((period) => {
       expect(period.avgSessionRpe).toBeNull();
@@ -109,6 +114,8 @@ describe("computeWellnessTrends", () => {
   });
 
   it("handles partial null values correctly", () => {
+    // Use a reference date close to the entry so it falls within the 7d window
+    const refForPartialNull = new Date("2026-07-03T12:00:00Z");
     const partialEntries: WellnessRow[] = [
       {
         id: "1",
@@ -124,7 +131,7 @@ describe("computeWellnessTrends", () => {
       },
     ];
 
-    const result = computeWellnessTrends(partialEntries);
+    const result = computeWellnessTrends(partialEntries, refForPartialNull);
     const sevenDay = result.periods.find((p) => p.period === "7d")!;
     expect(sevenDay.avgSessionRpe).toBe(7);
     expect(sevenDay.avgSleep).toBeNull(); // all nulls → null
@@ -147,7 +154,7 @@ describe("computeWellnessTrends", () => {
       created_at: "2025-01-01T10:00:00Z",
     };
 
-    const result = computeWellnessTrends([...baseEntries, oldEntry]);
+    const result = computeWellnessTrends([...baseEntries, oldEntry], REFERENCE_DATE);
     const sevenDay = result.periods.find((p) => p.period === "7d")!;
     expect(sevenDay.entryCount).toBe(3); // old entry excluded
     expect(sevenDay.avgSessionRpe).toBeCloseTo(7, 1);

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { View, Text, KeyboardAvoidingView, Platform, ScrollView, Pressable } from "react-native";
+import { useRouter } from "expo-router";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "../../../shared/ui/Button";
@@ -11,9 +12,12 @@ import {
   type RegisterInput,
 } from "../../../shared/schemas/auth";
 import { useAuth } from "../hooks/useAuth";
+import { useAuthStore } from "../../../stores/auth-store";
 
 export function RegisterScreen() {
+  const router = useRouter();
   const { register } = useAuth();
+  const setPendingSignupInfo = useAuthStore((s) => s.setPendingSignupInfo);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -33,8 +37,11 @@ export function RegisterScreen() {
       const result = await register(data);
       if (result.error) {
         setError(result.error);
+      } else {
+        // Navigate to signup-info to collect additional profile info
+        setPendingSignupInfo(true);
+        router.replace("/(auth)/signup-info");
       }
-      // On success, the auth state listener redirects to tabs
     } finally {
       setIsSubmitting(false);
     }

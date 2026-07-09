@@ -28,6 +28,12 @@ interface AuthStore {
   initMessage: string;
   /** The user's role extracted from session.user.role. Null before auth resolves. */
   role: UserRole;
+  /** Whether the user has a coach role in any team (set asynchronously from memberships). */
+  isTeamCoach: boolean;
+  /** Whether the user has an admin role in any team. */
+  isTeamAdmin: boolean;
+  /** Whether the user just registered and should see signup-info before entering the app. */
+  isPendingSignupInfo: boolean;
 
   // Actions
   setSession: (session: PocketBaseSession | null) => void;
@@ -37,10 +43,14 @@ interface AuthStore {
   setIsOnline: (online: boolean) => void;
   setSyncStatus: (status: SyncStatus) => void;
   setInitMessage: (msg: string) => void;
+  /** Set whether the user needs to complete signup info before entering the app. */
+  setPendingSignupInfo: (pending: boolean) => void;
   /** Returns true when the authenticated user has the "coach" role. */
   isCoach: () => boolean;
   /** Returns true when the authenticated user is an athlete (or no role — defaults to athlete). */
   isAthlete: () => boolean;
+  /** Set team role flags from loaded memberships. */
+  setTeamRoles: (isCoach: boolean, isAdmin: boolean) => void;
 }
 
 const initialSyncStatus: SyncStatus = "idle";
@@ -63,6 +73,9 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   syncStatus: initialSyncStatus,
   initMessage: "Starting...",
   role: null,
+  isTeamCoach: false,
+  isTeamAdmin: false,
+  isPendingSignupInfo: false,
 
   setSession: (session) => {
     console.log("[AuthStore] setSession:", session ? { userId: session.user?.id, email: session.user?.email } : null);
@@ -95,11 +108,17 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     return state.role !== "coach";
   },
 
+  setTeamRoles: (isCoach, isAdmin) => set({ isTeamCoach: isCoach, isTeamAdmin: isAdmin }),
+
+  setPendingSignupInfo: (pending) => set({ isPendingSignupInfo: pending }),
+
   reset: () =>
     set({
       state: "unauthenticated",
       session: null,
       user: null,
       role: null,
+      isTeamCoach: false,
+      isTeamAdmin: false,
     }),
 }));

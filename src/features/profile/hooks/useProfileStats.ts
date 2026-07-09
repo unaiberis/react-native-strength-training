@@ -6,12 +6,17 @@ const PROFILE_STATS_QUERY_KEY = "profile-stats";
 export interface ProfileStats {
   totalWorkouts: number;
   currentStreak: number;
+  personalRecords: number;
+  totalVolume: number;
 }
 
 /**
  * Query completed workout session dates from local SQLite to compute
  * total completed workouts and current streak (consecutive days with
  * at least one completed workout, counting backwards from today).
+ *
+ * Also computes total volume (sum of weight_kg * reps for non-warmup sets)
+ * and personal records count (exercises with at least one logged set).
  *
  * Uses a dynamic import of getDb so the module can be imported in
  * environments without expo-sqlite (e.g. web, node tests).
@@ -61,14 +66,34 @@ async function fetchProfileStats(userId: string): Promise<ProfileStats> {
     }
   }
 
-  return { totalWorkouts, currentStreak };
+  // Total volume: sum of weight_kg * reps for non-warmup sets in completed sessions
+  const volumeResult = await db.getFirstAsync<{ total: number | null }>(
+    `SELECT SUM(es.weight_kg * es.reps) as total
+     FROM exercise_sets es
+     JOIN workout_sessions ws ON es.session_id = ws.id
+     WHERE ws.status = 'completed' AND ws.user_id = ? AND es.is_warmup = 0`,
+    [userId],
+  );
+  const totalVolume = volumeResult?.total ?? 0;
+
+  // Personal records count: distinct exercises with at least one logged set in completed sessions
+  const prResult = await db.getFirstAsync<{ count: number }>(
+    `SELECT COUNT(DISTINCT es.exercise_id) as count
+     FROM exercise_sets es
+     JOIN workout_sessions ws ON es.session_id = ws.id
+     WHERE ws.status = 'completed' AND ws.user_id = ? AND es.weight_kg > 0`,
+    [userId],
+  );
+  const personalRecords = prResult?.count ?? 0;
+
+  return { totalWorkouts, currentStreak, personalRecords, totalVolume };
 }
 
 /**
  * Query hook for profile statistics derived from workout history.
  *
- * Computes total completed workouts and the user's current streak
- * from local SQLite data. Works offline by default.
+ * Computes total completed workouts, current streak, personal records count,
+ * and total volume from local SQLite data. Works offline by default.
  */
 export function useProfileStats() {
   const userId = useAuthStore((s) => s.user?.id);
@@ -80,3 +105,5 @@ export function useProfileStats() {
     staleTime: 1000 * 60 * 2, // 2 min — stats change only when a workout completes
   });
 }
+
+export default useProfileStats;

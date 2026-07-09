@@ -147,6 +147,7 @@ export function useAnalytics(period: AnalyticsPeriod = "weekly") {
 
   // Loading / error states
   const isLoading = sessionsQuery.isLoading || exercisesQuery.isLoading;
+  const isRefetching = sessionsQuery.isRefetching || exercisesQuery.isRefetching;
   const error = sessionsQuery.error || exercisesQuery.error;
 
   /**
@@ -201,6 +202,7 @@ export function useAnalytics(period: AnalyticsPeriod = "weekly") {
     volumeByPeriod,
     exercises,
     isLoading,
+    isRefetching,
     error,
     getPersonalRecordTimeline,
     getExerciseProgress,

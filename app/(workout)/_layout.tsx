@@ -10,6 +10,8 @@ export default function WorkoutLayout() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="active" />
       <Stack.Screen name="self-assessment" />
+      <Stack.Screen name="assessment-results" />
+      <Stack.Screen name="notes" />
     </Stack>
   );
 }

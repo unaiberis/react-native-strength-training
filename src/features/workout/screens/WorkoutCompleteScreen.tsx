@@ -1,5 +1,7 @@
-import { useCallback, useMemo, useState } from "react";
-import { View, Text, ScrollView, TouchableOpacity, TextInput } from "react-native";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { View, Text, ScrollView, TouchableOpacity, TextInput, Platform } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";
 import { Button } from "../../../shared/ui/Button";
 import { Card } from "../../../shared/ui/Card";
@@ -71,6 +73,22 @@ export function WorkoutCompleteScreen() {
     [startedAt, flatSets],
   );
 
+  // Check if any exercise is a PR
+  const hasPR = useMemo(
+    () => summary.exerciseBreakdown.some((ex) => ex.isPr),
+    [summary.exerciseBreakdown],
+  );
+
+  // Haptic on PR detection
+  useEffect(() => {
+    if (hasPR && Platform.OS !== "web") {
+      const timer = setTimeout(() => {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [hasPR]);
+
   const totalExercises = exercises.length;
   const completedExercises = exercises.filter(
     (ex) => ex.loggedSets.length > 0,
@@ -98,7 +116,9 @@ export function WorkoutCompleteScreen() {
         contentContainerClassName="items-center pt-20 pb-8"
       >
         {/* Celebration */}
-        <Text className="text-6xl mb-4">💪</Text>
+        <View className="mb-4">
+          <Ionicons name="barbell-outline" size={52} color="#B9B9B6" />
+        </View>
         <Text className="text-surface-50 text-2xl font-bold mb-1">
           Workout Complete!
         </Text>

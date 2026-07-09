@@ -1,8 +1,9 @@
 import { View, Text, type ViewStyle } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
 interface StatCardProps {
-  /** Emoji or short text icon displayed top-left */
-  icon: string;
+  /** Ionicons icon name displayed top-left */
+  icon: keyof typeof Ionicons.glyphMap;
   /** Primary value (number or formatted string) */
   value: string | number;
   /** Descriptive label below the value */
@@ -31,10 +32,12 @@ export function StatCard({
 }: StatCardProps) {
   return (
     <View
-      className={`bg-card rounded-xl p-4 border border-border ${className ?? ""}`}
+      className={`bg-card rounded-xl p-4 border border-border shadow-card ${className ?? ""}`}
       style={style}
     >
-      <Text className="text-2xl mb-2">{icon}</Text>
+      <View className="mb-2">
+        <Ionicons name={icon} size={24} color="#B9B9B6" />
+      </View>
       <Text
         className={`text-2xl font-extrabold ${color ? "" : "text-surface-50"}`}
         style={color ? { color } : undefined}

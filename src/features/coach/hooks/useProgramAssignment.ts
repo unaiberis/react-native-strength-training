@@ -6,6 +6,7 @@ import {
   updateAssignment,
   listAssignments,
   listCoachAssignments,
+  getAssignment,
 } from "@/lib/pocketbase/services/program-assignments";
 import { useQuery } from "@tanstack/react-query";
 
@@ -39,6 +40,18 @@ export function useCoachAssignments() {
 }
 
 /**
+ * Query hook for fetching a single assignment by ID with expanded data.
+ */
+export function useAssignment(id: string | undefined) {
+  return useQuery({
+    queryKey: [ASSIGNMENTS_QUERY_KEY, id],
+    queryFn: () => getAssignment(id!),
+    enabled: !!id,
+    staleTime: 1000 * 60 * 2,
+  });
+}
+
+/**
  * Mutation hook to assign a program (template) to an athlete.
  */
 export function useAssignProgram() {
@@ -50,12 +63,14 @@ export function useAssignProgram() {
       athleteId: string;
       templateId: string;
       startDate: string;
+      teamId?: string;
     }) =>
       assignProgram({
         athleteId: input.athleteId,
         coachId: userId!,
         templateId: input.templateId,
         startDate: input.startDate,
+        teamId: input.teamId,
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [ASSIGNMENTS_QUERY_KEY] });

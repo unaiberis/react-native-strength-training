@@ -8,6 +8,7 @@ import {
   Alert,
   ActivityIndicator,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { Card } from "../../../shared/ui/Card";
 import { Button } from "../../../shared/ui/Button";
@@ -132,7 +133,9 @@ export function RoutineListScreen() {
     if (isLoading) return null;
     return (
       <View className="items-center py-16 px-4">
-        <Text className="text-4xl mb-4">📋</Text>
+        <View className="mb-4">
+          <Ionicons name="clipboard-outline" size={48} color="#B9B9B6" />
+        </View>
         <Text className="text-surface-100 text-lg font-semibold mb-2">
           No Routines Yet
         </Text>

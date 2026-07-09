@@ -1,5 +1,6 @@
 import { memo, useState, useCallback } from "react";
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { Card } from "../../../shared/ui/Card";
 import { Button } from "../../../shared/ui/Button";
@@ -153,7 +154,7 @@ export function ProgressScreen() {
       }
     >
       {/* Header */}
-      <Text className="text-surface-50 text-2xl font-bold mb-2">Progress</Text>
+      <Text className="text-surface-50 text-[34px] font-black tracking-[-0.8] mb-2">Progress</Text>
       {hasRecords && (
         <Text className="text-surface-400 text-sm mb-4">
           {totalPRs} personal record{totalPRs !== 1 ? "s" : ""} across{" "}
@@ -172,7 +173,9 @@ export function ProgressScreen() {
       {/* Empty state */}
       {!isLoading && !hasRecords && (
         <View className="items-center justify-center py-16 px-6">
-          <Text className="text-5xl mb-4">🏆</Text>
+          <View className="mb-4">
+            <Ionicons name="trophy-outline" size={48} color="#B9B9B6" />
+          </View>
           <Text className="text-surface-100 text-lg font-semibold mb-2">
             No records yet
           </Text>

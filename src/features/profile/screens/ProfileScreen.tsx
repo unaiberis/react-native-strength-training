@@ -9,22 +9,29 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
 import { Card } from "../../../shared/ui/Card";
 import { Button } from "../../../shared/ui/Button";
+import { ScreenTitle } from "../../../shared/ui/ScreenTitle";
 import { GradientBackground } from "../../../shared/ui/GradientBackground";
 import { useAuth } from "../../auth/hooks/useAuth";
-import { usePersonalRecords } from "../../records/hooks/usePersonalRecords";
 import { useProfileStats } from "../hooks/useProfileStats";
 import { usePendingSyncCount } from "../hooks/usePendingSyncCount";
+import { useUserTeams } from "../../coach/hooks/useTeams";
+import { useAuthStore } from "../../../stores/auth-store";
+import { useNotifications } from "../../notifications/hooks/useNotifications";
+import { ProfileHeader } from "../components/ProfileHeader";
+import { ProfileStats } from "../components/ProfileStats";
+import { ProfileMenu } from "../components/ProfileMenu";
 
 type WeightUnit = "kg" | "lbs";
 
 export function ProfileScreen() {
   const router = useRouter();
   const { user, logout } = useAuth();
-  const { data: stats, isLoading: statsLoading } = useProfileStats();
-  const { totalPRs } = usePersonalRecords();
+  const query = useProfileStats();
   const { data: syncCount } = usePendingSyncCount();
+  const { unreadCount: notificationUnreadCount } = useNotifications();
 
   // ─── Local state for editable fields ──────────────────────────────────
   const [bodyweight, setBodyweight] = useState("");
@@ -39,8 +46,12 @@ export function ProfileScreen() {
     ? new Date(user.created_at).toLocaleDateString()
     : "Unknown";
 
+  const stats = query.data;
   const totalWorkouts = stats?.totalWorkouts ?? 0;
   const currentStreak = stats?.currentStreak ?? 0;
+  const personalRecords = stats?.personalRecords ?? 0;
+  const totalVolume = stats?.totalVolume ?? 0;
+  const statsLoading = query.isLoading;
 
   const syncBadge = useMemo(() => {
     if (!syncCount) return null;
@@ -73,6 +84,24 @@ export function ProfileScreen() {
     ]);
   };
 
+  const handleEditProfile = () => {
+    Alert.alert(
+      "Edit Profile",
+      "Profile editing will be available in a future update.",
+    );
+  };
+
+  const handleNotifications = () => {
+    router.push("/(tabs)/notifications");
+  };
+
+  const handleHelp = () => {
+    Alert.alert(
+      "Help & Support",
+      "Contact support@example.com for assistance.",
+    );
+  };
+
   const handleSaveBodyweight = () => {
     const num = parseFloat(bodyweight);
     if (isNaN(num) || num <= 0) {
@@ -83,179 +112,77 @@ export function ProfileScreen() {
     // Future: persist to DB or preferences store
   };
 
-  // ─── Stat card helper ──────────────────────────────────────────────────
-  function StatItem({
-    label,
-    value,
-    loading,
-  }: {
-    label: string;
-    value: string | number;
-    loading?: boolean;
-  }) {
+  /** Teams section — shows the user's team memberships. */
+  function MyTeamsSection() {
+    const { data: teams, isLoading: teamsLoading } = useUserTeams();
+    const innerRouter = useRouter();
+    const isCoach =
+      useAuthStore((s) => s.role === "coach") ||
+      useAuthStore((s) => s.isTeamCoach);
+
+    if (teamsLoading) return null;
+    if (!teams || teams.length === 0) return null;
+
     return (
-      <View className="flex-1 items-center py-3">
-        <Text className="text-surface-100 text-2xl font-extrabold">
-          {loading ? "\u2014" : value}
-        </Text>
-        <Text className="text-surface-400 text-xs mt-1">{label}</Text>
-      </View>
+      <Card title="My Teams" className="mb-4">
+        {teams.map((team) => (
+          <TouchableOpacity
+            key={team.id}
+            onPress={() => {
+              if (isCoach) innerRouter.push(`/(coach)/teams/${team.id}`);
+            }}
+            className="flex-row items-center justify-between py-3 border-b border-border last:border-b-0"
+            activeOpacity={isCoach ? 0.7 : 1}
+            accessibilityRole={isCoach ? "button" : "none"}
+            accessibilityLabel={`Team: ${team.name}`}
+          >
+            <View className="flex-row items-center gap-3">
+              <View className="w-9 h-9 rounded-full bg-graphite items-center justify-center">
+                <Text className="text-surface-50 font-bold text-sm">
+                  {team.name.charAt(0).toUpperCase()}
+                </Text>
+              </View>
+              <View>
+                <Text className="text-surface-100 text-sm font-medium">
+                  {team.name}
+                </Text>
+                <Text className="text-surface-400 text-xs">
+                  {team.member_count} member
+                  {team.member_count !== 1 ? "s" : ""}
+                </Text>
+              </View>
+            </View>
+            {isCoach && (
+              <Ionicons name="chevron-forward" size={16} color="#707074" />
+            )}
+          </TouchableOpacity>
+        ))}
+      </Card>
     );
   }
 
   return (
     <GradientBackground>
       <ScrollView className="flex-1 px-4 pt-16">
-        <Text className="text-surface-50 text-2xl font-bold mb-6">
-          Profile
-        </Text>
+        <ScreenTitle title="Profile" className="mb-6" />
 
-        {/* ─── Avatar + User Info ──────────────────────────────────── */}
-        <Card className="mb-4">
-          <View className="items-center mb-4">
-            <View className="w-20 h-20 rounded-full bg-brand-500 items-center justify-center mb-3">
-              <Text className="text-surface-950 text-3xl font-bold">
-                {displayName.charAt(0).toUpperCase()}
-              </Text>
-            </View>
-            <Text className="text-surface-100 text-xl font-semibold">
-              {displayName}
-            </Text>
-            <Text className="text-surface-400 text-sm mt-1">{email}</Text>
-          </View>
-        </Card>
+        {/* ─── Profile Header ─────────────────────────────────────────── */}
+        <ProfileHeader
+          name={displayName}
+          email={email}
+          onEdit={handleEditProfile}
+        />
 
-        {/* ─── Stats Grid ──────────────────────────────────────────── */}
-        <Card className="mb-4">
-          <View className="flex-row">
-            <StatItem
-              label="Workouts"
-              value={totalWorkouts}
-              loading={statsLoading}
-            />
-            <View className="w-px bg-border self-stretch my-1" />
-            <StatItem
-              label="Streak"
-              value={`${currentStreak} days`}
-              loading={statsLoading}
-            />
-            <View className="w-px bg-border self-stretch my-1" />
-            <StatItem
-              label="PRs"
-              value={totalPRs}
-            />
-          </View>
-        </Card>
+        {/* ─── Stats Grid ─────────────────────────────────────────────── */}
+        <ProfileStats
+          totalWorkouts={totalWorkouts}
+          currentStreak={currentStreak}
+          personalRecords={personalRecords}
+          totalVolume={totalVolume}
+        />
 
-        {/* ─── Bodyweight ──────────────────────────────────────────── */}
-        <Card title="Bodyweight" className="mb-4">
-          <View className="flex-row items-center justify-between">
-            {isEditingBodyweight ? (
-              <View className="flex-row items-center flex-1 gap-3">
-                <TextInput
-                  className="flex-1 bg-card-soft text-surface-100 text-lg font-semibold rounded-xl px-4 py-3 border border-border"
-                  placeholder="Enter weight"
-                  placeholderTextColor="#707074"
-                  keyboardType="decimal-pad"
-                  value={bodyweight}
-                  onChangeText={setBodyweight}
-                  autoFocus
-                />
-                <TouchableOpacity
-                  onPress={handleSaveBodyweight}
-                  className="bg-brand-500 rounded-xl px-5 py-3"
-                >
-                  <Text className="text-surface-950 font-bold">Save</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => {
-                    setIsEditingBodyweight(false);
-                    setBodyweight("");
-                  }}
-                  className="rounded-xl px-3 py-3"
-                >
-                  <Text className="text-surface-400 font-bold">Cancel</Text>
-                </TouchableOpacity>
-              </View>
-            ) : (
-              <>
-                <View className="flex-row items-center gap-3">
-                  <Text className="text-surface-100 text-lg font-semibold">
-                    {bodyweight
-                      ? `${bodyweight} ${weightUnit}`
-                      : "Not set"}
-                  </Text>
-                </View>
-                <TouchableOpacity
-                  onPress={() => setIsEditingBodyweight(true)}
-                  className="bg-card-soft rounded-xl px-4 py-2 border border-border"
-                >
-                  <Text className="text-surface-300 text-sm font-semibold">
-                    Edit
-                  </Text>
-                </TouchableOpacity>
-              </>
-            )}
-          </View>
-        </Card>
-
-        {/* ─── Unit Preference ─────────────────────────────────────── */}
-        <Card title="Units" className="mb-4">
-          <View className="flex-row items-center justify-between">
-            <Text className="text-surface-300 text-base">Weight unit</Text>
-            <View className="flex-row bg-card-soft rounded-xl overflow-hidden border border-border">
-              <TouchableOpacity
-                onPress={() => setWeightUnit("kg")}
-                className={`px-5 py-2.5 ${
-                  weightUnit === "kg" ? "bg-brand-500" : ""
-                }`}
-              >
-                <Text
-                  className={`font-bold ${
-                    weightUnit === "kg"
-                      ? "text-surface-950"
-                      : "text-surface-400"
-                  }`}
-                >
-                  kg
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => setWeightUnit("lbs")}
-                className={`px-5 py-2.5 ${
-                  weightUnit === "lbs" ? "bg-brand-500" : ""
-                }`}
-              >
-                <Text
-                  className={`font-bold ${
-                    weightUnit === "lbs"
-                      ? "text-surface-950"
-                      : "text-surface-400"
-                  }`}
-                >
-                  lbs
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </Card>
-
-        {/* ─── Account Info ────────────────────────────────────────── */}
-        <Card title="Account Info" className="mb-4">
-          <View className="flex-row justify-between py-2 border-b border-border">
-            <Text className="text-surface-400">Member since</Text>
-            <Text className="text-surface-100">{createdAt}</Text>
-          </View>
-          <View className="flex-row justify-between py-2 border-b border-border">
-            <Text className="text-surface-400">User ID</Text>
-            <Text
-              className="text-surface-100 text-xs font-mono"
-              numberOfLines={1}
-            >
-              {user?.id.slice(0, 12)}...
-            </Text>
-          </View>
-        </Card>
+        {/* ─── My Teams ────────────────────────────────────────────── */}
+        <MyTeamsSection />
 
         {/* ─── Sync Status ─────────────────────────────────────────── */}
         {syncBadge && (
@@ -280,38 +207,89 @@ export function ProfileScreen() {
           </Card>
         )}
 
-        {/* ─── Quick Links ─────────────────────────────────────────── */}
-        <Card title="Quick Links" className="mb-4">
-          <View className="gap-3">
-            <Button
-              title="Wellness Dashboard"
-              variant="secondary"
-              icon="heart-outline"
-              onPress={() => router.push("/(tabs)/wellness")}
-            />
-            <Button
-              title="Export Data"
-              variant="secondary"
-              icon="download-outline"
-              onPress={() => {
-                Alert.alert(
-                  "Export Data",
-                  "Data export will be available in a future update.",
-                );
-              }}
-            />
+        {/* ─── Profile Menu ──────────────────────────────────────────── */}
+        <ProfileMenu
+          onEditProfile={handleEditProfile}
+          onNotifications={handleNotifications}
+          notificationUnreadCount={notificationUnreadCount}
+          onUnitPreferences={() => router.push("/(tabs)/unit-preferences")}
+          onWellness={() => router.push("/(tabs)/wellness")}
+          onHistory={() => router.push("/(tabs)/history/index")}
+          onHelp={handleHelp}
+          onSignOut={handleLogout}
+        />
+
+        {/* ─── Bodyweight ──────────────────────────────────────────── */}
+        <Card title="Bodyweight" className="mb-4">
+          <View className="flex-row items-center justify-between">
+            {isEditingBodyweight ? (
+              <View className="flex-row items-center flex-1 gap-3">
+                <TextInput
+                  className="flex-1 bg-cardSoft text-surface-100 text-lg font-semibold rounded-xl px-4 py-3 border border-border"
+                  placeholder="Enter weight"
+                  placeholderTextColor="#707074"
+                  keyboardType="decimal-pad"
+                  value={bodyweight}
+                  onChangeText={setBodyweight}
+                  autoFocus
+                />
+                <TouchableOpacity
+                  onPress={handleSaveBodyweight}
+                  className="bg-titanium rounded-xl px-5 py-3"
+                >
+                  <Text className="text-background font-bold">Save</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => {
+                    setIsEditingBodyweight(false);
+                    setBodyweight("");
+                  }}
+                  className="rounded-xl px-3 py-3"
+                >
+                  <Text className="text-surface-400 font-bold">Cancel</Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <>
+                <View className="flex-row items-center gap-3">
+                  <Ionicons name="scale-outline" size={20} color="#A4A4A8" />
+                  <Text className="text-surface-100 text-lg font-semibold">
+                    {bodyweight
+                      ? `${bodyweight} ${weightUnit}`
+                      : "Not set"}
+                  </Text>
+                </View>
+                <TouchableOpacity
+                  onPress={() => setIsEditingBodyweight(true)}
+                  className="bg-cardSoft rounded-xl px-4 py-2 border border-border"
+                >
+                  <Text className="text-surface-300 text-sm font-semibold">
+                    Edit
+                  </Text>
+                </TouchableOpacity>
+              </>
+            )}
           </View>
         </Card>
 
-        {/* ─── Sign out ────────────────────────────────────────────── */}
-        <View className="mb-8">
-          <Button
-            title="Sign Out"
-            variant="danger"
-            icon="log-out-outline"
-            onPress={handleLogout}
-          />
-        </View>
+        {/* ─── Account Info ────────────────────────────────────────── */}
+        <Card title="Account Info" className="mb-4">
+          <View className="flex-row justify-between py-2 border-b border-border">
+            <Text className="text-surface-400">Member since</Text>
+            <Text className="text-surface-100">{createdAt}</Text>
+          </View>
+          <View className="flex-row justify-between py-2">
+            <Text className="text-surface-400">User ID</Text>
+            <Text
+              className="text-surface-100 text-xs font-mono"
+              numberOfLines={1}
+            >
+              {user?.id.slice(0, 12)}...
+            </Text>
+          </View>
+        </Card>
+
+        <View className="h-8" />
       </ScrollView>
     </GradientBackground>
   );

@@ -7,7 +7,10 @@ import {
   TouchableOpacity,
   Alert,
   ActivityIndicator,
+  Platform,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { Card } from "../../../shared/ui/Card";
 import { Button } from "../../../shared/ui/Button";
@@ -17,6 +20,8 @@ import { RpeSlider } from "../../../shared/ui/RpeSlider";
 import { WeightTypeSelector } from "../../../shared/ui/WeightTypeSelector";
 import { BlockTimer } from "../components/BlockTimer";
 import { AmrapResultInput } from "../components/AmrapResultInput";
+import { ExerciseNotes } from "../components/ExerciseNotes";
+import { SessionNotes } from "../components/SessionNotes";
 import {
   useSessionStore,
   type LoggedSet,
@@ -256,6 +261,9 @@ export function ActiveWorkoutScreen() {
     (s) => s.setCurrentExerciseIndex,
   );
   const startRest = useSessionStore((s) => s.startRest);
+  const updateExerciseNotes = useSessionStore((s) => s.updateExerciseNotes);
+  const updateSessionNotes = useSessionStore((s) => s.updateSessionNotes);
+  const sessionNotes = useSessionStore((s) => s.sessionNotes);
 
   const createSession = useCreateSession();
   const logSetMutation = useLogSet();
@@ -330,6 +338,11 @@ export function ActiveWorkoutScreen() {
           tempo: data.tempo,
         });
 
+        // Haptic feedback on successful set log
+        if (Platform.OS !== "web") {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+        }
+
         // Auto-start rest timer for straight sets (timed blocks handle their own pacing)
         if (!isTimedBlock) {
           const setsAfter = currentExercise.loggedSets.length + 1;
@@ -338,6 +351,10 @@ export function ActiveWorkoutScreen() {
           }
         }
       } catch (err) {
+        // Haptic feedback on error
+        if (Platform.OS !== "web") {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error).catch(() => {});
+        }
         Alert.alert("Error", (err as Error).message ?? "Failed to log set");
       }
     },
@@ -417,9 +434,15 @@ export function ActiveWorkoutScreen() {
           style: "destructive",
           onPress: async () => {
             try {
+              if (Platform.OS !== "web") {
+                Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning).catch(() => {});
+              }
               await cancelMutation.mutateAsync();
               router.back();
             } catch (err) {
+              if (Platform.OS !== "web") {
+                Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error).catch(() => {});
+              }
               Alert.alert(
                 "Error",
                 (err as Error).message ?? "Failed to cancel workout",
@@ -464,7 +487,9 @@ export function ActiveWorkoutScreen() {
     return (
       <GradientBackground>
         <View className="flex-1 items-center justify-center px-6">
-        <Text className="text-4xl mb-4">⚠️</Text>
+        <View className="mb-4">
+          <Ionicons name="warning-outline" size={48} color="#B9B9B6" />
+        </View>
         <Text className="text-surface-100 text-lg font-semibold mb-2">
           Could not start workout
         </Text>
@@ -487,7 +512,9 @@ export function ActiveWorkoutScreen() {
     return (
       <GradientBackground>
         <View className="flex-1 items-center justify-center px-6">
-        <Text className="text-5xl mb-4">🏋️</Text>
+        <View className="mb-4">
+          <Ionicons name="fitness-outline" size={48} color="#B9B9B6" />
+        </View>
         <Text className="text-surface-100 text-lg font-semibold mb-2">
           Workout Started
         </Text>
@@ -592,6 +619,16 @@ export function ActiveWorkoutScreen() {
             ? ` @ RPE ${currentExercise.targetRpeLow ?? ""}–${currentExercise.targetRpeHigh}`
             : ""}
         </Text>
+      </View>
+
+      {/* Exercise notes */}
+      <View className="px-4 pb-2">
+        <ExerciseNotes
+          exerciseId={currentExercise.exerciseId}
+          exerciseName={currentExercise.exerciseName}
+          notes={currentExercise.notes}
+          onNotesChange={updateExerciseNotes}
+        />
       </View>
 
       {/* Block timer for AMRAP/EMOM */}
@@ -726,6 +763,15 @@ export function ActiveWorkoutScreen() {
             )}
           </View>
         )}
+
+        {/* Session Notes */}
+        <View className="mb-4">
+          <SessionNotes
+            sessionId={activeSessionId ?? ""}
+            notes={sessionNotes}
+            onNotesChange={updateSessionNotes}
+          />
+        </View>
 
         {/* Bottom spacer */}
         <View className="h-8" />

@@ -39,7 +39,7 @@ describe("schema migrations", () => {
           sql.trim().toUpperCase().startsWith("CREATE TABLE"),
         );
 
-      expect(createTableCalls).toHaveLength(11);
+      expect(createTableCalls).toHaveLength(13);
 
       // Verify each table name appears
       const allSql = execAsyncMock.mock.calls
@@ -68,7 +68,7 @@ describe("schema migrations", () => {
       // exercise_sets: 2 (session, dirty)
       // change_queue: 3 (status, created, group)
       // workout_feedback: 2 (athlete, synced)
-      expect(indexCalls).toHaveLength(14);
+      expect(indexCalls).toHaveLength(18);
     });
 
     it("creates exercises table with expected columns", async () => {
@@ -156,7 +156,7 @@ describe("schema migrations", () => {
 
       expect(seedCall).toBeDefined();
       expect(seedCall).toContain("schema_version");
-      expect(seedCall).toContain("'5'");
+      expect(seedCall).toContain("'6'");
     });
 
     it("is idempotent — can be called twice", async () => {
@@ -170,7 +170,7 @@ describe("schema migrations", () => {
           sql.trim().toUpperCase().startsWith("CREATE TABLE"),
         );
 
-      expect(createTableCalls).toHaveLength(22);
+      expect(createTableCalls).toHaveLength(26);
     });
 
     it("executes tables in the correct dependency order", async () => {
@@ -237,7 +237,7 @@ describe("schema migrations", () => {
     });
 
     it("skips migrations when schema is already at current version", async () => {
-      getFirstAsyncMock.mockResolvedValue({ value: "5" });
+      getFirstAsyncMock.mockResolvedValue({ value: "6" });
       execAsyncMock.mockClear();
 
       await runMigrations(mockDb as any);

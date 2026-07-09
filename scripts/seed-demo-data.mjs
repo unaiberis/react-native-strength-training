@@ -10,8 +10,8 @@
  */
 
 const PB_URL = process.env.PB_URL || "http://127.0.0.1:8090";
-const ADMIN_EMAIL = "aitor@musikak.com";
-const ADMIN_PASS = "entrenamentua2026";
+const ADMIN_EMAIL = process.env.PB_ADMIN_EMAIL || "admin@entrenamentua.com";
+const ADMIN_PASS = process.env.PB_ADMIN_PASS || "test123456";
 const USER_ID = "yxk3lv734olsrux"; // test@test.com
 
 const CLEAN = process.argv.includes("--clean");

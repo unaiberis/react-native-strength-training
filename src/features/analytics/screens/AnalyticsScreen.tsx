@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from "react-native";
+import { useState, useMemo, useCallback } from "react";
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl } from "react-native";
 import { useRouter } from "expo-router";
 import { GradientBackground } from "@/shared/ui/GradientBackground";
 import { ErrorBoundary } from "@/shared/ui/ErrorBoundary";
@@ -35,7 +35,7 @@ function PeriodToggleButton({
 
 function StatCard({ label, value }: { label: string; value: string }) {
   return (
-    <View className="flex-1 bg-card rounded-2xl p-3 items-center">
+    <View className="flex-1 bg-card rounded-2xl p-3 items-center shadow-card">
       <Text className="text-surface-50 text-xl font-bold">{value}</Text>
       <Text className="text-surface-400 text-xs mt-1">{label}</Text>
     </View>
@@ -63,9 +63,14 @@ export function AnalyticsScreen() {
     volumeByPeriod,
     exercises,
     isLoading,
+    isRefetching,
     error,
     refetch,
   } = useAnalytics(period);
+
+  const onRefresh = useCallback(() => {
+    refetch();
+  }, [refetch]);
 
   // Compute total stats from raw data
   const totalStats = useMemo(() => {
@@ -116,9 +121,16 @@ export function AnalyticsScreen() {
         <ScrollView
           className="flex-1 px-4 pt-16"
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefetching}
+              onRefresh={onRefresh}
+              tintColor="#B9B9B6"
+            />
+          }
         >
           {/* Header */}
-          <Text className="text-surface-50 text-2xl font-bold mb-1">
+          <Text className="text-surface-50 text-[34px] font-black tracking-[-0.8] mb-1">
             Analytics
           </Text>
           <Text className="text-surface-400 text-sm mb-6">
@@ -161,7 +173,7 @@ export function AnalyticsScreen() {
               </View>
 
               {/* Volume Trend Chart */}
-              <View className="bg-card rounded-2xl p-4 mb-4 border border-border">
+              <View className="bg-card rounded-2xl p-4 mb-4 border border-border shadow-card">
                 <Text className="text-surface-50 text-base font-bold mb-3">
                   {period === "weekly" ? "Weekly Volume" : "Monthly Volume"}
                 </Text>
@@ -174,9 +186,9 @@ export function AnalyticsScreen() {
               </View>
 
               {/* Exercise PR Timelines */}
-              <Text className="text-surface-50 text-lg font-bold mb-3">Exercise Progress</Text>
+              <Text className="text-surface-50 text-xl font-extrabold tracking-[-0.5] mb-3">Exercise Progress</Text>
               {exercises.length === 0 && (
-                <View className="bg-card rounded-2xl p-6 mb-4 border border-border items-center">
+                <View className="bg-card rounded-2xl p-6 mb-4 border border-border items-center shadow-card">
                   <Text className="text-surface-400 text-sm">
                     Complete some workouts to see your exercise progress here.
                   </Text>
@@ -185,7 +197,7 @@ export function AnalyticsScreen() {
               {exercises.map((ex) => (
                 <TouchableOpacity
                   key={ex.id}
-                  className="bg-card rounded-2xl p-4 mb-3 border border-border min-h-[60px] justify-center"
+                  className="bg-card rounded-2xl p-4 mb-3 border border-border min-h-[60px] justify-center shadow-button"
                   onPress={() => router.push(`/(tabs)/analytics/exercise/${ex.id}`)}
                   activeOpacity={0.7}
                   accessibilityRole="button"

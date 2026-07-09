@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { Card } from "../../src/shared/ui/Card";
 import { Button } from "../../src/shared/ui/Button";
@@ -36,7 +37,7 @@ export default function TrainScreen() {
     <ErrorBoundary>
       <GradientBackground>
         <ScrollView className="flex-1 px-4 pt-16">
-          <Text className="text-surface-50 text-2xl font-bold mb-6">Train</Text>
+          <Text className="text-surface-50 text-[34px] font-black tracking-[-0.8] mb-6">Train</Text>
 
           {/* Start workout */}
           <Card className="mb-4">
@@ -70,7 +71,9 @@ export default function TrainScreen() {
               accessibilityRole="button"
               accessibilityLabel="View and manage routines"
             >
-              <Text className="text-2xl mb-1">📋</Text>
+              <View className="mb-1">
+                <Ionicons name="clipboard-outline" size={24} color="#B9B9B6" />
+              </View>
               <Text className="text-surface-100 text-sm font-semibold">
                 My Routines
               </Text>
@@ -85,7 +88,9 @@ export default function TrainScreen() {
               accessibilityRole="button"
               accessibilityLabel="Create a new routine template"
             >
-              <Text className="text-2xl mb-1">➕</Text>
+              <View className="mb-1">
+                <Ionicons name="add-outline" size={24} color="#B9B9B6" />
+              </View>
               <Text className="text-surface-100 text-sm font-semibold">
                 New Routine
               </Text>
@@ -96,7 +101,7 @@ export default function TrainScreen() {
           </View>
 
           {/* Routines list */}
-          <Text className="text-surface-100 text-lg font-semibold mb-3">
+          <Text className="text-surface-50 text-xl font-extrabold tracking-[-0.5] mb-3">
             Start from Routine
           </Text>
 

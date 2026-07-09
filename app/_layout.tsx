@@ -8,6 +8,7 @@ import { pb } from "../src/lib/pocketbase/client";
 import "../global.css";
 import { View, ActivityIndicator, Text, Platform } from "react-native";
 import { GradientBackground } from "../src/shared/ui/GradientBackground";
+import { OfflineBanner } from "../src/shared/ui/OfflineBanner";
 import { useColorScheme } from "nativewind";
 
 const OFFLINE_ENABLED = process.env.EXPO_PUBLIC_OFFLINE_ENABLED === "true";
@@ -53,7 +54,19 @@ function AuthGate({ children }: { children: React.ReactNode }) {
         console.log("[AuthGate] Web flow — getSession start, pb.authStore.isValid:", pb.authStore.isValid);
         const { session, error } = await getSession();
         console.log("[AuthGate] getSession result:", session ? { userId: session.user?.id, email: session.user?.email } : "null", "error:", error);
-        if (!cancelled) setSession(session);
+        if (!cancelled) {
+          setSession(session);
+          // Set team roles from memberships (best-effort, dynamic import avoids circular deps)
+          if (session?.user?.id) {
+            try {
+              const { getMyMemberships } = await import("@/lib/pocketbase/services/team-memberships");
+              const ms = await getMyMemberships(session.user.id);
+              const isCoach = ms.some((m: any) => m.role === "coach" || m.role === "admin");
+              const isAdmin = ms.some((m: any) => m.role === "admin");
+              useAuthStore.getState().setTeamRoles(isCoach, isAdmin);
+            } catch { /* best effort */ }
+          }
+        }
         return;
       }
 
@@ -130,6 +143,17 @@ function AuthGate({ children }: { children: React.ReactNode }) {
         const isOnline = monitor.isOnline;
         if (!cancelled) setIsOnline(isOnline);
 
+        // Helper: set team role flags from memberships after session resolves
+        async function initTeamRoles(userId: string) {
+          try {
+            const { getMyMemberships } = await import("@/lib/pocketbase/services/team-memberships");
+            const ms = await getMyMemberships(userId);
+            const isCoach = ms.some((m: any) => m.role === "coach" || m.role === "admin");
+            const isAdmin = ms.some((m: any) => m.role === "admin");
+            useAuthStore.getState().setTeamRoles(isCoach, isAdmin);
+          } catch { /* best effort */ }
+        }
+
         if (isOnline) {
           msg("Verifying credentials\u2026");
           const result = await getSession();
@@ -141,10 +165,12 @@ function AuthGate({ children }: { children: React.ReactNode }) {
                   user: pb.authStore.record!,
                   token: pb.authStore.token,
                 });
+                initTeamRoles(pb.authStore.record!.id);
               }
             } else {
               if (result.session) msg("Welcome back!");
               setSession(result.session);
+              if (result.session?.user?.id) initTeamRoles(result.session.user.id);
             }
           }
         } else if (pb.authStore.isValid) {
@@ -154,6 +180,7 @@ function AuthGate({ children }: { children: React.ReactNode }) {
               user: pb.authStore.record!,
               token: pb.authStore.token,
             });
+            initTeamRoles(pb.authStore.record!.id);
           }
         } else {
           if (!cancelled) setSession(null);
@@ -221,12 +248,15 @@ export default function RootLayout() {
       <QueryClientProvider client={queryClient}>
         <AuthGate>
           <StatusBar style="light" />
-          <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="(auth)" />
-            <Stack.Screen name="(tabs)" />
-            <Stack.Screen name="(coach)" />
-            <Stack.Screen name="(workout)/active" options={{ headerShown: false, presentation: "fullScreenModal" }} />
-          </Stack>
+          <View className="flex-1">
+            <OfflineBanner />
+            <Stack screenOptions={{ headerShown: false }}>
+              <Stack.Screen name="(auth)" />
+              <Stack.Screen name="(tabs)" />
+              <Stack.Screen name="(coach)" />
+              <Stack.Screen name="(workout)/active" options={{ headerShown: false, presentation: "fullScreenModal" }} />
+            </Stack>
+          </View>
         </AuthGate>
       </QueryClientProvider>
     </ForceDarkMode>

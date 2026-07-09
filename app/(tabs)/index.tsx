@@ -1,4 +1,5 @@
-import { View, Text, ScrollView, TouchableOpacity } from "react-native";
+import { useCallback } from "react";
+import { View, Text, ScrollView, TouchableOpacity, RefreshControl } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { Card } from "@/shared/ui/Card";
@@ -23,14 +24,29 @@ export default function HomeScreen() {
     bestE1RM,
     recentSessions,
     isLoading,
+    refetch,
+    isRefetching,
   } = useHomeStats();
+
+  const onRefresh = useCallback(() => {
+    refetch();
+  }, [refetch]);
 
   return (
     <ErrorBoundary>
       <GradientBackground>
-        <ScrollView className="flex-1 px-4 pt-16">
+        <ScrollView
+          className="flex-1 px-4 pt-16"
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefetching}
+              onRefresh={onRefresh}
+              tintColor="#B9B9B6"
+            />
+          }
+        >
           {/* Greeting */}
-          <Text className="text-surface-50 text-2xl font-black mb-1">
+          <Text className="text-surface-50 text-[34px] font-black tracking-[-0.8] mb-1">
             Welcome back, {displayName}
           </Text>
           <Text className="text-surface-400 text-base mb-6">
@@ -38,7 +54,7 @@ export default function HomeScreen() {
           </Text>
 
           {/* ── Quick Stats ─────────────────────────────────────────────── */}
-          <Text className="text-surface-50 text-lg font-extrabold mb-3">
+          <Text className="text-surface-50 text-xl font-extrabold tracking-[-0.5] mb-3">
             Quick Stats
           </Text>
 
@@ -47,7 +63,7 @@ export default function HomeScreen() {
             <View className="flex-row gap-3">
               <View className="flex-1">
                 {isLoading ? (
-                  <View className="bg-card rounded-xl p-4 border border-border" style={{shadowColor: "#000", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.35, shadowRadius: 16, elevation: 8}}>
+                  <View className="bg-card rounded-xl p-4 border border-border shadow-card">
                     <View className="w-8 h-8 rounded bg-surface-700 mb-2" />
                     <View className="w-16 h-7 rounded bg-surface-700 mb-1" />
                     <View className="w-20 h-3 rounded bg-surface-700" />
@@ -62,7 +78,7 @@ export default function HomeScreen() {
               </View>
               <View className="flex-1">
                 {isLoading ? (
-                  <View className="bg-card rounded-xl p-4 border border-border" style={{shadowColor: "#000", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.35, shadowRadius: 16, elevation: 8}}>
+                  <View className="bg-card rounded-xl p-4 border border-border shadow-card">
                     <View className="w-8 h-8 rounded bg-surface-700 mb-2" />
                     <View className="w-16 h-7 rounded bg-surface-700 mb-1" />
                     <View className="w-20 h-3 rounded bg-surface-700" />
@@ -80,7 +96,7 @@ export default function HomeScreen() {
             <View className="flex-row gap-3">
               <View className="flex-1">
                 {isLoading ? (
-                  <View className="bg-card rounded-xl p-4 border border-border" style={{shadowColor: "#000", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.35, shadowRadius: 16, elevation: 8}}>
+                  <View className="bg-card rounded-xl p-4 border border-border shadow-card">
                     <View className="w-8 h-8 rounded bg-surface-700 mb-2" />
                     <View className="w-16 h-7 rounded bg-surface-700 mb-1" />
                     <View className="w-20 h-3 rounded bg-surface-700" />
@@ -95,7 +111,7 @@ export default function HomeScreen() {
               </View>
               <View className="flex-1">
                 {isLoading ? (
-                  <View className="bg-card rounded-xl p-4 border border-border" style={{shadowColor: "#000", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.35, shadowRadius: 16, elevation: 8}}>
+                  <View className="bg-card rounded-xl p-4 border border-border shadow-card">
                     <View className="w-8 h-8 rounded bg-surface-700 mb-2" />
                     <View className="w-16 h-7 rounded bg-surface-700 mb-1" />
                     <View className="w-20 h-3 rounded bg-surface-700" />
@@ -116,8 +132,7 @@ export default function HomeScreen() {
             <PressScale scaleTo={0.97} className="flex-1">
               <TouchableOpacity
                 onPress={() => router.push("/exercises")}
-                className="bg-card rounded-2xl p-4 border border-border active:opacity-80"
-                style={{shadowColor: "#000", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.35, shadowRadius: 16, elevation: 8}}
+                className="bg-card rounded-2xl p-4 border border-border shadow-button active:opacity-80"
                 accessibilityRole="button"
                 accessibilityLabel="Browse exercises library"
               >
@@ -134,8 +149,7 @@ export default function HomeScreen() {
             <PressScale scaleTo={0.97} className="flex-1">
               <TouchableOpacity
                 onPress={() => router.push("/routines")}
-                className="bg-card rounded-2xl p-4 border border-border active:opacity-80"
-                style={{shadowColor: "#000", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.35, shadowRadius: 16, elevation: 8}}
+                className="bg-card rounded-2xl p-4 border border-border shadow-button active:opacity-80"
                 accessibilityRole="button"
                 accessibilityLabel="Create and manage routines"
               >
@@ -154,8 +168,7 @@ export default function HomeScreen() {
             <PressScale scaleTo={0.97} className="flex-1">
               <TouchableOpacity
                 onPress={() => router.push("/history")}
-                className="bg-card rounded-2xl p-4 border border-border active:opacity-80"
-                style={{shadowColor: "#000", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.35, shadowRadius: 16, elevation: 8}}
+                className="bg-card rounded-2xl p-4 border border-border shadow-button active:opacity-80"
                 accessibilityRole="button"
                 accessibilityLabel="View workout history"
               >

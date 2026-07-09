@@ -10,7 +10,7 @@
 import type { SQLiteDatabase } from "expo-sqlite";
 
 const SCHEMA_VERSION_KEY = "schema_version";
-const CURRENT_SCHEMA_VERSION = "5";
+const CURRENT_SCHEMA_VERSION = "6";
 
 // ─── DDL Statements ─────────────────────────────────────────────────────
 
@@ -152,6 +152,31 @@ CREATE TABLE IF NOT EXISTS react_query_cache (
   timestamp INTEGER NOT NULL
 );`;
 
+const CREATE_TEAMS = `
+CREATE TABLE IF NOT EXISTS teams (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  description TEXT,
+  created_by TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);`;
+
+const CREATE_TEAM_MEMBERSHIPS = `
+CREATE TABLE IF NOT EXISTS team_memberships (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  team_id TEXT NOT NULL,
+  role TEXT NOT NULL CHECK(role IN ('admin', 'coach', 'athlete')),
+  position TEXT,
+  joined_at TEXT NOT NULL DEFAULT (datetime('now')),
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+  UNIQUE(user_id, team_id),
+  FOREIGN KEY (user_id) REFERENCES users(id),
+  FOREIGN KEY (team_id) REFERENCES teams(id)
+);`;
+
 // ─── Indexes ────────────────────────────────────────────────────────────
 
 const CREATE_INDEXES = [
@@ -182,6 +207,14 @@ const CREATE_INDEXES = [
   // workout_feedback
   `CREATE INDEX IF NOT EXISTS idx_feedback_athlete ON workout_feedback(athlete_id);`,
   `CREATE INDEX IF NOT EXISTS idx_feedback_synced ON workout_feedback(synced);`,
+
+  // teams
+  `CREATE INDEX IF NOT EXISTS idx_teams_created_by ON teams(created_by);`,
+
+  // team_memberships
+  `CREATE INDEX IF NOT EXISTS idx_team_memberships_user_id ON team_memberships(user_id);`,
+  `CREATE INDEX IF NOT EXISTS idx_team_memberships_team_id ON team_memberships(team_id);`,
+  `CREATE INDEX IF NOT EXISTS idx_team_memberships_role ON team_memberships(role);`,
 ];
 
 const SEED_SCHEMA_VERSION = `
@@ -207,6 +240,8 @@ export const TABLES: readonly string[] = [
   "daily_wellness",
   "react_query_cache",
   "workout_feedback",
+  "teams",
+  "team_memberships",
 ] as const;
 
 // ─── Migration Runner ───────────────────────────────────────────────────
@@ -242,6 +277,8 @@ export async function runMigrations(db: SQLiteDatabase): Promise<void> {
   await db.execAsync(CREATE_DAILY_WELLNESS);
   await db.execAsync(CREATE_REACT_QUERY_CACHE);
   await db.execAsync(CREATE_WORKOUT_FEEDBACK);
+  await db.execAsync(CREATE_TEAMS);
+  await db.execAsync(CREATE_TEAM_MEMBERSHIPS);
 
   // Create indexes
   for (const indexSql of CREATE_INDEXES) {

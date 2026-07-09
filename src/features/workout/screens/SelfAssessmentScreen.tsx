@@ -233,7 +233,7 @@ export function SelfAssessmentScreen() {
     }
 
     try {
-      await saveMutation.mutateAsync({
+      const result = await saveMutation.mutateAsync({
         sessionId: params.sessionId ?? null,
         date: new Date().toISOString().split("T")[0],
         sessionRpe: form.sessionRpe!,
@@ -243,9 +243,8 @@ export function SelfAssessmentScreen() {
         mood: form.mood!,
       });
 
-      Alert.alert("Saved!", "Your assessment has been recorded.", [
-        { text: "OK", onPress: () => router.replace("/(tabs)") },
-      ]);
+      // Navigate to assessment results with the created entry ID
+      router.replace(`/(workout)/assessment-results?id=${result.id}`);
     } catch (err) {
       Alert.alert("Error", (err as Error).message ?? "Failed to save assessment");
     }

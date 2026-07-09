@@ -7,6 +7,7 @@ import {
   RefreshControl,
   ActivityIndicator,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { Card } from "../../../shared/ui/Card";
 import { Button } from "../../../shared/ui/Button";
@@ -74,7 +75,7 @@ function SessionRow({
       <View className="flex-row items-center gap-3">
         {session.exerciseCount != null && (
           <View className="flex-row items-center gap-1">
-            <Text className="text-surface-500 text-xs">🏋️</Text>
+            <Ionicons name="fitness-outline" size={14} color="#A4A4A8" />
             <Text className="text-surface-400 text-xs">
               {session.exerciseCount} exercise{session.exerciseCount !== 1 ? "s" : ""}
             </Text>
@@ -82,7 +83,7 @@ function SessionRow({
         )}
         {session.totalSets != null && (
           <View className="flex-row items-center gap-1">
-            <Text className="text-surface-500 text-xs">🎯</Text>
+            <Ionicons name="locate-outline" size={14} color="#A4A4A8" />
             <Text className="text-surface-400 text-xs">
               {session.totalSets} set{session.totalSets !== 1 ? "s" : ""}
             </Text>
@@ -246,7 +247,9 @@ export function HistoryListScreen() {
     if (isLoading) return null;
     return (
       <View className="items-center justify-center py-16 px-6">
-        <Text className="text-5xl mb-4">📋</Text>
+        <View className="mb-4">
+          <Ionicons name="clipboard-outline" size={48} color="#B9B9B6" />
+        </View>
         <Text className="text-surface-100 text-lg font-semibold mb-2">
           No workouts yet
         </Text>

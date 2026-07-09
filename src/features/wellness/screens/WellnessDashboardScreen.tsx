@@ -48,7 +48,7 @@ function PeriodCard({
   ];
 
   return (
-    <View className="bg-card rounded-2xl p-4 border border-border mb-3">
+    <View className="bg-card rounded-2xl p-4 border border-border mb-3 shadow-card">
       <View className="flex-row justify-between items-center mb-3">
         <Text className="text-surface-50 text-base font-bold">{label}</Text>
         <Text className="text-surface-500 text-xs">{period.entryCount} entries</Text>
@@ -71,7 +71,7 @@ function PeriodCard({
 
 function EmptyState() {
   return (
-    <View className="bg-card rounded-2xl p-6 border border-border items-center mb-4">
+    <View className="bg-card rounded-2xl p-6 border border-border items-center mb-4 shadow-card">
       <Text className="text-surface-100 text-lg font-semibold mb-2">
         No wellness data yet
       </Text>
@@ -93,7 +93,7 @@ function MetricTrendChart({
   data: LineChartDataPoint[];
 }) {
   return (
-    <View className="bg-card rounded-2xl p-4 border border-border mb-3">
+    <View className="bg-card rounded-2xl p-4 border border-border mb-3 shadow-card">
       <Text className="text-surface-50 text-base font-bold mb-1">{metric.label}</Text>
       <Text className="text-surface-500 text-xs mb-3">Daily values over time</Text>
       <LineChart
@@ -162,7 +162,7 @@ export function WellnessDashboardScreen() {
           <Text className="text-danger text-lg mb-2">Failed to load wellness data</Text>
           <TouchableOpacity
             onPress={() => refetch()}
-            className="bg-card px-6 py-2 rounded-xl border border-border"
+            className="bg-card px-6 py-2 rounded-xl border border-border shadow-button"
           >
             <Text className="text-surface-50 font-medium">Retry</Text>
           </TouchableOpacity>
@@ -180,7 +180,7 @@ export function WellnessDashboardScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* Header */}
-        <Text className="text-surface-50 text-2xl font-bold mb-1">
+        <Text className="text-surface-50 text-[34px] font-black tracking-[-0.8] mb-1">
           Wellness
         </Text>
         <Text className="text-surface-400 text-sm mb-6">
@@ -190,7 +190,7 @@ export function WellnessDashboardScreen() {
         {/* Period Averages */}
         {hasData && (
           <>
-            <Text className="text-surface-50 text-lg font-bold mb-3">
+            <Text className="text-surface-50 text-xl font-extrabold tracking-[-0.5] mb-3">
               Rolling Averages
             </Text>
             {periods.map((period) => {
@@ -213,7 +213,7 @@ export function WellnessDashboardScreen() {
         {/* Trend Charts */}
         {hasData && (
           <>
-            <Text className="text-surface-50 text-lg font-bold mb-3 mt-2">
+            <Text className="text-surface-50 text-xl font-extrabold tracking-[-0.5] mb-3 mt-2">
               Trends
             </Text>
             {METRICS.map((metric) => {

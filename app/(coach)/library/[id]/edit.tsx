@@ -176,7 +176,9 @@ export default function ExerciseEditScreen() {
                 setShowCustomCategory(false);
                 setCustomCategory("");
               }}
-              className="bg-graphite rounded-xl p-3"
+              className="bg-graphite rounded-xl p-3 min-w-[44px] min-h-[44px] items-center justify-center"
+              accessibilityRole="button"
+              accessibilityLabel="Cancel custom category"
             >
               <Ionicons name="close" size={18} color="#B9B9B6" />
             </TouchableOpacity>

@@ -7,6 +7,7 @@ export interface CreateAssignmentInput {
   coachId: string;
   templateId: string;
   startDate: string;
+  teamId?: string;
 }
 
 /** Input for updating an existing assignment. */
@@ -50,6 +51,7 @@ export async function assignProgram(
       coach: input.coachId,
       template: input.templateId,
       start_date: input.startDate,
+      team_id: input.teamId ?? null,
       status: "active",
     });
 
@@ -83,18 +85,28 @@ export async function listAssignments(
 }
 
 /**
- * List all assignments created by a specific coach.
+ * List all assignments for the teams where a user is a coach or admin.
  */
 export async function listCoachAssignments(
   coachId: string,
 ): Promise<ProgramAssignmentRow[]> {
   try {
+    const memberships = await pb.collection("team_memberships").getFullList({
+      filter: `user_id = '${coachId}' && (role = 'coach' || role = 'admin')`,
+      $autoCancel: false,
+    });
+    if (memberships.length === 0) return [];
+
+    const teamIds = memberships.map((m: any) => m.team_id) as string[];
+    const teamFilter = teamIds.map((id: string) => `team_id = '${id}'`).join(" || ");
+
     const records = await pb
       .collection("program_assignments")
       .getFullList({
-        filter: `coach = '${coachId}'`,
+        filter: `(${teamFilter})`,
         sort: "-created",
         expand: "template,athlete",
+        $autoCancel: false,
       });
 
     return (records ?? []) as unknown as ProgramAssignmentRow[];
@@ -135,6 +147,23 @@ export async function updateAssignment(
     return record as unknown as ProgramAssignmentRow;
   } catch (err: any) {
     throw new Error(err.message ?? "Failed to update assignment");
+  }
+}
+
+/**
+ * Get a single program assignment by ID with expanded template and athlete.
+ */
+export async function getAssignment(
+  id: string,
+): Promise<ProgramAssignmentRow> {
+  try {
+    const record = await pb
+      .collection("program_assignments")
+      .getOne(id, { expand: "template,athlete", $autoCancel: false });
+    if (!record) throw new Error("Assignment not found");
+    return record as unknown as ProgramAssignmentRow;
+  } catch (err: any) {
+    throw new Error(err.message ?? "Failed to get assignment");
   }
 }
 

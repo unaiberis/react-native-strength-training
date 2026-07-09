@@ -41,7 +41,7 @@ const tabIcons: Record<string, keyof typeof Ionicons.glyphMap> = {
 
 export default function TabsLayout() {
   const router = useRouter();
-  const { state, role } = useAuthStore();
+  const { state, role, isTeamCoach } = useAuthStore();
 
   /**
    * Auth guards:
@@ -55,11 +55,11 @@ export default function TabsLayout() {
       const id = setTimeout(() => router.replace("/(auth)/login"), 0);
       return () => clearTimeout(id);
     }
-    if (state === "authenticated" && role === "coach") {
+    if (state === "authenticated" && (role === "coach" || isTeamCoach)) {
       const id = setTimeout(() => router.replace("/(coach)"), 0);
       return () => clearTimeout(id);
     }
-  }, [state, role, router]);
+  }, [state, role, isTeamCoach, router]);
 
   return (
     <GradientBackground>
@@ -69,13 +69,14 @@ export default function TabsLayout() {
         screenOptions={{
           headerShown: false,
           tabBarStyle: {
-            backgroundColor: "#18181b",
-            borderTopColor: "#27272a",
+            backgroundColor: "#0B0B0C",
+            borderTopColor: "#343437",
             borderTopWidth: 1,
             paddingTop: 4,
+            height: 56,
           },
           tabBarActiveTintColor: "#B9B9B6",
-          tabBarInactiveTintColor: "#71717a",
+          tabBarInactiveTintColor: "#707074",
         }}
       >
       <Tabs.Screen
@@ -152,6 +153,11 @@ export default function TabsLayout() {
       <Tabs.Screen name="history/[id]" options={{ href: null, headerShown: true, headerTitle: "Workout Details", headerStyle: { backgroundColor: "#18181b" }, headerTintColor: "#fafafa" }} />
       <Tabs.Screen name="analytics/exercise/[id]" options={{ href: null, headerShown: true, headerTitle: "Exercise Progress", headerStyle: { backgroundColor: "#18181b" }, headerTintColor: "#fafafa" }} />
       <Tabs.Screen name="wellness" options={{ href: null, headerShown: true, headerTitle: "Wellness", headerStyle: { backgroundColor: "#18181b" }, headerTintColor: "#fafafa" }} />
+      <Tabs.Screen name="programs/program-detail/[id]" options={{ href: null, headerShown: true, headerTitle: "Program Detail", headerStyle: { backgroundColor: "#18181b" }, headerTintColor: "#fafafa" }} />
+      <Tabs.Screen name="programs/workout-preview/[id]" options={{ href: null, headerShown: true, headerTitle: "Workout Preview", headerStyle: { backgroundColor: "#18181b" }, headerTintColor: "#fafafa" }} />
+      <Tabs.Screen name="notifications" options={{ href: null, headerShown: false }} />
+      <Tabs.Screen name="notification/[id]" options={{ href: null, headerShown: false }} />
+      <Tabs.Screen name="unit-preferences" options={{ href: null, headerShown: false }} />
     </Tabs>
       </View>
     </GradientBackground>

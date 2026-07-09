@@ -37,6 +37,7 @@ const makeAssignment = (
   coach: "coach-1",
   template: "tmpl-1",
   start_date: "2026-07-15",
+  team_id: null,
   status: "active",
   created: "2026-07-01T00:00:00Z",
   updated: "2026-07-01T00:00:00Z",
@@ -70,6 +71,7 @@ describe("PocketBase program-assignments service", () => {
         coach: "coach-1",
         template: "tmpl-1",
         start_date: "2026-07-15",
+        team_id: null,
         status: "active",
       });
       expect(result.status).toBe("active");
@@ -137,17 +139,30 @@ describe("PocketBase program-assignments service", () => {
   });
 
   describe("listCoachAssignments", () => {
-    it("returns assignments created by a coach", async () => {
+    it("returns assignments for teams where user is coach/admin", async () => {
+      // Mock memberships query
+      mockGetFullList.mockResolvedValueOnce([
+        { id: "ms-1", user_id: "coach-1", team_id: "team-1", role: "coach" },
+        { id: "ms-2", user_id: "coach-1", team_id: "team-2", role: "admin" },
+      ]);
+      // Mock assignments query
       mockGetFullList.mockResolvedValueOnce([makeAssignment()]);
 
       const result = await listCoachAssignments("coach-1");
 
-      expect(mockGetFullList).toHaveBeenCalledWith({
-        filter: "coach = 'coach-1'",
-        sort: "-created",
-        expand: "template,athlete",
+      expect(mockGetFullList).toHaveBeenNthCalledWith(1, {
+        filter: "user_id = 'coach-1' && (role = 'coach' || role = 'admin')",
+        $autoCancel: false,
       });
       expect(result).toHaveLength(1);
+    });
+
+    it("returns empty when no team memberships", async () => {
+      mockGetFullList.mockResolvedValueOnce([]);
+
+      const result = await listCoachAssignments("coach-1");
+
+      expect(result).toEqual([]);
     });
   });
 

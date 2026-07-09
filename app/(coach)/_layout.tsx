@@ -4,17 +4,22 @@ import { useAuthStore } from "../../src/stores/auth-store";
 import { View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { GradientBackground } from "../../src/shared/ui/GradientBackground";
+import { OfflineBanner } from "../../src/shared/ui/OfflineBanner";
 
 const tabIcons: Record<string, keyof typeof Ionicons.glyphMap> = {
   index: "grid-outline",
   athletes: "people-outline",
   library: "barbell-outline",
+  teams: "shield-outline",
+  "workout-templates": "document-text-outline",
 };
 
 const tabLabels: Record<string, string> = {
   index: "Dashboard",
   athletes: "Athletes",
   library: "Library",
+  teams: "Teams",
+  "workout-templates": "Templates",
 };
 
 export default function CoachTabsLayout() {
@@ -34,21 +39,23 @@ export default function CoachTabsLayout() {
   return (
     <GradientBackground>
       <View className="flex-1">
+        <OfflineBanner />
         <Tabs
           screenOptions={{
             headerShown: false,
             tabBarStyle: {
-              backgroundColor: "#18181b",
-              borderTopColor: "#27272a",
+              backgroundColor: "#0B0B0C",
+              borderTopColor: "#343437",
               borderTopWidth: 1,
               paddingTop: 4,
+              height: 56,
             },
             tabBarActiveTintColor: "#B9B9B6",
-            tabBarInactiveTintColor: "#71717a",
+            tabBarInactiveTintColor: "#707074",
           }}
         >
           {/* Tab bar screens */}
-          {(["index", "athletes", "library"] as const).map((name) => (
+          {(["index", "athletes", "library", "teams", "workout-templates"] as const).map((name) => (
             <Tabs.Screen
               key={name}
               name={name}
@@ -92,6 +99,26 @@ export default function CoachTabsLayout() {
           />
           <Tabs.Screen
             name="assign"
+            options={{ href: null, headerShown: false }}
+          />
+          <Tabs.Screen
+            name="teams/[id]"
+            options={{ href: null, headerShown: false }}
+          />
+          <Tabs.Screen
+            name="workout-builder/index"
+            options={{ href: null, headerShown: false }}
+          />
+          <Tabs.Screen
+            name="workout-builder/[id]"
+            options={{ href: null, headerShown: false }}
+          />
+          <Tabs.Screen
+            name="assigned-programs"
+            options={{ href: null, headerShown: false }}
+          />
+          <Tabs.Screen
+            name="assignment/[id]"
             options={{ href: null, headerShown: false }}
           />
         </Tabs>

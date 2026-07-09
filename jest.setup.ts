@@ -78,6 +78,23 @@ jest.mock("expo-linear-gradient", () => ({
     React.createElement("View", null, children),
 }));
 
+// Mock expo-haptics
+jest.mock("expo-haptics", () => ({
+  notificationAsync: jest.fn(() => Promise.resolve()),
+  impactAsync: jest.fn(() => Promise.resolve()),
+  selectionAsync: jest.fn(() => Promise.resolve()),
+  NotificationFeedbackType: {
+    Success: "success",
+    Warning: "warning",
+    Error: "error",
+  },
+  ImpactFeedbackStyle: {
+    Light: "light",
+    Medium: "medium",
+    Heavy: "heavy",
+  },
+}));
+
 // Mock @expo/vector-icons
 jest.mock("@expo/vector-icons", () => ({
   Ionicons: ({ name }: { name: string }) =>

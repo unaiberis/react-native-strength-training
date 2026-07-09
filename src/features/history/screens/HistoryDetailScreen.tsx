@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { View, Text, ScrollView, ActivityIndicator } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
 import { Card } from "../../../shared/ui/Card";
 import { GradientBackground } from "../../../shared/ui/GradientBackground";
@@ -167,7 +168,9 @@ export function HistoryDetailScreen() {
     return (
       <GradientBackground>
         <View className="flex-1 items-center justify-center px-6">
-        <Text className="text-4xl mb-4">⚠️</Text>
+        <View className="mb-4">
+          <Ionicons name="warning-outline" size={48} color="#B9B9B6" />
+        </View>
         <Text className="text-surface-100 text-lg font-semibold mb-2">
           Could not load workout
         </Text>

@@ -30,7 +30,7 @@ export default function AthleteDetailScreen() {
           text: "Unlink",
           style: "destructive",
           onPress: () => {
-            unlinkMutation.mutate(athlete.id, {
+            unlinkMutation.mutate({ athleteId: athlete.id }, {
               onSuccess: () => router.back(),
             });
           },
@@ -73,7 +73,12 @@ export default function AthleteDetailScreen() {
           headerStyle: { backgroundColor: "#050505" },
           headerTintColor: "#F4F4F2",
           headerRight: () => (
-            <TouchableOpacity onPress={handleUnlink} className="mr-2">
+            <TouchableOpacity
+              onPress={handleUnlink}
+              className="mr-2 min-w-[44px] min-h-[44px] items-center justify-center"
+              accessibilityRole="button"
+              accessibilityLabel={`Unlink ${athlete?.displayName ?? "athlete"}`}
+            >
               <Ionicons name="close-outline" size={22} color="#D65F5F" />
             </TouchableOpacity>
           ),
@@ -112,6 +117,8 @@ export default function AthleteDetailScreen() {
           <TouchableOpacity
             className="flex-1 bg-card border border-border rounded-2xl p-4 items-center"
             onPress={() => router.push(`/(coach)/analytics/${athlete.id}`)}
+            accessibilityRole="button"
+            accessibilityLabel={`View analytics for ${athlete.displayName}`}
           >
             <Ionicons name="trending-up-outline" size={24} color="#B9B9B6" />
             <Text className="text-surface-50 text-sm font-semibold mt-2">
@@ -125,6 +132,8 @@ export default function AthleteDetailScreen() {
                 `/(coach)/assign?athleteId=${athlete.id}&athleteName=${encodeURIComponent(athlete.displayName)}`,
               )
             }
+            accessibilityRole="button"
+            accessibilityLabel={`Assign program to ${athlete.displayName}`}
           >
             <Ionicons name="calendar-outline" size={24} color="#B9B9B6" />
             <Text className="text-surface-50 text-sm font-semibold mt-2">

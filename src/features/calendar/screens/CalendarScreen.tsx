@@ -1,9 +1,18 @@
+/**
+ * Calendar screen — week-first view with optional month grid.
+ *
+ * Default layout shows a WeekStrip (Mon–Sun) and a DayDetail panel
+ * for the selected date. Users can toggle to a traditional month grid.
+ * Pull-to-refresh reloads both week and month data.
+ */
+
 import { useState, useCallback, useEffect, useRef } from "react";
 import {
   View,
   Text,
   ScrollView,
   TouchableOpacity,
+  RefreshControl,
   ActivityIndicator,
 } from "react-native";
 import { useRouter } from "expo-router";
@@ -12,128 +21,79 @@ import { Card } from "@/shared/ui/Card";
 import { EmptyState } from "@/shared/ui/EmptyState";
 import { ErrorBoundary } from "@/shared/ui/ErrorBoundary";
 import { SkeletonCard } from "@/shared/ui/SkeletonLoader";
+import { ScreenTitle } from "@/shared/ui/ScreenTitle";
+import { KickerLabel } from "@/shared/ui/KickerLabel";
+import { WeekStrip } from "../components/WeekStrip";
+import { DayDetail, type WorkoutSummary } from "../components/DayDetail";
 import { CalendarGrid } from "../components/CalendarGrid";
+import {
+  useWeekCalendar,
+  type WeekDay,
+} from "../hooks/useWeekCalendar";
 import {
   useCalendar,
   fetchSessionsForDate,
-  type CalendarDay,
   type CalendarWorkoutSummary,
 } from "../hooks/useCalendar";
 import { useAuthStore } from "@/stores/auth-store";
 
+// ─── Types ──────────────────────────────────────────────────────────────
+
+type ViewMode = "week" | "month";
+
 // ─── Helpers ────────────────────────────────────────────────────────────
 
-function formatTime(iso: string): string {
-  const d = new Date(iso);
-  return d.toLocaleTimeString(undefined, {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
-function formatDisplayDate(year: number, month: number, day: number): string {
-  const date = new Date(year, month, day);
-  return date.toLocaleDateString(undefined, {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-  });
-}
-
-// ─── Day Detail Panel ───────────────────────────────────────────────────
-
-function DayDetailPanel({
-  dateStr,
-  summaries,
-  isLoading,
-  onViewWorkout,
-}: {
-  dateStr: string;
-  summaries: CalendarWorkoutSummary[];
-  isLoading: boolean;
-  onViewWorkout: (sessionId: string) => void;
-}) {
-  if (isLoading) {
-    return (
-      <Card className="mt-4">
-        <View className="items-center py-4">
-          <ActivityIndicator size="small" color="#A4A4A8" />
-          <Text className="text-surface-400 text-sm mt-2" accessibilityRole="text" accessibilityLabel="Loading workouts">Loading workouts...</Text>
-        </View>
-      </Card>
-    );
-  }
-
-  if (summaries.length === 0) {
-    return (
-      <Card className="mt-4">
-        <View className="items-center py-4">
-          <Text className="text-surface-500 text-base">No workouts</Text>
-        </View>
-      </Card>
-    );
-  }
-
-  return (
-    <Card className="mt-4">
-      <Text className="text-surface-50 text-base font-bold mb-3">
-        Workouts
-      </Text>
-      {summaries.map((summary) => (
-        <TouchableOpacity
-          key={summary.id}
-          onPress={() => onViewWorkout(summary.id)}
-          className="flex-row items-center justify-between py-2.5 border-b border-border last:border-b-0 active:opacity-60"
-          accessibilityRole="button"
-          accessibilityLabel={`View workout: ${summary.templateName ?? "Free Workout"}`}
-        >
-          <View className="flex-1 mr-3">
-            <Text className="text-surface-50 text-sm font-semibold">
-              {summary.templateName ?? "Free Workout"}
-            </Text>
-            <Text className="text-surface-400 text-xs mt-0.5">
-              {formatTime(summary.startedAt)}
-              {summary.exerciseCount > 0 && (
-                <> · {summary.exerciseCount} exercise{summary.exerciseCount !== 1 ? "s" : ""}</>
-              )}
-            </Text>
-          </View>
-          <Text className="text-surface-500 text-xs">›</Text>
-        </TouchableOpacity>
-      ))}
-    </Card>
-  );
+function mapToWorkoutSummary(
+  raw: CalendarWorkoutSummary,
+): WorkoutSummary {
+  return {
+    id: raw.id,
+    name: raw.templateName,
+    blockCount: raw.exerciseCount,
+    estimatedMinutes: raw.durationMinutes,
+    completed: true, // Calendar only shows completed sessions
+  };
 }
 
 // ─── Main Screen ────────────────────────────────────────────────────────
 
 /**
- * Calendar screen — shows a month grid with workout-day dots and
- * a detail panel for the selected day.
+ * Calendar screen — shows a week strip (default) or month grid with
+ * workout indicators and a detail panel for the selected day.
  */
 export function CalendarScreen() {
   const router = useRouter();
   const userId = useAuthStore((s) => s.user?.id);
+  const scrollRef = useRef<ScrollView>(null);
 
+  // View mode toggle
+  const [viewMode, setViewMode] = useState<ViewMode>("week");
+
+  // Week calendar hook
+  const {
+    weekDays,
+    selectedDate,
+    weekLabel,
+    selectDate,
+    goToPrevWeek,
+    goToNextWeek,
+    goToToday,
+    isLoading: isWeekLoading,
+  } = useWeekCalendar();
+
+  // Month calendar hook (existing)
   const today = new Date();
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
-  const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const [daySummaries, setDaySummaries] = useState<CalendarWorkoutSummary[]>([]);
-  const [isLoadingDetail, setIsLoadingDetail] = useState(false);
-
-  const { calendarMonth, isLoading, error, refetch } = useCalendar(
+  const { calendarMonth, isLoading: isMonthLoading, error, refetch: refetchMonth } = useCalendar(
     currentYear,
     currentMonth,
   );
 
-  // Set default selected date to today on mount
-  useEffect(() => {
-    if (calendarMonth && !selectedDate) {
-      const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
-      setSelectedDate(todayStr);
-    }
-  }, [calendarMonth, selectedDate, today]);
+  // Day detail data
+  const [dayWorkout, setDayWorkout] = useState<CalendarWorkoutSummary | null>(null);
+  const [isLoadingDetail, setIsLoadingDetail] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   // Fetch day detail when selected date changes
   useEffect(() => {
@@ -141,11 +101,19 @@ export function CalendarScreen() {
 
     setIsLoadingDetail(true);
     fetchSessionsForDate(userId, selectedDate)
-      .then(setDaySummaries)
-      .catch(() => setDaySummaries([]))
+      .then((summaries) => {
+        if (summaries.length > 0) {
+          // Use the first session
+          setDayWorkout(summaries[0]);
+        } else {
+          setDayWorkout(null);
+        }
+      })
+      .catch(() => setDayWorkout(null))
       .finally(() => setIsLoadingDetail(false));
   }, [selectedDate, userId]);
 
+  // Month navigation
   const handlePrevMonth = useCallback(() => {
     if (currentMonth === 0) {
       setCurrentYear((y) => y - 1);
@@ -153,8 +121,6 @@ export function CalendarScreen() {
     } else {
       setCurrentMonth((m) => m - 1);
     }
-    setSelectedDate(null);
-    setDaySummaries([]);
   }, [currentMonth]);
 
   const handleNextMonth = useCallback(() => {
@@ -164,96 +130,170 @@ export function CalendarScreen() {
     } else {
       setCurrentMonth((m) => m + 1);
     }
-    setSelectedDate(null);
-    setDaySummaries([]);
   }, [currentMonth]);
 
-  const handleSelectDay = useCallback((day: CalendarDay) => {
-    setSelectedDate(day.date);
-  }, []);
-
-  const handleViewWorkout = useCallback(
-    (sessionId: string) => {
-      router.push(`/history/${sessionId}`);
+  const handleSelectDay = useCallback(
+    (day: { date: string }) => {
+      selectDate(day.date);
     },
-    [router],
+    [selectDate],
   );
 
-  // Check if there are any workout days in the calendar
-  const hasWorkoutDays = calendarMonth
-    ? calendarMonth.days.some((day) => day.workoutCount > 0)
-    : false;
+  // Pull-to-refresh
+  const handleRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      // Re-fetch both week and month data
+      if (userId && selectedDate) {
+        const summaries = await fetchSessionsForDate(userId, selectedDate);
+        setDayWorkout(summaries[0] ?? null);
+      }
+    } catch {
+      // Silently fail — user can pull again
+    } finally {
+      setRefreshing(false);
+    }
+  }, [userId, selectedDate]);
+
+  // Navigation handlers
+  const handleStartWorkout = useCallback(() => {
+    router.push("/(tabs)/train");
+  }, [router]);
+
+  const handleViewDetail = useCallback(() => {
+    if (dayWorkout) {
+      router.push(`/history/${dayWorkout.id}`);
+    }
+  }, [router, dayWorkout]);
+
+  // Determine loading state
+  const isLoading = viewMode === "week" ? isWeekLoading : isMonthLoading;
 
   return (
     <ErrorBoundary>
       <GradientBackground>
         <ScrollView
+          ref={scrollRef}
           className="flex-1 px-4 pt-16"
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={handleRefresh}
+              tintColor="#A4A4A8"
+            />
+          }
         >
           {/* Header */}
-          <Text className="text-surface-50 text-2xl font-bold mb-6">
-            Calendar
-          </Text>
+          <ScreenTitle title="Calendar" className="mb-6" />
 
-          {/* Calendar grid */}
+          {/* View mode toggle */}
+          <View className="flex-row bg-card border border-border rounded-xl p-1 mb-4 self-start">
+            <TouchableOpacity
+              onPress={() => setViewMode("week")}
+              className={`px-4 py-2 rounded-lg ${
+                viewMode === "week" ? "bg-titanium" : ""
+              }`}
+              accessibilityRole="button"
+              accessibilityLabel="Week view"
+            >
+              <Text
+                className={`text-xs font-bold ${
+                  viewMode === "week" ? "text-black" : "text-surface-400"
+                }`}
+              >
+                Week
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => setViewMode("month")}
+              className={`px-4 py-2 rounded-lg ${
+                viewMode === "month" ? "bg-titanium" : ""
+              }`}
+              accessibilityRole="button"
+              accessibilityLabel="Month view"
+            >
+              <Text
+                className={`text-xs font-bold ${
+                  viewMode === "month" ? "text-black" : "text-surface-400"
+                }`}
+              >
+                Month
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Loading state */}
           {isLoading && (
             <View>
-              <SkeletonCard lines={5} className="mb-4" />
-              <SkeletonCard lines={2} lastLineWidth="50%" />
+              <SkeletonCard lines={2} className="mb-4" />
+              <SkeletonCard lines={4} />
             </View>
           )}
 
-          {error && (
-            <View className="items-center py-8">
-              <Text className="text-danger text-sm mb-3">
-                Could not load calendar
-              </Text>
-              <TouchableOpacity
-                onPress={() => refetch()}
-                className="active:opacity-60"
-                accessibilityRole="button"
-                accessibilityLabel="Retry loading calendar"
-              >
-                <Text className="text-surface-400 text-sm underline">Retry</Text>
-              </TouchableOpacity>
-            </View>
-          )}
+          {!isLoading && (
+            <>
+              {/* Week view */}
+              {viewMode === "week" && (
+                <View>
+                  <KickerLabel className="mb-2">YOUR WEEK</KickerLabel>
+                  <WeekStrip
+                    weekDays={weekDays}
+                    selectedDate={selectedDate}
+                    onSelectDate={selectDate}
+                    weekLabel={weekLabel}
+                    onPrevWeek={goToPrevWeek}
+                    onNextWeek={goToNextWeek}
+                  />
+                </View>
+              )}
 
-          {calendarMonth && !error && (
-            <Card className="mb-2">
-              <CalendarGrid
-                calendarMonth={calendarMonth}
-                selectedDate={selectedDate}
-                onSelectDay={handleSelectDay}
-                onPrevMonth={handlePrevMonth}
-                onNextMonth={handleNextMonth}
-              />
-            </Card>
-          )}
+              {/* Month view */}
+              {viewMode === "month" && calendarMonth && !error && (
+                <Card className="mb-2">
+                  <CalendarGrid
+                    calendarMonth={calendarMonth}
+                    selectedDate={selectedDate}
+                    onSelectDay={handleSelectDay}
+                    onPrevMonth={handlePrevMonth}
+                    onNextMonth={handleNextMonth}
+                  />
+                </Card>
+              )}
 
-          {/* Empty state — calendar loaded but no workouts at all */}
-          {!isLoading && !error && calendarMonth && !hasWorkoutDays && !selectedDate && (
-            <EmptyState
-              icon="calendar-outline"
-              title="No Workouts Yet"
-              subtitle="Start your first workout to see your training calendar."
-              action={{
-                label: "Start Workout",
-                onPress: () => router.push("/(tabs)/train"),
-              }}
-              className="py-8"
-            />
-          )}
+              {/* Month error */}
+              {viewMode === "month" && error && (
+                <View className="items-center py-8">
+                  <Text className="text-danger text-sm mb-3">
+                    Could not load calendar
+                  </Text>
+                  <TouchableOpacity
+                    onPress={() => refetchMonth()}
+                    className="active:opacity-60"
+                    accessibilityRole="button"
+                    accessibilityLabel="Retry loading calendar"
+                  >
+                    <Text className="text-surface-400 text-sm underline">
+                      Retry
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              )}
 
-          {/* Selected day detail */}
-          {selectedDate && (
-            <DayDetailPanel
-              dateStr={selectedDate}
-              summaries={daySummaries}
-              isLoading={isLoadingDetail}
-              onViewWorkout={handleViewWorkout}
-            />
+              {/* Day detail */}
+              {isLoadingDetail ? (
+                <View className="mt-4">
+                  <SkeletonCard lines={3} />
+                </View>
+              ) : (
+                <DayDetail
+                  date={selectedDate}
+                  workout={dayWorkout ? mapToWorkoutSummary(dayWorkout) : null}
+                  onStartWorkout={handleStartWorkout}
+                  onViewDetail={handleViewDetail}
+                />
+              )}
+            </>
           )}
 
           {/* Bottom spacing */}

@@ -53,6 +53,9 @@ interface SessionStore {
   /** Timer minutes for block rest intervals */
   timerMinutes: number;
 
+  /** Overall session notes (pre-workout thoughts / post-workout reflections) */
+  sessionNotes: string | null;
+
   // Rest timer
   restTimer: RestTimerState;
 
@@ -70,6 +73,12 @@ interface SessionStore {
 
   /** Record a logged set for the given exercise */
   addLoggedSet: (exerciseId: string, set: LoggedSet) => void;
+
+  /** Update notes for a specific exercise */
+  updateExerciseNotes: (exerciseId: string, notes: string) => void;
+
+  /** Update overall session notes */
+  updateSessionNotes: (notes: string) => void;
 
   /** Start the rest timer for a given duration (seconds) */
   startRest: (seconds: number) => void;
@@ -111,6 +120,7 @@ const initialState = {
   prescription: null as PrescriptionConfig | null,
   round: 0,
   timerMinutes: 0,
+  sessionNotes: null as string | null,
   restTimer: { ...initialRestTimer },
 };
 
@@ -129,6 +139,7 @@ export const useSessionStore = create<SessionStore>((set) => ({
       exercises: exercises.map((ex) => ({ ...ex, loggedSets: [] })),
       currentExerciseIndex: 0,
       startedAt: new Date().toISOString(),
+      sessionNotes: null,
       restTimer: { ...initialRestTimer },
     });
   },
@@ -144,6 +155,18 @@ export const useSessionStore = create<SessionStore>((set) => ({
           : ex,
       ),
     })),
+
+  updateExerciseNotes: (exerciseId, notes) =>
+    set((state) => ({
+      exercises: state.exercises.map((ex) =>
+        ex.exerciseId === exerciseId
+          ? { ...ex, notes }
+          : ex,
+      ),
+    })),
+
+  updateSessionNotes: (notes) =>
+    set({ sessionNotes: notes }),
 
   startRest: (seconds) =>
     set({

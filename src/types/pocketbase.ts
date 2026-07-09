@@ -93,12 +93,63 @@ export interface PrescriptionConfig {
 
 // Wellness
 
+// ── Teams ──────────────────────────────────────────
+export interface TeamRow {
+  id: string;
+  name: string;
+  description: string | null;
+  created_by: string;
+  created: string;
+  updated: string;
+}
+
+export interface TeamMembershipRow {
+  id: string;
+  user_id: string;
+  team_id: string;
+  role: "admin" | "coach" | "athlete";
+  position: string | null;
+  joined_at: string;
+  created: string;
+  updated: string;
+}
+
+export type TeamRole = TeamMembershipRow["role"];
+
+export interface TeamMember extends TeamMembershipRow {
+  user_name: string;
+  user_email: string;
+  user_avatar: string | null;
+}
+
+export interface UserTeam extends TeamRow {
+  membership_role: TeamRole;
+  membership_position: string | null;
+  member_count: number;
+  athlete_count: number;
+  coach_count: number;
+}
+
+export interface TeamInviteRow {
+  id: string;
+  team_id: string;
+  code: string;
+  role: TeamRole;
+  max_uses: number | null;
+  used_count: number;
+  expires_at: string | null;
+  created_by: string;
+  created: string;
+  updated: string;
+}
+
 /** User record from PocketBase `users` collection. */
 export interface UserRow {
   id: string;
   email: string;
   displayName: string;
   role: "athlete" | "coach";
+  /** @deprecated Use TeamMembership-based role resolution instead. */
   coach: string | null;
   created: string;
   updated: string;
@@ -111,6 +162,7 @@ export interface ProgramAssignmentRow {
   coach: string;
   template: string;
   start_date: string;
+  team_id: string | null;
   status: "active" | "completed" | "cancelled";
   created: string;
   updated: string;

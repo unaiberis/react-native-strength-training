@@ -1,13 +1,13 @@
 // Mock the client module
 const mockGetFullList = jest.fn();
 const mockGetOne = jest.fn();
-const mockUpdate = jest.fn();
+const mockDelete = jest.fn();
 
 const mockPb = {
   collection: jest.fn(() => ({
     getFullList: mockGetFullList,
     getOne: mockGetOne,
-    update: mockUpdate,
+    delete: mockDelete,
   })),
 };
 
@@ -23,11 +23,30 @@ const makeUser = (overrides: Partial<UserRow> = {}): UserRow => ({
   email: "athlete@test.com",
   displayName: "Test Athlete",
   role: "athlete",
-  coach: "coach-1",
+  coach: null,
   created: "2026-01-01T00:00:00Z",
   updated: "2026-01-01T00:00:00Z",
   ...overrides,
 });
+
+function mockMemberships(teamIds: string[], userId: string) {
+  return teamIds.map((tid) => ({
+    id: `ms-${tid}`,
+    user_id: userId,
+    team_id: tid,
+    role: "coach",
+  }));
+}
+
+function mockAthleteMemberships(teamIds: string[], athleteIds: string[]) {
+  const result: any[] = [];
+  for (const tid of teamIds) {
+    for (const uid of athleteIds) {
+      result.push({ id: `ms-${tid}-${uid}`, user_id: uid, team_id: tid, role: "athlete" });
+    }
+  }
+  return result;
+}
 
 describe("PocketBase coach-athletes service", () => {
   beforeEach(() => {
@@ -36,10 +55,12 @@ describe("PocketBase coach-athletes service", () => {
 
   describe("listAthletes", () => {
     it("returns enriched athlete summaries for a single athlete", async () => {
-      const athletes = [makeUser()];
-
+      // Mock memberships: user is coach in team-1
+      mockGetFullList.mockResolvedValueOnce(mockMemberships(["team-1"], "coach-1"));
+      // Mock athlete memberships in team-1
+      mockGetFullList.mockResolvedValueOnce(mockAthleteMemberships(["team-1"], ["athlete-1"]));
       // Mock users query
-      mockGetFullList.mockResolvedValueOnce(athletes);
+      mockGetFullList.mockResolvedValueOnce([makeUser()]);
       // Mock sessions for athlete-1
       mockGetFullList.mockResolvedValueOnce([{ id: "s1", started_at: "2026-06-01T00:00:00Z" }]);
       // Mock sets for s1
@@ -54,14 +75,25 @@ describe("PocketBase coach-athletes service", () => {
       expect(result[0].totalWorkouts).toBe(1);
       expect(result[0].totalVolumeKg).toBe(1000);
       expect(result[0].complianceRate).toBe(1);
-      expect(mockGetFullList).toHaveBeenCalledWith({
-        filter: "coach = 'coach-1'",
-        sort: "displayName",
+
+      // Verify it queried memberships first, not coach field
+      expect(mockGetFullList).toHaveBeenNthCalledWith(1, {
+        filter: "user_id = 'coach-1' && (role = 'coach' || role = 'admin')",
+        $autoCancel: false,
       });
     });
 
-    it("returns empty array when no athletes", async () => {
+    it("returns empty array when no memberships", async () => {
       mockGetFullList.mockResolvedValue([]);
+
+      const result = await listAthletes("coach-1");
+
+      expect(result).toEqual([]);
+    });
+
+    it("returns empty array when no athletes in teams", async () => {
+      mockGetFullList.mockResolvedValueOnce(mockMemberships(["team-1"], "coach-1"));
+      mockGetFullList.mockResolvedValueOnce([]);
 
       const result = await listAthletes("coach-1");
 
@@ -102,18 +134,23 @@ describe("PocketBase coach-athletes service", () => {
   });
 
   describe("unlinkAthlete", () => {
-    it("clears the coach field on the user", async () => {
-      mockUpdate.mockResolvedValue(true);
+    it("removes athlete from team memberships", async () => {
+      mockGetFullList.mockResolvedValue([{ id: "ms-1" }]);
+      mockDelete.mockResolvedValue(true);
 
-      await unlinkAthlete("athlete-1");
+      await unlinkAthlete("athlete-1", "team-1");
 
-      expect(mockUpdate).toHaveBeenCalledWith("athlete-1", { coach: null });
+      expect(mockGetFullList).toHaveBeenCalledWith({
+        filter: "user_id = 'athlete-1' && team_id = 'team-1'",
+        $autoCancel: false,
+      });
+      expect(mockDelete).toHaveBeenCalledWith("ms-1");
     });
 
     it("throws on PocketBase error", async () => {
-      mockUpdate.mockRejectedValue(new Error("Update failed"));
+      mockGetFullList.mockRejectedValue(new Error("Query failed"));
 
-      await expect(unlinkAthlete("athlete-1")).rejects.toThrow("Update failed");
+      await expect(unlinkAthlete("athlete-1", "team-1")).rejects.toThrow("Query failed");
     });
   });
 });

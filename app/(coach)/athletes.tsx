@@ -8,7 +8,9 @@ import {
   RefreshControl,
   ActivityIndicator,
   Alert,
+  Platform,
 } from "react-native";
+import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { ErrorBoundary } from "@/shared/ui/ErrorBoundary";
@@ -42,7 +44,12 @@ export default function CoachAthletesScreen() {
           {
             text: "Unlink",
             style: "destructive",
-            onPress: () => unlinkMutation.mutate(athleteId),
+            onPress: () => {
+              if (Platform.OS !== "web") {
+                Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning).catch(() => {});
+              }
+              unlinkMutation.mutate({ athleteId });
+            },
           },
         ],
       );
@@ -52,7 +59,7 @@ export default function CoachAthletesScreen() {
 
   const renderAthlete = useCallback(
     ({ item }: { item: (typeof athletes)[0] }) => (
-      <View className="bg-card border border-border rounded-2xl p-4 mb-3">
+      <View className="bg-card border border-border rounded-2xl p-4 mb-3 shadow-card">
         <TouchableOpacity
           onPress={() => router.push(`/(coach)/athlete/${item.id}`)}
           activeOpacity={0.7}
