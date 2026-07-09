@@ -57,79 +57,80 @@ export default function HomeScreen() {
             Quick Stats
           </Text>
 
-          {/* 2x2 grid — explicit width to guarantee equal columns */}
-          <View className="mb-6" style={{ gap: 12 }}>
-            <View className="flex-row" style={{ gap: 12 }}>
-              <View style={{ flex: 1, minWidth: 0 }}>
-                {isLoading ? (
-                  <View className="bg-card rounded-xl p-4 border border-border shadow-card">
-                    <View className="w-8 h-8 rounded bg-surface-700 mb-2" />
-                    <View className="w-16 h-7 rounded bg-surface-700 mb-1" />
-                    <View className="w-20 h-3 rounded bg-surface-700" />
-                  </View>
-                ) : (
-                  <StatCard
-                    icon="fitness-outline"
-                    value={totalWorkouts}
-                    label="Total Workouts"
-                  />
-                )}
-              </View>
-              <View style={{ flex: 1, minWidth: 0 }}>
-                {isLoading ? (
-                  <View className="bg-card rounded-xl p-4 border border-border shadow-card">
-                    <View className="w-8 h-8 rounded bg-surface-700 mb-2" />
-                    <View className="w-16 h-7 rounded bg-surface-700 mb-1" />
-                    <View className="w-20 h-3 rounded bg-surface-700" />
-                  </View>
-                ) : (
-                  <StatCard
-                    icon="barbell-outline"
-                    value={totalSets}
-                    label="Total Sets"
-                  />
-                )}
-              </View>
+          {/* Row 1: 3 stat cards */}
+          <View className="flex-row mb-3" style={{ gap: 12 }}>
+            <View style={{ flex: 1, minWidth: 0 }}>
+              {isLoading ? (
+                <View className="bg-card rounded-xl p-4 border border-border shadow-card">
+                  <View className="w-8 h-8 rounded bg-surface-700 mb-2" />
+                  <View className="w-16 h-7 rounded bg-surface-700 mb-1" />
+                  <View className="w-20 h-3 rounded bg-surface-700" />
+                </View>
+              ) : (
+                <StatCard
+                  icon="fitness-outline"
+                  value={totalWorkouts}
+                  label="Workouts"
+                />
+              )}
             </View>
-            <View className="flex-row" style={{ gap: 12 }}>
-              <View style={{ flex: 1, minWidth: 0 }}>
-                {isLoading ? (
-                  <View className="bg-card rounded-xl p-4 border border-border shadow-card">
-                    <View className="w-8 h-8 rounded bg-surface-700 mb-2" />
-                    <View className="w-16 h-7 rounded bg-surface-700 mb-1" />
-                    <View className="w-20 h-3 rounded bg-surface-700" />
-                  </View>
-                ) : (
-                  <StatCard
-                    icon="calendar-outline"
-                    value={thisWeekWorkouts}
-                    label="This Week"
-                  />
-                )}
-              </View>
-              <View style={{ flex: 1, minWidth: 0 }}>
-                {isLoading ? (
-                  <View className="bg-card rounded-xl p-4 border border-border shadow-card">
-                    <View className="w-8 h-8 rounded bg-surface-700 mb-2" />
-                    <View className="w-16 h-7 rounded bg-surface-700 mb-1" />
-                    <View className="w-20 h-3 rounded bg-surface-700" />
-                  </View>
-                ) : (
-                  <StatCard
-                    icon="trophy-outline"
-                    value={bestE1RM !== null ? `${bestE1RM.toFixed(1)} kg` : "—"}
-                    label="Best e1RM"
-                  />
-                )}
-              </View>
+            <View style={{ flex: 1, minWidth: 0 }}>
+              {isLoading ? (
+                <View className="bg-card rounded-xl p-4 border border-border shadow-card">
+                  <View className="w-8 h-8 rounded bg-surface-700 mb-2" />
+                  <View className="w-16 h-7 rounded bg-surface-700 mb-1" />
+                  <View className="w-20 h-3 rounded bg-surface-700" />
+                </View>
+              ) : (
+                <StatCard
+                  icon="barbell-outline"
+                  value={totalSets}
+                  label="Sets"
+                />
+              )}
+            </View>
+            <View style={{ flex: 1, minWidth: 0 }}>
+              {isLoading ? (
+                <View className="bg-card rounded-xl p-4 border border-border shadow-card">
+                  <View className="w-8 h-8 rounded bg-surface-700 mb-2" />
+                  <View className="w-16 h-7 rounded bg-surface-700 mb-1" />
+                  <View className="w-20 h-3 rounded bg-surface-700" />
+                </View>
+              ) : (
+                <StatCard
+                  icon="calendar-outline"
+                  value={thisWeekWorkouts}
+                  label="This Week"
+                />
+              )}
             </View>
           </View>
 
-          {/* ── Quick Actions ───────────────────────────────────────────── */}
-          <View className="flex-row mb-6 gap-3">
+          {/* Row 2: Best e1RM */}
+          <View className="mb-6" style={{ gap: 12 }}>
+            <View style={{ flex: 1, minWidth: 0 }}>
+              {isLoading ? (
+                <View className="bg-card rounded-xl p-4 border border-border shadow-card">
+                  <View className="w-8 h-8 rounded bg-surface-700 mb-2" />
+                  <View className="w-16 h-7 rounded bg-surface-700 mb-1" />
+                  <View className="w-20 h-3 rounded bg-surface-700" />
+                </View>
+              ) : (
+                <StatCard
+                  icon="trophy-outline"
+                  value={bestE1RM !== null ? `${bestE1RM.toFixed(1)} kg` : "—"}
+                  label="Best e1RM"
+                />
+              )}
+            </View>
+          </View>
+
+          {/* ── Quick Actions (3 columns) ──────────────────────────────── */}
+          <View className="flex-row mb-6" style={{ gap: 12 }}>
             <TouchableOpacity
               onPress={() => router.push("/exercises")}
-              className="flex-1 bg-card rounded-2xl p-4 border border-border shadow-button active:opacity-80"
+              style={{ flex: 1, minWidth: 0 }}
+              className="bg-card rounded-2xl p-4 border border-border shadow-button active:opacity-80"
               accessibilityRole="button"
               accessibilityLabel="Browse exercises library"
             >
@@ -140,13 +141,14 @@ export default function HomeScreen() {
                 Exercises
               </Text>
               <Text className="text-surface-500 text-xs mt-0.5">
-                Browse library
+                Browse
               </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               onPress={() => router.push("/routines")}
-              className="flex-1 bg-card rounded-2xl p-4 border border-border shadow-button active:opacity-80"
+              style={{ flex: 1, minWidth: 0 }}
+              className="bg-card rounded-2xl p-4 border border-border shadow-button active:opacity-80"
               accessibilityRole="button"
               accessibilityLabel="Create and manage routines"
             >
@@ -157,15 +159,14 @@ export default function HomeScreen() {
                 Routines
               </Text>
               <Text className="text-surface-500 text-xs mt-0.5">
-                Create &amp; manage
+                Create
               </Text>
             </TouchableOpacity>
-          </View>
 
-          <View className="flex-row mb-6 gap-3">
             <TouchableOpacity
               onPress={() => router.push("/history")}
-              className="flex-1 bg-card rounded-2xl p-4 border border-border shadow-button active:opacity-80"
+              style={{ flex: 1, minWidth: 0 }}
+              className="bg-card rounded-2xl p-4 border border-border shadow-button active:opacity-80"
               accessibilityRole="button"
               accessibilityLabel="View workout history"
             >
@@ -176,11 +177,9 @@ export default function HomeScreen() {
                 History
               </Text>
               <Text className="text-surface-500 text-xs mt-0.5">
-                Past workouts
+                Past
               </Text>
             </TouchableOpacity>
-
-            <View className="flex-1" />
           </View>
 
           {/* ── Recent Activity ─────────────────────────────────────────── */}
