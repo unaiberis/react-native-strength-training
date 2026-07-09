@@ -2,7 +2,7 @@ import { useState } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Badge } from "../../../shared/ui/Badge";
-import type { ProgramPhaseSummary } from "../hooks/usePrograms";
+import type { ProgramPhaseSummary } from "../program-types";
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 

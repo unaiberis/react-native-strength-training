@@ -1,7 +1,7 @@
 import { View, Text, TouchableOpacity } from "react-native";
 import { Card } from "../../../shared/ui/Card";
 import { Badge } from "../../../shared/ui/Badge";
-import type { ProgramSummary } from "../hooks/usePrograms";
+import type { ProgramSummary } from "../program-types";
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 

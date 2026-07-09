@@ -2,7 +2,8 @@
 import { renderHook, waitFor } from "@testing-library/react-native";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import React from "react";
-import { usePrograms, computeProgramProgress } from "../usePrograms";
+import { usePrograms } from "../usePrograms";
+import { computeProgramProgress } from "../../program-types";
 
 // Mock the athlete-assignments hook so usePrograms is an isolated delegation.
 const mockUseAthleteAssignments = jest.fn();

@@ -7,7 +7,7 @@
 import React from "react";
 import { render, fireEvent } from "@testing-library/react-native";
 import { ProgramCard } from "../ProgramCard";
-import type { ProgramSummary } from "../../hooks/usePrograms";
+import type { ProgramSummary } from "../../program-types";
 
 // ─── Fixtures ───────────────────────────────────────────────────────────
 

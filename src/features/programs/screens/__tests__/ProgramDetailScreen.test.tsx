@@ -9,7 +9,7 @@ jest.mock("@/features/programs/hooks/useProgramDetail", () => ({
 import React from "react";
 import { render, screen } from "@testing-library/react-native";
 import { ProgramDetailScreen } from "../ProgramDetailScreen";
-import type { ProgramSummary } from "../../hooks/usePrograms";
+import type { ProgramSummary } from "../../program-types";
 
 function makeProgram(
   overrides: Partial<ProgramSummary> = {},

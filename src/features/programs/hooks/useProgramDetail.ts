@@ -9,7 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getAssignment } from "../../../lib/pocketbase/services/program-assignments";
 import { mapAssignmentToProgramSummary } from "./useAthleteAssignments";
 import type { ProgramAssignmentRow } from "../../../types/pocketbase";
-import type { ProgramSummary } from "./usePrograms";
+import type { ProgramSummary } from "../program-types";
 
 export interface UseProgramDetailResult {
   program: ProgramSummary | null;

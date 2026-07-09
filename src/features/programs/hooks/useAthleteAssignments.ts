@@ -18,7 +18,7 @@ import {
   computeProgramProgress,
   type ProgramPhaseSummary,
   type ProgramSummary,
-} from "./usePrograms";
+} from "../program-types";
 
 // ─── Selectors (pure, testable) ───────────────────────────────────────────
 

@@ -11,7 +11,7 @@ import {
   findAssignedOnDate,
   findAssignedToday,
 } from "../useAthleteAssignments";
-import type { ProgramSummary } from "../usePrograms";
+import type { ProgramSummary } from "../../program-types";
 
 function makeProgram(
   overrides: Partial<ProgramSummary> = {},

@@ -2,7 +2,7 @@
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react-native";
 import { PhaseCard } from "../PhaseCard";
-import type { ProgramPhaseSummary } from "../../hooks/usePrograms";
+import type { ProgramPhaseSummary } from "../../program-types";
 
 function makePhase(
   overrides: Partial<ProgramPhaseSummary> = {},

@@ -254,7 +254,7 @@ export default function RootLayout() {
               <Stack.Screen name="(auth)" />
               <Stack.Screen name="(tabs)" />
               <Stack.Screen name="(coach)" />
-              <Stack.Screen name="(workout)/active" options={{ headerShown: false, presentation: "fullScreenModal" }} />
+              <Stack.Screen name="active" options={{ headerShown: false, presentation: "fullScreenModal" }} />
             </Stack>
           </View>
         </AuthGate>
