@@ -7,6 +7,7 @@ import { EmptyState } from "@/shared/ui/EmptyState";
 import { SkeletonCard } from "@/shared/ui/SkeletonLoader";
 import { useAnalytics, type AnalyticsPeriod } from "../hooks/useAnalytics";
 import { BarChart } from "../components/BarChart";
+import { PersonalRecordsSection } from "@/features/records/components/PersonalRecordsSection";
 
 // ─── Sub-components ─────────────────────────────────────────────────────
 
@@ -214,6 +215,9 @@ export function AnalyticsScreen() {
               ))}
             </>
           )}
+
+          {/* Personal Records section — surfaced inside Analytics, regardless of chart data */}
+          <PersonalRecordsSection />
 
           {/* Bottom spacing */}
           <View className="h-8" />

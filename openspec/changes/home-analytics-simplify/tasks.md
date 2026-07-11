@@ -27,11 +27,11 @@ TDD: `apply.tdd: true` — every changed file is guarded by a RED test written f
 
 ## Phase 2: Merge into Analytics (B)
 
-- [ ] 2.1 RED: write `src/features/analytics/screens/__tests__/AnalyticsScreen.test.tsx` asserting a "Personal Records" section renders grouped PRs (mock `usePersonalRecords` + `useAnalytics`) and an empty-state variant. Run → RED.
-- [ ] 2.2 GREEN: in `src/features/analytics/screens/AnalyticsScreen.tsx`, `import { PersonalRecordsSection }` and render `<PersonalRecordsSection />` after the charts block (before bottom spacing) so it shows regardless of chart `hasData`.
-- [ ] 2.3 RED: write `app/(tabs)/__tests__/layout.test.tsx` (or extend existing) asserting no `progress` tab — `tabIcons` lacks `progress` and no `<Tabs.Screen name="progress">`. Run → RED.
-- [ ] 2.4 GREEN: in `app/(tabs)/_layout.tsx` remove `progress: "trending-up-outline"` from `tabIcons` (line 38) and the `<Tabs.Screen name="progress" …/>` block (lines 127–135).
-- [ ] 2.5 Delete `app/(tabs)/progress.tsx` and `src/features/records/screens/ProgressScreen.tsx`.
+- [x] 2.1 RED: write `src/features/analytics/screens/__tests__/AnalyticsScreen.test.tsx` asserting a "Personal Records" section renders grouped PRs (mock `usePersonalRecords` + `useAnalytics`) and an empty-state variant. Run → RED.
+- [x] 2.2 GREEN: in `src/features/analytics/screens/AnalyticsScreen.tsx`, `import { PersonalRecordsSection }` and render `<PersonalRecordsSection />` after the charts block (before bottom spacing) so it shows regardless of chart `hasData`.
+- [x] 2.3 RED: write `app/(tabs)/__tests__/layout.test.tsx` (or extend existing) asserting no `progress` tab — `tabIcons` lacks `progress` and no `<Tabs.Screen name="progress">`. Run → RED.
+- [x] 2.4 GREEN: in `app/(tabs)/_layout.tsx` remove `progress: "trending-up-outline"` from `tabIcons` (line 38) and the `<Tabs.Screen name="progress" …/>` block (lines 127–135).
+- [x] 2.5 Delete `app/(tabs)/progress.tsx` and `src/features/records/screens/ProgressScreen.tsx`.
 
 ## Phase 3: Remove e1RM from Home (A)
 

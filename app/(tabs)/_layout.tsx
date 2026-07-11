@@ -35,7 +35,6 @@ const tabIcons: Record<string, keyof typeof Ionicons.glyphMap> = {
   train: "barbell-outline",
   programs: "document-text-outline",
   analytics: "stats-chart-outline",
-  progress: "trending-up-outline",
   profile: "person-outline",
 };
 
@@ -121,15 +120,6 @@ export default function TabsLayout() {
           title: "Analytics",
           tabBarIcon: ({ focused }) => (
             <Ionicons name={tabIcons.analytics} size={22} color={focused ? "#B9B9B6" : "#71717a"} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="progress"
-        options={{
-          title: "Progress",
-          tabBarIcon: ({ focused }) => (
-            <Ionicons name={tabIcons.progress} size={22} color={focused ? "#B9B9B6" : "#71717a"} />
           ),
         }}
       />
