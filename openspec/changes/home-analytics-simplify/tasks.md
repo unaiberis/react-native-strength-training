@@ -20,10 +20,10 @@ TDD: `apply.tdd: true` — every changed file is guarded by a RED test written f
 
 ## Phase 1: Foundation — Shared PR Component (B)
 
-- [ ] 1.1 Create `src/features/records/components/PersonalRecordsSection.tsx`: export `PersonalRecordsSection(): JSX.Element` that calls `usePersonalRecords()` + `useRouter()`, owns `expandedExercises` collapse state, renders header "Personal Records", loading (`ActivityIndicator`), empty state ("No records yet" + Start Workout `Button` → `/(tabs)/train`), and grouped `ExercisePRGroup[]`.
-- [ ] 1.2 Move `PRCard`, `ExercisePRGroup`, `formatDate` from `ProgressScreen.tsx` into the new component; reuse exported `getPRTypeLabel`, `formatPRValue`, `PRDisplayItem` from `usePersonalRecords`. Use `@/` aliases.
-- [ ] 1.3 RED: write `src/features/records/components/__tests__/PersonalRecordsSection.test.tsx` asserting grouped PRs render, empty CTA renders, and spinner shows on loading (mock `usePersonalRecords`). Run `npx jest` → RED.
-- [ ] 1.4 GREEN: implement 1.1–1.2 until 1.3 passes. Keep `usePersonalRecords` hook + its existing tests unchanged.
+- [x] 1.1 Create `src/features/records/components/PersonalRecordsSection.tsx`: export `PersonalRecordsSection(): JSX.Element` that calls `usePersonalRecords()` + `useRouter()`, owns `expandedExercises` collapse state, renders header "Personal Records", loading (`ActivityIndicator`), empty state ("No records yet" + Start Workout `Button` → `/(tabs)/train`), and grouped `ExercisePRGroup[]`.
+- [x] 1.2 Move `PRCard`, `ExercisePRGroup`, `formatDate` from `ProgressScreen.tsx` into the new component; reuse exported `getPRTypeLabel`, `formatPRValue`, `PRDisplayItem` from `usePersonalRecords`. Use `@/` aliases.
+- [x] 1.3 RED: write `src/features/records/components/__tests__/PersonalRecordsSection.test.tsx` asserting grouped PRs render, empty CTA renders, and spinner shows on loading (mock `usePersonalRecords`). Run `npx jest` → RED.
+- [x] 1.4 GREEN: implement 1.1–1.2 until 1.3 passes. Keep `usePersonalRecords` hook + its existing tests unchanged.
 
 ## Phase 2: Merge into Analytics (B)
 
