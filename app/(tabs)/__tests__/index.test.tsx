@@ -233,21 +233,9 @@ describe("HomeScreen assigned-today chip", () => {
     expect(screen.getByText(/Athlete/)).toBeTruthy();
   });
 
-  it("renders '—' for bestE1RM when it is null (line 146 branch)", () => {
-    const { useHomeStats } = require("@/features/home/hooks/useHomeStats");
-    useHomeStats.mockReturnValue({
-      totalWorkouts: 12,
-      totalSets: 340,
-      thisWeekWorkouts: 3,
-      bestE1RM: null,
-      recentSessions: [],
-      isLoading: false,
-      refetch: jest.fn(),
-      isRefetching: false,
-    });
-
+  it("does NOT render the 'Best e1RM' stat card (home-analytics-simplify)", () => {
     render(<HomeScreen />);
-    expect(screen.getByText("—")).toBeTruthy();
+    expect(screen.queryByText("Best e1RM")).toBeNull();
   });
 
   it("renders '—' for duration when recent session has null duration (line 253 branch)", () => {

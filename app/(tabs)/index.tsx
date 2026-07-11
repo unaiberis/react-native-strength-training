@@ -25,7 +25,6 @@ export default function HomeScreen() {
     totalWorkouts,
     totalSets,
     thisWeekWorkouts,
-    bestE1RM,
     recentSessions,
     isLoading,
     refetch,
@@ -130,21 +129,6 @@ export default function HomeScreen() {
                     icon="calendar-outline"
                     value={thisWeekWorkouts}
                     label="This Week"
-                  />
-                )}
-              </View>
-              <View className="flex-1">
-                {isLoading ? (
-                  <View className="bg-card rounded-xl p-4 border border-border shadow-card">
-                    <View className="w-8 h-8 rounded bg-surface-700 mb-2" />
-                    <View className="w-16 h-7 rounded bg-surface-700 mb-1" />
-                    <View className="w-20 h-3 rounded bg-surface-700" />
-                  </View>
-                ) : (
-                  <StatCard
-                    icon="trophy-outline"
-                    value={bestE1RM !== null ? `${bestE1RM.toFixed(1)} kg` : "—"}
-                    label="Best e1RM"
                   />
                 )}
               </View>

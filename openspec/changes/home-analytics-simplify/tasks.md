@@ -35,10 +35,10 @@ TDD: `apply.tdd: true` — every changed file is guarded by a RED test written f
 
 ## Phase 3: Remove e1RM from Home (A)
 
-- [ ] 3.1 RED: write `app/(tabs)/__tests__/home.test.tsx` rendering `home.tsx` and asserting `queryByText("Best e1RM")` is null. Extend `app/(tabs)/__tests__/index.test.tsx` with same "Best e1RM" absent assertion. Run → RED.
-- [ ] 3.2 GREEN: in `app/(tabs)/home.tsx` remove `bestE1RM` from the `useHomeStats()` destructure (line 23) and delete the Row 2 "Best e1RM" `StatCard` block (lines 109–126).
-- [ ] 3.3 GREEN: in `app/(tabs)/index.tsx` remove `bestE1RM` from destructure (line 28) and delete the 2nd Row 2 `StatCard` (lines 136–150), leaving "This Week". e1RM stays in `ExerciseTimelineScreen` (untouched).
-- [ ] 3.4 In `app/(tabs)/__tests__/index.test.tsx` remove the obsolete test "renders '—' for bestE1RM when it is null" (lines 236–251); keep `bestE1RM` fixtures in other tests (hook output stays intact per design).
+- [x] 3.1 RED: write `app/(tabs)/__tests__/home.test.tsx` rendering `home.tsx` and asserting `queryByText("Best e1RM")` is null. Extend `app/(tabs)/__tests__/index.test.tsx` with same "Best e1RM" absent assertion. Run → RED.
+- [x] 3.2 GREEN: in `app/(tabs)/home.tsx` remove `bestE1RM` from the `useHomeStats()` destructure (line 23) and delete the Row 2 "Best e1RM" `StatCard` block (lines 109–126).
+- [x] 3.3 GREEN: in `app/(tabs)/index.tsx` remove `bestE1RM` from destructure (line 28) and delete the 2nd Row 2 `StatCard` (lines 136–150), leaving "This Week". e1RM stays in `ExerciseTimelineScreen` (untouched).
+- [x] 3.4 In `app/(tabs)/__tests__/index.test.tsx` remove the obsolete test "renders '—' for bestE1RM when it is null" (lines 236–251); keep `bestE1RM` fixtures in other tests (hook output stays intact per design).
 
 ## Phase 4: Cleanup / Drift Guard
 
