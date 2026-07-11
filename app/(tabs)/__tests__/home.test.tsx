@@ -1,16 +1,24 @@
 import React from "react";
-import { render, screen } from "@testing-library/react-native";
+import { render, screen, fireEvent } from "@testing-library/react-native";
+
+const mockPush = jest.fn();
+
+jest.mock("expo-router", () => ({
+  useRouter: () => ({ push: mockPush, replace: jest.fn(), back: jest.fn() }),
+  useSegments: () => [],
+  useLocalSearchParams: () => ({}),
+  Stack: { Screen: () => null },
+  Tabs: () => null,
+}));
 
 const mockUseAuth = jest.fn(() => ({
   user: { user_metadata: { display_name: "Sam" }, email: "sam@e.com" },
 }));
 
-jest.mock("@/features/auth/hooks/useAuth", () => ({
-  useAuth: (...args: any[]) => mockUseAuth(...args),
-}));
+const mockUseHomeStats = jest.fn(() => defaultStats());
 
-jest.mock("@/features/home/hooks/useHomeStats", () => ({
-  useHomeStats: jest.fn(() => ({
+function defaultStats() {
+  return {
     totalWorkouts: 12,
     totalSets: 340,
     thisWeekWorkouts: 3,
@@ -19,7 +27,15 @@ jest.mock("@/features/home/hooks/useHomeStats", () => ({
     isLoading: false,
     refetch: jest.fn(),
     isRefetching: false,
-  })),
+  };
+}
+
+jest.mock("@/features/auth/hooks/useAuth", () => ({
+  useAuth: (...args: any[]) => mockUseAuth(...args),
+}));
+
+jest.mock("@/features/home/hooks/useHomeStats", () => ({
+  useHomeStats: (...args: any[]) => mockUseHomeStats(...args),
   relativeDate: (d: string) => d,
 }));
 
@@ -43,7 +59,40 @@ jest.mock("@/features/programs/hooks/useAthleteAssignments", () => {
 import HomeScreen from "../home";
 import HomeIndexScreen from "../index";
 
+function setStats(overrides: Partial<ReturnType<typeof defaultStats>>) {
+  mockUseHomeStats.mockReturnValue({ ...defaultStats(), ...overrides });
+}
+
 describe("Home screens do not show 'Best e1RM' (RED 3.1)", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockUseAuth.mockImplementation(() => ({
+      user: { user_metadata: { display_name: "Sam" }, email: "sam@e.com" },
+    }));
+    mockUseAthleteAssignments.mockReturnValue({
+      currentProgram: null,
+      upcomingPrograms: [],
+      isLoading: false,
+      error: null,
+      refetch: jest.fn(),
+    });
+    setStats({});
+  });
+
+  it("home.tsx does not render the 'Best e1RM' stat card", () => {
+    render(<HomeScreen />);
+    expect(screen.queryByText("Best e1RM")).toBeNull();
+    expect(screen.getByText("This Week")).toBeTruthy();
+  });
+
+  it("index.tsx does not render the 'Best e1RM' stat card", () => {
+    render(<HomeIndexScreen />);
+    expect(screen.queryByText("Best e1RM")).toBeNull();
+    expect(screen.getByText("This Week")).toBeTruthy();
+  });
+});
+
+describe("home.tsx branch coverage", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockUseAuth.mockImplementation(() => ({
@@ -58,16 +107,73 @@ describe("Home screens do not show 'Best e1RM' (RED 3.1)", () => {
     });
   });
 
-  it("home.tsx does not render the 'Best e1RM' stat card", () => {
+  it("renders the loading skeleton when isLoading", () => {
+    setStats({ isLoading: true });
     render(<HomeScreen />);
-    expect(screen.queryByText("Best e1RM")).toBeNull();
-    // Other quick stats remain
-    expect(screen.getByText("This Week")).toBeTruthy();
+    expect(screen.getByText("Quick Stats")).toBeTruthy();
+    // No crash on skeleton branch
   });
 
-  it("index.tsx does not render the 'Best e1RM' stat card", () => {
-    render(<HomeIndexScreen />);
-    expect(screen.queryByText("Best e1RM")).toBeNull();
-    expect(screen.getByText("This Week")).toBeTruthy();
+  it("renders recent sessions when present", () => {
+    setStats({
+      recentSessions: [
+        {
+          id: "s1",
+          templateName: "Leg Day",
+          startedAt: "2026-07-08T10:00:00Z",
+          durationMinutes: 60,
+          exerciseCount: 5,
+        },
+      ],
+    });
+    render(<HomeScreen />);
+    expect(screen.getByText("Leg Day")).toBeTruthy();
+    expect(screen.getByText("Recent Activity")).toBeTruthy();
+  });
+
+  it("renders the empty recent-activity message when no sessions", () => {
+    setStats({ recentSessions: [] });
+    render(<HomeScreen />);
+    expect(
+      screen.getByText(/Complete a workout to see your recent activity/i),
+    ).toBeTruthy();
+  });
+
+  it("presses the Exercises quick action (home.tsx)", () => {
+    setStats({});
+    render(<HomeScreen />);
+    fireEvent.press(screen.getByLabelText("Browse exercises library"));
+    expect(mockPush).toHaveBeenCalledWith("/exercises");
+  });
+
+  it("presses the Routines quick action (home.tsx)", () => {
+    setStats({});
+    render(<HomeScreen />);
+    fireEvent.press(screen.getByLabelText("Create and manage routines"));
+    expect(mockPush).toHaveBeenCalledWith("/routines");
+  });
+
+  it("presses the History quick action (home.tsx)", () => {
+    setStats({});
+    render(<HomeScreen />);
+    fireEvent.press(screen.getByLabelText("View workout history"));
+    expect(mockPush).toHaveBeenCalledWith("/history");
+  });
+
+  it("uses the greeting fallback when display_name and email absent", () => {
+    mockUseAuth.mockReturnValue({ user: { user_metadata: {} } });
+    setStats({});
+    render(<HomeScreen />);
+    expect(screen.getByText(/Athlete/)).toBeTruthy();
+  });
+
+  it("triggers refresh via RefreshControl", () => {
+    const refetch = jest.fn();
+    setStats({ refetch });
+    const { UNSAFE_getByType } = render(<HomeScreen />);
+    const { ScrollView } = require("react-native");
+    const scroll = UNSAFE_getByType(ScrollView);
+    scroll.props.refreshControl.props.onRefresh();
+    expect(refetch).toHaveBeenCalled();
   });
 });

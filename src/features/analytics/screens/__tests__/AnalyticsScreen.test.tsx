@@ -64,6 +64,13 @@ describe("AnalyticsScreen Personal Records section", () => {
     jest.clearAllMocks();
     mockPush.mockClear();
     mockUseAnalytics.mockReturnValue(analyticsWithData());
+    mockUsePersonalRecords.mockReturnValue({
+      groupedByExercise: [],
+      isLoading: false,
+      isRefetching: false,
+      refetch: jest.fn(),
+      totalPRs: 0,
+    });
   });
 
   it("renders the Personal Records section with grouped PRs (RED 2.1)", () => {
@@ -147,5 +154,73 @@ describe("AnalyticsScreen Personal Records section", () => {
     render(<AnalyticsScreen />);
     fireEvent.press(screen.getByText("Start a Workout"));
     expect(mockPush).toHaveBeenCalledWith("/(tabs)/train");
+  });
+});
+
+describe("AnalyticsScreen branch coverage", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockPush.mockClear();
+    mockUsePersonalRecords.mockReturnValue({
+      groupedByExercise: [],
+      isLoading: false,
+      isRefetching: false,
+      refetch: jest.fn(),
+      totalPRs: 0,
+    });
+  });
+
+  it("renders the loading skeleton while analytics load", () => {
+    mockUseAnalytics.mockReturnValue({
+      volumeByPeriod: [],
+      exercises: [],
+      isLoading: true,
+      isRefetching: false,
+      error: null,
+      refetch: jest.fn(),
+    });
+    render(<AnalyticsScreen />);
+    // Skeleton branch returns early; no crash
+    expect(screen.queryByText("Personal Records")).toBeNull();
+  });
+
+  it("renders the error state with a retry action", () => {
+    const refetch = jest.fn();
+    mockUseAnalytics.mockReturnValue({
+      volumeByPeriod: [],
+      exercises: [],
+      isLoading: false,
+      isRefetching: false,
+      error: new Error("boom"),
+      refetch,
+    });
+    render(<AnalyticsScreen />);
+    expect(screen.getByText(/Failed to load analytics/i)).toBeTruthy();
+    fireEvent.press(screen.getByText("Retry"));
+    expect(refetch).toHaveBeenCalled();
+  });
+
+  it("shows the exercise-progress placeholder when there are no exercises", () => {
+    mockUseAnalytics.mockReturnValue({
+      volumeByPeriod: [{ period: "2026-W01", volume: 1000, sessionCount: 2 }],
+      exercises: [],
+      isLoading: false,
+      isRefetching: false,
+      error: null,
+      refetch: jest.fn(),
+    });
+    render(<AnalyticsScreen />);
+    expect(
+      screen.getByText(/Complete some workouts to see your exercise progress/i),
+    ).toBeTruthy();
+  });
+
+  it("toggles the period between weekly and monthly", () => {
+    mockUseAnalytics.mockReturnValue(analyticsWithData());
+    render(<AnalyticsScreen />);
+    const monthly = screen.getByText("Monthly");
+    fireEvent.press(monthly);
+    // Toggling must not crash; summary stats still present
+    expect(screen.getByText("Total Volume")).toBeTruthy();
   });
 });

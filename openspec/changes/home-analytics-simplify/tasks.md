@@ -42,13 +42,13 @@ TDD: `apply.tdd: true` — every changed file is guarded by a RED test written f
 
 ## Phase 4: Cleanup / Drift Guard
 
-- [ ] 4.1 grep confirm: zero references to `ProgressScreen`, `progress.tsx` route, and `<Tabs.Screen name="progress">` in `src/`, `app/`, `tests/`. Update any leftover imports/mocks.
-- [ ] 4.2 grep confirm: `bestE1RM` still produced by `useHomeStats` (left intact) — only the two `StatCard` render sites removed; no dangling `value={bestE1RM…}` JSX remains.
+- [x] 4.1 grep confirm: zero references to `ProgressScreen`, `progress.tsx` route, and `<Tabs.Screen name="progress">` in `src/`, `app/`, `tests/`. Update any leftover imports/mocks.
+- [x] 4.2 grep confirm: `bestE1RM` still produced by `useHomeStats` (left intact) — only the two `StatCard` render sites removed; no dangling `value={bestE1RM…}` JSX remains.
 
 ## Phase 5: Verify
 
-- [ ] 5.1 Run `npx jest` — all new + existing tests pass; `PersonalRecordsSection`, `AnalyticsScreen`, `home.tsx`, `index.tsx`, `_layout.tsx` each ≥ 80% coverage.
-- [ ] 5.2 Run `npx tsc --noEmit` — no type errors.
+- [x] 5.1 Run `npx jest` — all new + existing tests pass; `PersonalRecordsSection`, `AnalyticsScreen`, `home.tsx`, `index.tsx`, `_layout.tsx` each ≥ 80% coverage.
+- [x] 5.2 Run `npx tsc --noEmit` — no type errors.
 
 ### Dependencies
 - 2.1–2.2 depend on 1.1–1.4 (section must exist before wiring). 2.3–2.5 independent of 1–2 but all of B is independent of A (Phase 3). 4.x and 5.x depend on all prior.
