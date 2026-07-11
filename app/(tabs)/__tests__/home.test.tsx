@@ -1,5 +1,6 @@
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react-native";
+import type { RecentSession } from "@/features/home/hooks/useHomeStats";
 
 const mockPush = jest.fn();
 
@@ -11,7 +12,7 @@ jest.mock("expo-router", () => ({
   Tabs: () => null,
 }));
 
-const mockUseAuth = jest.fn(() => ({
+const mockUseAuth = jest.fn<{ user: { user_metadata: { display_name?: string; email?: string } } }, []>(() => ({
   user: { user_metadata: { display_name: "Sam" }, email: "sam@e.com" },
 }));
 
@@ -23,7 +24,7 @@ function defaultStats() {
     totalSets: 340,
     thisWeekWorkouts: 3,
     bestE1RM: 120.5,
-    recentSessions: [],
+    recentSessions: [] as RecentSession[],
     isLoading: false,
     refetch: jest.fn(),
     isRefetching: false,
@@ -31,11 +32,11 @@ function defaultStats() {
 }
 
 jest.mock("@/features/auth/hooks/useAuth", () => ({
-  useAuth: (...args: any[]) => mockUseAuth(...args),
+  useAuth: () => mockUseAuth(),
 }));
 
 jest.mock("@/features/home/hooks/useHomeStats", () => ({
-  useHomeStats: (...args: any[]) => mockUseHomeStats(...args),
+  useHomeStats: () => mockUseHomeStats(),
   relativeDate: (d: string) => d,
 }));
 

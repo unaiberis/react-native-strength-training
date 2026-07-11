@@ -1,4 +1,4 @@
-import { memo, useState, useCallback } from "react";
+import { memo, useState, useCallback, type ReactElement } from "react";
 import { View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -109,7 +109,7 @@ const ExercisePRGroup = memo(function ExercisePRGroup({
 
 // ─── Section ──────────────────────────────────────────────────────────────
 
-export function PersonalRecordsSection(): JSX.Element {
+export function PersonalRecordsSection(): ReactElement {
   const router = useRouter();
   const { groupedByExercise, isLoading, totalPRs } = usePersonalRecords();
 
