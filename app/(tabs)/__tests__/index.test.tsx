@@ -32,7 +32,7 @@ jest.mock("@/features/home/hooks/useHomeStats", () => ({
 }));
 
 const mockUseAthleteAssignments = jest.fn();
-jest.mock("@/features/programs/hooks/useAthleteAssignments", () => {
+jest.mock("@/features/athlete-assignments/hooks/useAthleteAssignments", () => {
   // Provide findAssignedToday WITHOUT loading the ESM PocketBase client.
   const todayString = () => {
     const d = new Date();
@@ -90,7 +90,7 @@ describe("HomeScreen assigned-today chip", () => {
     });
   });
 
-  it("shows the chip and deep-links to program-detail when assigned today (R5)", () => {
+  it("shows the chip and deep-links to train tab when assigned today (R5)", () => {
     mockUseAthleteAssignments.mockReturnValue({
       currentProgram: assignedProgram(),
       upcomingPrograms: [],
@@ -105,7 +105,7 @@ describe("HomeScreen assigned-today chip", () => {
     expect(chip).toBeTruthy();
 
     fireEvent.press(chip);
-    expect(mockPush).toHaveBeenCalledWith("/programs/program-detail/asg-b");
+    expect(mockPush).toHaveBeenCalledWith("/(tabs)/train");
   });
 
   it("does NOT show the chip when nothing is assigned today (R5 edge)", () => {
@@ -136,7 +136,7 @@ describe("HomeScreen assigned-today chip", () => {
     const chip = screen.getByText("Entrenamiento asignado hoy");
     expect(chip).toBeTruthy();
     fireEvent.press(chip);
-    expect(mockPush).toHaveBeenCalledWith("/programs/program-detail/asg-b");
+    expect(mockPush).toHaveBeenCalledWith("/(tabs)/train");
   });
 
   it("renders the populated recent-activity list without crashing", () => {
@@ -181,13 +181,13 @@ describe("HomeScreen assigned-today chip", () => {
     expect(screen.queryByText("Entrenamiento asignado hoy")).toBeNull();
   });
 
-  it("renders the Quick Action buttons (exercises, routines, history) without crashing", () => {
+  it("renders the Quick Action buttons (exercises, history) without crashing", () => {
     render(<HomeScreen />);
 
     // Browse exercises quick action
     expect(screen.getByLabelText("Browse exercises library")).toBeTruthy();
-    // Create routines quick action
-    expect(screen.getByLabelText("Create and manage routines")).toBeTruthy();
+    // Routines quick action should not be present
+    expect(screen.queryByText("Routines")).toBeNull();
     // View history quick action
     expect(screen.getByLabelText("View workout history")).toBeTruthy();
   });
@@ -198,10 +198,9 @@ describe("HomeScreen assigned-today chip", () => {
     expect(mockPush).toHaveBeenCalledWith("/exercises");
   });
 
-  it("navigates to /routines on pressing the Routines quick action", () => {
+  it("does not render the Routines quick action", () => {
     render(<HomeScreen />);
-    fireEvent.press(screen.getByLabelText("Create and manage routines"));
-    expect(mockPush).toHaveBeenCalledWith("/routines");
+    expect(screen.queryByLabelText("Create and manage routines")).toBeNull();
   });
 
   it("navigates to /history on pressing the History quick action", () => {

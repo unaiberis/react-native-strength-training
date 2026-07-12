@@ -41,7 +41,7 @@ import {
   useAthleteAssignments,
   findAssignedOnDate,
   todayStr,
-} from "@/features/programs/hooks/useAthleteAssignments";
+} from "@/features/athlete-assignments/hooks/useAthleteAssignments";
 
 // ─── Types ──────────────────────────────────────────────────────────────
 

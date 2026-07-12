@@ -105,7 +105,7 @@ export default function HomeScreen() {
             </View>
           </View>
 
-          {/* ── Quick Actions (3 columns) ──────────────────────────────── */}
+          {/* ── Quick Actions ──────────────────────────────────────────── */}
           <View className="flex-row mb-6" style={{ gap: 12 }}>
             <TouchableOpacity
               onPress={() => router.push("/exercises")}
@@ -122,24 +122,6 @@ export default function HomeScreen() {
               </Text>
               <Text className="text-surface-500 text-xs mt-0.5">
                 Browse
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={() => router.push("/routines")}
-              style={{ flex: 1, minWidth: 0 }}
-              className="bg-card rounded-2xl p-4 border border-border shadow-button active:opacity-80"
-              accessibilityRole="button"
-              accessibilityLabel="Create and manage routines"
-            >
-              <View className="mb-1">
-                <Ionicons name="clipboard-outline" size={24} color="#B9B9B6" />
-              </View>
-              <Text className="text-surface-100 text-sm font-semibold">
-                Routines
-              </Text>
-              <Text className="text-surface-500 text-xs mt-0.5">
-                Create
               </Text>
             </TouchableOpacity>
 

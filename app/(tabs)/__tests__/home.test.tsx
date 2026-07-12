@@ -41,7 +41,7 @@ jest.mock("@/features/home/hooks/useHomeStats", () => ({
 }));
 
 const mockUseAthleteAssignments = jest.fn();
-jest.mock("@/features/programs/hooks/useAthleteAssignments", () => {
+jest.mock("@/features/athlete-assignments/hooks/useAthleteAssignments", () => {
   const todayString = () => {
     const d = new Date();
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
@@ -147,11 +147,11 @@ describe("home.tsx branch coverage", () => {
     expect(mockPush).toHaveBeenCalledWith("/exercises");
   });
 
-  it("presses the Routines quick action (home.tsx)", () => {
+  it("does not render the Routines quick action chip (home.tsx)", () => {
     setStats({});
     render(<HomeScreen />);
-    fireEvent.press(screen.getByLabelText("Create and manage routines"));
-    expect(mockPush).toHaveBeenCalledWith("/routines");
+    expect(screen.queryByLabelText("Create and manage routines")).toBeNull();
+    expect(screen.queryByText("Routines")).toBeNull();
   });
 
   it("presses the History quick action (home.tsx)", () => {

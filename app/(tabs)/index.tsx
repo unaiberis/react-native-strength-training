@@ -13,7 +13,7 @@ import { useHomeStats, relativeDate } from "@/features/home/hooks/useHomeStats";
 import {
   useAthleteAssignments,
   findAssignedToday,
-} from "@/features/programs/hooks/useAthleteAssignments";
+} from "@/features/athlete-assignments/hooks/useAthleteAssignments";
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -63,7 +63,7 @@ export default function HomeScreen() {
           {assignedToday && (
             <TouchableOpacity
               onPress={() =>
-                router.push(`/programs/program-detail/${assignedToday.id}`)
+                router.push("/(tabs)/train")
               }
               className="flex-row items-center gap-2 bg-cardSoft rounded-full px-4 py-2 mb-4 border border-border self-start"
               accessibilityRole="button"
@@ -154,22 +154,7 @@ export default function HomeScreen() {
               </TouchableOpacity>
             </PressScale>
 
-            <PressScale scaleTo={0.97} className="flex-1">
-              <TouchableOpacity
-                onPress={() => router.push("/routines")}
-                className="bg-card rounded-2xl p-4 border border-border shadow-button active:opacity-80"
-                accessibilityRole="button"
-                accessibilityLabel="Create and manage routines"
-              >
-                <Ionicons name="clipboard-outline" size={32} color="#B9B9B6" />
-                <Text className="text-surface-100 text-sm font-semibold">
-                  Routines
-                </Text>
-                <Text className="text-surface-500 text-xs mt-0.5">
-                  Create &amp; manage
-                </Text>
-              </TouchableOpacity>
-            </PressScale>
+            <View className="flex-1" />
           </View>
 
           <View className="flex-row mb-6 gap-3">

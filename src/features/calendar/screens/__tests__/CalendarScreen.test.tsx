@@ -33,7 +33,7 @@ jest.mock("@/features/calendar/hooks/useWeekCalendar", () => ({
 }));
 
 const mockUseAthleteAssignments = jest.fn();
-jest.mock("@/features/programs/hooks/useAthleteAssignments", () => {
+jest.mock("@/features/athlete-assignments/hooks/useAthleteAssignments", () => {
   const todayString = () => {
     const d = new Date();
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
