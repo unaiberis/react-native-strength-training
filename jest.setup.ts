@@ -44,7 +44,7 @@ jest.mock("react-native", () => ({
   StyleSheet: { create: () => ({}), flatten: (s: any) => s, hairlineWidth: () => 1, absoluteFill: {}, absoluteFillObject: {} },
   I18nManager: { isRTL: false },
   PixelRatio: { get: () => 2, getFontScale: () => 1 },
-  Animated: { View: rnComponents.View, Text: rnComponents.Text, ScrollView: rnComponents.ScrollView, createAnimatedComponent: (c: any) => c, timing: () => ({ start: () => {} }), spring: () => ({ start: () => {} }), Value: class { constructor() {} interpolate = () => ({}) } },
+  Animated: { View: rnComponents.View, Text: rnComponents.Text, ScrollView: rnComponents.ScrollView, createAnimatedComponent: (c: any) => c, timing: () => ({ start: () => {}, stop: () => {} }), spring: () => ({ start: () => {}, stop: () => {} }), sequence: () => ({ start: () => {}, stop: () => {} }), parallel: () => ({ start: () => {}, stop: () => {} }), delay: () => ({ start: () => {}, stop: () => {} }), decay: () => ({ start: () => {}, stop: () => {} }), loop: () => ({ start: () => {}, stop: () => {} }), event: () => ({}), Value: class { constructor() {} setValue = () => {}; interpolate = () => ({}); start = () => {}; stop = () => {}; }, },
   Easing: { linear: () => {} },
   Linking: {
     openURL: jest.fn(() => Promise.resolve()),
