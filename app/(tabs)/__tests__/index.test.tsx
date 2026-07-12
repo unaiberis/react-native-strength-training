@@ -49,6 +49,10 @@ jest.mock("@/features/athlete-assignments/hooks/useAthleteAssignments", () => {
   };
 });
 
+jest.mock("@/features/calendar/components/WeekCalendarSection", () => ({
+  WeekCalendarSection: () => null,
+}));
+
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react-native";
 import HomeScreen from "../index";

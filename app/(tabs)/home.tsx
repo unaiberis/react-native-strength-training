@@ -9,6 +9,7 @@ import { ErrorBoundary } from "@/shared/ui/ErrorBoundary";
 import { SkeletonCard } from "@/shared/ui/SkeletonLoader";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { useHomeStats, relativeDate } from "@/features/home/hooks/useHomeStats";
+import { WeekCalendarSection } from "@/features/calendar/components/WeekCalendarSection";
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -50,6 +51,9 @@ export default function HomeScreen() {
           <Text className="text-surface-400 text-base mb-6">
             Ready to train?
           </Text>
+
+          {/* ── Week Calendar ───────────────────────────────────────────── */}
+          <WeekCalendarSection />
 
           {/* ── Quick Stats ─────────────────────────────────────────────── */}
           <Text className="text-surface-50 text-xl font-extrabold tracking-[-0.5] mb-3">

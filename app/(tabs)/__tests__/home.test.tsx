@@ -57,6 +57,11 @@ jest.mock("@/features/athlete-assignments/hooks/useAthleteAssignments", () => {
   };
 });
 
+// Mock WeekCalendarSection to avoid hook dependencies in existing tests
+jest.mock("@/features/calendar/components/WeekCalendarSection", () => ({
+  WeekCalendarSection: () => null,
+}));
+
 import HomeScreen from "../home";
 import HomeIndexScreen from "../index";
 

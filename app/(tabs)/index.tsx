@@ -14,6 +14,7 @@ import {
   useAthleteAssignments,
   findAssignedToday,
 } from "@/features/athlete-assignments/hooks/useAthleteAssignments";
+import { WeekCalendarSection } from "@/features/calendar/components/WeekCalendarSection";
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -75,6 +76,9 @@ export default function HomeScreen() {
               </Text>
             </TouchableOpacity>
           )}
+
+          {/* ── Week Calendar ───────────────────────────────────────────── */}
+          <WeekCalendarSection />
 
           {/* ── Quick Stats ─────────────────────────────────────────────── */}
           <Text className="text-surface-50 text-xl font-extrabold tracking-[-0.5] mb-3">
