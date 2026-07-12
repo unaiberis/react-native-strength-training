@@ -42,7 +42,7 @@ describe("ExerciseDetailScreen", () => {
     expect(screen.getByText("Default Settings")).toBeTruthy();
   });
 
-  it("renders 'Watch on YouTube' link when video_url is present", () => {
+  it("renders 'Watch on YouTube' player when video_url is present", () => {
     mockUseExercise.mockReturnValue({
       data: {
         ...baseExercise,
@@ -54,10 +54,11 @@ describe("ExerciseDetailScreen", () => {
 
     render(<ExerciseDetailScreen />);
 
-    expect(screen.getByText("Watch on YouTube ↗")).toBeTruthy();
+    expect(screen.getByText("Watch on YouTube")).toBeTruthy();
+    expect(screen.getByText("Tap to play")).toBeTruthy();
   });
 
-  it("hides video link when video_url is null", () => {
+  it("hides video player when video_url is null", () => {
     mockUseExercise.mockReturnValue({
       data: { ...baseExercise, video_url: null },
       isLoading: false,
@@ -66,10 +67,11 @@ describe("ExerciseDetailScreen", () => {
 
     render(<ExerciseDetailScreen />);
 
-    expect(screen.queryByText("Watch on YouTube ↗")).toBeNull();
+    expect(screen.queryByText("Watch on YouTube")).toBeNull();
+    expect(screen.queryByText("Tap to play")).toBeNull();
   });
 
-  it("tapping video link calls Linking.openURL with correct URL", () => {
+  it("tapping video player calls Linking.openURL with correct URL", () => {
     const openURLSpy = jest.spyOn(Linking, "openURL");
     mockUseExercise.mockReturnValue({
       data: {
@@ -82,7 +84,7 @@ describe("ExerciseDetailScreen", () => {
 
     render(<ExerciseDetailScreen />);
 
-    const link = screen.getByText("Watch on YouTube ↗");
+    const link = screen.getByText("Watch on YouTube");
     fireEvent.press(link);
     expect(openURLSpy).toHaveBeenCalledWith(
       "https://youtube.com/watch?v=abc123",
