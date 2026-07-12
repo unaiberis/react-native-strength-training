@@ -140,6 +140,19 @@ export default function AthleteDetailScreen() {
               Assign Program
             </Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            className="flex-1 bg-card border border-border rounded-2xl p-4 items-center"
+            onPress={() =>
+              router.push(`/(coach)/athlete/${athlete.id}/calendar`)
+            }
+            accessibilityRole="button"
+            accessibilityLabel={`View calendar for ${athlete.displayName}`}
+          >
+            <Ionicons name="grid-outline" size={24} color="#B9B9B6" />
+            <Text className="text-surface-50 text-sm font-semibold mt-2">
+              Calendar
+            </Text>
+          </TouchableOpacity>
         </View>
 
         {/* Active programs */}

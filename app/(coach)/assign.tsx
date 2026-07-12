@@ -21,6 +21,7 @@ export default function ProgramAssignmentScreen() {
     athleteId?: string;
     athleteName?: string;
     teamId?: string;
+    date?: string;
   }>();
   const [selectedAthlete, setSelectedAthlete] = useState(
     params.athleteId ?? "",
@@ -28,7 +29,7 @@ export default function ProgramAssignmentScreen() {
   const [selectedTeam, setSelectedTeam] = useState(params.teamId ?? "");
   const [selectedTemplate, setSelectedTemplate] = useState("");
   const [startDate, setStartDate] = useState(
-    new Date().toISOString().split("T")[0],
+    params.date ?? new Date().toISOString().split("T")[0],
   );
   const [step, setStep] = useState<"athlete" | "team" | "template" | "confirm">(
     params.athleteId ? (params.teamId ? "template" : "team") : "athlete",
