@@ -1,11 +1,8 @@
-import {
-  View,
-  Text,
-  ScrollView,
-  ActivityIndicator,
-  RefreshControl,
-} from "react-native";
+import { useMemo } from "react";
+import { View, Text, ScrollView, ActivityIndicator, RefreshControl } from "react-native";
 import { useLocalSearchParams, Stack } from "expo-router";
+import { useQuery } from "@tanstack/react-query";
+import { pb } from "@/lib/pocketbase/client";
 import { useCoachAnalytics } from "@/features/coach/hooks/useCoachAnalytics";
 
 function SimpleBar({
@@ -54,6 +51,49 @@ export default function CoachAnalyticsScreen() {
   const { athleteId } = useLocalSearchParams<{ athleteId: string }>();
   const { volumeData, complianceData, prEvolutionData, isLoading, refetch } =
     useCoachAnalytics(athleteId);
+
+  // Wellness data for this athlete
+  const { data: wellnessData } = useQuery({
+    queryKey: ["coach-wellness", athleteId],
+    queryFn: async () => {
+      const records = await pb.collection("daily_wellness").getList(1, 200, {
+        filter: `user_id = '${athleteId}'`,
+        sort: "-date",
+        $autoCancel: false,
+      });
+      return records as unknown as Array<{
+        session_rpe: number | null;
+        sleep: number | null;
+        fatigue: number | null;
+        soreness: number | null;
+        mood: number | null;
+        date: string;
+      }>;
+    },
+    enabled: !!athleteId,
+    staleTime: 1000 * 60 * 2,
+  });
+
+  const wellnessAverages = useMemo(() => {
+    if (!wellnessData || wellnessData.length === 0) return null;
+    const recent = wellnessData.slice(0, 7);
+    const avg = (key: "sleep" | "fatigue" | "soreness" | "mood") => {
+      const vals = recent.map((r) => r[key]).filter((v): v is number => v !== null);
+      if (vals.length === 0) return null;
+      return vals.reduce((a, b) => a + b, 0) / vals.length;
+    };
+    const overall = (key: "sleep" | "fatigue" | "soreness" | "mood") => {
+      const vals = wellnessData.map((r) => r[key]).filter((v): v is number => v !== null);
+      if (vals.length === 0) return null;
+      return vals.reduce((a, b) => a + b, 0) / vals.length;
+    };
+    return {
+      recentSleep: avg("sleep"), recentFatigue: avg("fatigue"),
+      recentSoreness: avg("soreness"), recentMood: avg("mood"),
+      overallSleep: overall("sleep"), overallFatigue: overall("fatigue"),
+      overallSoreness: overall("soreness"), overallMood: overall("mood"),
+    };
+  }, [wellnessData]);
 
   if (isLoading) {
     return (
@@ -167,6 +207,32 @@ export default function CoachAnalyticsScreen() {
                 </View>
               ))}
             </>
+          )}
+        </DataCard>
+
+        {/* Wellness */}
+        <DataCard title="Wellness (Last 7 Days)">
+          {!wellnessAverages ? (
+            <View className="py-8 items-center">
+              <Text className="text-surface-400 text-sm">No wellness data</Text>
+            </View>
+          ) : (
+            <View className="flex-row flex-wrap gap-4">
+              {[
+                { label: "Sleep", value: wellnessAverages.recentSleep, unit: "h", good: (v: number) => v >= 7 },
+                { label: "Fatigue", value: wellnessAverages.recentFatigue, unit: "/10", good: (v: number) => v <= 4 },
+                { label: "Soreness", value: wellnessAverages.recentSoreness, unit: "/10", good: (v: number) => v <= 4 },
+                { label: "Mood", value: wellnessAverages.recentMood, unit: "/10", good: (v: number) => v >= 5 },
+              ].map((metric) => (
+                <View key={metric.label} className="flex-1 min-w-[80px] bg-graphite/30 rounded-xl p-3 items-center">
+                  <Text className="text-surface-400 text-xs mb-1">{metric.label}</Text>
+                  <Text className={`text-xl font-bold ${metric.value !== null && metric.good(metric.value) ? "text-green-400" : "text-danger"}`}>
+                    {metric.value !== null ? metric.value.toFixed(1) : "—"}
+                  </Text>
+                  <Text className="text-surface-500 text-[10px]">{metric.unit}</Text>
+                </View>
+              ))}
+            </View>
           )}
         </DataCard>
       </ScrollView>
