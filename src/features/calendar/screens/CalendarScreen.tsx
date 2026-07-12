@@ -242,7 +242,7 @@ export function CalendarScreen() {
           {assignedChip && (
             <TouchableOpacity
               onPress={() =>
-                router.push(`/programs/program-detail/${assignedChip.id}`)
+                router.push("/(tabs)/train")
               }
               className="flex-row items-center gap-2 bg-cardSoft rounded-full px-4 py-2 mb-4 border border-border self-start"
               accessibilityRole="button"

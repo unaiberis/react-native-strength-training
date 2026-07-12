@@ -113,7 +113,7 @@ describe("CalendarScreen assigned-today chip", () => {
     const chip = await screen.findByText("Entrenamiento asignado hoy");
     expect(chip).toBeTruthy();
     fireEvent.press(chip);
-    expect(mockPush).toHaveBeenCalledWith("/programs/program-detail/asg-b");
+    expect(mockPush).toHaveBeenCalledWith("/(tabs)/train");
   });
 
   it("hides the chip when the assignment starts on a different day (R5 edge)", async () => {

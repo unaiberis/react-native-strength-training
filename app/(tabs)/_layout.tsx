@@ -33,7 +33,6 @@ const tabIcons: Record<string, keyof typeof Ionicons.glyphMap> = {
   index: "calendar-outline",
   home: "home-outline",
   train: "barbell-outline",
-  programs: "document-text-outline",
   analytics: "stats-chart-outline",
   profile: "person-outline",
 };
@@ -106,15 +105,6 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="programs"
-        options={{
-          title: "Programs",
-          tabBarIcon: ({ focused }) => (
-            <Ionicons name={tabIcons.programs} size={22} color={focused ? "#B9B9B6" : "#71717a"} />
-          ),
-        }}
-      />
-      <Tabs.Screen
         name="analytics"
         options={{
           title: "Analytics",
@@ -136,15 +126,10 @@ export default function TabsLayout() {
       <Tabs.Screen name="index" options={{ href: null }} />
       <Tabs.Screen name="exercises/index" options={{ href: null, headerShown: true, headerTitle: "Exercise Library", headerStyle: { backgroundColor: "#18181b" }, headerTintColor: "#fafafa" }} />
       <Tabs.Screen name="exercises/[id]" options={{ href: null, headerShown: true, headerTitle: "Exercise Details", headerStyle: { backgroundColor: "#18181b" }, headerTintColor: "#fafafa" }} />
-      <Tabs.Screen name="routines/index" options={{ href: null, headerShown: true, headerTitle: "Routines", headerStyle: { backgroundColor: "#18181b" }, headerTintColor: "#fafafa" }} />
-      <Tabs.Screen name="routines/new" options={{ href: null, headerShown: true, headerTitle: "New Routine", headerStyle: { backgroundColor: "#18181b" }, headerTintColor: "#fafafa" }} />
-      <Tabs.Screen name="routines/[id]/edit" options={{ href: null, headerShown: true, headerTitle: "Edit Routine", headerStyle: { backgroundColor: "#18181b" }, headerTintColor: "#fafafa" }} />
       <Tabs.Screen name="history/index" options={{ href: null, headerShown: true, headerTitle: "Workout History", headerStyle: { backgroundColor: "#18181b" }, headerTintColor: "#fafafa" }} />
       <Tabs.Screen name="history/[id]" options={{ href: null, headerShown: true, headerTitle: "Workout Details", headerStyle: { backgroundColor: "#18181b" }, headerTintColor: "#fafafa" }} />
       <Tabs.Screen name="analytics/exercise/[id]" options={{ href: null, headerShown: true, headerTitle: "Exercise Progress", headerStyle: { backgroundColor: "#18181b" }, headerTintColor: "#fafafa" }} />
       <Tabs.Screen name="wellness" options={{ href: null, headerShown: true, headerTitle: "Wellness", headerStyle: { backgroundColor: "#18181b" }, headerTintColor: "#fafafa" }} />
-      <Tabs.Screen name="programs/program-detail/[id]" options={{ href: null, headerShown: true, headerTitle: "Program Detail", headerStyle: { backgroundColor: "#18181b" }, headerTintColor: "#fafafa" }} />
-      <Tabs.Screen name="programs/workout-preview/[id]" options={{ href: null, headerShown: true, headerTitle: "Workout Preview", headerStyle: { backgroundColor: "#18181b" }, headerTintColor: "#fafafa" }} />
       <Tabs.Screen name="notifications" options={{ href: null, headerShown: false }} />
       <Tabs.Screen name="notification/[id]" options={{ href: null, headerShown: false }} />
       <Tabs.Screen name="unit-preferences" options={{ href: null, headerShown: false }} />
