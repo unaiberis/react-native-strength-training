@@ -21,6 +21,7 @@ import React from "react";
 import { renderHook, waitFor } from "@testing-library/react-native";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useAthleteCalendar, buildAssignmentCalendarMonth } from "../useAthleteCalendar";
+import type { ProgramAssignmentRow } from "@/types/pocketbase";
 
 function createWrapper() {
   const queryClient = new QueryClient({
@@ -31,7 +32,7 @@ function createWrapper() {
     React.createElement(QueryClientProvider, { client: queryClient }, children);
 }
 
-function makeAssignment(overrides: Record<string, any> = {}) {
+function makeAssignment(overrides: Partial<ProgramAssignmentRow> = {}): ProgramAssignmentRow {
   return {
     id: "asg-1",
     athlete_id: "ath-1",

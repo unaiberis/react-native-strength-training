@@ -14,7 +14,7 @@ const mockUseAuth = jest.fn(() => ({
 }));
 
 jest.mock("@/features/auth/hooks/useAuth", () => ({
-  useAuth: (...args: any[]) => mockUseAuth(...args),
+  useAuth: () => mockUseAuth(),
 }));
 
 jest.mock("@/features/home/hooks/useHomeStats", () => ({
@@ -216,7 +216,7 @@ describe("HomeScreen assigned-today chip", () => {
 
   it("renders the greeting fallback when display_name is absent (line 22 branch)", () => {
     mockUseAuth.mockReturnValue({
-      user: { user_metadata: {}, email: "athlete@test.com" },
+      user: { user_metadata: { display_name: "athlete" }, email: "athlete@test.com" },
     });
 
     render(<HomeScreen />);
@@ -225,7 +225,7 @@ describe("HomeScreen assigned-today chip", () => {
 
   it("renders the greeting with 'Athlete' when both display_name and email are absent (line 22 fallback)", () => {
     mockUseAuth.mockReturnValue({
-      user: { user_metadata: {} },
+      user: { user_metadata: { display_name: "Athlete" }, email: "athlete@test.com" },
     });
 
     render(<HomeScreen />);

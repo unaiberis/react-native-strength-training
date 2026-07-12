@@ -62,7 +62,7 @@ export default function ProgramAssignmentScreen() {
       await assignMutation.mutateAsync({
         athleteId: selectedAthlete,
         templateId: selectedTemplate,
-        startDate,
+        startedAt: startDate,
         teamId: selectedTeam || undefined,
       });
       Alert.alert("Done", "Program assigned successfully!", [
