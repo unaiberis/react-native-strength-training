@@ -24,7 +24,7 @@ interface ButtonProps extends ComponentProps<typeof TouchableOpacity> {
 
 const variantStyles: Record<ButtonVariant, { container: string; text: string }> = {
   primary: {
-    container: "bg-titanium shadow-button",
+    container: "bg-titanium border border-surface-400/30 shadow-button",
     text: "text-background font-extrabold",
   },
   secondary: {
