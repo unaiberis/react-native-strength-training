@@ -74,8 +74,11 @@ function AuthGate({ children }: { children: React.ReactNode }) {
       // (expo-sqlite unavailable on web, DB permissions, etc.)
       // falls back gracefully to online-only auth instead of hanging
       // in the loading state forever.
+      // Track which step fails for diagnostics
+      let offlineStep = "unknown";
       try {
         // Dynamic imports — expo-sqlite native module crashes on web if loaded statically
+        offlineStep = "dynamic-imports";
         msg("Loading offline engine\u2026");
         const [
           { initDatabase },
@@ -92,6 +95,7 @@ function AuthGate({ children }: { children: React.ReactNode }) {
         ]);
 
         // 1. Initialise local SQLite database (creates tables, runs migrations)
+        offlineStep = "init-database";
         msg("Setting up local database\u2026");
         const db = await initDatabase();
         const meta = new SyncMeta(db);
@@ -100,6 +104,7 @@ function AuthGate({ children }: { children: React.ReactNode }) {
         const monitor = NetworkMonitor.getInstance();
 
         // 2. Wire React Query persister (reads/writes react_query_cache table)
+        offlineStep = "persister";
         msg("Preparing offline cache\u2026");
         const persister = createSqlitePersister(db);
         persist({
@@ -116,6 +121,7 @@ function AuthGate({ children }: { children: React.ReactNode }) {
         });
 
         // 3. Create the SyncEngine singleton
+        offlineStep = "sync-engine";
         msg("Starting sync engine\u2026");
         syncEngine = new SyncEngine(
           db as any,
@@ -140,6 +146,7 @@ function AuthGate({ children }: { children: React.ReactNode }) {
 
         // 4. Auth store auto-restores from SecureStore — no manual load needed
         // 5. Auth with offline awareness
+        offlineStep = "auth-check";
         const isOnline = monitor.isOnline;
         if (!cancelled) setIsOnline(isOnline);
 
@@ -187,6 +194,7 @@ function AuthGate({ children }: { children: React.ReactNode }) {
         }
 
         // 6. Subscribe to connectivity changes for sync-on-reconnect
+        offlineStep = "network-subscribe";
         unsubNetwork = monitor.subscribe((online) => {
           setIsOnline(online);
           if (online && syncEngine) {
@@ -196,6 +204,7 @@ function AuthGate({ children }: { children: React.ReactNode }) {
         });
 
         // 7. Initial sync if authenticated and online
+        offlineStep = "initial-sync";
         if (isOnline && !cancelled) {
           const authState = useAuthStore.getState().state;
           if (authState === "authenticated") {
@@ -208,7 +217,7 @@ function AuthGate({ children }: { children: React.ReactNode }) {
         // app doesn't hang in loading state. Common on web where
         // expo-sqlite native module is unavailable.
         if (cancelled) return;
-        console.error("[AuthGate] Offline init failed, falling back to standard auth", err);
+        console.error(`[AuthGate] Offline init failed at step "${offlineStep}":`, err);
         msg("Offline unavailable, switching to online mode\u2026");
         setIsOnline(false);
         const { session } = await getSession().catch(() => ({ session: null, error: null }));
