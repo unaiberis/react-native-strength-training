@@ -67,9 +67,7 @@ const TEAMS = [
 ];
 
 // ─── Wellness seed data (per athlete, last 30 days) ─────────────────
-function generateWellnessEntry(athleteId) {
-  const d = new Date();
-  const dateStr = d.toISOString().split("T")[0];
+function generateWellnessEntry(athleteId, dateStr) {
   return {
     athlete_id: athleteId,
     date: dateStr,
@@ -346,24 +344,44 @@ async function main() {
 
   // ─── 3. Create Wellness Entries ─────────────────
   console.log("\n=== Wellness ===");
-  const existingWellnessByUser = new Set(
-    (await listAll(headers, "daily_wellness")).map((w) => w.athlete_id),
+
+  // Collect existing entries keyed by athlete_id:date
+  const existingWellnessList = await listAll(headers, "daily_wellness");
+  const existingWellnessKeys = new Set(
+    existingWellnessList.map((w) => `${w.athlete_id}:${w.date}`),
   );
+
+  // Number of days to backfill (14-30, randomized once per run)
+  const WELLNESS_DAYS = 14 + Math.floor(Math.random() * 17); // 14-30
+  console.log(`   Backfilling ${WELLNESS_DAYS} days per athlete`);
+
   let wellnessCreated = 0;
 
   for (const athleteEmail of athleteEmails) {
     const athlete = userRecords[athleteEmail];
     if (!athlete) continue;
-    if (existingWellnessByUser.has(athlete.id)) {
-      console.log(`  – ${athlete.name || athlete.email} (already has entry, skipping)`);
-      continue;
-    }
 
-    const entry = generateWellnessEntry(athlete.id);
-    const result = await createRecord(headers, "daily_wellness", entry);
-    if (result) {
-      wellnessCreated++;
-      console.log(`  ✓ ${athlete.name || athlete.email} (today)`);
+    let daysCreated = 0;
+    for (let dayOffset = 0; dayOffset < WELLNESS_DAYS; dayOffset++) {
+      const d = new Date();
+      d.setDate(d.getDate() - dayOffset);
+      const dateStr = d.toISOString().split("T")[0];
+
+      const key = `${athlete.id}:${dateStr}`;
+      if (existingWellnessKeys.has(key)) continue;
+
+      const entry = generateWellnessEntry(athlete.id, dateStr);
+      const result = await createRecord(headers, "daily_wellness", entry);
+      if (result) {
+        wellnessCreated++;
+        daysCreated++;
+        existingWellnessKeys.add(key);
+      }
+    }
+    if (daysCreated > 0) {
+      console.log(`  ✓ ${athlete.name || athlete.email} — ${daysCreated} entries over ${WELLNESS_DAYS} days`);
+    } else {
+      console.log(`  – ${athlete.name || athlete.email} (all ${WELLNESS_DAYS} days already exist)`);
     }
   }
   console.log(`   Wellness entries: ${wellnessCreated} created`);
