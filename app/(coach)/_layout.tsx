@@ -7,19 +7,11 @@ import { GradientBackground } from "../../src/shared/ui/GradientBackground";
 import { OfflineBanner } from "../../src/shared/ui/OfflineBanner";
 
 const tabIcons: Record<string, keyof typeof Ionicons.glyphMap> = {
-  index: "grid-outline",
   athletes: "people-outline",
-  library: "barbell-outline",
-  teams: "shield-outline",
-  "workout-templates": "document-text-outline",
 };
 
 const tabLabels: Record<string, string> = {
-  index: "Dashboard",
   athletes: "Athletes",
-  library: "Library",
-  teams: "Teams",
-  "workout-templates": "Templates",
 };
 
 export default function CoachTabsLayout() {
@@ -54,31 +46,32 @@ export default function CoachTabsLayout() {
             tabBarInactiveTintColor: "#707074",
           }}
         >
-          {/* Tab bar screens */}
-          {(["index", "athletes", "library", "teams", "workout-templates"] as const).map((name) => (
-            <Tabs.Screen
-              key={name}
-              name={name}
-              options={{
-                title: tabLabels[name],
-                tabBarIcon: ({ focused }) => (
-                  <Ionicons
-                    name={tabIcons[name]}
-                    size={22}
-                    color={focused ? "#B9B9B6" : "#71717a"}
-                  />
-                ),
-              }}
-            />
-          ))}
+          {/* Primary tab: Athletes */}
+          <Tabs.Screen
+            name="athletes"
+            options={{
+              title: "Athletes",
+              tabBarIcon: ({ focused }) => (
+                <Ionicons
+                  name={tabIcons.athletes}
+                  size={22}
+                  color={focused ? "#B9B9B6" : "#71717a"}
+                />
+              ),
+            }}
+          />
 
           {/* Hidden routes — navigated from screens, not shown in tab bar */}
           <Tabs.Screen
-            name="dashboard"
-            options={{ href: null, headerShown: true, headerTitle: "Dashboard", headerStyle: { backgroundColor: "#050505" }, headerTintColor: "#F4F4F2" }}
+            name="index"
+            options={{ href: null }}
           />
           <Tabs.Screen
             name="athlete/[id]"
+            options={{ href: null, headerShown: false }}
+          />
+          <Tabs.Screen
+            name="athlete/[id]/calendar"
             options={{ href: null, headerShown: false }}
           />
           <Tabs.Screen

@@ -3,10 +3,9 @@ import { useRouter } from "expo-router";
 import { useAuthStore } from "../../src/stores/auth-store";
 
 /**
- * Coach Dashboard entry — redirects to the real dashboard screen.
- * The tab bar points to "index" which immediately re-routes.
+ * Coach entry — redirects to the Athletes list.
  */
-export default function CoachDashboardEntry() {
+export default function CoachEntry() {
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
 
@@ -14,7 +13,7 @@ export default function CoachDashboardEntry() {
     if (!user) {
       router.replace("/(auth)/login");
     } else {
-      router.replace("/(coach)/dashboard");
+      router.replace("/(coach)/athletes");
     }
   }, [user, router]);
 

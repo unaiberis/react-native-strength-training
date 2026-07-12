@@ -20,7 +20,15 @@ import { useUnlinkAthlete } from "@/features/coach/hooks/useAthleteDetail";
 
 export default function CoachAthletesScreen() {
   const router = useRouter();
-  const { athletes, isLoading, refetch, isRefetching } = useCoachDashboard();
+  const {
+    athletes,
+    activeCount,
+    inactiveCount,
+    totalAthletes,
+    isLoading,
+    refetch,
+    isRefetching,
+  } = useCoachDashboard();
   const [searchQuery, setSearchQuery] = useState("");
   const unlinkMutation = useUnlinkAthlete();
 
@@ -134,6 +142,30 @@ export default function CoachAthletesScreen() {
   return (
     <ErrorBoundary>
       <View className="flex-1 px-4 pt-4">
+        {/* Stats banner */}
+        {!isLoading && (
+          <View className="flex-row gap-3 mb-4">
+            <View className="flex-1 bg-card border border-border rounded-2xl p-4 shadow-card">
+              <Text className="text-surface-50 text-2xl font-bold">
+                {totalAthletes}
+              </Text>
+              <Text className="text-surface-400 text-xs mt-1">Total Athletes</Text>
+            </View>
+            <View className="flex-1 bg-card border border-border rounded-2xl p-4 shadow-card">
+              <Text className="text-green-400 text-2xl font-bold">
+                {activeCount}
+              </Text>
+              <Text className="text-surface-400 text-xs mt-1">Active This Week</Text>
+            </View>
+            <View className="flex-1 bg-card border border-border rounded-2xl p-4 shadow-card">
+              <Text className="text-amber-400 text-2xl font-bold">
+                {inactiveCount}
+              </Text>
+              <Text className="text-surface-400 text-xs mt-1">Inactive</Text>
+            </View>
+          </View>
+        )}
+
         {/* Search bar */}
         <View className="flex-row items-center bg-card border border-border rounded-xl px-3 mb-4 min-h-[44px]">
           <Ionicons name="search-outline" size={18} color="#707074" />
