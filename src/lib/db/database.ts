@@ -22,7 +22,7 @@ let db: SQLite.SQLiteDatabase | null = null;
  */
 export async function getDb(
   dbName?: string,
-): Promise<SQLite.SQLiteDatabase> {
+): Promise<SQLiteDatabase> {
   if (!db) {
     db = await SQLite.openDatabaseAsync(dbName ?? DEFAULT_DB_NAME);
     // Enable foreign key enforcement

@@ -286,18 +286,18 @@ export async function runMigrations(db: SQLiteDatabase): Promise<void> {
   }
 
   // Migration v1 → v2: add tempo column to exercise_sets
-  const tempoCheck = await db.getAllAsync<{ exists: number }>(
-    "SELECT COUNT(*) as exists FROM pragma_table_info('exercise_sets') WHERE name = 'tempo'"
+  const tempoCheck = await db.getAllAsync<{ col_exists: number }>(
+    "SELECT COUNT(*) as col_exists FROM pragma_table_info('exercise_sets') WHERE name = 'tempo'"
   );
-  if (tempoCheck[0].exists === 0) {
+  if (tempoCheck[0].col_exists === 0) {
     await db.execAsync("ALTER TABLE exercise_sets ADD COLUMN tempo TEXT;");
   }
 
   // Migration v3 → v4: add video_url column to exercises
-  const videoCheck = await db.getAllAsync<{ exists: number }>(
-    "SELECT COUNT(*) as exists FROM pragma_table_info('exercises') WHERE name = 'video_url'"
+  const videoCheck = await db.getAllAsync<{ col_exists: number }>(
+    "SELECT COUNT(*) as col_exists FROM pragma_table_info('exercises') WHERE name = 'video_url'"
   );
-  if (videoCheck[0].exists === 0) {
+  if (videoCheck[0].col_exists === 0) {
     await db.execAsync("ALTER TABLE exercises ADD COLUMN video_url TEXT;");
   }
 

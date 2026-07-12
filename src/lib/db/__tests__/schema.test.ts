@@ -25,7 +25,7 @@ describe("schema migrations", () => {
     execAsyncMock.mockResolvedValue(undefined);
     getFirstAsyncMock.mockRejectedValue(new Error("no sync_meta yet"));
     // Simulate tempo column already exists (default for most tests)
-    getAllAsyncMock.mockResolvedValue([{ exists: 1 }]);
+    getAllAsyncMock.mockResolvedValue([{ col_exists: 1 }]);
   });
 
   describe("runMigrations", () => {
@@ -249,7 +249,7 @@ describe("schema migrations", () => {
     it("migrates from v1 to v2 by adding tempo column to exercise_sets", async () => {
       // Simulate existing v1 schema with no tempo column yet
       getFirstAsyncMock.mockResolvedValue({ value: "1" });
-      getAllAsyncMock.mockResolvedValue([{ exists: 0 }]);
+      getAllAsyncMock.mockResolvedValue([{ col_exists: 0 }]);
 
       await runMigrations(mockDb as any);
 
@@ -263,7 +263,7 @@ describe("schema migrations", () => {
     it("ALTER TABLE is idempotent — skips if column already exists", async () => {
       // Simulate v1 schema with column already existing
       getFirstAsyncMock.mockResolvedValue({ value: "1" });
-      getAllAsyncMock.mockResolvedValue([{ exists: 1 }]);
+      getAllAsyncMock.mockResolvedValue([{ col_exists: 1 }]);
       execAsyncMock.mockClear();
 
       await runMigrations(mockDb as any);
@@ -278,7 +278,7 @@ describe("schema migrations", () => {
     it("reports current version after v1 to v2 migration", async () => {
       getFirstAsyncMock.mockResolvedValue({ value: "1" });
       execAsyncMock.mockResolvedValue(undefined);
-      getAllAsyncMock.mockResolvedValue([{ exists: 1 }]);
+      getAllAsyncMock.mockResolvedValue([{ col_exists: 1 }]);
 
       await runMigrations(mockDb as any);
 
