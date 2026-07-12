@@ -1,5 +1,10 @@
 import PocketBase from "pocketbase";
-import { BaseAuthStore, LocalAuthStore, RecordService } from "pocketbase";
+import {
+  AsyncAuthStore,
+  BaseAuthStore,
+  LocalAuthStore,
+  RecordService,
+} from "pocketbase";
 import type PocketBaseType from "pocketbase";
 import { Platform } from "react-native";
 
@@ -20,9 +25,11 @@ function createAuthStore() {
   }
 
   // Native: use expo-secure-store via AsyncAuthStore
+  // AsyncAuthStore extends BaseAuthStore (which has onChange, triggerChange, etc.)
+  // and delegates persistence to the provided save/clear/initial functions.
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const SecureStore = require("expo-secure-store");
-  return {
+  return new AsyncAuthStore({
     save: async (serialized: string) => {
       await SecureStore.setItemAsync(STORAGE_KEY, serialized);
     },
@@ -30,7 +37,7 @@ function createAuthStore() {
       await SecureStore.deleteItemAsync(STORAGE_KEY);
     },
     initial: SecureStore.getItemAsync(STORAGE_KEY),
-  };
+  });
 }
 
 /**

@@ -88,6 +88,23 @@ jest.mock("pocketbase", () => {
     })),
     BaseAuthStore: MockBaseAuthStore,
     LocalAuthStore: MockBaseAuthStore,
+    AsyncAuthStore: class extends MockBaseAuthStore {
+      constructor(opts: { save: (s: string) => Promise<void>; clear: () => Promise<void>; initial: Promise<string | null> }) {
+        super();
+        this._saveFn = opts.save;
+        this._clearFn = opts.clear;
+      }
+      private _saveFn: (s: string) => Promise<void> = async () => {};
+      private _clearFn: () => Promise<void> = async () => {};
+      async save(token: string, record?: any) {
+        await super.save(token, record);
+        await this._saveFn(JSON.stringify({ token, record }));
+      }
+      async clear() {
+        await super.clear();
+        await this._clearFn();
+      }
+    },
     RecordService: class {},
     RecordModel: class {},
     ClientResponseError: class extends Error {
