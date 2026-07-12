@@ -1,3 +1,4 @@
+import { Platform } from "react-native";
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { pb } from "@/lib/pocketbase/client";
@@ -90,7 +91,7 @@ export function useAssessmentComparison(
     staleTime: 1000 * 60 * 5, // 5 min — entry doesn't change
   });
 
-  // Fetch all entries from local SQLite for historical averages
+  // Fetch all entries from local SQLite (or PB on web) for historical averages
   // Only runs when we have a target entry to compare against
   const historyQuery = useQuery({
     queryKey: [WELLNESS_HISTORY_QUERY_KEY, wellnessEntryId],
@@ -105,6 +106,20 @@ export function useAssessmentComparison(
         date: string;
       }>
     > => {
+      if (Platform.OS === "web") {
+        const records = await pb.collection("daily_wellness").getFullList({
+          $autoCancel: false,
+        });
+        return records.map((r) => ({
+          id: r.id,
+          session_rpe: r.session_rpe ?? null,
+          sleep: r.sleep ?? null,
+          fatigue: r.fatigue ?? null,
+          soreness: r.soreness ?? null,
+          mood: r.mood ?? null,
+          date: r.date,
+        }));
+      }
       const { getDb } = await import("@/lib/db/database");
       const db = await getDb();
       const rows = await db.getAllAsync<{

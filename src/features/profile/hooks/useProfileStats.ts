@@ -1,5 +1,7 @@
+import { Platform } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import { useAuthStore } from "../../../stores/auth-store";
+import { pb } from "../../../lib/pocketbase/client";
 
 const PROFILE_STATS_QUERY_KEY = "profile-stats";
 
@@ -10,22 +12,98 @@ export interface ProfileStats {
   totalVolume: number;
 }
 
-/**
- * Query completed workout session dates from local SQLite to compute
- * total completed workouts and current streak (consecutive days with
- * at least one completed workout, counting backwards from today).
- *
- * Also computes total volume (sum of weight_kg * reps for non-warmup sets)
- * and personal records count (exercises with at least one logged set).
- *
- * Uses a dynamic import of getDb so the module can be imported in
- * environments without expo-sqlite (e.g. web, node tests).
- */
-async function fetchProfileStats(userId: string): Promise<ProfileStats> {
+// ─── Streak helper (shared between SQLite and PocketBase paths) ────────
+
+function computeStreak(dates: string[]): number {
+  if (dates.length === 0) return 0;
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const latestDate = new Date(dates[0] + "T00:00:00");
+  const diffMs = today.getTime() - latestDate.getTime();
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+  if (diffDays > 1) return 0;
+
+  let streak = 1;
+  for (let i = 1; i < dates.length; i++) {
+    const prevDate = new Date(dates[i - 1] + "T00:00:00");
+    const currDate = new Date(dates[i] + "T00:00:00");
+    const dayDiff = Math.floor(
+      (prevDate.getTime() - currDate.getTime()) / (1000 * 60 * 60 * 24),
+    );
+    if (dayDiff === 1) {
+      streak++;
+    } else {
+      break;
+    }
+  }
+  return streak;
+}
+
+// ─── PocketBase path (web — no SQLite) ────────────────────────────────
+
+async function fetchProfileStatsFromPocketBase(
+  userId: string,
+): Promise<ProfileStats> {
+  // Fetch all completed sessions for this user
+  const sessions = await pb.collection("workout_sessions").getFullList({
+    filter: `status = 'completed' && user_id = '${userId}'`,
+    sort: "-started_at",
+    $autoCancel: false,
+  });
+
+  const totalWorkouts = sessions.length;
+
+  // Compute streak from session dates
+  const uniqueDates = [
+    ...new Set(sessions.map((s) => s.started_at?.split("T")[0])),
+  ].sort((a, b) => b.localeCompare(a));
+  const currentStreak = computeStreak(uniqueDates);
+
+  // Fetch all non-warmup exercise sets for completed sessions
+  const sessionIds = sessions.map((s) => s.id);
+  if (sessionIds.length === 0) {
+    return { totalWorkouts, currentStreak, personalRecords: 0, totalVolume: 0 };
+  }
+
+  // PocketBase filter: session_id in [id1, id2, ...] AND is_warmup = false
+  const filterParts = sessionIds.map((id) => `workout_session_id = '${id}'`);
+  const setsFilter = `(${filterParts.join(" || ")}) && is_warmup = false`;
+
+  const sets = await pb.collection("exercise_sets").getFullList({
+    filter: setsFilter,
+    $autoCancel: false,
+  });
+
+  // Total volume: sum of weight_kg * reps
+  const totalVolume = sets.reduce(
+    (sum, s) => sum + (s.weight_kg ?? 0) * (s.reps ?? 0),
+    0,
+  );
+
+  // Personal records: distinct exercises with weight > 0
+  const exercisesWithWeight = new Set(
+    sets.filter((s) => (s.weight_kg ?? 0) > 0).map((s) => s.exercise_id),
+  );
+
+  return {
+    totalWorkouts,
+    currentStreak,
+    personalRecords: exercisesWithWeight.size,
+    totalVolume,
+  };
+}
+
+// ─── SQLite path (native — offline-first) ─────────────────────────────
+
+async function fetchProfileStatsFromSQLite(
+  userId: string,
+): Promise<ProfileStats> {
   const { getDb } = await import("../../../lib/db/database");
   const db = await getDb();
 
-  // Get distinct dates of completed sessions for this user
   const rows = await db.getAllAsync<{ workout_date: string }>(
     `SELECT DISTINCT DATE(started_at) as workout_date
      FROM workout_sessions
@@ -35,38 +113,8 @@ async function fetchProfileStats(userId: string): Promise<ProfileStats> {
   );
 
   const totalWorkouts = rows.length;
+  const currentStreak = computeStreak(rows.map((r) => r.workout_date));
 
-  // Compute streak: consecutive calendar days with a completed workout
-  let currentStreak = 0;
-  if (rows.length > 0) {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const latestDate = new Date(rows[0].workout_date + "T00:00:00");
-    const diffMs = today.getTime() - latestDate.getTime();
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-    // Streak is broken if the most recent workout is older than yesterday
-    if (diffDays <= 1) {
-      currentStreak = 1;
-
-      for (let i = 1; i < rows.length; i++) {
-        const prevDate = new Date(rows[i - 1].workout_date + "T00:00:00");
-        const currDate = new Date(rows[i].workout_date + "T00:00:00");
-        const dayDiff = Math.floor(
-          (prevDate.getTime() - currDate.getTime()) / (1000 * 60 * 60 * 24),
-        );
-
-        if (dayDiff === 1) {
-          currentStreak++;
-        } else {
-          break;
-        }
-      }
-    }
-  }
-
-  // Total volume: sum of weight_kg * reps for non-warmup sets in completed sessions
   const volumeResult = await db.getFirstAsync<{ total: number | null }>(
     `SELECT SUM(es.weight_kg * es.reps) as total
      FROM exercise_sets es
@@ -76,7 +124,6 @@ async function fetchProfileStats(userId: string): Promise<ProfileStats> {
   );
   const totalVolume = volumeResult?.total ?? 0;
 
-  // Personal records count: distinct exercises with at least one logged set in completed sessions
   const prResult = await db.getFirstAsync<{ count: number }>(
     `SELECT COUNT(DISTINCT es.exercise_id) as count
      FROM exercise_sets es
@@ -89,11 +136,22 @@ async function fetchProfileStats(userId: string): Promise<ProfileStats> {
   return { totalWorkouts, currentStreak, personalRecords, totalVolume };
 }
 
+// ─── Main fetch function — routes by platform ─────────────────────────
+
+async function fetchProfileStats(userId: string): Promise<ProfileStats> {
+  // On web, SQLite is unavailable (expo-sqlite hangs in browser).
+  // Query PocketBase directly instead.
+  if (Platform.OS === "web") {
+    return fetchProfileStatsFromPocketBase(userId);
+  }
+  return fetchProfileStatsFromSQLite(userId);
+}
+
 /**
  * Query hook for profile statistics derived from workout history.
  *
- * Computes total completed workouts, current streak, personal records count,
- * and total volume from local SQLite data. Works offline by default.
+ * On native: reads from local SQLite (offline-first).
+ * On web: queries PocketBase directly (no local DB).
  */
 export function useProfileStats() {
   const userId = useAuthStore((s) => s.user?.id);

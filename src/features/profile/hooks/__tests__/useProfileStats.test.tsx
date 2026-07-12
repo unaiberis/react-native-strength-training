@@ -1,3 +1,12 @@
+// Mock PocketBase client before any imports
+jest.mock("@/lib/pocketbase/client", () => ({
+  pb: {
+    collection: jest.fn().mockReturnThis(),
+    getFullList: jest.fn().mockResolvedValue([]),
+    getOne: jest.fn(),
+  },
+}));
+
 // Mock expo-sqlite before any imports (needed by database.ts via dynamic import)
 const mockGetAllAsync = jest.fn();
 const mockGetFirstAsync = jest.fn();

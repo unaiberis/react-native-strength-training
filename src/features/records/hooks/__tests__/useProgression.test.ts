@@ -1,3 +1,11 @@
+jest.mock("@/lib/pocketbase/client", () => ({
+  pb: {
+    collection: jest.fn().mockReturnThis(),
+    getFullList: jest.fn().mockResolvedValue([]),
+    getOne: jest.fn(),
+  },
+}));
+
 import {
   computeProgressionStats,
   computeProgressionSMA,

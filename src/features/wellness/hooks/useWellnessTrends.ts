@@ -1,5 +1,7 @@
+import { Platform } from "react-native";
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { pb } from "@/lib/pocketbase/client";
 import { useAuthStore } from "@/stores/auth-store";
 
 // ─── Constants ─────────────────────────────────────────────────────────────
@@ -68,6 +70,31 @@ export interface WellnessTrends {
   refetch: () => void;
 }
 
+// ─── PocketBase Query (web fallback) ───────────────────────────────────────
+
+/**
+ * Fetch wellness entries from PocketBase (web fallback).
+ */
+async function fetchWellnessFromPocketBase(userId: string): Promise<WellnessRow[]> {
+  const records = await pb.collection("daily_wellness").getFullList({
+    filter: `user_id = '${userId}'`,
+    sort: "date",
+    $autoCancel: false,
+  });
+  return records.map((r) => ({
+    id: r.id,
+    user_id: r.user_id,
+    date: r.date,
+    session_rpe: r.session_rpe ?? null,
+    sleep: r.sleep ?? null,
+    fatigue: r.fatigue ?? null,
+    soreness: r.soreness ?? null,
+    mood: r.mood ?? null,
+    session_id: r.session_id ?? null,
+    created_at: r.created_at,
+  })) as WellnessRow[];
+}
+
 // ─── Local SQLite Query ────────────────────────────────────────────────────
 
 /**
@@ -82,6 +109,16 @@ async function fetchWellnessFromLocal(): Promise<WellnessRow[]> {
   );
 
   return rows;
+}
+
+/**
+ * Route to PocketBase on web, SQLite on native.
+ */
+async function fetchWellnessEntries(userId: string): Promise<WellnessRow[]> {
+  if (Platform.OS === "web") {
+    return fetchWellnessFromPocketBase(userId);
+  }
+  return fetchWellnessFromLocal();
 }
 
 // ─── Pure Calculation Functions ────────────────────────────────────────────
@@ -173,7 +210,7 @@ export function useWellnessTrends(): WellnessTrends {
     queryKey: [WELLNESS_QUERY_KEY, "trends", userId],
     queryFn: async () => {
       if (!userId) return [];
-      return fetchWellnessFromLocal();
+      return fetchWellnessEntries(userId);
     },
     enabled: !!userId,
     staleTime: 1000 * 60 * 2, // 2 min — wellness changes daily

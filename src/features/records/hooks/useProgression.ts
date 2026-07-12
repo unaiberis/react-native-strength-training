@@ -1,5 +1,7 @@
+import { Platform } from "react-native";
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { pb } from "@/lib/pocketbase/client";
 import { useAuthStore } from "@/stores/auth-store";
 
 // ─── Constants ─────────────────────────────────────────────────────────────
@@ -38,6 +40,93 @@ export interface ProgressionResult {
   error: Error | null;
   /** Refetch function */
   refetch: () => void;
+}
+
+// ─── PocketBase Query (web fallback) ───────────────────────────────────────
+
+/**
+ * Fetch exercise progression data from PocketBase (web fallback).
+ */
+async function fetchProgressionFromPocketBase(
+  exerciseId: string,
+  userId: string,
+): Promise<ProgressionDataPoint[]> {
+  // Fetch completed sessions for this user
+  const sessions = await pb.collection("workout_sessions").getFullList({
+    filter: `status = 'completed' && user_id = '${userId}'`,
+    sort: "started_at",
+    $autoCancel: false,
+  });
+
+  if (sessions.length === 0) return [];
+
+  const sessionIds = sessions.map((s) => s.id);
+
+  // Fetch non-warmup sets for this exercise across all completed sessions
+  const sessionIdFilters = sessionIds.map((id) => `workout_session_id = '${id}'`);
+  const filterStr = `(${sessionIdFilters.join(" || ")}) && exercise_id = '${exerciseId}' && is_warmup = false`;
+
+  const sets = await pb.collection("exercise_sets").getFullList({
+    filter: filterStr,
+    $autoCancel: false,
+  });
+
+  if (sets.length === 0) return [];
+
+  // Build session lookup by ID
+  const sessionByDate = new Map(sessions.map((s) => [s.id, s]));
+
+  // Group by session, same logic as SQLite version
+  const sessionMap = new Map<
+    string,
+    {
+      sessionId: string;
+      date: string;
+      weights: number[];
+      e1RMS: number[];
+      totalVolume: number;
+      setCount: number;
+    }
+  >();
+
+  for (const set of sets) {
+    const sessionId = set.workout_session_id;
+    const session = sessionByDate.get(sessionId);
+    if (!session) continue;
+
+    const completedAt = session.completed_at ?? "";
+    const datePart = completedAt.substring(0, 10);
+    const e1rm = Math.round((set.weight_kg ?? 0) * (1 + (set.reps ?? 0) / 30) * 10) / 10;
+    const volume = (set.weight_kg ?? 0) * (set.reps ?? 0);
+
+    const existing = sessionMap.get(sessionId);
+    if (existing) {
+      existing.weights.push(set.weight_kg ?? 0);
+      existing.e1RMS.push(e1rm);
+      existing.totalVolume += volume;
+      existing.setCount += 1;
+    } else {
+      sessionMap.set(sessionId, {
+        sessionId,
+        date: datePart,
+        weights: [set.weight_kg ?? 0],
+        e1RMS: [e1rm],
+        totalVolume: volume,
+        setCount: 1,
+      });
+    }
+  }
+
+  return Array.from(sessionMap.values())
+    .map((s) => ({
+      date: s.date,
+      sessionId: s.sessionId,
+      maxWeight: Math.max(...s.weights),
+      bestE1RM: Math.max(...s.e1RMS),
+      totalVolume: s.totalVolume,
+      setCount: s.setCount,
+    }))
+    .sort((a, b) => a.date.localeCompare(b.date));
 }
 
 // ─── Local SQLite Query ────────────────────────────────────────────────────
@@ -166,14 +255,24 @@ export function computeProgressionSMA(
  * returns time series data with max weight per session for line charts.
  * Uses TanStack Query for caching.
  */
+async function fetchProgression(
+  exerciseId: string,
+  userId: string,
+): Promise<ProgressionDataPoint[]> {
+  if (Platform.OS === "web") {
+    return fetchProgressionFromPocketBase(exerciseId, userId);
+  }
+  return fetchProgressionFromLocal(exerciseId);
+}
+
 export function useProgression(exerciseId: string | undefined): ProgressionResult {
   const userId = useAuthStore((s) => s.user?.id);
 
   const query = useQuery({
     queryKey: [PROGRESSION_QUERY_KEY, exerciseId, userId],
     queryFn: () => {
-      if (!exerciseId) return [];
-      return fetchProgressionFromLocal(exerciseId);
+      if (!exerciseId || !userId) return [];
+      return fetchProgression(exerciseId, userId);
     },
     enabled: !!userId && !!exerciseId,
     staleTime: 1000 * 60 * 2,

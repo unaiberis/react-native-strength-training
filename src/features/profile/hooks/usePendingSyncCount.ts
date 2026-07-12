@@ -1,3 +1,4 @@
+import { Platform } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 
 const PENDING_SYNC_QUERY_KEY = "pending-sync-count";
@@ -20,6 +21,11 @@ export interface PendingSyncCount {
  * environments without expo-sqlite (e.g. web, node tests).
  */
 async function fetchPendingSyncCount(): Promise<PendingSyncCount> {
+  // On web, there is no local change queue — return zero counts
+  if (Platform.OS === "web") {
+    return { pending: 0, deadLetters: 0, authErrors: 0, hasPending: false };
+  }
+
   const { getDb } = await import("../../../lib/db/database");
   const db = await getDb();
 

@@ -6,8 +6,11 @@
  * week navigation (prev/next/today).
  */
 
+import { Platform } from "react-native";
 import { useState, useMemo, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { pb } from "@/lib/pocketbase/client";
+import { useAuthStore } from "@/stores/auth-store";
 
 const WEEK_CALENDAR_QUERY_KEY = "week-calendar";
 
@@ -100,7 +103,47 @@ interface WeekSessionRow {
   has_completed: number;
 }
 
-async function fetchWeekSessions(
+async function fetchWeekSessionsFromPocketBase(
+  userId: string,
+  weekStart: Date,
+): Promise<{ allDates: string[]; completedDates: string[] }> {
+  const weekEnd = new Date(weekStart);
+  weekEnd.setDate(weekStart.getDate() + 6);
+
+  const startStr = formatISODate(weekStart);
+  const endStr = formatISODate(weekEnd);
+
+  const sessions = await pb.collection("workout_sessions").getFullList({
+    filter: `user_id = '${userId}' && started_at >= '${startStr}' && started_at <= '${endStr}'`,
+    $autoCancel: false,
+  });
+
+  const dateMap = new Map<string, boolean>();
+
+  for (const session of sessions) {
+    const datePart = session.started_at?.split("T")[0] ?? "";
+    if (!datePart) continue;
+    if (session.status === "completed") {
+      dateMap.set(datePart, true);
+    } else if (!dateMap.has(datePart)) {
+      dateMap.set(datePart, false);
+    }
+  }
+
+  const allDates: string[] = [];
+  const completedDates: string[] = [];
+
+  for (const [datePart, isCompleted] of dateMap) {
+    allDates.push(datePart);
+    if (isCompleted) {
+      completedDates.push(datePart);
+    }
+  }
+
+  return { allDates, completedDates };
+}
+
+async function fetchWeekSessionsFromLocal(
   weekStart: Date,
 ): Promise<{ allDates: string[]; completedDates: string[] }> {
   const { getDb } = await import("@/lib/db/database");
@@ -135,9 +178,21 @@ async function fetchWeekSessions(
   return { allDates, completedDates };
 }
 
+async function fetchWeekSessions(
+  userId: string | undefined,
+  weekStart: Date,
+): Promise<{ allDates: string[]; completedDates: string[] }> {
+  if (Platform.OS === "web") {
+    if (!userId) return { allDates: [], completedDates: [] };
+    return fetchWeekSessionsFromPocketBase(userId, weekStart);
+  }
+  return fetchWeekSessionsFromLocal(weekStart);
+}
+
 // ─── Hook ───────────────────────────────────────────────────────────────
 
 export function useWeekCalendar() {
+  const userId = useAuthStore((s) => s.user?.id);
   const [weekStart, setWeekStart] = useState<Date>(() =>
     getWeekStart(new Date()),
   );
@@ -148,8 +203,9 @@ export function useWeekCalendar() {
   const weekStartStr = useMemo(() => formatISODate(weekStart), [weekStart]);
 
   const { data: sessionDates, isLoading } = useQuery({
-    queryKey: [WEEK_CALENDAR_QUERY_KEY, weekStartStr],
-    queryFn: () => fetchWeekSessions(weekStart),
+    queryKey: [WEEK_CALENDAR_QUERY_KEY, weekStartStr, userId],
+    queryFn: () => fetchWeekSessions(userId!, weekStart),
+    enabled: Platform.OS !== "web" || !!userId,
     staleTime: 1000 * 60 * 2,
   });
 

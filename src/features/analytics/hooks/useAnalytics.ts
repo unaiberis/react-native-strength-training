@@ -1,5 +1,7 @@
+import { Platform } from "react-native";
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { pb } from "@/lib/pocketbase/client";
 import { useAuthStore } from "@/stores/auth-store";
 import {
   calcVolumeByPeriod,
@@ -11,6 +13,129 @@ import {
 const ANALYTICS_QUERY_KEY = "analytics";
 
 export type AnalyticsPeriod = "weekly" | "monthly";
+
+// ─── PocketBase Queries (web fallback) ─────────────────────────────────────
+
+/**
+ * Fetch completed workout sessions with their exercise sets from PocketBase.
+ */
+async function fetchAnalyticsFromPocketBase(userId: string) {
+  const sessions = await pb.collection("workout_sessions").getFullList({
+    filter: `status = 'completed' && user_id = '${userId}' && completed_at != null`,
+    sort: "-completed_at",
+    $autoCancel: false,
+  });
+
+  const results: Array<{
+    id: string;
+    completed_at: string;
+    sets: Array<{ weight: number; reps: number; created_at: string }>;
+  }> = [];
+
+  for (const session of sessions) {
+    const sets = await pb.collection("exercise_sets").getFullList({
+      filter: `workout_session_id = '${session.id}' && is_warmup = false`,
+      sort: "created",
+      $autoCancel: false,
+    });
+
+    results.push({
+      id: session.id,
+      completed_at: session.completed_at ?? "",
+      sets: sets.map((s) => ({
+        weight: s.weight_kg ?? 0,
+        reps: s.reps ?? 0,
+        created_at: s.created ?? "",
+      })),
+    });
+  }
+
+  return results;
+}
+
+/**
+ * Fetch all unique exercises that have been logged in completed sessions from PocketBase.
+ */
+async function fetchExercisesFromPocketBase(
+  userId: string,
+): Promise<Array<{ id: string; name: string }>> {
+  // First get completed sessions for this user
+  const sessions = await pb.collection("workout_sessions").getFullList({
+    filter: `status = 'completed' && user_id = '${userId}'`,
+    fields: "id",
+    $autoCancel: false,
+  });
+
+  if (sessions.length === 0) return [];
+
+  const sessionIdFilters = sessions.map((s) => `workout_session_id = '${s.id}'`);
+  const filterStr = `(${sessionIdFilters.join(" || ")}) && is_warmup = false`;
+
+  const sets = await pb.collection("exercise_sets").getFullList({
+    filter: filterStr,
+    fields: "exercise_id,expand",
+    expand: "exercise_id",
+    $autoCancel: false,
+  });
+
+  // Deduplicate by exercise_id
+  const seen = new Set<string>();
+  const exercises: Array<{ id: string; name: string }> = [];
+
+  for (const set of sets) {
+    const exId = set.exercise_id;
+    if (seen.has(exId)) continue;
+    seen.add(exId);
+
+    // Try to get the exercise name from expand, or fetch it
+    if (set.expand?.exercise_id?.name) {
+      exercises.push({ id: exId, name: set.expand.exercise_id.name });
+    } else {
+      try {
+        const ex = await pb.collection("exercises").getOne(exId, {
+          fields: "id,name",
+          $autoCancel: false,
+        });
+        exercises.push({ id: ex.id, name: ex.name ?? "" });
+      } catch {
+        exercises.push({ id: exId, name: exId });
+      }
+    }
+  }
+
+  return exercises.sort((a, b) => a.name.localeCompare(b.name));
+}
+
+/**
+ * Fetch all logged sets for a specific exercise from PocketBase.
+ */
+async function fetchExerciseSetsFromPocketBase(
+  userId: string,
+  exerciseId: string,
+): Promise<Array<{ weight: number; reps: number; created_at: string }>> {
+  const sessions = await pb.collection("workout_sessions").getFullList({
+    filter: `status = 'completed' && user_id = '${userId}'`,
+    fields: "id",
+    $autoCancel: false,
+  });
+
+  if (sessions.length === 0) return [];
+
+  const sessionIdFilters = sessions.map((s) => `workout_session_id = '${s.id}'`);
+  const filterStr = `(${sessionIdFilters.join(" || ")}) && exercise_id = '${exerciseId}' && is_warmup = false`;
+
+  const sets = await pb.collection("exercise_sets").getFullList({
+    filter: filterStr,
+    sort: "created",
+    $autoCancel: false,
+  });
+
+  return sets.map((s) => ({
+    weight: s.weight_kg ?? 0,
+    reps: s.reps ?? 0,
+    created_at: s.created ?? "",
+  }));
+}
 
 // ─── Local SQLite Queries ─────────────────────────────────────────────────
 
@@ -137,9 +262,12 @@ export function useAnalytics(period: AnalyticsPeriod = "weekly") {
   const userId = useAuthStore((s) => s.user?.id);
 
   const sessionsQuery = useQuery({
-    queryKey: [ANALYTICS_QUERY_KEY, "sessions", period],
+    queryKey: [ANALYTICS_QUERY_KEY, "sessions", period, userId],
     queryFn: () => {
       if (!userId) return [];
+      if (Platform.OS === "web") {
+        return fetchAnalyticsFromPocketBase(userId);
+      }
       return fetchAnalyticsFromLocal();
     },
     enabled: !!userId,
@@ -147,9 +275,12 @@ export function useAnalytics(period: AnalyticsPeriod = "weekly") {
   });
 
   const exercisesQuery = useQuery({
-    queryKey: [ANALYTICS_QUERY_KEY, "exercises"],
+    queryKey: [ANALYTICS_QUERY_KEY, "exercises", userId],
     queryFn: () => {
       if (!userId) return [];
+      if (Platform.OS === "web") {
+        return fetchExercisesFromPocketBase(userId);
+      }
       return fetchExercisesFromLocal();
     },
     enabled: !!userId,

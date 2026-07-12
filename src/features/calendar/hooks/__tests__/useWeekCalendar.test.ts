@@ -8,6 +8,14 @@
 // Mock expo-sqlite before any imports (needed by database.ts via dynamic import)
 const mockGetAllAsync = jest.fn();
 
+jest.mock("@/lib/pocketbase/client", () => ({
+  pb: {
+    collection: jest.fn().mockReturnThis(),
+    getFullList: jest.fn().mockResolvedValue([]),
+    getOne: jest.fn(),
+  },
+}));
+
 jest.mock("expo-sqlite", () => ({
   openDatabaseAsync: jest.fn().mockResolvedValue({
     getAllAsync: mockGetAllAsync,
