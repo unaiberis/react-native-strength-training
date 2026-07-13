@@ -170,7 +170,7 @@ describe("AnalyticsScreen branch coverage", () => {
     });
   });
 
-  it("renders the loading skeleton while analytics load", () => {
+  it("renders the layout with placeholder values while analytics load", () => {
     mockUseAnalytics.mockReturnValue({
       volumeByPeriod: [],
       exercises: [],
@@ -180,8 +180,9 @@ describe("AnalyticsScreen branch coverage", () => {
       refetch: jest.fn(),
     });
     render(<AnalyticsScreen />);
-    // Skeleton branch returns early; no crash
-    expect(screen.queryByText("Personal Records")).toBeNull();
+    // Layout renders immediately with placeholder values
+    expect(screen.getByText("Analytics")).toBeTruthy();
+    expect(screen.getAllByText("---").length).toBe(3); // 3 stat cards with placeholder
   });
 
   it("renders the error state with a retry action", () => {

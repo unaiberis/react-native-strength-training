@@ -4,7 +4,7 @@ import { useRouter } from "expo-router";
 import { GradientBackground } from "@/shared/ui/GradientBackground";
 import { ErrorBoundary } from "@/shared/ui/ErrorBoundary";
 import { EmptyState } from "@/shared/ui/EmptyState";
-import { SkeletonCard } from "@/shared/ui/SkeletonLoader";
+
 import { useAnalytics, type AnalyticsPeriod } from "../hooks/useAnalytics";
 import { BarChart } from "../components/BarChart";
 import { PersonalRecordsSection } from "@/features/records/components/PersonalRecordsSection";
@@ -82,20 +82,6 @@ export function AnalyticsScreen() {
 
   const hasData = volumeByPeriod.length > 0 || exercises.length > 0;
 
-  if (isLoading) {
-    return (
-      <ErrorBoundary>
-        <GradientBackground>
-          <View className="flex-1 px-4 pt-16">
-            <SkeletonCard lines={2} className="mb-6" />
-            <SkeletonCard lines={4} className="mb-4" />
-            <SkeletonCard lines={3} lastLineWidth="45%" />
-          </View>
-        </GradientBackground>
-      </ErrorBoundary>
-    );
-  }
-
   if (error) {
     const message =
       error instanceof Error ? error.message : "Unknown error loading analytics";
@@ -118,6 +104,13 @@ export function AnalyticsScreen() {
       </ErrorBoundary>
     );
   }
+
+  // During loading, use placeholder values so the layout renders immediately
+  const displayVolume = isLoading ? 0 : totalStats.totalVolume;
+  const displaySessions = isLoading ? 0 : totalStats.totalSessions;
+  const displayExercises = isLoading ? [] : exercises;
+  const displayChart = isLoading ? [] : volumeByPeriod;
+  const showEmpty = !isLoading && !hasData;
 
   return (
     <ErrorBoundary>
@@ -155,8 +148,8 @@ export function AnalyticsScreen() {
             />
           </View>
 
-          {/* Empty state — no data at all */}
-          {!hasData ? (
+          {/* Empty state — no data at all (only after loading completes) */}
+          {showEmpty ? (
             <EmptyState
               icon="stats-chart-outline"
               title="No Analytics Data"
@@ -171,9 +164,9 @@ export function AnalyticsScreen() {
             <>
               {/* Summary stats */}
               <View className="flex-row gap-3 mb-6">
-                <StatCard label="Total Volume" value={formatVolume(totalStats.totalVolume)} />
-                <StatCard label="Workouts" value={String(totalStats.totalSessions)} />
-                <StatCard label="Exercises" value={String(exercises.length)} />
+                <StatCard label="Total Volume" value={isLoading ? "---" : formatVolume(displayVolume)} />
+                <StatCard label="Workouts" value={isLoading ? "---" : String(displaySessions)} />
+                <StatCard label="Exercises" value={isLoading ? "---" : String(displayExercises.length)} />
               </View>
 
               {/* Volume Trend Chart */}
@@ -182,23 +175,23 @@ export function AnalyticsScreen() {
                   {period === "weekly" ? "Weekly Volume" : "Monthly Volume"}
                 </Text>
                 <BarChart
-                  data={volumeByPeriod.map((d) => ({ period: d.period, volume: d.volume }))}
+                  data={displayChart.map((d) => ({ period: d.period, volume: d.volume }))}
                   valueKey="volume"
                   barColor="#B9B9B6"
-                  height={Math.max(120, volumeByPeriod.length * 32)}
+                  height={isLoading ? 120 : Math.max(120, displayChart.length * 32)}
                 />
               </View>
 
               {/* Exercise PR Timelines */}
               <Text className="text-surface-50 text-xl font-extrabold tracking-[-0.5] mb-3">Exercise Progress</Text>
-              {exercises.length === 0 && (
+              {!isLoading && displayExercises.length === 0 && (
                 <View className="bg-card rounded-2xl p-6 mb-4 border border-border items-center shadow-card">
                   <Text className="text-surface-400 text-sm">
                     Complete some workouts to see your exercise progress here.
                   </Text>
                 </View>
               )}
-              {exercises.map((ex) => (
+              {displayExercises.map((ex) => (
                 <TouchableOpacity
                   key={ex.id}
                   className="bg-card rounded-2xl p-4 mb-3 border border-border min-h-[60px] justify-center shadow-button"

@@ -88,3 +88,23 @@
 
 - `LinearGradient` con `#030303 → #101012 → #050505`
 - `SafeAreaView` con flex: 1
+
+## Skeleton Primitives
+
+The SkeletonLoader module (`src/shared/ui/SkeletonLoader.tsx`) provides reusable skeleton primitives (`SkeletonBar`, `SkeletonCircle`, `SkeletonCard`) with a shared pulsing animation driven by a single module-level `Animated.Value`.
+
+- A single module-scope `Animated.Value` drives all `SkeletonPulse` instances in sync
+- Exactly ONE `Animated.loop` call runs for all skeleton components
+- Animation lifecycle is tied to the module, not individual components
+
+### Composite Skeletons
+
+| Component | Description |
+|-----------|-------------|
+| `PageSkeleton` | Full-page skeleton with header and cards — for initial loads |
+| `DashboardSkeleton` | Dashboard-style with stat bars and list items |
+| `AnalyticsSkeleton` | Structured skeleton matching AnalyticsScreen layout (header, toggle, stat cards, chart, exercise list) |
+
+## Legacy Removals
+
+- `src/shared/ui/SkeletonCard.tsx` — removed. Zero consumers; all import sites use `@/shared/ui/SkeletonLoader`.

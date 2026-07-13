@@ -1,4 +1,3 @@
-import { useEffect, useRef } from "react";
 import { View, Animated, StyleSheet, type ViewStyle } from "react-native";
 
 // ─── Types ─────────────────────────────────────────────────────────────────
@@ -6,6 +5,7 @@ import { View, Animated, StyleSheet, type ViewStyle } from "react-native";
 interface SkeletonBaseProps {
   className?: string;
   style?: ViewStyle | ViewStyle[];
+  testID?: string;
 }
 
 interface SkeletonBarProps extends SkeletonBaseProps {
@@ -27,34 +27,34 @@ interface SkeletonCircleProps extends SkeletonBaseProps {
   size?: number;
 }
 
+// ─── Shared Animation ─────────────────────────────────────────────────────
+
+/** Module-scope opacity value shared by all skeleton instances for one pulse loop. */
+const sharedOpacity = new Animated.Value(0.3);
+
+Animated.loop(
+  Animated.sequence([
+    Animated.timing(sharedOpacity, {
+      toValue: 1,
+      duration: 800,
+      useNativeDriver: true,
+    }),
+    Animated.timing(sharedOpacity, {
+      toValue: 0.3,
+      duration: 800,
+      useNativeDriver: true,
+    }),
+  ]),
+).start();
+
 // ─── Animated Skeleton Primitive ───────────────────────────────────────────
 
-function SkeletonPulse({ className, style }: SkeletonBaseProps) {
-  const opacity = useRef(new Animated.Value(0.3));
-
-  useEffect(() => {
-    const animation = Animated.loop(
-      Animated.sequence([
-        Animated.timing(opacity.current, {
-          toValue: 1,
-          duration: 800,
-          useNativeDriver: true,
-        }),
-        Animated.timing(opacity.current, {
-          toValue: 0.3,
-          duration: 800,
-          useNativeDriver: true,
-        }),
-      ]),
-    );
-    animation.start();
-    return () => animation.stop();
-  }, []);
-
+function SkeletonPulse({ className, style, testID }: SkeletonBaseProps) {
   return (
     <Animated.View
+      testID={testID}
       className={`bg-surface-700 rounded-lg ${className ?? ""}`}
-      style={StyleSheet.flatten([{ opacity: opacity.current }, style])}
+      style={StyleSheet.flatten([{ opacity: sharedOpacity }, style])}
     />
   );
 }
@@ -73,9 +73,11 @@ export function SkeletonBar({
   height = 16,
   className,
   style,
+  testID,
 }: SkeletonBarProps) {
   return (
     <SkeletonPulse
+      testID={testID}
       className={className}
       style={StyleSheet.flatten([{ width: width as any, height }, style])}
     />
@@ -96,9 +98,11 @@ export function SkeletonCard({
   lastLineWidth = "60%",
   className,
   style,
+  testID,
 }: SkeletonCardProps) {
   return (
     <View
+      testID={testID}
       className={`bg-card rounded-2xl p-5 border border-border ${className ?? ""}`}
       style={style}
     >
@@ -126,9 +130,10 @@ export function SkeletonCard({
  * <SkeletonCircle size={48} />
  * ```
  */
-export function SkeletonCircle({ size = 48, className, style }: SkeletonCircleProps) {
+export function SkeletonCircle({ size = 48, className, style, testID }: SkeletonCircleProps) {
   return (
     <SkeletonPulse
+      testID={testID}
       className={className}
       style={StyleSheet.flatten([{ width: size, height: size, borderRadius: size / 2 }, style])}
     />
@@ -144,9 +149,9 @@ export function SkeletonCircle({ size = 48, className, style }: SkeletonCirclePr
  * <PageSkeleton />
  * ```
  */
-export function PageSkeleton({ className }: { className?: string }) {
+export function PageSkeleton({ className, testID }: { className?: string; testID?: string }) {
   return (
-    <View className={`flex-1 px-4 pt-16 ${className ?? ""}`}>
+    <View testID={testID} className={`flex-1 px-4 pt-16 ${className ?? ""}`}>
       {/* Page title */}
       <SkeletonBar width="50%" height={28} className="mb-6" />
       {/* Cards */}
@@ -162,9 +167,9 @@ export function PageSkeleton({ className }: { className?: string }) {
 /**
  * Dashboard-style skeleton with stat bars and a list skeleton.
  */
-export function DashboardSkeleton({ className }: { className?: string }) {
+export function DashboardSkeleton({ className, testID }: { className?: string; testID?: string }) {
   return (
-    <View className={`flex-1 px-4 pt-4 ${className ?? ""}`}>
+    <View testID={testID} className={`flex-1 px-4 pt-4 ${className ?? ""}`}>
       {/* Stat bar */}
       <View className="flex-row gap-3 mb-5">
         {[1, 2, 3].map((i) => (
@@ -190,3 +195,5 @@ export function DashboardSkeleton({ className }: { className?: string }) {
     </View>
   );
 }
+
+
