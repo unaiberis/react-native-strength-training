@@ -145,13 +145,6 @@ describe("home.tsx branch coverage", () => {
     ).toBeTruthy();
   });
 
-  it("presses the Exercises quick action (home.tsx)", () => {
-    setStats({});
-    render(<HomeScreen />);
-    fireEvent.press(screen.getByLabelText("Browse exercises library"));
-    expect(mockPush).toHaveBeenCalledWith("/exercises");
-  });
-
   it("does not render the Routines quick action chip (home.tsx)", () => {
     setStats({});
     render(<HomeScreen />);

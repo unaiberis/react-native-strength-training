@@ -185,21 +185,13 @@ describe("HomeScreen assigned-today chip", () => {
     expect(screen.queryByText("Entrenamiento asignado hoy")).toBeNull();
   });
 
-  it("renders the Quick Action buttons (exercises, history) without crashing", () => {
+  it("renders the Quick Action button (history) without crashing", () => {
     render(<HomeScreen />);
 
-    // Browse exercises quick action
-    expect(screen.getByLabelText("Browse exercises library")).toBeTruthy();
     // Routines quick action should not be present
     expect(screen.queryByText("Routines")).toBeNull();
     // View history quick action
     expect(screen.getByLabelText("View workout history")).toBeTruthy();
-  });
-
-  it("navigates to /exercises on pressing the Exercises quick action", () => {
-    render(<HomeScreen />);
-    fireEvent.press(screen.getByLabelText("Browse exercises library"));
-    expect(mockPush).toHaveBeenCalledWith("/exercises");
   });
 
   it("does not render the Routines quick action", () => {

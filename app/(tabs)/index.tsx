@@ -139,27 +139,6 @@ export default function HomeScreen() {
             </View>
           </View>
 
-          {/* ── Quick Actions ───────────────────────────────────────────── */}
-          <View className="flex-row mb-6 gap-3">
-            <PressScale scaleTo={0.97} className="flex-1">
-              <TouchableOpacity
-                onPress={() => router.push("/exercises")}
-                className="bg-card rounded-2xl p-4 border border-border shadow-button active:opacity-80"
-                accessibilityRole="button"
-                accessibilityLabel="Browse exercises library"
-              >
-                <Ionicons name="barbell-outline" size={32} color="#B9B9B6" />
-                <Text className="text-surface-100 text-sm font-semibold">
-                  Exercises
-                </Text>
-                <Text className="text-surface-500 text-xs mt-0.5">
-                  Browse library
-                </Text>
-              </TouchableOpacity>
-            </PressScale>
-
-            <View className="flex-1" />
-          </View>
 
           <View className="flex-row mb-6 gap-3">
             <PressScale scaleTo={0.97} className="flex-1">

@@ -112,24 +112,6 @@ export default function HomeScreen() {
           {/* ── Quick Actions ──────────────────────────────────────────── */}
           <View className="flex-row mb-6" style={{ gap: 12 }}>
             <TouchableOpacity
-              onPress={() => router.push("/exercises")}
-              style={{ flex: 1, minWidth: 0 }}
-              className="bg-card rounded-2xl p-4 border border-border shadow-button active:opacity-80"
-              accessibilityRole="button"
-              accessibilityLabel="Browse exercises library"
-            >
-              <View className="mb-1">
-                <Ionicons name="fitness-outline" size={24} color="#B9B9B6" />
-              </View>
-              <Text className="text-surface-100 text-sm font-semibold">
-                Exercises
-              </Text>
-              <Text className="text-surface-500 text-xs mt-0.5">
-                Browse
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
               onPress={() => router.push("/history")}
               style={{ flex: 1, minWidth: 0 }}
               className="bg-card rounded-2xl p-4 border border-border shadow-button active:opacity-80"
