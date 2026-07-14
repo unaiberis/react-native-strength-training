@@ -1,7 +1,7 @@
-import { useEffect, useMemo } from "react";
-import { Tabs, useRouter } from "expo-router";
+import { useEffect, useMemo, useState } from "react";
+import { Tabs, useRouter, usePathname } from "expo-router";
 import { useAuthStore } from "../../src/stores/auth-store";
-import { Text, View } from "react-native";
+import { Text, View, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { GradientBackground } from "../../src/shared/ui/GradientBackground";
 
@@ -35,7 +35,14 @@ const tabIcons: Record<string, keyof typeof Ionicons.glyphMap> = {
   train: "barbell-outline",
   analytics: "stats-chart-outline",
   profile: "person-outline",
+  coach: "shield-outline",
 };
+
+const COACH_SUBMENU = [
+  { key: "athletes", label: "Athletes", icon: "people-outline" as const },
+  { key: "teams", label: "Teams", icon: "shield-outline" as const },
+  { key: "templates", label: "Templates", icon: "barbell-outline" as const },
+];
 
 export default function TabsLayout() {
   const router = useRouter();
@@ -44,25 +51,57 @@ export default function TabsLayout() {
   /**
    * Auth guards:
    * 1. Unauthenticated → redirect to login
-   * 2. Coach user in athlete tabs → redirect to coach tabs
-   * Diferido con setTimeout(0) para que el navegador esté montado
-   * antes de intentar la navegación (evita "navigate before mounting Root Layout").
+   * 2. Coaches now stay in main tabs — Coach tab is visible for them
    */
   useEffect(() => {
     if (state === "unauthenticated") {
       const id = setTimeout(() => router.replace("/(auth)/login"), 0);
       return () => clearTimeout(id);
     }
-    if (state === "authenticated" && (role === "coach" || isTeamCoach)) {
-      const id = setTimeout(() => router.replace("/(coach)"), 0);
-      return () => clearTimeout(id);
+  }, [state, router]);
+
+  const [coachMenuOpen, setCoachMenuOpen] = useState(false);
+  const pathname = usePathname();
+
+  // Auto-close coach submenu when navigating away
+  useEffect(() => {
+    if (!pathname.startsWith("/(coach)")) {
+      setCoachMenuOpen(false);
     }
-  }, [state, role, isTeamCoach, router]);
+  }, [pathname]);
 
   return (
     <GradientBackground>
       <View style={{ flex: 1, backgroundColor: "#050505" }}>
       <SyncBanner />
+      
+      {/* Coach Submenu — appears above tab bar when Coach is selected */}
+      {coachMenuOpen && (
+        <View style={{
+          flexDirection: "row",
+          backgroundColor: "#0B0B0C",
+          borderBottomColor: "#343437",
+          borderBottomWidth: 1,
+          paddingTop: 8,
+          paddingBottom: 8,
+        }}>
+          {COACH_SUBMENU.map((item) => (
+            <TouchableOpacity
+              key={item.key}
+              onPress={() => router.push(`/(coach)/${item.key}`)}
+              style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
+              accessibilityRole="button"
+              accessibilityLabel={item.label}
+            >
+              <Ionicons name={item.icon} size={20} color="#B9B9B6" />
+              <Text style={{ fontSize: 10, color: "#B9B9B6", marginTop: 2 }}>
+                {item.label}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
+
       <Tabs
         screenOptions={{
           headerShown: false,
@@ -120,6 +159,17 @@ export default function TabsLayout() {
           title: "Profile",
           tabBarIcon: ({ focused }) => (
             <Ionicons name={tabIcons.profile} size={22} color={focused ? "#B9B9B6" : "#71717a"} />
+          ),
+        }}
+      />
+      {/* Coach tab — toggles submenu, navigates to coach dashboard */}
+      <Tabs.Screen
+        name="coach"
+        options={{
+          title: "Coach",
+          href: isTeamCoach ? undefined : null,
+          tabBarIcon: ({ focused }) => (
+            <Ionicons name={tabIcons.coach} size={22} color={focused ? "#B9B9B6" : "#71717a"} />
           ),
         }}
       />
