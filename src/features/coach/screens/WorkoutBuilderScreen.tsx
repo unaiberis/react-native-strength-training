@@ -18,6 +18,7 @@ import {
   Text,
   TextInput,
   ScrollView,
+  RefreshControl,
   TouchableOpacity,
   Alert,
   ActivityIndicator,
@@ -29,6 +30,7 @@ import { KickerLabel } from "@/shared/ui/KickerLabel";
 import { Card } from "@/shared/ui/Card";
 import { Button } from "@/shared/ui/Button";
 import { GradientBackground } from "@/shared/ui/GradientBackground";
+import { SkeletonCard } from "@/shared/ui/SkeletonLoader";
 import {
   useCreateTemplate,
   useUpdateTemplate,
@@ -247,6 +249,11 @@ export function WorkoutBuilderScreen() {
   const [blocks, setBlocks] = useState<WorkoutBlock[]>([createBlock("normal")]);
   const [isInitialized, setIsInitialized] = useState(false);
   const [showBlockTypePicker, setShowBlockTypePicker] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const onRefreshBuilder = useCallback(() => {
+    setRefreshing(true);
+    setTimeout(() => setRefreshing(false), 500);
+  }, []);
 
   // Populate from existing template when editing
   if (existingTemplate && !isInitialized) {
@@ -473,8 +480,8 @@ export function WorkoutBuilderScreen() {
   if (isEditing && isLoadingTemplate) {
     return (
       <GradientBackground>
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#B9B9B6" />
+        <View className="flex-1 px-4 pt-16">
+          <SkeletonCard lines={4} />
         </View>
       </GradientBackground>
     );
@@ -529,6 +536,13 @@ export function WorkoutBuilderScreen() {
           style={{ flex: 1, paddingHorizontal: 16, backgroundColor: "#050505" }}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefreshBuilder}
+              tintColor="#B9B9B6"
+            />
+          }
         >
           {/* Workout name */}
           <View className="mb-4">
