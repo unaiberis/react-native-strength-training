@@ -78,42 +78,40 @@ export default function TeamsScreen() {
 
   const renderTeam = useCallback(
     ({ item }: { item: UserTeam }) => (
-      <TouchableOpacity
-        className="bg-card border border-border rounded-2xl p-4 mb-3 shadow-button"
-        onPress={() => router.push(`/(coach)/teams/${item.id}`)}
-        activeOpacity={0.7}
-        accessibilityRole="button"
-        accessibilityLabel={`View team: ${item.name}`}
-      >
-        <View className="flex-row items-center justify-between">
-          <View className="flex-1">
-            <Text className="text-surface-50 font-semibold text-base">
-              {item.name}
+      <View className="flex-row items-center bg-card border border-border rounded-2xl p-4 mb-3 shadow-button">
+        <TouchableOpacity
+          onPress={() => router.push(`/(coach)/teams/${item.id}`)}
+          activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel={`View team: ${item.name}`}
+          className="flex-1"
+        >
+          <Text className="text-surface-50 font-semibold text-base">
+            {item.name}
+          </Text>
+          {item.description ? (
+            <Text className="text-surface-400 text-sm mt-1" numberOfLines={2}>
+              {item.description}
             </Text>
-            {item.description ? (
-              <Text className="text-surface-400 text-sm mt-1" numberOfLines={2}>
-                {item.description}
-              </Text>
-            ) : null}
+          ) : null}
+        </TouchableOpacity>
+        <View className="items-end gap-2 ml-3">
+          <View className="flex-row items-center gap-1">
+            <Ionicons name="people-outline" size={14} color="#A4A4A8" />
+            <Text className="text-surface-400 text-xs">
+              {item.member_count}
+            </Text>
           </View>
-          <View className="items-end gap-2 ml-3">
-            <View className="flex-row items-center gap-1">
-              <Ionicons name="people-outline" size={14} color="#A4A4A8" />
-              <Text className="text-surface-400 text-xs">
-                {item.member_count}
-              </Text>
-            </View>
-            <TouchableOpacity
-              onPress={() => handleDelete(item)}
-              className="bg-graphite rounded-xl p-2 min-w-[36px] min-h-[36px] items-center justify-center"
-              accessibilityRole="button"
-              accessibilityLabel={`Delete team ${item.name}`}
-            >
-              <Ionicons name="trash-outline" size={16} color="#D65F5F" />
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity
+            onPress={() => handleDelete(item)}
+            className="bg-graphite rounded-xl p-2 min-w-[36px] min-h-[36px] items-center justify-center"
+            accessibilityRole="button"
+            accessibilityLabel={`Delete team ${item.name}`}
+          >
+            <Ionicons name="trash-outline" size={16} color="#D65F5F" />
+          </TouchableOpacity>
         </View>
-      </TouchableOpacity>
+      </View>
     ),
     [router, handleDelete],
   );
