@@ -47,11 +47,20 @@ const COACH_SUBMENU = [
 export default function TabsLayout() {
   const router = useRouter();
   const { state, role, isTeamCoach } = useAuthStore();
+  const pathname = usePathname();
+
+  const [coachMenuOpen, setCoachMenuOpen] = useState(false);
+
+  // Auto-close coach submenu when navigating away from coach section
+  useEffect(() => {
+    if (!pathname.startsWith("/(coach)")) {
+      setCoachMenuOpen(false);
+    }
+  }, [pathname]);
 
   /**
-   * Auth guards:
-   * 1. Unauthenticated → redirect to login
-   * 2. Coaches now stay in main tabs — Coach tab is visible for them
+   * Auth guard: Unauthenticated → redirect to login
+   * Coaches stay in main tabs — Coach tab is visible for them
    */
   useEffect(() => {
     if (state === "unauthenticated") {
@@ -59,16 +68,6 @@ export default function TabsLayout() {
       return () => clearTimeout(id);
     }
   }, [state, router]);
-
-  const [coachMenuOpen, setCoachMenuOpen] = useState(false);
-  const pathname = usePathname();
-
-  // Auto-close coach submenu when navigating away
-  useEffect(() => {
-    if (!pathname.startsWith("/(coach)")) {
-      setCoachMenuOpen(false);
-    }
-  }, [pathname]);
 
   return (
     <GradientBackground>
@@ -88,7 +87,10 @@ export default function TabsLayout() {
           {COACH_SUBMENU.map((item) => (
             <TouchableOpacity
               key={item.key}
-              onPress={() => router.push(`/(coach)/${item.key}`)}
+              onPress={() => {
+                setCoachMenuOpen(false);
+                router.push(`/(coach)/${item.key}`);
+              }}
               style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
               accessibilityRole="button"
               accessibilityLabel={item.label}
@@ -162,14 +164,22 @@ export default function TabsLayout() {
           ),
         }}
       />
-      {/* Coach tab — toggles submenu, navigates to coach dashboard */}
+      {/* Coach tab — toggles submenu for coaches */}
       <Tabs.Screen
         name="coach"
         options={{
           title: "Coach",
           href: isTeamCoach ? undefined : null,
           tabBarIcon: ({ focused }) => (
-            <Ionicons name={tabIcons.coach} size={22} color={focused ? "#B9B9B6" : "#71717a"} />
+            <Ionicons name={tabIcons.coach} size={22} color={coachMenuOpen ? "#B9B9B6" : focused ? "#B9B9B6" : "#71717a"} />
+          ),
+          tabBarButton: (props) => (
+            <TouchableOpacity
+              {...props}
+              onPress={() => {
+                setCoachMenuOpen(!coachMenuOpen);
+              }}
+            />
           ),
         }}
       />
