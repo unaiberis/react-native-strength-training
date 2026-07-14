@@ -69,13 +69,13 @@ const TEAMS = [
 // ─── Wellness seed data (per athlete, last 30 days) ─────────────────
 function generateWellnessEntry(athleteId, dateStr) {
   return {
-    athlete_id: athleteId,
+    user_id: athleteId,
     date: dateStr,
-    rpe: Math.round(3 + Math.random() * 5),           // 3-8
-    sleep_quality: Math.round(2 + Math.random() * 3),  // 2-5
-    soreness: Math.round(1 + Math.random() * 3),       // 1-4
-    energy: Math.round(2 + Math.random() * 3),         // 2-5
-    mood: Math.round(3 + Math.random() * 2),           // 3-5
+    session_rpe: Math.round(3 + Math.random() * 5),       // 3-8
+    sleep: Math.round(2 + Math.random() * 3),              // 2-5
+    fatigue: Math.round(1 + Math.random() * 3),            // 1-4
+    soreness: Math.round(1 + Math.random() * 3),           // 1-4
+    mood: Math.round(3 + Math.random() * 2),               // 3-5
   };
 }
 
@@ -348,7 +348,7 @@ async function main() {
   // Collect existing entries keyed by athlete_id:date
   const existingWellnessList = await listAll(headers, "daily_wellness");
   const existingWellnessKeys = new Set(
-    existingWellnessList.map((w) => `${w.athlete_id}:${w.date}`),
+    existingWellnessList.map((w) => `${w.user_id ?? w.athlete_id}:${w.date}`),
   );
 
   // Number of days to backfill (14-30, randomized once per run)
