@@ -104,5 +104,14 @@ jest.mock("@expo/vector-icons", () => ({
     React.createElement("Text", null, name),
 }));
 
+// Mock react-native-safe-area-context
+jest.mock("react-native-safe-area-context", () => ({
+  SafeAreaProvider: ({ children }: { children: React.ReactNode }) =>
+    React.createElement("View", null, children),
+  SafeAreaView: ({ children }: { children: React.ReactNode }) =>
+    React.createElement("View", null, children),
+  useSafeAreaInsets: () => ({ top: 64, bottom: 0, left: 0, right: 0 }),
+}));
+
 // Suppress console noise during tests
 global.console.error = jest.fn();
