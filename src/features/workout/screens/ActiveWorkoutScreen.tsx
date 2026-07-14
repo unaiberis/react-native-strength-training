@@ -12,12 +12,12 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import { Card } from "../../../shared/ui/Card";
-import { Button } from "../../../shared/ui/Button";
-import { GradientBackground } from "../../../shared/ui/GradientBackground";
-import { RestTimer } from "../../../shared/ui/RestTimer";
-import { RpeSlider } from "../../../shared/ui/RpeSlider";
-import { WeightTypeSelector } from "../../../shared/ui/WeightTypeSelector";
+import { Card } from "@/shared/ui/Card";
+import { Button } from "@/shared/ui/Button";
+import { GradientBackground } from "@/shared/ui/GradientBackground";
+import { RestTimer } from "@/shared/ui/RestTimer";
+import { RpeSlider } from "@/shared/ui/RpeSlider";
+import { WeightTypeSelector } from "@/shared/ui/WeightTypeSelector";
 import { BlockTimer } from "../components/BlockTimer";
 import { AmrapResultInput } from "../components/AmrapResultInput";
 import { ExerciseNotes } from "../components/ExerciseNotes";
@@ -25,7 +25,7 @@ import { SessionNotes } from "../components/SessionNotes";
 import {
   useSessionStore,
   type LoggedSet,
-} from "../../../stores/session-store";
+} from "@/stores/session-store";
 import {
   useCreateSession,
   useLogSet,
@@ -35,7 +35,7 @@ import {
   useIsCurrentExerciseComplete,
 } from "../hooks/useWorkoutSession";
 import { getBlockTypeStrategy } from "../strategies/BlockTypeStrategy";
-import { computeTargetFromConfig } from "../../../shared/utils/prescription";
+import { computeTargetFromConfig } from "@/shared/utils/prescription";
 
 // ─── Set Row ─────────────────────────────────────────────────────────────
 
@@ -51,7 +51,7 @@ function SetRow({
   return (
     <View
       className={`flex-row items-center py-2.5 px-3 rounded-lg mb-1 ${
-        isActive ? "bg-surface-800" : "bg-surface-900"
+        isActive ? "bg-cardSoft" : "bg-card"
       }`}
     >
       <Text className="text-surface-400 text-sm font-mono w-8">
@@ -62,10 +62,10 @@ function SetRow({
           R{set.setNumber}
         </Text>
       )}
-      <Text className="text-surface-100 text-sm flex-1 text-center">
+      <Text className="text-surface-50 text-sm flex-1 text-center">
         {set.weightKg} kg
       </Text>
-      <Text className="text-surface-100 text-sm flex-1 text-center">
+      <Text className="text-surface-50 text-sm flex-1 text-center">
         × {set.reps}
       </Text>
       <Text className="text-surface-400 text-sm flex-1 text-center">
@@ -166,7 +166,7 @@ function SetInputForm({
     <View className="gap-3 mt-3">
       {/* Weight, Reps, Tempo row */}
       <Card>
-        <Text className="text-surface-100 text-sm font-semibold mb-3">
+        <Text className="text-surface-50 text-sm font-semibold mb-3">
           Set #{setNumber}
         </Text>
 
@@ -180,7 +180,7 @@ function SetInputForm({
               placeholderTextColor="#52525b"
               value={form.weightKg}
               onChangeText={(v) => updateField("weightKg", v)}
-              className="bg-surface-800 border border-surface-700 rounded-lg px-3 py-2.5 text-surface-100 text-sm"
+              className="bg-cardSoft border border-border rounded-xl px-3 py-2.5 text-surface-50 text-sm"
             />
           </View>
           <View className="flex-1">
@@ -191,7 +191,7 @@ function SetInputForm({
               placeholderTextColor="#52525b"
               value={form.reps}
               onChangeText={(v) => updateField("reps", v)}
-              className="bg-surface-800 border border-surface-700 rounded-lg px-3 py-2.5 text-surface-100 text-sm"
+              className="bg-cardSoft border border-border rounded-xl px-3 py-2.5 text-surface-50 text-sm"
             />
           </View>
           <View className="flex-1">
@@ -202,7 +202,7 @@ function SetInputForm({
               placeholderTextColor="#52525b"
               value={form.tempo}
               onChangeText={(v) => updateField("tempo", v)}
-              className="bg-surface-800 border border-surface-700 rounded-lg px-3 py-2.5 text-surface-100 text-sm"
+              className="bg-cardSoft border border-border rounded-xl px-3 py-2.5 text-surface-50 text-sm"
             />
           </View>
         </View>
@@ -215,7 +215,7 @@ function SetInputForm({
             placeholderTextColor="#52525b"
             value={form.rir}
             onChangeText={(v) => updateField("rir", v)}
-            className="bg-surface-800 border border-surface-700 rounded-lg px-3 py-2.5 text-surface-100 text-sm"
+            className="bg-cardSoft border border-border rounded-xl px-3 py-2.5 text-surface-50 text-sm"
           />
         </View>
       </Card>
@@ -567,8 +567,13 @@ export function ActiveWorkoutScreen() {
     <GradientBackground>
     <View className="flex-1">
       {/* Top bar */}
-      <View className="flex-row items-center justify-between px-4 pt-14 pb-2 bg-surface-950/90">
-        <TouchableOpacity onPress={handleCancel} className="p-2 -ml-2">
+      <View className="flex-row items-center justify-between px-4 pt-14 pb-2 bg-background/90">
+        <TouchableOpacity
+          onPress={handleCancel}
+          accessibilityRole="button"
+          accessibilityLabel="Cancel workout"
+          className="p-2 -ml-2"
+        >
           <Text className="text-surface-400 text-sm">Cancel</Text>
         </TouchableOpacity>
 
@@ -576,7 +581,12 @@ export function ActiveWorkoutScreen() {
           Exercise {currentIndex + 1} of {exercises.length}
         </Text>
 
-        <TouchableOpacity onPress={handleFinish} className="p-2 -mr-2">
+        <TouchableOpacity
+          onPress={handleFinish}
+          accessibilityRole="button"
+          accessibilityLabel="Finish workout"
+          className="p-2 -mr-2"
+        >
           <Text className="text-brand-500 text-sm font-medium">Finish</Text>
         </TouchableOpacity>
       </View>
@@ -588,12 +598,14 @@ export function ActiveWorkoutScreen() {
             <TouchableOpacity
               key={idx}
               onPress={() => setCurrentExerciseIndex(idx)}
+              accessibilityRole="button"
+              accessibilityLabel={`Go to exercise ${idx + 1}`}
               className={`w-2 h-2 rounded-full ${
                 idx === currentIndex
                   ? "bg-brand-500"
                   : exercises[idx].loggedSets.length > 0
                     ? "bg-surface-500"
-                    : "bg-surface-700"
+                    : "bg-graphite"
               }`}
             />
           ))}

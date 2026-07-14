@@ -1,8 +1,10 @@
 import { ScrollView, View, Text, ActivityIndicator } from "react-native";
 import { useLocalSearchParams } from "expo-router";
-import { Card } from "../../../shared/ui/Card";
-import { GradientBackground } from "../../../shared/ui/GradientBackground";
-import { VideoPlayer } from "../../../shared/ui/VideoPlayer";
+import { Card } from "@/shared/ui/Card";
+import { GradientBackground } from "@/shared/ui/GradientBackground";
+import { VideoPlayer } from "@/shared/ui/VideoPlayer";
+import { ScreenTitle } from "@/shared/ui/ScreenTitle";
+import { SkeletonCard } from "@/shared/ui/SkeletonLoader";
 import { useExercise } from "../hooks/useExercises";
 
 export function ExerciseDetailScreen() {
@@ -12,8 +14,8 @@ export function ExerciseDetailScreen() {
   if (isLoading) {
     return (
       <GradientBackground>
-        <View className="flex-1 items-center justify-center">
-        <ActivityIndicator size="large" color="#A4A4A8" />
+        <View className="flex-1 px-4 pt-16">
+          <SkeletonCard lines={4} />
         </View>
       </GradientBackground>
     );
@@ -42,32 +44,18 @@ export function ExerciseDetailScreen() {
 
   return (
     <GradientBackground>
-    <ScrollView className="flex-1 px-4 pt-4">
-      {/* Exercise name header */}
-      <Text className="text-surface-50 text-2xl font-bold mb-2">
-        {exercise.name}
-      </Text>
-
-      {/* Category badges */}
-      <View className="flex-row gap-2 mb-6">
-        <View className="bg-brand-500/20 rounded-full px-3 py-1">
-          <Text className="text-brand-400 text-sm capitalize">
-            {exercise.category}
-          </Text>
-        </View>
-        {exercise.body_region && (
-          <View className="bg-surface-800 rounded-full px-3 py-1">
-            <Text className="text-surface-300 text-sm capitalize">
-              {exercise.body_region.replace("_", " ")}
-            </Text>
-          </View>
-        )}
-      </View>
+    <ScrollView className="flex-1 px-4 pt-16">
+      {/* Screen title */}
+      <ScreenTitle
+        title={exercise.name}
+        subtitle={exercise.category.charAt(0).toUpperCase() + exercise.category.slice(1)}
+        className="mb-6"
+      />
 
       {/* Description */}
       {exercise.description && (
         <Card className="mb-4">
-          <Text className="text-surface-100 text-sm leading-6">
+          <Text className="text-surface-50 text-sm leading-6">
             {exercise.description}
           </Text>
         </Card>
@@ -81,15 +69,17 @@ export function ExerciseDetailScreen() {
         {detailRows.map((row) => (
           <View
             key={row.label}
-            className="flex-row justify-between py-2.5 border-b border-surface-800 last:border-b-0"
+            className="flex-row justify-between py-2.5 border-b border-border last:border-b-0"
           >
             <Text className="text-surface-400 text-sm">{row.label}</Text>
-            <Text className="text-surface-100 text-sm font-medium capitalize">
+            <Text className="text-surface-50 text-sm font-medium capitalize">
               {row.value}
             </Text>
           </View>
         ))}
       </Card>
+      {/* Bottom spacer */}
+      <View className="h-8" />
     </ScrollView>
     </GradientBackground>
   );

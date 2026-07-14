@@ -38,7 +38,7 @@ describe("ExerciseDetailScreen", () => {
     render(<ExerciseDetailScreen />);
 
     expect(screen.getByText("Bench Press")).toBeTruthy();
-    expect(screen.getByText("Strength")).toBeTruthy();
+    expect(screen.getAllByText("Strength").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("Default Settings")).toBeTruthy();
   });
 

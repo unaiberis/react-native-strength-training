@@ -1,15 +1,17 @@
 import { useMemo } from "react";
-import { View, Text, ScrollView, ActivityIndicator } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { View, Text, ScrollView, RefreshControl, ActivityIndicator } from "react-native";
 import { useLocalSearchParams } from "expo-router";
-import { Card } from "../../../shared/ui/Card";
-import { GradientBackground } from "../../../shared/ui/GradientBackground";
+import { Card } from "@/shared/ui/Card";
+import { EmptyState } from "@/shared/ui/EmptyState";
+import { GradientBackground } from "@/shared/ui/GradientBackground";
+import { ScreenTitle } from "@/shared/ui/ScreenTitle";
+import { SkeletonCard } from "@/shared/ui/SkeletonLoader";
 import { useSessionDetail } from "../hooks/useHistory";
 import {
   calculateVolume,
   calculateTonnage,
   calculateE1RM,
-} from "../../../shared/utils/pr-calc";
+} from "@/shared/utils/pr-calc";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────
 
@@ -52,13 +54,13 @@ function SetRow({
 
   return (
     <View
-      className={`flex-row items-center py-2 ${!isLast ? "border-b border-surface-800" : ""} ${set.isWarmup ? "opacity-60" : ""}`}
+      className={`flex-row items-center py-2 ${!isLast ? "border-b border-border" : ""} ${set.isWarmup ? "opacity-60" : ""}`}
     >
       <Text className="text-surface-400 text-xs font-mono w-8">
         #{set.setNumber}
       </Text>
       <View className="flex-1">
-        <Text className="text-surface-100 text-sm">
+        <Text className="text-surface-50 text-sm">
           {set.weightKg} kg × {set.reps}
         </Text>
         <View className="flex-row items-center gap-2 mt-0.5">
@@ -107,7 +109,7 @@ function ExerciseSection({
   return (
     <Card className="mb-3" title={exerciseName}>
       {/* Summary row */}
-      <View className="flex-row justify-between items-center mb-2 pb-2 border-b border-surface-800">
+      <View className="flex-row justify-between items-center mb-2 pb-2 border-b border-border">
         <Text className="text-surface-400 text-xs">
           {workingSetCount} working set{workingSetCount !== 1 ? "s" : ""}
           {totalSets > workingSetCount && (
@@ -116,7 +118,7 @@ function ExerciseSection({
             </Text>
           )}
         </Text>
-        <Text className="text-surface-300 text-xs font-semibold">
+        <Text className="text-surface-100 text-xs font-semibold">
           Volume: {tonnage.toFixed(0)} kg
         </Text>
       </View>
@@ -152,13 +154,13 @@ function ExerciseSection({
 
 export function HistoryDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { data: detail, isLoading, error } = useSessionDetail(id);
+  const { data: detail, isLoading, error, refetch, isRefetching } = useSessionDetail(id);
 
   if (isLoading) {
     return (
       <GradientBackground>
-        <View className="flex-1 items-center justify-center">
-        <ActivityIndicator size="large" color="#A4A4A8" />
+        <View className="flex-1 px-4 pt-16">
+          <SkeletonCard lines={4} />
         </View>
       </GradientBackground>
     );
@@ -168,15 +170,11 @@ export function HistoryDetailScreen() {
     return (
       <GradientBackground>
         <View className="flex-1 items-center justify-center px-6">
-        <View className="mb-4">
-          <Ionicons name="warning-outline" size={48} color="#B9B9B6" />
-        </View>
-        <Text className="text-surface-100 text-lg font-semibold mb-2">
-          Could not load workout
-        </Text>
-        <Text className="text-surface-400 text-center">
-          {error ? (error as Error).message : "Workout not found"}
-        </Text>
+        <EmptyState
+          icon="warning-outline"
+          title="Could not load workout"
+          subtitle={error ? (error as Error).message : "Workout not found"}
+        />
       </View>
       </GradientBackground>
     );
@@ -209,14 +207,22 @@ export function HistoryDetailScreen() {
 
   return (
     <GradientBackground>
-    <ScrollView className="flex-1 px-4 pt-4">
+    <ScrollView
+      className="flex-1 px-4 pt-16"
+      refreshControl={
+        <RefreshControl
+          refreshing={isRefetching || false}
+          onRefresh={refetch}
+          tintColor="#B9B9B6"
+        />
+      }
+    >
       {/* Header */}
-      <Text className="text-surface-50 text-xl font-bold mb-1">
-        {detail.templateName ?? "Workout"}
-      </Text>
-      <Text className="text-surface-400 text-sm mb-4">
-        {formatDate(detail.started_at)} at {formatTime(detail.started_at)}
-      </Text>
+      <ScreenTitle
+        title={detail.templateName ?? "Workout"}
+        subtitle={`${formatDate(detail.started_at)} at ${formatTime(detail.started_at)}`}
+        className="mb-4"
+      />
 
       {/* Stats cards */}
       <View className="flex-row gap-3 mb-4">
@@ -248,12 +254,12 @@ export function HistoryDetailScreen() {
       {detail.notes && (
         <Card className="mb-4">
           <Text className="text-surface-400 text-xs mb-1">Notes</Text>
-          <Text className="text-surface-100 text-sm">{detail.notes}</Text>
+          <Text className="text-surface-50 text-sm">{detail.notes}</Text>
         </Card>
       )}
 
       {/* Exercise sections */}
-      <Text className="text-surface-100 text-base font-semibold mb-3">
+      <Text className="text-surface-50 text-base font-semibold mb-3">
         Exercise Breakdown
       </Text>
 

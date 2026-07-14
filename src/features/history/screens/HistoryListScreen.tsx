@@ -9,12 +9,13 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { Card } from "../../../shared/ui/Card";
-import { Button } from "../../../shared/ui/Button";
-import { GradientBackground } from "../../../shared/ui/GradientBackground";
+import { Card } from "@/shared/ui/Card";
+import { EmptyState } from "@/shared/ui/EmptyState";
+import { GradientBackground } from "@/shared/ui/GradientBackground";
+import { ScreenTitle } from "@/shared/ui/ScreenTitle";
 import { useHistory } from "../hooks/useHistory";
 import { useExercises } from "../../exercises/hooks/useExercises";
-import type { SessionListItem } from "../../../lib/pocketbase/services/sessions";
+import type { SessionListItem } from "@/lib/pocketbase/services/sessions";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────
 
@@ -48,12 +49,14 @@ function SessionRow({
   return (
     <TouchableOpacity
       onPress={onPress}
-      className="bg-surface-900 rounded-xl p-4 mb-3 border border-surface-800 active:opacity-80"
+      accessibilityRole="button"
+      accessibilityLabel={`View ${session.templateName ?? "Free Workout"} workout`}
+      className="bg-card rounded-xl p-4 mb-3 border border-border active:opacity-80"
     >
       <View className="flex-row justify-between items-start mb-2">
         <View className="flex-1 mr-3">
           <Text
-            className="text-surface-100 text-base font-semibold"
+            className="text-surface-50 text-base font-semibold"
             numberOfLines={1}
           >
             {session.templateName ?? "Free Workout"}
@@ -64,8 +67,8 @@ function SessionRow({
         </View>
 
         {session.duration_minutes != null && (
-          <View className="bg-surface-800 rounded-lg px-2.5 py-1">
-            <Text className="text-surface-300 text-xs">
+          <View className="bg-cardSoft rounded-xl px-2.5 py-1">
+            <Text className="text-surface-100 text-xs">
               {session.duration_minutes} min
             </Text>
           </View>
@@ -119,13 +122,19 @@ function FilterBar({
       <View className="flex-row items-center gap-2">
         <TouchableOpacity
           onPress={() => setShowPicker(!showPicker)}
-          className={`flex-1 flex-row items-center bg-surface-800 border border-surface-700 rounded-xl px-3 py-2.5 ${
+          accessibilityRole="button"
+          accessibilityLabel={
+            filters.exerciseId
+              ? `Filter by exercise, currently ${selectedName}`
+              : "Filter by exercise"
+          }
+          className={`flex-1 flex-row items-center bg-cardSoft border border-border rounded-xl px-3 py-2.5 ${
             filters.exerciseId ? "" : ""
           }`}
         >
           <Text className="text-surface-500 text-xs mr-2">Filter:</Text>
           <Text
-            className={`text-sm flex-1 ${filters.exerciseId ? "text-surface-100" : "text-surface-500"}`}
+            className={`text-sm flex-1 ${filters.exerciseId ? "text-surface-50" : "text-surface-500"}`}
             numberOfLines={1}
           >
             {selectedName ?? "All exercises"}
@@ -138,7 +147,9 @@ function FilterBar({
         {filters.exerciseId && (
           <TouchableOpacity
             onPress={() => onChange({ exerciseId: null })}
-            className="bg-surface-800 rounded-xl px-3 py-2.5 border border-surface-700"
+            accessibilityRole="button"
+            accessibilityLabel="Clear exercise filter"
+            className="bg-cardSoft rounded-xl px-3 py-2.5 border border-border"
           >
             <Text className="text-surface-400 text-xs">Clear</Text>
           </TouchableOpacity>
@@ -147,7 +158,7 @@ function FilterBar({
 
       {/* Exercise picker dropdown */}
       {showPicker && (
-        <View className="mt-2 bg-surface-800 border border-surface-700 rounded-xl max-h-48">
+        <View className="mt-2 bg-cardSoft border border-border rounded-xl max-h-48">
           <FlatList
             data={[{ id: null, name: "All exercises" } as { id: string | null; name: string }, ...(exercises?.data ?? [])]}
             keyExtractor={(item) => item.id ?? "__all__"}
@@ -157,15 +168,17 @@ function FilterBar({
                   onChange({ exerciseId: item.id });
                   setShowPicker(false);
                 }}
-                className={`px-3 py-2.5 border-b border-surface-700 last:border-b-0 ${
-                  filters.exerciseId === item.id ? "bg-surface-700" : ""
+                accessibilityRole="button"
+                accessibilityLabel={`Select ${item.name}`}
+                className={`px-3 py-2.5 border-b border-border last:border-b-0 ${
+                  filters.exerciseId === item.id ? "bg-graphite" : ""
                 }`}
               >
                 <Text
                   className={`text-sm ${
                     filters.exerciseId === item.id
                       ? "text-brand-400 font-medium"
-                      : "text-surface-300"
+                      : "text-surface-100"
                   }`}
                 >
                   {item.name}
@@ -246,28 +259,19 @@ export function HistoryListScreen() {
   const renderEmpty = () => {
     if (isLoading) return null;
     return (
-      <View className="items-center justify-center py-16 px-6">
-        <View className="mb-4">
-          <Ionicons name="clipboard-outline" size={48} color="#B9B9B6" />
-        </View>
-        <Text className="text-surface-100 text-lg font-semibold mb-2">
-          No workouts yet
-        </Text>
-        <Text className="text-surface-400 text-center mb-6">
-          Complete your first workout to see your history here.
-        </Text>
-        <Button
-          title="Start a Workout"
-          variant="primary"
-          onPress={() => router.push("/(tabs)/train")}
-        />
-      </View>
+      <EmptyState
+        icon="clipboard-outline"
+        title="No workouts yet"
+        subtitle="Complete your first workout to see your history here."
+        action={{ label: "Start a Workout", onPress: () => router.push("/(tabs)/train") }}
+      />
     );
   };
 
   return (
     <GradientBackground>
     <View className="flex-1">
+      <ScreenTitle title="History" className="px-4 pt-16 pb-2" />
       {/* Filter bar */}
       <FilterBar filters={filters} onChange={handleFilterChange} />
 

@@ -10,15 +10,15 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { Card } from "../../../shared/ui/Card";
-import { Button } from "../../../shared/ui/Button";
-import { ScreenTitle } from "../../../shared/ui/ScreenTitle";
-import { GradientBackground } from "../../../shared/ui/GradientBackground";
+import { Card } from "@/shared/ui/Card";
+import { Button } from "@/shared/ui/Button";
+import { ScreenTitle } from "@/shared/ui/ScreenTitle";
+import { GradientBackground } from "@/shared/ui/GradientBackground";
 import { useAuth } from "../../auth/hooks/useAuth";
 import { useProfileStats } from "../hooks/useProfileStats";
 import { usePendingSyncCount } from "../hooks/usePendingSyncCount";
 import { useUserTeams } from "../../coach/hooks/useTeams";
-import { useAuthStore } from "../../../stores/auth-store";
+import { useAuthStore } from "@/stores/auth-store";
 import { useNotifications } from "../../notifications/hooks/useNotifications";
 import { ProfileHeader } from "../components/ProfileHeader";
 import { ProfileStats } from "../components/ProfileStats";
@@ -192,7 +192,7 @@ export function ProfileScreen() {
                       : "bg-amber-500"
                   }`}
                 />
-                <Text className="text-surface-300 text-sm font-medium">
+                <Text className="text-surface-100 text-sm font-medium">
                   {syncBadge.text}
                 </Text>
               </View>
@@ -231,6 +231,8 @@ export function ProfileScreen() {
                 />
                 <TouchableOpacity
                   onPress={handleSaveBodyweight}
+                  accessibilityRole="button"
+                  accessibilityLabel="Save bodyweight"
                   className="bg-titanium rounded-xl px-5 py-3"
                 >
                   <Text className="text-background font-bold">Save</Text>
@@ -240,6 +242,8 @@ export function ProfileScreen() {
                     setIsEditingBodyweight(false);
                     setBodyweight("");
                   }}
+                  accessibilityRole="button"
+                  accessibilityLabel="Cancel editing bodyweight"
                   className="rounded-xl px-3 py-3"
                 >
                   <Text className="text-surface-400 font-bold">Cancel</Text>
@@ -249,7 +253,7 @@ export function ProfileScreen() {
               <>
                 <View className="flex-row items-center gap-3">
                   <Ionicons name="scale-outline" size={20} color="#A4A4A8" />
-                  <Text className="text-surface-100 text-lg font-semibold">
+                  <Text className="text-surface-50 text-lg font-semibold">
                     {bodyweight
                       ? `${bodyweight} ${weightUnit}`
                       : "Not set"}
@@ -257,9 +261,11 @@ export function ProfileScreen() {
                 </View>
                 <TouchableOpacity
                   onPress={() => setIsEditingBodyweight(true)}
+                  accessibilityRole="button"
+                  accessibilityLabel="Edit bodyweight"
                   className="bg-cardSoft rounded-xl px-4 py-2 border border-border"
                 >
-                  <Text className="text-surface-300 text-sm font-semibold">
+                  <Text className="text-surface-100 text-sm font-semibold">
                     Edit
                   </Text>
                 </TouchableOpacity>
@@ -272,12 +278,12 @@ export function ProfileScreen() {
         <Card title="Account Info" className="mb-4">
           <View className="flex-row justify-between py-2 border-b border-border">
             <Text className="text-surface-400">Member since</Text>
-            <Text className="text-surface-100">{createdAt}</Text>
+            <Text className="text-surface-50">{createdAt}</Text>
           </View>
           <View className="flex-row justify-between py-2">
             <Text className="text-surface-400">User ID</Text>
             <Text
-              className="text-surface-100 text-xs font-mono"
+              className="text-surface-50 text-xs font-mono"
               numberOfLines={1}
             >
               {user?.id.slice(0, 12)}...

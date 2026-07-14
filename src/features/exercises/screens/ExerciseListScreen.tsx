@@ -8,10 +8,10 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { Card } from "../../../shared/ui/Card";
-import { GradientBackground } from "../../../shared/ui/GradientBackground";
+import { Card } from "@/shared/ui/Card";
+import { GradientBackground } from "@/shared/ui/GradientBackground";
 import { useExercises, useCategories } from "../hooks/useExercises";
-import type { ExerciseRow } from "../../../types/pocketbase";
+import type { ExerciseRow } from "@/types/pocketbase";
 
 const PAGE_SIZE = 20;
 
@@ -25,13 +25,15 @@ function CategoryChip({ label, selected, onPress }: CategoryChipProps) {
   return (
     <TouchableOpacity
       onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={`Filter by ${label}`}
       className={`
         px-4 py-2 rounded-full mr-2 mb-2
-        ${selected ? "bg-brand-500" : "bg-surface-800 border border-surface-700"}
+        ${selected ? "bg-brand-500" : "bg-cardSoft border border-border"}
       `}
     >
       <Text
-        className={`text-sm font-medium ${selected ? "text-surface-950" : "text-surface-300"}`}
+        className={`text-sm font-medium ${selected ? "text-surface-950" : "text-surface-100"}`}
       >
         {label.charAt(0).toUpperCase() + label.slice(1)}
       </Text>
@@ -45,19 +47,21 @@ function ExerciseItem({ exercise }: { exercise: ExerciseRow }) {
   return (
     <TouchableOpacity
       onPress={() => router.push(`/(tabs)/exercises/${exercise.id}`)}
-      className="bg-surface-900 rounded-xl p-4 mb-3 border border-surface-800 active:opacity-80"
+      accessibilityRole="button"
+      accessibilityLabel={`View ${exercise.name}`}
+      className="bg-card rounded-xl p-4 mb-3 border border-border active:opacity-80"
     >
-      <Text className="text-surface-100 text-base font-semibold mb-1">
-        {exercise.name}
-      </Text>
+        <Text className="text-surface-50 text-base font-semibold mb-1">
+          {exercise.name}
+        </Text>
       <View className="flex-row items-center gap-2">
-        <View className="bg-surface-800 rounded-full px-2.5 py-0.5">
+        <View className="bg-cardSoft rounded-full px-2.5 py-0.5">
           <Text className="text-surface-400 text-xs capitalize">
             {exercise.category}
           </Text>
         </View>
         {exercise.body_region && (
-          <View className="bg-surface-800 rounded-full px-2.5 py-0.5">
+          <View className="bg-cardSoft rounded-full px-2.5 py-0.5">
             <Text className="text-surface-400 text-xs capitalize">
               {exercise.body_region.replace("_", " ")}
             </Text>
