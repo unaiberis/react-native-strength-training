@@ -196,7 +196,7 @@ describe("AnalyticsScreen branch coverage", () => {
       refetch,
     });
     render(<AnalyticsScreen />);
-    expect(screen.getByText(/Failed to load analytics/i)).toBeTruthy();
+    expect(screen.getByText("Something went wrong")).toBeTruthy();
     fireEvent.press(screen.getByText("Retry"));
     expect(refetch).toHaveBeenCalled();
   });

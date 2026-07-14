@@ -17,12 +17,10 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { GradientBackground } from "@/shared/ui/GradientBackground";
+import { ScreenLayout } from "@/shared/ui/ScreenLayout";
 import { Card } from "@/shared/ui/Card";
 import { EmptyState } from "@/shared/ui/EmptyState";
-import { ErrorBoundary } from "@/shared/ui/ErrorBoundary";
 import { SkeletonCard } from "@/shared/ui/SkeletonLoader";
-import { ScreenTitle } from "@/shared/ui/ScreenTitle";
 import { KickerLabel } from "@/shared/ui/KickerLabel";
 import { WeekStrip } from "../components/WeekStrip";
 import { DayDetail, type WorkoutSummary } from "../components/DayDetail";
@@ -185,153 +183,136 @@ export function CalendarScreen() {
   const isLoading = viewMode === "week" ? isWeekLoading : isMonthLoading;
 
   return (
-    <ErrorBoundary>
-      <GradientBackground>
-        <ScrollView
-          ref={scrollRef}
-          className="flex-1 px-4 pt-16"
-          showsVerticalScrollIndicator={false}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={handleRefresh}
-              tintColor="#A4A4A8"
-            />
-          }
+    <ScreenLayout
+      title="Calendar"
+      onRefresh={handleRefresh}
+      refreshing={refreshing}
+    >
+      {/* View mode toggle */}
+      <View className="flex-row bg-card border border-border rounded-xl p-1 mb-4 self-start">
+        <TouchableOpacity
+          onPress={() => setViewMode("week")}
+          className={`px-4 py-2 rounded-lg ${
+            viewMode === "week" ? "bg-titanium" : ""
+          }`}
+          accessibilityRole="button"
+          accessibilityLabel="Week view"
         >
-          {/* Header */}
-          <ScreenTitle title="Calendar" className="mb-6" />
+          <Text
+            className={`text-xs font-bold ${
+              viewMode === "week" ? "text-black" : "text-surface-400"
+            }`}
+          >
+            Week
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => setViewMode("month")}
+          className={`px-4 py-2 rounded-lg ${
+            viewMode === "month" ? "bg-titanium" : ""
+          }`}
+          accessibilityRole="button"
+          accessibilityLabel="Month view"
+        >
+          <Text
+            className={`text-xs font-bold ${
+              viewMode === "month" ? "text-black" : "text-surface-400"
+            }`}
+          >
+            Month
+          </Text>
+        </TouchableOpacity>
+      </View>
 
-          {/* View mode toggle */}
-          <View className="flex-row bg-card border border-border rounded-xl p-1 mb-4 self-start">
-            <TouchableOpacity
-              onPress={() => setViewMode("week")}
-              className={`px-4 py-2 rounded-lg ${
-                viewMode === "week" ? "bg-titanium" : ""
-              }`}
-              accessibilityRole="button"
-              accessibilityLabel="Week view"
-            >
-              <Text
-                className={`text-xs font-bold ${
-                  viewMode === "week" ? "text-black" : "text-surface-400"
-                }`}
-              >
-                Week
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => setViewMode("month")}
-              className={`px-4 py-2 rounded-lg ${
-                viewMode === "month" ? "bg-titanium" : ""
-              }`}
-              accessibilityRole="button"
-              accessibilityLabel="Month view"
-            >
-              <Text
-                className={`text-xs font-bold ${
-                  viewMode === "month" ? "text-black" : "text-surface-400"
-                }`}
-              >
-                Month
-              </Text>
-            </TouchableOpacity>
-          </View>
+      {/* Assigned-today chip (R5) */}
+      {assignedChip && (
+        <TouchableOpacity
+          onPress={() =>
+            router.push("/(tabs)/train")
+          }
+          className="flex-row items-center gap-2 bg-cardSoft rounded-full px-4 py-2 mb-4 border border-border self-start"
+          accessibilityRole="button"
+          accessibilityLabel="Entrenamiento asignado hoy"
+        >
+          <Ionicons name="calendar-outline" size={16} color="#B9B9B6" />
+          <Text className="text-surface-100 text-sm font-semibold">
+            Entrenamiento asignado hoy
+          </Text>
+        </TouchableOpacity>
+      )}
 
-          {/* Assigned-today chip (R5) */}
-          {assignedChip && (
-            <TouchableOpacity
-              onPress={() =>
-                router.push("/(tabs)/train")
-              }
-              className="flex-row items-center gap-2 bg-cardSoft rounded-full px-4 py-2 mb-4 border border-border self-start"
-              accessibilityRole="button"
-              accessibilityLabel="Entrenamiento asignado hoy"
-            >
-              <Ionicons name="calendar-outline" size={16} color="#B9B9B6" />
-              <Text className="text-surface-100 text-sm font-semibold">
-                Entrenamiento asignado hoy
-              </Text>
-            </TouchableOpacity>
-          )}
+      {/* Loading state */}
+      {isLoading && (
+        <View>
+          <SkeletonCard lines={2} className="mb-4" />
+          <SkeletonCard lines={4} />
+        </View>
+      )}
 
-          {/* Loading state */}
-          {isLoading && (
+      {!isLoading && (
+        <>
+          {/* Week view */}
+          {viewMode === "week" && (
             <View>
-              <SkeletonCard lines={2} className="mb-4" />
-              <SkeletonCard lines={4} />
+              <KickerLabel className="mb-2">YOUR WEEK</KickerLabel>
+              <WeekStrip
+                weekDays={weekDays}
+                selectedDate={selectedDate}
+                onSelectDate={selectDate}
+                weekLabel={weekLabel}
+                onPrevWeek={goToPrevWeek}
+                onNextWeek={goToNextWeek}
+              />
             </View>
           )}
 
-          {!isLoading && (
-            <>
-              {/* Week view */}
-              {viewMode === "week" && (
-                <View>
-                  <KickerLabel className="mb-2">YOUR WEEK</KickerLabel>
-                  <WeekStrip
-                    weekDays={weekDays}
-                    selectedDate={selectedDate}
-                    onSelectDate={selectDate}
-                    weekLabel={weekLabel}
-                    onPrevWeek={goToPrevWeek}
-                    onNextWeek={goToNextWeek}
-                  />
-                </View>
-              )}
-
-              {/* Month view */}
-              {viewMode === "month" && calendarMonth && !error && (
-                <Card className="mb-2">
-                  <CalendarGrid
-                    calendarMonth={calendarMonth}
-                    selectedDate={selectedDate}
-                    onSelectDay={handleSelectDay}
-                    onPrevMonth={handlePrevMonth}
-                    onNextMonth={handleNextMonth}
-                  />
-                </Card>
-              )}
-
-              {/* Month error */}
-              {viewMode === "month" && error && (
-                <View className="items-center py-8">
-                  <Text className="text-danger text-sm mb-3">
-                    Could not load calendar
-                  </Text>
-                  <TouchableOpacity
-                    onPress={() => refetchMonth()}
-                    className="active:opacity-60"
-                    accessibilityRole="button"
-                    accessibilityLabel="Retry loading calendar"
-                  >
-                    <Text className="text-surface-400 text-sm underline">
-                      Retry
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              )}
-
-              {/* Day detail */}
-              {isLoadingDetail ? (
-                <View className="mt-4">
-                  <SkeletonCard lines={3} />
-                </View>
-              ) : (
-                <DayDetail
-                  date={selectedDate}
-                  workout={dayWorkout ? mapToWorkoutSummary(dayWorkout) : null}
-                  onStartWorkout={handleStartWorkout}
-                  onViewDetail={handleViewDetail}
-                />
-              )}
-            </>
+          {/* Month view */}
+          {viewMode === "month" && calendarMonth && !error && (
+            <Card className="mb-2">
+              <CalendarGrid
+                calendarMonth={calendarMonth}
+                selectedDate={selectedDate}
+                onSelectDay={handleSelectDay}
+                onPrevMonth={handlePrevMonth}
+                onNextMonth={handleNextMonth}
+              />
+            </Card>
           )}
 
-          {/* Bottom spacing */}
-          <View className="h-8" />
-        </ScrollView>
-      </GradientBackground>
-    </ErrorBoundary>
+          {/* Month error */}
+          {viewMode === "month" && error && (
+            <View className="items-center py-8">
+              <Text className="text-danger text-sm mb-3">
+                Could not load calendar
+              </Text>
+              <TouchableOpacity
+                onPress={() => refetchMonth()}
+                className="active:opacity-60"
+                accessibilityRole="button"
+                accessibilityLabel="Retry loading calendar"
+              >
+                <Text className="text-surface-400 text-sm underline">
+                  Retry
+                </Text>
+              </TouchableOpacity>
+            </View>
+          )}
+
+          {/* Day detail */}
+          {isLoadingDetail ? (
+            <View className="mt-4">
+              <SkeletonCard lines={3} />
+            </View>
+          ) : (
+            <DayDetail
+              date={selectedDate}
+              workout={dayWorkout ? mapToWorkoutSummary(dayWorkout) : null}
+              onStartWorkout={handleStartWorkout}
+              onViewDetail={handleViewDetail}
+            />
+          )}
+        </>
+      )}
+    </ScreenLayout>
   );
 }

@@ -1,6 +1,7 @@
-import { useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity } from "react-native";
-import { GradientBackground } from "@/shared/ui/GradientBackground";
+import { ScreenLayout } from "@/shared/ui/ScreenLayout";
+import { Card } from "@/shared/ui/Card";
 import { useWellnessTrends } from "../hooks/useWellnessTrends";
 import { LineChart, type LineChartDataPoint } from "@/features/analytics/components/LineChart";
 
@@ -48,14 +49,14 @@ function PeriodCard({
   ];
 
   return (
-    <View className="bg-card rounded-2xl p-4 border border-border mb-3 shadow-card">
+    <Card className="mb-3">
       <View className="flex-row justify-between items-center mb-3">
         <Text className="text-surface-50 text-base font-bold">{label}</Text>
         <Text className="text-surface-500 text-xs">{period.entryCount} entries</Text>
       </View>
       <View className="flex-row flex-wrap gap-2">
         {metrics.map((m) => (
-          <View key={m.label} className="bg-surface-800 rounded-xl px-3 py-2 min-w-[60px] flex-1">
+          <View key={m.label} className="bg-cardSoft rounded-xl px-3 py-2 min-w-[60px] flex-1">
             <Text className="text-surface-500 text-[10px] uppercase tracking-wider">{m.label}</Text>
             <Text className="text-surface-50 text-lg font-bold">
               {m.value !== null ? m.value.toFixed(1) : "—"}
@@ -63,23 +64,23 @@ function PeriodCard({
           </View>
         ))}
       </View>
-    </View>
+    </Card>
   );
 }
 
 // ─── Empty State ───────────────────────────────────────────────────────────
 
-function EmptyState() {
+function EmptyStateCard() {
   return (
-    <View className="bg-card rounded-2xl p-6 border border-border items-center mb-4 shadow-card">
-      <Text className="text-surface-100 text-lg font-semibold mb-2">
+    <Card className="items-center p-6 mb-4">
+      <Text className="text-surface-50 text-lg font-semibold mb-2">
         No wellness data yet
       </Text>
       <Text className="text-surface-400 text-sm text-center">
         Start logging your daily wellness after workouts to see trends here.
         Track your RPE, sleep, fatigue, soreness, and mood over time.
       </Text>
-    </View>
+    </Card>
   );
 }
 
@@ -93,7 +94,7 @@ function MetricTrendChart({
   data: LineChartDataPoint[];
 }) {
   return (
-    <View className="bg-card rounded-2xl p-4 border border-border mb-3 shadow-card">
+    <Card className="mb-3">
       <Text className="text-surface-50 text-base font-bold mb-1">{metric.label}</Text>
       <Text className="text-surface-500 text-xs mb-3">Daily values over time</Text>
       <LineChart
@@ -107,7 +108,7 @@ function MetricTrendChart({
         yLabel={metric.yLabel}
         height={160}
       />
-    </View>
+    </Card>
   );
 }
 
@@ -144,98 +145,71 @@ export function WellnessDashboardScreen() {
     return map;
   }, [timeSeries]);
 
-  if (isLoading) {
-    return (
-      <GradientBackground>
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="small" color="#B9B9B6" />
-          <Text className="text-surface-400 text-lg mt-3">Loading wellness trends...</Text>
-        </View>
-      </GradientBackground>
-    );
-  }
-
-  if (error) {
-    return (
-      <GradientBackground>
-        <View className="flex-1 items-center justify-center px-6">
-          <Text className="text-danger text-lg mb-2">Failed to load wellness data</Text>
-          <TouchableOpacity
-            onPress={() => refetch()}
-            className="bg-card px-6 py-2 rounded-xl border border-border shadow-button"
-          >
-            <Text className="text-surface-50 font-medium">Retry</Text>
-          </TouchableOpacity>
-        </View>
-      </GradientBackground>
-    );
-  }
-
   const hasData = timeSeries.length > 0;
+  const [refreshing, setRefreshing] = useState(false);
+  const handleRefresh = useCallback(() => {
+    setRefreshing(true);
+    Promise.resolve(refetch()).finally(() => setRefreshing(false));
+  }, [refetch]);
+
+  const errorMessage = error instanceof Error ? error.message : "Failed to load wellness data";
 
   return (
-    <GradientBackground>
-      <ScrollView
-        className="flex-1 px-4 pt-16"
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Header */}
-        <Text className="text-[34px] font-black tracking-[-0.8] text-surface-50 mb-4">
-          Wellness
-        </Text>
-        <Text className="text-surface-400 text-sm mb-6">
-          Track your recovery and wellbeing trends
-        </Text>
+    <ScreenLayout
+      title="Wellness"
+      subtitle="Track your recovery and wellbeing trends"
+      loading={isLoading}
+      error={errorMessage}
+      errorLabel="Retry"
+      onRetry={() => refetch()}
+      onRefresh={handleRefresh}
+      refreshing={refreshing}
+    >
+      {/* Period Averages */}
+      {hasData && (
+        <>
+          <Text className="text-surface-50 text-xl font-extrabold tracking-[-0.5] mb-3">
+            Rolling Averages
+          </Text>
+          {periods.map((period) => {
+            const labels: Record<string, string> = {
+              "7d": "Last 7 Days",
+              "30d": "Last 30 Days",
+              "90d": "Last 90 Days",
+            };
+            return (
+              <PeriodCard
+                key={period.period}
+                label={labels[period.period] ?? period.period}
+                period={period}
+              />
+            );
+          })}
+        </>
+      )}
 
-        {/* Period Averages */}
-        {hasData && (
-          <>
-            <Text className="text-surface-50 text-xl font-extrabold tracking-[-0.5] mb-3">
-              Rolling Averages
-            </Text>
-            {periods.map((period) => {
-              const labels: Record<string, string> = {
-                "7d": "Last 7 Days",
-                "30d": "Last 30 Days",
-                "90d": "Last 90 Days",
-              };
-              return (
-                <PeriodCard
-                  key={period.period}
-                  label={labels[period.period] ?? period.period}
-                  period={period}
-                />
-              );
-            })}
-          </>
-        )}
+      {/* Trend Charts */}
+      {hasData && (
+        <>
+          <Text className="text-surface-50 text-xl font-extrabold tracking-[-0.5] mb-3 mt-2">
+            Trends
+          </Text>
+          {METRICS.map((metric) => {
+            const chartData = chartDataByMetric.get(metric.key) ?? [];
+            if (chartData.length < 2) return null;
+            return (
+              <MetricTrendChart
+                key={metric.key}
+                metric={metric}
+                data={chartData}
+              />
+            );
+          })}
+        </>
+      )}
 
-        {/* Trend Charts */}
-        {hasData && (
-          <>
-            <Text className="text-surface-50 text-xl font-extrabold tracking-[-0.5] mb-3 mt-2">
-              Trends
-            </Text>
-            {METRICS.map((metric) => {
-              const chartData = chartDataByMetric.get(metric.key) ?? [];
-              if (chartData.length < 2) return null;
-              return (
-                <MetricTrendChart
-                  key={metric.key}
-                  metric={metric}
-                  data={chartData}
-                />
-              );
-            })}
-          </>
-        )}
-
-        {/* Empty state */}
-        {!hasData && <EmptyState />}
-
-        {/* Bottom spacing */}
-        <View className="h-8" />
-      </ScrollView>
-    </GradientBackground>
+      {/* Empty state */}
+      {!hasData && <EmptyStateCard />}
+    </ScreenLayout>
   );
 }
