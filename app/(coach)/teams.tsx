@@ -127,9 +127,26 @@ export default function TeamsScreen() {
   return (
     <ErrorBoundary>
       <View style={{ flex: 1, paddingHorizontal: 16, paddingTop: 16, backgroundColor: "#050505" }}>
-        {/* Header + Create button */}
+        {/* Header with Back + Home */}
         <View className="flex-row items-center justify-between mb-4">
-          <Text className="text-surface-50 text-[34px] font-black tracking-[-0.8]">Teams</Text>
+          <View className="flex-row items-center">
+            <TouchableOpacity
+              onPress={() => router.back()}
+              className="flex-row items-center mr-4"
+              accessibilityRole="button"
+              accessibilityLabel="Go back"
+            >
+              <Ionicons name="chevron-back" size={22} color="#B9B9B6" />
+              <Text className="text-titanium text-base ml-1">Back</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => router.replace("/(tabs)")}
+              accessibilityRole="button"
+              accessibilityLabel="Go to home"
+            >
+              <Ionicons name="home-outline" size={22} color="#B9B9B6" />
+            </TouchableOpacity>
+          </View>
           <TouchableOpacity
             onPress={() => setShowCreateForm((v) => !v)}
             className="bg-brand-500 rounded-xl px-4 py-2.5 flex-row items-center gap-2"

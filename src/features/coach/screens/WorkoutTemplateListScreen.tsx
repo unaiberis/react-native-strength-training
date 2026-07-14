@@ -278,6 +278,26 @@ export function WorkoutTemplateListScreen() {
   return (
     <ErrorBoundary>
       <View style={{ flex: 1, paddingHorizontal: 16, paddingTop: 16, backgroundColor: "#050505" }}>
+        {/* Header with Back + Home */}
+        <View className="flex-row items-center mb-4">
+          <TouchableOpacity
+            onPress={() => router.back()}
+            className="flex-row items-center mr-4"
+            accessibilityRole="button"
+            accessibilityLabel="Go back"
+          >
+            <Ionicons name="chevron-back" size={22} color="#B9B9B6" />
+            <Text className="text-titanium text-base ml-1">Back</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => router.replace("/(tabs)")}
+            accessibilityRole="button"
+            accessibilityLabel="Go to home"
+          >
+            <Ionicons name="home-outline" size={22} color="#B9B9B6" />
+          </TouchableOpacity>
+        </View>
+
         {/* Header */}
         <View className="mb-4">
           <KickerLabel>COACH TOOLS</KickerLabel>
