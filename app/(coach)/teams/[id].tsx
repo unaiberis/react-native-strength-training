@@ -42,6 +42,12 @@ export default function TeamDetailScreen() {
   const isTeamAdmin = useAuthStore((s) => s.isTeamAdmin);
 
   const { data: members = [], isLoading: membersLoading } = useTeamMembers(teamId);
+  if (__DEV__ && members.length > 0) {
+    console.log("[TeamDetail] members loaded:", members.length);
+    members.forEach((m) =>
+      console.log(`  member user_id=${m.user_id} role=${m.role} user_name="${m.user_name}" user_email="${m.user_email}"`),
+    );
+  }
   const updateTeamMutation = useUpdateTeam();
   const deleteTeamMutation = useDeleteTeam();
   const addMemberMutation = useAddTeamMember();
@@ -233,7 +239,7 @@ export default function TeamDetailScreen() {
 
   return (
     <ErrorBoundary>
-      <ScrollView className="flex-1 px-4 pt-4">
+      <ScrollView style={{ flex: 1, paddingHorizontal: 16, paddingTop: 16, backgroundColor: "#050505" }}>
         {/* ─── Team Name + Description ──────────────── */}
         <Card className="mb-4">
           <View className="flex-row items-center justify-between mb-1">
@@ -381,42 +387,46 @@ export default function TeamDetailScreen() {
         </Card>
 
         {/* ─── Invite Section ───────────────────────── */}
-        <Card title="Invite" className="mb-4">
-          <Text className="text-surface-400 text-sm mb-3">
-            Generate an invite code to share with athletes so they can join this
-            team.
-          </Text>
-          <Button
-            title="Generate Invite Code"
-            variant="secondary"
-            onPress={handleGenerateInvite}
-            loading={createInviteMutation.isPending}
-          />
-          {inviteCode && (
-            <View className="mt-3 bg-card-soft rounded-xl p-3 border border-border">
-              <Text className="text-surface-500 text-xs mb-1">Invite Code</Text>
-              <Text className="text-surface-50 text-lg font-bold tracking-widest">
-                {inviteCode}
-              </Text>
-            </View>
-          )}
-        </Card>
+        {canManage && (
+          <Card title="Invite" className="mb-4">
+            <Text className="text-surface-400 text-sm mb-3">
+              Generate an invite code to share with athletes so they can join this
+              team.
+            </Text>
+            <Button
+              title="Generate Invite Code"
+              variant="secondary"
+              onPress={handleGenerateInvite}
+              loading={createInviteMutation.isPending}
+            />
+            {inviteCode && (
+              <View className="mt-3 bg-card-soft rounded-xl p-3 border border-border">
+                <Text className="text-surface-500 text-xs mb-1">Invite Code</Text>
+                <Text className="text-surface-50 text-lg font-bold tracking-widest">
+                  {inviteCode}
+                </Text>
+              </View>
+            )}
+          </Card>
+        )}
 
         {/* ─── Program Assignment ───────────────────── */}
-        <Card title="Assign Program" className="mb-8">
-          <Text className="text-surface-400 text-sm mb-3">
-            Assign a training program to all members of this team.
-          </Text>
-          <Button
-            title="Select Program"
-            variant="secondary"
-            icon="document-text-outline"
-            onPress={() => {
-              // Navigate to program assignment with team pre-selected
-              router.push(`/(coach)/assign?teamId=${teamId}`);
-            }}
-          />
-        </Card>
+        {canManage && (
+          <Card title="Assign Program" className="mb-8">
+            <Text className="text-surface-400 text-sm mb-3">
+              Assign a training program to all members of this team.
+            </Text>
+            <Button
+              title="Select Program"
+              variant="secondary"
+              icon="document-text-outline"
+              onPress={() => {
+                // Navigate to program assignment with team pre-selected
+                router.push(`/(coach)/assign?teamId=${teamId}`);
+              }}
+            />
+          </Card>
+        )}
       </ScrollView>
     </ErrorBoundary>
   );

@@ -34,7 +34,7 @@ export default function TrainScreen() {
   return (
     <ErrorBoundary>
       <GradientBackground>
-        <ScrollView className="flex-1 px-4 pt-16">
+        <ScrollView style={{ flex: 1, paddingHorizontal: 16, paddingTop: 64, backgroundColor: "#050505" }}>
           <Text className="text-surface-50 text-[34px] font-black tracking-[-0.8] mb-6">
             Train
           </Text>

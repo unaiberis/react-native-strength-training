@@ -35,7 +35,7 @@ export default function HomeScreen() {
     <ErrorBoundary>
       <GradientBackground>
         <ScrollView
-          className="flex-1 px-4 pt-16"
+          style={{ flex: 1, paddingHorizontal: 16, paddingTop: 64, backgroundColor: "#050505" }}
           refreshControl={
             <RefreshControl
               refreshing={isRefetching}

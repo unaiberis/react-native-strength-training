@@ -184,7 +184,7 @@ export function AssignmentDetailScreen() {
 
   return (
     <ErrorBoundary>
-      <ScrollView className="flex-1 px-4 pt-4" showsVerticalScrollIndicator={false}>
+      <ScrollView style={{ flex: 1, paddingHorizontal: 16, paddingTop: 16, backgroundColor: "#050505" }} showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View className="mb-5">
           <KickerLabel>ASSIGNMENT DETAIL</KickerLabel>

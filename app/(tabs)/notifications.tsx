@@ -84,7 +84,7 @@ export default function NotificationsScreen() {
   if (notifications.length === 0) {
     return (
       <GradientBackground>
-        <View className="flex-1 px-4 pt-16">
+        <View style={{ flex: 1, paddingHorizontal: 16, paddingTop: 64, backgroundColor: "#050505" }}>
           <View className="flex-row items-center mb-6">
             <TouchableOpacity
               onPress={handleBack}
@@ -137,7 +137,7 @@ export default function NotificationsScreen() {
 
         {/* ─── Notification List ───────────────────────────────────── */}
         <ScrollView
-          className="flex-1 px-4"
+          style={{ flex: 1, paddingHorizontal: 16, backgroundColor: "#050505" }}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}

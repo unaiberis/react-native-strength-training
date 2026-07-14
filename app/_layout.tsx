@@ -54,6 +54,9 @@ function AuthGate({ children }: { children: React.ReactNode }) {
         console.log("[AuthGate] Web flow — getSession start, pb.authStore.isValid:", pb.authStore.isValid);
         const { session, error } = await getSession();
         console.log("[AuthGate] getSession result:", session ? { userId: session.user?.id, email: session.user?.email } : "null", "error:", error);
+        if (__DEV__ && session?.user) {
+          console.log("[AuthGate] user record keys:", Object.keys(session.user as object), "displayName:", (session.user as any).displayName, "name:", (session.user as any).name);
+        }
         if (!cancelled) {
           setSession(session);
           // Set team roles from memberships (best-effort, dynamic import avoids circular deps)
@@ -257,7 +260,7 @@ export default function RootLayout() {
       <QueryClientProvider client={queryClient}>
         <AuthGate>
           <StatusBar style="light" />
-          <View className="flex-1">
+          <View style={{ flex: 1, backgroundColor: "#050505" }}>
             <OfflineBanner />
             <Stack screenOptions={{ headerShown: false }}>
               <Stack.Screen name="(auth)" />

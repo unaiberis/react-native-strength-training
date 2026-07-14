@@ -526,7 +526,7 @@ export function WorkoutBuilderScreen() {
 
         {/* Main form */}
         <ScrollView
-          className="flex-1 px-4"
+          style={{ flex: 1, paddingHorizontal: 16, backgroundColor: "#050505" }}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >

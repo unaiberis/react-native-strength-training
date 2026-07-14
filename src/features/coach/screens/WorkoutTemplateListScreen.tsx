@@ -277,7 +277,7 @@ export function WorkoutTemplateListScreen() {
 
   return (
     <ErrorBoundary>
-      <View className="flex-1 px-4 pt-4">
+      <View style={{ flex: 1, paddingHorizontal: 16, paddingTop: 16, backgroundColor: "#050505" }}>
         {/* Header */}
         <View className="mb-4">
           <KickerLabel>COACH TOOLS</KickerLabel>

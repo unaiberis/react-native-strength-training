@@ -123,7 +123,7 @@ export default function CoachAnalyticsScreen() {
         }}
       />
       <ScrollView
-        className="flex-1 px-4 pt-4"
+        style={{ flex: 1, paddingHorizontal: 16, paddingTop: 16, backgroundColor: "#050505" }}
         refreshControl={
           <RefreshControl
             refreshing={isLoading}

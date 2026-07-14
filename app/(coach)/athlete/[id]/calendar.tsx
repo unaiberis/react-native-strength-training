@@ -79,7 +79,7 @@ export default function CoachAthleteCalendarScreen() {
           headerTintColor: "#F4F4F2",
         }}
       />
-      <ScrollView className="flex-1 px-4 pt-4">
+      <ScrollView style={{ flex: 1, paddingHorizontal: 16, paddingTop: 16, backgroundColor: "#050505" }}>
         {isLoading ? (
           <View className="items-center justify-center pt-16">
             <ActivityIndicator size="large" color="#B9B9B6" />

@@ -201,7 +201,7 @@ export default function CoachAthletesScreen() {
 
   return (
     <ErrorBoundary>
-      <View className="flex-1 px-4 pt-4">
+      <View style={{ flex: 1, paddingHorizontal: 16, paddingTop: 16, backgroundColor: "#050505" }}>
         {/* Dashboard header */}
         {!isLoading && (
           <View className="flex-row gap-2 mb-4">

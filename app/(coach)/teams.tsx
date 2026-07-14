@@ -128,7 +128,7 @@ export default function TeamsScreen() {
 
   return (
     <ErrorBoundary>
-      <View className="flex-1 px-4 pt-4">
+      <View style={{ flex: 1, paddingHorizontal: 16, paddingTop: 16, backgroundColor: "#050505" }}>
         {/* Header + Create button */}
         <View className="flex-row items-center justify-between mb-4">
           <Text className="text-surface-50 text-[34px] font-black tracking-[-0.8]">Teams</Text>

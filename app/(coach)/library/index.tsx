@@ -122,7 +122,7 @@ export default function CoachExerciseLibraryScreen() {
 
   return (
     <ErrorBoundary>
-      <View className="flex-1 px-4 pt-4">
+      <View style={{ flex: 1, paddingHorizontal: 16, paddingTop: 16, backgroundColor: "#050505" }}>
         {/* Header actions */}
         <TouchableOpacity
           className="flex-row items-center bg-card border border-border rounded-xl px-4 py-3 mb-4 min-h-[52px] shadow-button"

@@ -98,7 +98,7 @@ export default function NotificationDetailScreen() {
 
   return (
     <GradientBackground>
-      <ScrollView className="flex-1 px-4 pt-16">
+      <ScrollView style={{ flex: 1, paddingHorizontal: 16, paddingTop: 64, backgroundColor: "#050505" }}>
         {/* ─── Header with back ───────────────────────────────────── */}
         <View className="flex-row items-center mb-6">
           <TouchableOpacity

@@ -82,7 +82,7 @@ export default function ProgramAssignmentScreen() {
           headerTintColor: "#F4F4F2",
         }}
       />
-      <ScrollView className="flex-1 px-4 pt-4">
+      <ScrollView style={{ flex: 1, paddingHorizontal: 16, paddingTop: 16, backgroundColor: "#050505" }}>
         {/* Step indicator */}
         <View className="flex-row items-center justify-center mb-6 gap-2">
           {["athlete", "team", "template", "confirm"].map((s, i) => (

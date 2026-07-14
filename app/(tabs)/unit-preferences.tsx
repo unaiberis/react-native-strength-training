@@ -30,7 +30,7 @@ export default function UnitPreferencesRoute() {
 
   return (
     <GradientBackground>
-      <ScrollView className="flex-1 px-4 pt-16">
+      <ScrollView style={{ flex: 1, paddingHorizontal: 16, paddingTop: 64, backgroundColor: "#050505" }}>
         <View className="flex-row items-center mb-6">
           <TouchableOpacity
             onPress={() => router.back()}

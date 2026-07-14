@@ -70,7 +70,7 @@ export default function ExerciseCreateScreen() {
           headerTintColor: "#F4F4F2",
         }}
       />
-      <ScrollView className="flex-1 px-4 pt-4">
+      <ScrollView style={{ flex: 1, paddingHorizontal: 16, paddingTop: 16, backgroundColor: "#050505" }}>
         {/* Name */}
         <Text className="text-surface-400 text-sm font-semibold mb-1.5">
           Exercise Name *
