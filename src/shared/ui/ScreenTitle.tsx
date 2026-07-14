@@ -13,7 +13,7 @@ interface ScreenTitleProps {
 function ScreenTitle({ title, subtitle, className }: ScreenTitleProps) {
   return (
     <View className={className}>
-      <Text className="text-[34px] font-black tracking-[-0.8] text-surface-50">
+      <Text className="text-[34px] font-black tracking-[-0.8] text-surface-50 mb-4">
         {title}
       </Text>
       {subtitle && (

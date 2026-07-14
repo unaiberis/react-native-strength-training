@@ -45,7 +45,7 @@ export default function HomeScreen() {
           }
         >
           {/* Greeting */}
-          <Text className="text-surface-50 text-[34px] font-black tracking-[-0.8] mb-1">
+          <Text className="text-[34px] font-black tracking-[-0.8] text-surface-50 mb-4">
             Welcome back, {displayName}
           </Text>
           <Text className="text-surface-400 text-base mb-6">

@@ -25,7 +25,7 @@ function ProfileHeader({ name, email, onEdit }: ProfileHeaderProps) {
         className="mb-4"
       />
 
-      <Text className="text-[34px] font-black tracking-[-0.8] text-surface-50 text-center">
+      <Text className="text-[34px] font-black tracking-[-0.8] text-surface-50 text-center mb-4">
         {name}
       </Text>
 

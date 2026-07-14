@@ -127,7 +127,7 @@ export function AnalyticsScreen() {
           }
         >
           {/* Header */}
-          <Text className="text-surface-50 text-[34px] font-black tracking-[-0.8] mb-1">
+          <Text className="text-[34px] font-black tracking-[-0.8] text-surface-50 mb-4">
             Analytics
           </Text>
           <Text className="text-surface-400 text-sm mb-6">
