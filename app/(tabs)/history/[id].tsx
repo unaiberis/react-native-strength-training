@@ -1,5 +1,10 @@
-import { HistoryDetailScreen } from "../../../src/features/history/screens/HistoryDetailScreen";
+import { ErrorBoundary } from "@/shared/ui/ErrorBoundary";
+import { HistoryDetailScreen } from "@/features/history/screens/HistoryDetailScreen";
 
 export default function HistoryDetailRoute() {
-  return <HistoryDetailScreen />;
+  return (
+    <ErrorBoundary>
+      <HistoryDetailScreen />
+    </ErrorBoundary>
+  );
 }
