@@ -39,8 +39,7 @@ const tabIcons: Record<string, keyof typeof Ionicons.glyphMap> = {
 
 const COACH_SUBMENU = [
   { key: "athletes", label: "Athletes", icon: "people-outline" as const },
-  { key: "teams", label: "Teams", icon: "shield-outline" as const },
-  { key: "templates", label: "Templates", icon: "barbell-outline" as const },
+  { key: "workout-templates", label: "Templates", icon: "barbell-outline" as const },
 ];
 
 export default function TabsLayout() {

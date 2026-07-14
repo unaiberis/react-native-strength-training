@@ -33,7 +33,6 @@ export default function CoachStackLayout() {
         >
           {/* Main coach screens — accessible from submenu */}
           <Stack.Screen name="athletes" />
-          <Stack.Screen name="teams" />
           <Stack.Screen name="workout-templates" />
 
           {/* Detail/secondary screens */}
