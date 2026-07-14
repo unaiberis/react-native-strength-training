@@ -240,6 +240,17 @@ export default function TeamDetailScreen() {
   return (
     <ErrorBoundary>
       <ScrollView style={{ flex: 1, paddingHorizontal: 16, paddingTop: 16, backgroundColor: "#050505" }}>
+        {/* ─── Back Button ──────────────── */}
+        <TouchableOpacity
+          onPress={() => router.back()}
+          className="flex-row items-center mb-4"
+          accessibilityRole="button"
+          accessibilityLabel="Go back"
+        >
+          <Ionicons name="chevron-back" size={22} color="#B9B9B6" />
+          <Text className="text-titanium text-base ml-1">Back</Text>
+        </TouchableOpacity>
+
         {/* ─── Team Name + Description ──────────────── */}
         <Card className="mb-4">
           <View className="flex-row items-center justify-between mb-1">
