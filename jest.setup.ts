@@ -1,5 +1,8 @@
 import React from "react";
 
+// RN dev flag — needed by __DEV__ guards in service logs
+(globalThis as any).__DEV__ = true;
+
 // ─── React Native mock for node test environment ──────────────────────
 // @testing-library/react-native v12 uses react-test-renderer and detects
 // host component names by rendering mock RN components. Each mock component

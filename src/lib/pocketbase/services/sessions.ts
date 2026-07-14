@@ -1,4 +1,5 @@
 import { pb } from "../client";
+import { fetchTemplateNames } from "./fetch-template-names";
 import type { SessionRow, ExerciseSetRow } from "../../../types/pocketbase";
 
 // ─── Row Types ───────────────────────────────────────────────────────────
@@ -258,17 +259,9 @@ export async function getSessionDetail(
     const exerciseIds = [...new Set(session.sets.map((s) => s.exercise_id))];
 
     // Fetch template name if the session references a template
-    let templateName: string | undefined;
-    if (session.workout_template_id) {
-      try {
-        const tmpl = await pb.collection("workout_templates").getOne(session.workout_template_id, {
-          fields: "name",
-        });
-        templateName = (tmpl as unknown as { name: string }).name;
-      } catch {
-        // template might have been deleted; silently skip
-      }
-    }
+    const ids = session.workout_template_id ? [session.workout_template_id] : [];
+    const nameMap = await fetchTemplateNames(ids);
+    const templateName = nameMap.get(session.workout_template_id!);
 
     if (exerciseIds.length === 0) {
       return {
@@ -386,6 +379,10 @@ export async function listSessions(
     const rows = (result.items ?? []) as unknown as SessionRow[];
 
     // Enrich each session with exercise + set counts and template name
+    // Batch-fetch template names for all sessions in one call
+    const templateIds = [...new Set(rows.map((r) => r.workout_template_id).filter((id): id is string => id != null))];
+    const nameMap = await fetchTemplateNames(templateIds);
+
     const enriched: SessionListItem[] = await Promise.all(
       rows.map(async (row) => {
         const sets = await pb.collection("exercise_sets").getFullList({
@@ -395,19 +392,7 @@ export async function listSessions(
 
         const setList = (sets ?? []) as unknown as Array<{ id: string; exercise_id: string }>;
         const uniqueExercises = [...new Set(setList.map((s) => s.exercise_id))];
-
-        // Fetch template name if the session references a template
-        let templateName: string | undefined;
-        if (row.workout_template_id) {
-          try {
-            const tmpl = await pb.collection("workout_templates").getOne(row.workout_template_id, {
-              fields: "name",
-            });
-            templateName = (tmpl as unknown as { name: string }).name;
-          } catch {
-            // template might have been deleted; silently skip
-          }
-        }
+        const templateName = nameMap.get(row.workout_template_id ?? "");
 
         return {
           id: row.id,

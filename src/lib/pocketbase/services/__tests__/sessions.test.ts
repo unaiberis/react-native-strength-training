@@ -492,17 +492,10 @@ describe("PocketBase sessions service", () => {
       items: [sessionWithTmpl, sessionNoTmpl],
     });
 
-    // For each session, getFullList for sets + exercise counts
-    mockGetFullList.mockResolvedValue([makeSet()]);
+    // For batch template name lookup — getFullList via fetchTemplateNames
+    mockGetFullList.mockResolvedValueOnce([{ id: "tmpl-1", name: "Push Day" }]);
 
-    // For template name lookup — getOne for session-1's template
-    mockGetOne.mockResolvedValueOnce({ id: "tmpl-1", name: "Push Day" });
-
-    // For session-2 (no template), no lookup needed
-
-    // For exercise counts
-    mockGetFullList.mockResolvedValue([makeSet()]);
-    mockGetFullList.mockResolvedValue([makeSet()]);
+    // For exercise sets per session (default fallback)
     mockGetFullList.mockResolvedValue([makeSet()]);
 
     const result = await listSessions("user-1");

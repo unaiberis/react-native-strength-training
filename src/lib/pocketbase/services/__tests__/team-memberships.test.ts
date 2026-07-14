@@ -186,6 +186,7 @@ describe("PocketBase team-memberships service", () => {
       expect(mockGetFullList).toHaveBeenCalledWith({
         filter: "team_id = 'team-1'",
         expand: "user_id",
+        fields: "id,user_id,team_id,role,position,joined_at,created,updated,expand.user_id.id,expand.user_id.email,expand.user_id.name,expand.user_id.displayName,expand.user_id.avatar",
         $autoCancel: false,
       });
       expect(result).toHaveLength(2);
@@ -220,6 +221,7 @@ describe("PocketBase team-memberships service", () => {
       expect(mockGetFullList).toHaveBeenCalledWith({
         filter: "team_id = 'team-1' && role = 'coach'",
         expand: "user_id",
+        fields: "id,user_id,team_id,role,position,joined_at,created,updated,expand.user_id.id,expand.user_id.email,expand.user_id.name,expand.user_id.displayName,expand.user_id.avatar",
         $autoCancel: false,
       });
       expect(result).toHaveLength(1);

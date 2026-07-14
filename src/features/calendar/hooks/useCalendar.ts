@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuthStore } from "@/stores/auth-store";
 import { pb } from "@/lib/pocketbase/client";
+import { fetchTemplateNames } from "@/lib/pocketbase/services/fetch-template-names";
 
 const CALENDAR_QUERY_KEY = "calendar";
 
@@ -177,20 +178,13 @@ export async function fetchSessionsForDate(
 
   const rows = (sessions ?? []) as unknown as SessionForCalendar[];
 
+  // Batch-fetch template names for all sessions in one call
+  const templateIds = [...new Set(rows.map((r) => r.workout_template_id).filter((id): id is string => id != null))];
+  const nameMap = await fetchTemplateNames(templateIds);
+
   return Promise.all(
     rows.map(async (s) => {
-      let templateName: string | null = null;
-      if (s.workout_template_id) {
-        try {
-          const tmpl = await pb.collection("workout_templates").getOne(s.workout_template_id, {
-            fields: "name",
-            requestKey: null,
-          });
-          templateName = (tmpl as unknown as { name: string }).name;
-        } catch {
-          // template deleted
-        }
-      }
+      const templateName = nameMap.get(s.workout_template_id ?? "") ?? null;
 
       const sets = await pb.collection("exercise_sets").getFullList({
         filter: `workout_session_id = '${s.id}'`,

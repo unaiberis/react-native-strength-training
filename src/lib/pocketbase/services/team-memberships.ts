@@ -47,11 +47,49 @@ export async function getTeamMembers(
     const records = await pb.collection("team_memberships").getFullList({
       filter,
       expand: "user_id",
+      fields: "id,user_id,team_id,role,position,joined_at,created,updated,expand.user_id.id,expand.user_id.email,expand.user_id.name,expand.user_id.displayName,expand.user_id.avatar",
       $autoCancel: false,
     });
 
+    // Detect if any expands returned undefined (blocked by API rules)
+    const hasExpandData = records?.some((r: any) => r.expand?.user_id != null);
+
+    // If expand was blocked for some users, batch-fetch user records directly
+    let userMap = new Map<string, { name?: string; email?: string; avatar?: string | null }>();
+    if (!hasExpandData && records?.length) {
+      const userIds = [...new Set(records.map((r: any) => r.user_id).filter(Boolean))];
+      try {
+        const users = await pb.collection("users").getFullList({
+          filter: userIds.map((id) => `id = '${id}'`).join(" || "),
+          fields: "id,email,name,displayName,avatar",
+          requestKey: null,
+          $autoCancel: false,
+        });
+        for (const u of (users ?? []) as any[]) {
+          userMap.set(u.id, { name: u.displayName ?? u.name, email: u.email, avatar: u.avatar });
+        }
+        if (__DEV__) {
+          console.log(`[getTeamMembers] batch-fetched ${userMap.size} users (${userIds.length - userMap.size} missing — blocked by API rules)`);
+        }
+      } catch {
+        // Batch fetch also blocked — warn and fall through
+        if (__DEV__) console.warn("[getTeamMembers] batch user fetch blocked by PocketBase API rules");
+      }
+    }
+
+    if (__DEV__) {
+      records?.forEach((r: any) => {
+        const expandOk = r.expand?.user_id != null;
+        console.log(
+          `[getTeamMembers] membership=${r.id} user_id=${r.user_id} expand=${expandOk ? "OK" : "BLOCKED"}`,
+        );
+      });
+    }
+
     return (records ?? []).map((r: any) => {
-      const user = r.expand?.user_id ?? {};
+      const user = r.expand?.user_id ?? userMap.get(r.user_id) ?? {};
+      const userName = user.displayName ?? user.name ?? user.email ?? `User ${r.user_id.slice(0, 6)}`;
+      const userEmail = user.email ?? "";
       return {
         id: r.id,
         user_id: r.user_id,
@@ -61,8 +99,8 @@ export async function getTeamMembers(
         joined_at: r.joined_at,
         created: r.created,
         updated: r.updated,
-        user_name: user.displayName ?? user.email ?? "Unknown",
-        user_email: user.email ?? "",
+        user_name: userName,
+        user_email: userEmail,
         user_avatar: user.avatar ?? null,
       } as TeamMember;
     });

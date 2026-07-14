@@ -11,6 +11,7 @@ import { Platform } from "react-native";
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { pb } from "@/lib/pocketbase/client";
+import { fetchTemplateNames } from "@/lib/pocketbase/services/fetch-template-names";
 import { useAuthStore } from "@/stores/auth-store";
 import {
   useAthleteAssignments,
@@ -120,22 +121,13 @@ async function fetchSessionsFromPB(
 
   const rows = (sessions ?? []) as unknown as PBSessionRecord[];
 
+  // Batch-fetch template names for all sessions in one call
+  const templateIds = [...new Set(rows.map((r) => r.workout_template_id).filter((id): id is string => id != null))];
+  const nameMap = await fetchTemplateNames(templateIds);
+
   const results: WorkoutSummary[] = await Promise.all(
     rows.map(async (s) => {
-      let templateName: string | null = null;
-      if (s.workout_template_id) {
-        try {
-          const tmpl = await pb
-            .collection("workout_templates")
-            .getOne(s.workout_template_id, {
-              fields: "name",
-              requestKey: null,
-            });
-          templateName = (tmpl as unknown as { name: string }).name;
-        } catch {
-          // template deleted
-        }
-      }
+      const templateName = nameMap.get(s.workout_template_id ?? "") ?? null;
 
       const sets = await pb.collection("exercise_sets").getFullList({
         filter: `workout_session_id = '${s.id}'`,

@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import type { RecordModel } from "pocketbase";
 import { useAuthStore } from "@/stores/auth-store";
 import { pb } from "@/lib/pocketbase/client";
+import { fetchTemplateNames } from "@/lib/pocketbase/services/fetch-template-names";
 import { calculateE1RM } from "@/shared/utils/pr-calc";
 
 const HOME_STATS_QUERY_KEY = "home-stats";
@@ -123,6 +124,11 @@ async function fetchHomeStats(userId: string): Promise<HomeStats> {
 
   // 5. Recent 5 sessions with enrichment
   const recentRaw = sessions.slice(0, 5);
+
+  // Batch-fetch template names for all recent sessions in one call
+  const templateIds = [...new Set(recentRaw.map((r) => r.workout_template_id).filter(Boolean))];
+  const nameMap = await fetchTemplateNames(templateIds);
+
   const recentSessions: RecentSession[] = await Promise.all(
     recentRaw.map(async (session) => {
       // Count unique exercises in this session
@@ -135,21 +141,7 @@ async function fetchHomeStats(userId: string): Promise<HomeStats> {
         (sets ?? []).map((s: RecordModel) => s.exercise_id as string),
       );
 
-      // Template name
-      let templateName = "Custom Workout";
-      if (session.workout_template_id) {
-        try {
-          const tmpl = await pb
-            .collection("workout_templates")
-            .getOne(session.workout_template_id, {
-              fields: "name",
-              requestKey: null,
-            });
-          templateName = (tmpl as unknown as { name: string }).name;
-        } catch {
-          // template deleted — keep fallback
-        }
-      }
+      const templateName = nameMap.get(session.workout_template_id ?? "") ?? "Custom Workout";
 
       return {
         id: session.id,

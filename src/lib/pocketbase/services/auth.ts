@@ -26,6 +26,14 @@ export async function signUp(input: RegisterInput): Promise<AuthResult> {
       role: input.role ?? "athlete",
     });
 
+    if (__DEV__) {
+      console.log(
+        `[auth/signUp] created user id=${record?.id} email=${input.email} displayName="${input.displayName}"`,
+        "record keys:", Object.keys(record ?? {}),
+        "raw record:", record,
+      );
+    }
+
     return { error: null, user: record ?? null };
   } catch (err: any) {
     return { error: mapAuthError(err), user: null };

@@ -357,8 +357,8 @@ describe("useSessionsForDate", () => {
     (pb.getFullList as jest.Mock).mockResolvedValueOnce([
       { id: "pb-sess-1", started_at: "2026-07-08T10:00:00.000Z", status: "completed", workout_template_id: "tmpl-1" },
     ]);
-    // getOne call: workout_templates
-    (pb.getOne as jest.Mock).mockResolvedValueOnce({ name: "Leg Day" });
+    // getFullList call via fetchTemplateNames: workout_templates batch lookup
+    (pb.getFullList as jest.Mock).mockResolvedValueOnce([{ id: "tmpl-1", name: "Leg Day" }]);
     // Second getFullList call: exercise_sets
     (pb.getFullList as jest.Mock).mockResolvedValueOnce([
       { id: "set-1", exercise_id: "ex-1" },
@@ -401,8 +401,8 @@ describe("useSessionsForDate", () => {
     (pb.getFullList as jest.Mock).mockResolvedValueOnce([
       { id: "pb-sess-2", started_at: "2026-07-08T11:00:00.000Z", status: "active", workout_template_id: "deleted-tmpl" },
     ]);
-    // getOne throws — template deleted
-    (pb.getOne as jest.Mock).mockRejectedValueOnce(new Error("not found"));
+    // getFullList via fetchTemplateNames rejects — template deleted
+    (pb.getFullList as jest.Mock).mockRejectedValueOnce(new Error("not found"));
     // exercise sets
     (pb.getFullList as jest.Mock).mockResolvedValueOnce([]);
 
