@@ -1,33 +1,9 @@
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import { Tabs, useRouter, usePathname } from "expo-router";
 import { useAuthStore } from "../../src/stores/auth-store";
 import { Text, View, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { GradientBackground } from "../../src/shared/ui/GradientBackground";
-
-function SyncBanner() {
-  const isOnline = useAuthStore((s) => s.isOnline);
-  const syncStatus = useAuthStore((s) => s.syncStatus);
-
-  const banner = useMemo(() => {
-    if (!isOnline) return { text: "You're offline — changes sync when connected", bg: "bg-amber-900/60", textColor: "text-amber-300" };
-    if (syncStatus === "syncing") return { text: "Syncing\u2026", bg: "bg-brand-900/40", textColor: "text-brand-300" };
-    if (syncStatus === "dead-letters") return { text: "Some changes couldn't sync", bg: "bg-red-900/40", textColor: "text-red-300" };
-    if (syncStatus === "auth-expired") return { text: "Session expired. Log in again to sync.", bg: "bg-red-900/40", textColor: "text-red-300" };
-    if (syncStatus === "error") return { text: "Sync error", bg: "bg-amber-900/40", textColor: "text-amber-300" };
-    return null;
-  }, [isOnline, syncStatus]);
-
-  if (!banner) return null;
-
-  return (
-    <View className={`${banner.bg} py-1.5 px-4`}>
-      <Text className={`${banner.textColor} text-xs text-center font-medium`}>
-        {banner.text}
-      </Text>
-    </View>
-  );
-}
 
 const tabIcons: Record<string, keyof typeof Ionicons.glyphMap> = {
   index: "calendar-outline",
@@ -65,8 +41,6 @@ export default function TabsLayout() {
   return (
     <GradientBackground>
       <View style={{ flex: 1, backgroundColor: "#050505" }}>
-      <SyncBanner />
-      
       {/* Coach Submenu — visible when navigating coach routes */}
       {showCoachSubmenu && (
         <View style={{
@@ -101,6 +75,8 @@ export default function TabsLayout() {
         screenOptions={{
           headerShown: false,
           contentStyle: { backgroundColor: "#050505" },
+          headerStyle: { backgroundColor: "#18181b" },
+          headerTintColor: "#fafafa",
           tabBarStyle: {
             backgroundColor: "#0B0B0C",
             borderTopColor: "#343437",
@@ -160,12 +136,12 @@ export default function TabsLayout() {
       {/* Hidden routes */}
       <Tabs.Screen name="index" options={{ href: null }} />
       <Tabs.Screen name="coach" options={{ href: null }} />
-      <Tabs.Screen name="exercises/index" options={{ href: null, headerShown: true, headerTitle: "Exercise Library", headerStyle: { backgroundColor: "#18181b" }, headerTintColor: "#fafafa" }} />
-      <Tabs.Screen name="exercises/[id]" options={{ href: null, headerShown: true, headerTitle: "Exercise Details", headerStyle: { backgroundColor: "#18181b" }, headerTintColor: "#fafafa" }} />
-      <Tabs.Screen name="history/index" options={{ href: null, headerShown: true, headerTitle: "Workout History", headerStyle: { backgroundColor: "#18181b" }, headerTintColor: "#fafafa" }} />
-      <Tabs.Screen name="history/[id]" options={{ href: null, headerShown: true, headerTitle: "Workout Details", headerStyle: { backgroundColor: "#18181b" }, headerTintColor: "#fafafa" }} />
-      <Tabs.Screen name="analytics/exercise/[id]" options={{ href: null, headerShown: true, headerTitle: "Exercise Progress", headerStyle: { backgroundColor: "#18181b" }, headerTintColor: "#fafafa" }} />
-      <Tabs.Screen name="wellness" options={{ href: null, headerShown: true, headerTitle: "Wellness", headerStyle: { backgroundColor: "#18181b" }, headerTintColor: "#fafafa" }} />
+      <Tabs.Screen name="exercises/index" options={{ href: null, headerShown: true, headerTitle: "Exercise Library" }} />
+      <Tabs.Screen name="exercises/[id]" options={{ href: null, headerShown: true, headerTitle: "Exercise Details" }} />
+      <Tabs.Screen name="history/index" options={{ href: null, headerShown: true, headerTitle: "Workout History" }} />
+      <Tabs.Screen name="history/[id]" options={{ href: null, headerShown: true, headerTitle: "Workout Details" }} />
+      <Tabs.Screen name="analytics/exercise/[id]" options={{ href: null, headerShown: true, headerTitle: "Exercise Progress" }} />
+      <Tabs.Screen name="wellness" options={{ href: null, headerShown: true, headerTitle: "Wellness" }} />
       <Tabs.Screen name="notifications" options={{ href: null }} />
       <Tabs.Screen name="notification/[id]" options={{ href: null }} />
       <Tabs.Screen name="unit-preferences" options={{ href: null }} />

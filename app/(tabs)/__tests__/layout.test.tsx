@@ -22,6 +22,7 @@ jest.mock("expo-router", () => {
     useRouter: () => ({ push: mockPush, replace: mockReplace, back: jest.fn() }),
     useSegments: () => [],
     useLocalSearchParams: () => ({}),
+    usePathname: () => "/(tabs)/home",
     Stack: { Screen: () => null },
     Tabs,
   };
@@ -71,25 +72,6 @@ describe("TabsLayout progress tab removal", () => {
     expect(source).not.toMatch(/progress:\s*"trending-up-outline"/);
   });
 
-  it("shows the offline banner when not online", () => {
-    mockAuthState.isOnline = false;
-    render(<TabsLayout />);
-    expect(
-      screen.getByText(/You're offline/i),
-    ).toBeTruthy();
-  });
-
-  it.each([
-    ["syncing", /Syncing/i],
-    ["dead-letters", /Some changes couldn't sync/i],
-    ["auth-expired", /Session expired/i],
-    ["error", /Sync error/i],
-  ])("shows the sync banner for status %s", (status, matcher) => {
-    mockAuthState.syncStatus = status;
-    render(<TabsLayout />);
-    expect(screen.getByText(matcher)).toBeTruthy();
-  });
-
   it("redirects to login when unauthenticated", () => {
     jest.useFakeTimers();
     mockAuthState.state = "unauthenticated";
@@ -100,14 +82,17 @@ describe("TabsLayout progress tab removal", () => {
     expect(mockReplace).toHaveBeenCalledWith("/(auth)/login");
   });
 
-  it("redirects to coach tabs when authenticated coach", () => {
-    jest.useFakeTimers();
-    mockAuthState.state = "authenticated";
+  it("shows the coach submenu for coach users", () => {
     mockAuthState.role = "coach";
     render(<TabsLayout />);
-    act(() => {
-      jest.runAllTimers();
-    });
-    expect(mockReplace).toHaveBeenCalledWith("/(coach)");
+    expect(screen.getByText("Athletes")).toBeTruthy();
+    expect(screen.getByText("Templates")).toBeTruthy();
+  });
+
+  it("hides the coach submenu for athlete users", () => {
+    mockAuthState.role = "athlete";
+    render(<TabsLayout />);
+    expect(screen.queryByText("Athletes")).toBeNull();
+    expect(screen.queryByText("Templates")).toBeNull();
   });
 });

@@ -152,7 +152,7 @@ export function WellnessDashboardScreen() {
     Promise.resolve(refetch()).finally(() => setRefreshing(false));
   }, [refetch]);
 
-  const errorMessage = error instanceof Error ? error.message : "Failed to load wellness data";
+  const errorMessage = error instanceof Error ? error.message : null;
 
   return (
     <ScreenLayout

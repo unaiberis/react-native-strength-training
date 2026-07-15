@@ -4,7 +4,6 @@ import { useAuthStore } from "../../src/stores/auth-store";
 import { View, TouchableOpacity, Text } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { GradientBackground } from "../../src/shared/ui/GradientBackground";
-import { OfflineBanner } from "../../src/shared/ui/OfflineBanner";
 
 const MAIN_TABS = [
   { key: "calendar", label: "Calendar", icon: "calendar-outline" as const },
@@ -80,7 +79,6 @@ export default function CoachStackLayout() {
   return (
     <GradientBackground>
       <View style={{ flex: 1, backgroundColor: "#050505" }}>
-        <OfflineBanner />
         <Stack
           screenOptions={{
             headerShown: false,
