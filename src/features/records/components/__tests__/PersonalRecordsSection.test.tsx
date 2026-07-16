@@ -12,9 +12,11 @@ jest.mock("expo-router", () => ({
 }));
 
 const mockUsePersonalRecords = jest.fn();
+const mockUsePRTimeline = jest.fn();
 
 jest.mock("@/features/records/hooks/usePersonalRecords", () => ({
   usePersonalRecords: (...args: any[]) => mockUsePersonalRecords(...args),
+  usePRTimeline: (...args: any[]) => mockUsePRTimeline(...args),
   getPRTypeLabel: (prType: string) => {
     const map: Record<string, string> = {
       one_rep_max: "1RM",
@@ -49,6 +51,13 @@ describe("PersonalRecordsSection", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockPush.mockClear();
+    mockUsePRTimeline.mockReturnValue({
+      chartData: [],
+      timeline: [],
+      isLoading: false,
+      isRefetching: false,
+      refetch: jest.fn(),
+    });
   });
 
   it("renders the 'Personal Records' header", () => {
@@ -151,5 +160,107 @@ describe("PersonalRecordsSection", () => {
 
     fireEvent.press(screen.getByLabelText(/Bench Press.*Tap to collapse/));
     expect(screen.queryByText("100 one_rep_max")).toBeNull();
+  });
+
+  // ─── Progress chart tests ──────────────────────────────────────────────
+
+  it("shows progress chart when exercise is expanded with timeline data", () => {
+    const records = [makeRecord("r1", "one_rep_max", 100)];
+    mockUsePersonalRecords.mockReturnValue({
+      groupedByExercise: [makeGroup("ex-1", "Bench Press", records)],
+      isLoading: false,
+      isRefetching: false,
+      refetch: jest.fn(),
+      totalPRs: 1,
+    });
+
+    mockUsePRTimeline.mockReturnValue({
+      chartData: [
+        { date: "2026-06-01", value: 90 },
+        { date: "2026-06-15", value: 95 },
+        { date: "2026-07-01", value: 100 },
+      ],
+      timeline: [],
+      isLoading: false,
+      isRefetching: false,
+      refetch: jest.fn(),
+    });
+
+    render(<PersonalRecordsSection />);
+
+    // Collapsed by default
+    expect(screen.queryByText("Progress")).toBeNull();
+
+    // Expand
+    const toggle = screen.getByLabelText(/Bench Press.*Tap to expand/);
+    fireEvent.press(toggle);
+
+    // Progress heading should render
+    expect(screen.getByText("Progress")).toBeTruthy();
+    // Chart Y-axis labels for data range 90-100
+    expect(screen.getByText("90")).toBeTruthy();
+    expect(screen.getByText("100")).toBeTruthy();
+  });
+
+  it("does not show progress chart when there is only one data point", () => {
+    const records = [makeRecord("r1", "one_rep_max", 100)];
+    mockUsePersonalRecords.mockReturnValue({
+      groupedByExercise: [makeGroup("ex-1", "Bench Press", records)],
+      isLoading: false,
+      isRefetching: false,
+      refetch: jest.fn(),
+      totalPRs: 1,
+    });
+
+    mockUsePRTimeline.mockReturnValue({
+      chartData: [{ date: "2026-07-01", value: 100 }],
+      timeline: [],
+      isLoading: false,
+      isRefetching: false,
+      refetch: jest.fn(),
+    });
+
+    render(<PersonalRecordsSection />);
+
+    const toggle = screen.getByLabelText(/Bench Press.*Tap to expand/);
+    fireEvent.press(toggle);
+
+    // Progress section should NOT render with only 1 data point
+    expect(screen.queryByText("Progress")).toBeNull();
+  });
+
+  it("shows loading indicator in progress section while timeline loads", () => {
+    const records = [makeRecord("r1", "one_rep_max", 100)];
+    mockUsePersonalRecords.mockReturnValue({
+      groupedByExercise: [makeGroup("ex-1", "Bench Press", records)],
+      isLoading: false,
+      isRefetching: false,
+      refetch: jest.fn(),
+      totalPRs: 1,
+    });
+
+    mockUsePRTimeline.mockReturnValue({
+      chartData: [
+        { date: "2026-06-01", value: 90 },
+        { date: "2026-06-15", value: 95 },
+        { date: "2026-07-01", value: 100 },
+      ],
+      timeline: [],
+      isLoading: true,
+      isRefetching: false,
+      refetch: jest.fn(),
+    });
+
+    render(<PersonalRecordsSection />);
+
+    const toggle = screen.getByLabelText(/Bench Press.*Tap to expand/);
+    fireEvent.press(toggle);
+
+    expect(screen.getByText("Progress")).toBeTruthy();
+    // Should show ActivityIndicator during loading
+    const { ActivityIndicator } = require("react-native");
+    const indicators = screen.UNSAFE_getAllByType(ActivityIndicator);
+    // There should be at least 2 indicators (one from PR loading if applicable, one from timeline)
+    expect(indicators.length).toBeGreaterThanOrEqual(1);
   });
 });

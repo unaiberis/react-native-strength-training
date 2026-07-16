@@ -18,8 +18,10 @@ jest.mock("@/features/analytics/hooks/useAnalytics", () => ({
 }));
 
 const mockUsePersonalRecords = jest.fn();
+const mockUsePRTimeline = jest.fn();
 jest.mock("@/features/records/hooks/usePersonalRecords", () => ({
   usePersonalRecords: (...args: any[]) => mockUsePersonalRecords(...args),
+  usePRTimeline: (...args: any[]) => mockUsePRTimeline(...args),
   getPRTypeLabel: (prType: string) => {
     const map: Record<string, string> = {
       one_rep_max: "1RM",
@@ -70,6 +72,13 @@ describe("AnalyticsScreen Personal Records section", () => {
       isRefetching: false,
       refetch: jest.fn(),
       totalPRs: 0,
+    });
+    mockUsePRTimeline.mockReturnValue({
+      chartData: [],
+      timeline: [],
+      isLoading: false,
+      isRefetching: false,
+      refetch: jest.fn(),
     });
   });
 
