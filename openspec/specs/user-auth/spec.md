@@ -34,6 +34,20 @@ The system MUST detect expired tokens during sync push and surface a re-login pr
 - GIVEN user re-authenticates after `auth_expired` THEN queued entries replayed from `auth_error` state, banner dismissed
 - GIVEN re-login succeeds WHEN queue flushes THEN normal sync resumes
 
+### Update own profile
+
+MUST allow an authenticated user to update their own profile fields (`displayName`, `bodyweight`, `bodyweight_unit`, `height`, `height_unit`, `experience`, `goal`) via the PocketBase `users` collection `update()` endpoint, with `email` shown read-only and the auth-store `user` refreshed after a successful save. Profile updates MUST be online-only; when offline, the save control MUST be disabled with an inline note. (Previously: the "Edit Profile" button only showed an Alert; no write path existed.)
+
+- GIVEN an authenticated user with a valid PocketBase session WHEN they open Edit Profile, set `displayName` to "Jane Doe" and submit while online THEN `updateProfile(userId, { displayName: "Jane Doe", ... })` is called on `pb.collection("users")`, the returned record refreshes the auth-store via `setUser(updatedUser)`, `router.back()` is invoked, and `ProfileScreen` now shows "Jane Doe".
+- GIVEN an authenticated user WHEN they submit a profile with `displayName` longer than 50 characters THEN submission is rejected with a Zod field error ("Display name must be 1–50 characters"), no `updateProfile` call is made, and the record is unchanged.
+- GIVEN an authenticated user WHEN `isOnline === false` THEN the Save control is disabled, the inline note "You're offline — profile changes need a connection" is shown, and pressing Save has no effect.
+- GIVEN an authenticated user WHEN the Edit Profile screen renders THEN the `email` field is displayed in a read-only control (e.g. disabled `Input`) and its value is NOT included in the payload sent to `updateProfile`.
+- GIVEN `bodyweight` is provided as a number > 500 or ≤ 0 WHEN validated THEN Zod rejects with a field error and no write occurs.
+- GIVEN `bodyweight_unit` / `height_unit` is not one of `metric` | `imperial` WHEN validated THEN Zod rejects with an enum error.
+- GIVEN `experience` is not one of `beginner` | `intermediate` | `advanced` WHEN validated THEN Zod rejects with an enum error.
+- GIVEN `goal` is not one of `strength` | `hypertrophy` | `endurance` | `general_fitness` WHEN validated THEN Zod rejects with an enum error.
+- GIVEN `displayName` is empty (length 0) WHEN validated THEN Zod rejects with a "required" field error.
+
 ### Backend Environment Toggle
 
 SHOULD switch between PocketBase and Supabase backends via `EXPO_PUBLIC_API_PROVIDER` env var.

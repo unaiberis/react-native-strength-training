@@ -303,6 +303,7 @@ export default function TabsLayout() {
           <Tabs.Screen name="notifications" options={{ href: null, headerShown: false }} />
           <Tabs.Screen name="notification/[id]" options={{ href: null, headerShown: false }} />
           <Tabs.Screen name="unit-preferences" options={{ href: null, headerShown: false }} />
+          <Tabs.Screen name="edit-profile" options={{ href: null, headerShown: false }} />
         </Tabs>
       </View>
     </GradientBackground>

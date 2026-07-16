@@ -42,7 +42,7 @@ export function ProfileScreen() {
   // ─── Derived data ─────────────────────────────────────────────────────
   const email = user?.email ?? "No email";
   const displayName =
-    user?.user_metadata?.display_name ?? email.split("@")[0] ?? "User";
+    user?.displayName ?? email.split("@")[0] ?? "User";
   const createdAt = user?.created_at
     ? new Date(user.created_at).toLocaleDateString()
     : "Unknown";
@@ -86,10 +86,7 @@ export function ProfileScreen() {
   };
 
   const handleEditProfile = () => {
-    Alert.alert(
-      "Edit Profile",
-      "Profile editing will be available in a future update.",
-    );
+    router.push("/(tabs)/edit-profile");
   };
 
   const handleNotifications = () => {

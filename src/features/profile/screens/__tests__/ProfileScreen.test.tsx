@@ -1,12 +1,23 @@
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react-native";
 
+// ─── Mock expo-router (override global setup to capture navigation) ──────────
+
+const mockPush = jest.fn();
+jest.mock("expo-router", () => ({
+  useRouter: () => ({ push: mockPush, replace: jest.fn(), back: jest.fn() }),
+  useSegments: () => [],
+  useLocalSearchParams: () => ({}),
+  Stack: { Screen: () => null },
+  Tabs: () => null,
+}));
+
 // ─── Mock auth hooks ─────────────────────────────────────────────────────────
 
 const mockLogout = jest.fn();
 jest.mock("@/features/auth/hooks/useAuth", () => ({
   useAuth: () => ({
-    user: { id: "user-123", email: "test@example.com", created_at: "2026-01-01T00:00:00Z", user_metadata: { display_name: "Test User" } },
+    user: { id: "user-123", email: "test@example.com", created_at: "2026-01-01T00:00:00Z", displayName: "Test User" },
     logout: mockLogout,
     isAuthenticated: true,
     isLoading: false,
@@ -189,5 +200,12 @@ describe("ProfileScreen", () => {
     render(<ProfileScreen />);
 
     expect(screen.getByText("Notifications")).toBeTruthy();
+  });
+
+  it("navigates to edit-profile when Edit Profile is pressed", () => {
+    render(<ProfileScreen />);
+
+    fireEvent.press(screen.getAllByText("Edit Profile")[0]);
+    expect(mockPush).toHaveBeenCalledWith("/(tabs)/edit-profile");
   });
 });
