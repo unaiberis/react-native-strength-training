@@ -127,11 +127,15 @@ export function ProfileScreen() {
           <TouchableOpacity
             key={team.id}
             onPress={() => {
-              if (isCoach) innerRouter.push(`/(coach)/teams/${team.id}`);
+              if (isCoach) {
+                innerRouter.push(`/(coach)/teams/${team.id}`);
+              } else {
+                innerRouter.push(`/(tabs)/team/${team.id}`);
+              }
             }}
             className="flex-row items-center justify-between py-3 border-b border-border last:border-b-0"
-            activeOpacity={isCoach ? 0.7 : 1}
-            accessibilityRole={isCoach ? "button" : "none"}
+            activeOpacity={0.7}
+            accessibilityRole="button"
             accessibilityLabel={`Team: ${team.name}`}
           >
             <View className="flex-row items-center gap-3">
@@ -150,9 +154,7 @@ export function ProfileScreen() {
                 </Text>
               </View>
             </View>
-            {isCoach && (
-              <Ionicons name="chevron-forward" size={16} color="#707074" />
-            )}
+            <Ionicons name="chevron-forward" size={16} color="#707074" />
           </TouchableOpacity>
         ))}
       </Card>
