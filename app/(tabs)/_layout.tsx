@@ -261,6 +261,7 @@ export default function TabsLayout() {
           screenOptions={{
             headerShown: false,
           }}
+          backBehavior="history"
         >
           <Tabs.Screen
             name="calendar"
