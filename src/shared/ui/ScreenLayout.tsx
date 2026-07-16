@@ -11,7 +11,7 @@ import Animated, {
 // ─── Types ─────────────────────────────────────────────────────────────────
 
 interface ScreenLayoutProps extends ViewProps {
-  children: ReactNode;
+  children?: ReactNode;
   /** Delay in ms between each child's animation start (default: 60) */
   staggerDelay?: number;
   /** Duration of each child's fade+slide animation in ms (default: 350) */
