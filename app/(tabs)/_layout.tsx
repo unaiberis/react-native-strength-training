@@ -102,19 +102,32 @@ function CustomTabBar({
   const [containerWidth, setContainerWidth] = useState(0);
   const tabWidth = containerWidth / VISIBLE_TABS.length;
 
+  // Only count visible (non‑hidden) routes so the indicator stays
+  // correctly aligned when a hidden detail screen is active.
+  const visibleIndices = useMemo(() => {
+    const indices: number[] = [];
+    state.routes.forEach((route: any, idx: number) => {
+      if (descriptors[route.key]?.options?.href !== null) {
+        indices.push(idx);
+      }
+    });
+    return indices;
+  }, [state.routes, descriptors]);
+
+  const activeVisibleIndex = visibleIndices.indexOf(state.index);
+  const hasVisibleTab = activeVisibleIndex >= 0;
+
   const indicatorOffset = useSharedValue(0);
 
-  const activeIndex = state.index;
-
   useEffect(() => {
-    if (containerWidth <= 0) return;
+    if (containerWidth <= 0 || !hasVisibleTab) return;
     const center =
-      tabWidth * activeIndex + tabWidth / 2 - INDICATOR_WIDTH / 2;
+      tabWidth * activeVisibleIndex + tabWidth / 2 - INDICATOR_WIDTH / 2;
     indicatorOffset.value = withSpring(center, {
       damping: 15,
       stiffness: 120,
     });
-  }, [activeIndex, containerWidth, tabWidth]);
+  }, [activeVisibleIndex, containerWidth, tabWidth, hasVisibleTab]);
 
   const indicatorStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: indicatorOffset.value }],
@@ -128,6 +141,7 @@ function CustomTabBar({
   return (
     <View
       onLayout={handleContainerLayout}
+      accessibilityRole="tabbar"
       style={{
         backgroundColor: "#0B0B0C",
         borderTopColor: "#343437",
@@ -148,14 +162,14 @@ function CustomTabBar({
           // Skip hidden routes (href: null)
           if (options.href === null) return null;
 
-          const isFocused = activeIndex === index;
+          const isFocused = hasVisibleTab && activeVisibleIndex === visibleIndices.indexOf(index);
           const iconName = tabIcons[route.name];
           const label = options.title ?? route.name;
 
           return (
             <Pressable
               key={route.key}
-              accessibilityRole="button"
+              accessibilityRole="tab"
               accessibilityState={isFocused ? { selected: true } : {}}
               onPress={() => navigation.navigate(route.name, route.params)}
               style={{
@@ -182,20 +196,22 @@ function CustomTabBar({
         })}
       </View>
 
-      {/* Sliding indicator bar */}
-      <Animated.View
-        style={[
-          indicatorStyle,
-          {
-            position: "absolute",
-            bottom: 0,
-            left: 0,
-            height: 2,
-            backgroundColor: "#B9B9B6",
-            borderRadius: 1,
-          },
-        ]}
-      />
+      {/* Sliding indicator bar — hidden when a hidden route is active */}
+      {hasVisibleTab ? (
+        <Animated.View
+          style={[
+            indicatorStyle,
+            {
+              position: "absolute",
+              bottom: 0,
+              left: 0,
+              height: 2,
+              backgroundColor: "#B9B9B6",
+              borderRadius: 1,
+            },
+          ]}
+        />
+      ) : null}
     </View>
   );
 }
