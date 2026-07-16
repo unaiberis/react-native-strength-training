@@ -15,3 +15,4 @@ export * from "./services/exercises";
 export * from "./services/templates";
 export * from "./services/sessions";
 export * from "./services/prs";
+export * from "./services/users";

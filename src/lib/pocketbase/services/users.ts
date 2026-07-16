@@ -1,6 +1,6 @@
-import { pb } from "./client";
+import { pb } from "../client";
 import type { RecordModel } from "pocketbase";
-import type { ProfileInput } from "../../shared/schemas/profile";
+import type { ProfileInput } from "../../../shared/schemas/profile";
 
 /**
  * Persist profile edits to the PocketBase `users` collection.

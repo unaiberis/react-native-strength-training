@@ -5,7 +5,7 @@ import { useAuthStore } from "@/stores/auth-store";
 import { Button } from "@/shared/ui/Button";
 
 const mockUpdateProfile = jest.fn();
-jest.mock("@/lib/pocketbase/users", () => ({
+jest.mock("@/lib/pocketbase/services/users", () => ({
   updateProfile: (...args: any[]) => mockUpdateProfile(...args),
 }));
 

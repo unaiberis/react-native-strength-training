@@ -3,7 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import type { RecordModel } from "pocketbase";
 import { useAuthStore } from "@/stores/auth-store";
-import { updateProfile } from "@/lib/pocketbase/users";
+import { updateProfile } from "@/lib/pocketbase/services/users";
 import type { ProfileInput } from "@/shared/schemas/profile";
 
 /**
