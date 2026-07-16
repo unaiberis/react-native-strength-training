@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Tabs, useRouter } from "expo-router";
 import { useAuthStore } from "../../src/stores/auth-store";
 import { Text, View, Pressable, type LayoutChangeEvent } from "react-native";
