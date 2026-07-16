@@ -6,6 +6,7 @@ import { useRouter } from "expo-router";
 import { Button } from "../../../shared/ui/Button";
 import { Card } from "../../../shared/ui/Card";
 import { GradientBackground } from "../../../shared/ui/GradientBackground";
+import { ProgressRing } from "../../../shared/ui/ProgressRing";
 import { useSessionStore } from "../../../stores/session-store";
 import { useAuthStore } from "../../../stores/auth-store";
 import { useClearSession } from "../hooks/useWorkoutSession";
@@ -115,9 +116,11 @@ export function WorkoutCompleteScreen() {
         className="flex-1 px-4"
         contentContainerClassName="items-center pt-20 pb-8"
       >
-        {/* Celebration */}
+        {/* Celebration ring */}
         <View className="mb-4">
-          <Ionicons name="barbell-outline" size={52} color="#B9B9B6" />
+          <ProgressRing progress={1} size={80} strokeWidth={6} color="#D7D7D2">
+            <Ionicons name="checkmark" size={32} color="#D7D7D2" />
+          </ProgressRing>
         </View>
         <Text className="text-surface-50 text-2xl font-bold mb-1">
           Workout Complete!

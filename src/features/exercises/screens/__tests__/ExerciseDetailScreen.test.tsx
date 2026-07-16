@@ -55,7 +55,7 @@ describe("ExerciseDetailScreen", () => {
     render(<ExerciseDetailScreen />);
 
     expect(screen.getByText("Watch on YouTube")).toBeTruthy();
-    expect(screen.getByText("Tap to play")).toBeTruthy();
+    expect(screen.getByText("Tap to open")).toBeTruthy();
   });
 
   it("hides video player when video_url is null", () => {

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -15,6 +15,7 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import { Card } from "../../../shared/ui/Card";
 import { Button } from "../../../shared/ui/Button";
 import { GradientBackground } from "../../../shared/ui/GradientBackground";
+import { ProgressRing } from "../../../shared/ui/ProgressRing";
 import { RestTimer } from "../../../shared/ui/RestTimer";
 import { RpeSlider } from "../../../shared/ui/RpeSlider";
 import { WeightTypeSelector } from "../../../shared/ui/WeightTypeSelector";
@@ -560,6 +561,17 @@ export function ActiveWorkoutScreen() {
 
   // ─── Main workout UI ───────────────────────────────────────────────────
 
+  // ProgressRing: calculate completion percentage
+  const totalSets = useMemo(
+    () => exercises.reduce((acc, ex) => acc + ex.targetSets, 0),
+    [exercises],
+  );
+  const completedSets = useMemo(
+    () => exercises.reduce((acc, ex) => acc + ex.loggedSets.length, 0),
+    [exercises],
+  );
+  const completionProgress = totalSets > 0 ? completedSets / totalSets : 0;
+
   const nextSetNumber = currentExercise.loggedSets.length + 1;
   const isExerciseComplete = nextSetNumber > currentExercise.targetSets;
 
@@ -572,9 +584,16 @@ export function ActiveWorkoutScreen() {
           <Text className="text-surface-400 text-sm">Cancel</Text>
         </TouchableOpacity>
 
-        <Text className="text-surface-500 text-xs">
-          Exercise {currentIndex + 1} of {exercises.length}
-        </Text>
+        <View className="flex-row items-center gap-2">
+          <ProgressRing progress={completionProgress} size={28} strokeWidth={3} color="#B9B9B6">
+            <Text className="text-surface-50 text-[8px] font-bold">
+              {Math.round(completionProgress * 100)}
+            </Text>
+          </ProgressRing>
+          <Text className="text-surface-500 text-xs">
+            {currentIndex + 1}/{exercises.length}
+          </Text>
+        </View>
 
         <TouchableOpacity onPress={handleFinish} className="p-2 -mr-2">
           <Text className="text-brand-500 text-sm font-medium">Finish</Text>

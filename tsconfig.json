@@ -17,6 +17,8 @@
   ],
   "exclude": [
     "TheHybridProject_v0_1",
+    "jest.setup.ts",
+    "jest.config.js",
     "node_modules"
   ]
 }

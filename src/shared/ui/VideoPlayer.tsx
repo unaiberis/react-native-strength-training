@@ -1,9 +1,15 @@
-import React from "react";
+import React, { useState, useCallback } from "react";
 import { View, Text, TouchableOpacity, Linking, Platform } from "react-native";
+import { useVideoPlayer, VideoView } from "expo-video";
+import { Ionicons } from "@expo/vector-icons";
+
+// ─── Types ─────────────────────────────────────────────────────────────────
 
 interface VideoPlayerProps {
   videoUrl: string | null;
 }
+
+// ─── Helpers ───────────────────────────────────────────────────────────────
 
 /**
  * Determines whether a URL is from YouTube.
@@ -29,33 +35,82 @@ function parseYouTubeId(url: string): string | null {
 }
 
 /**
- * VideoPlayer displays a styled tap-to-play card for exercise tutorial videos.
+ * Check if a URL can be played inline by expo-video.
+ * Direct video files (.mp4, .mov, .m4v) and HLS (.m3u8) work.
+ * YouTube and most other platforms don't.
+ */
+function isDirectVideoUrl(url: string): boolean {
+  return /\.(mp4|mov|m4v|m3u8|webm|avi|mkv)(\?|$)/i.test(url);
+}
+
+// ─── Component ─────────────────────────────────────────────────────────────
+
+/**
+ * VideoPlayer displays an inline video playback card for exercise tutorial videos.
  *
- * - If `videoUrl` is null/empty → renders nothing (no layout shift).
- * - On web with a YouTube watch URL → renders an embedded YouTube iframe.
- * - All other cases → renders a styled "▶ Watch Tutorial" card that opens
- *   the URL via `Linking.openURL` on tap.
- *
- * No external dependencies required — uses built-in Linking and (on web) iframe.
+ * - Direct video URLs (.mp4, .m3u8, etc.): Plays inline using expo-video.
+ * - YouTube URLs: Shows a playable card that opens via Linking on native,
+ *   or embeds as iframe on web.
+ * - Falls back to Linking.openURL if expo-video fails.
+ * - Aspect ratio 16:9, rounded corners, dark theme.
  */
 export function VideoPlayer({ videoUrl }: VideoPlayerProps) {
-  const [errored, setErrored] = React.useState(false);
+  const [mode, setMode] = useState<"thumbnail" | "playing" | "errored">("thumbnail");
+  const [error, setError] = useState<string | null>(null);
 
-  if (!videoUrl) return null;
+  const canPlayInline = videoUrl
+    ? isDirectVideoUrl(videoUrl) || (Platform.OS === "web" && isYouTubeUrl(videoUrl))
+    : false;
 
-  // Web: embed YouTube iframe directly (no WebView dependency needed)
-  if (Platform.OS === "web") {
+  // Create player only when entering playing mode with a compatible URL
+  const player = useVideoPlayer(
+    canPlayInline && mode === "playing" ? videoUrl ?? "" : null,
+    (player) => {
+      player.loop = false;
+      player.muted = false;
+      player.play();
+    },
+  );
+
+  const handleOpenUrl = useCallback(() => {
+    if (!videoUrl) return;
+    Linking.openURL(videoUrl).catch(() => {
+      setError("Could not open video URL");
+      setMode("errored");
+    });
+  }, [videoUrl]);
+
+  const handlePlay = useCallback(() => {
+    if (!videoUrl) return;
+
+    if (canPlayInline) {
+      setMode("playing");
+    } else {
+      // Fallback to Linking for YouTube etc.
+      handleOpenUrl();
+    }
+  }, [videoUrl, canPlayInline, handleOpenUrl]);
+
+  const handleError = useCallback(
+    (err: any) => {
+      console.warn("[VideoPlayer] expo-video error:", err);
+      setError("Video playback failed");
+      setMode("errored");
+    },
+    [],
+  );
+
+  // Web: YouTube iframe embed (reuse existing pattern)
+  if (Platform.OS === "web" && videoUrl) {
     const youtubeId = parseYouTubeId(videoUrl);
-    if (youtubeId && !errored) {
+    if (youtubeId) {
       return (
         <View className="mb-4 rounded-xl overflow-hidden" style={{ aspectRatio: 16 / 9, maxHeight: 240 }}>
-          {/* on native, this doesn't exist — covered by the else path below */}
           <iframe
             src={`https://www.youtube-nocookie.com/embed/${youtubeId}`}
             style={{ width: "100%", height: "100%", border: 0 }}
             allowFullScreen
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            onError={() => setErrored(true)}
             title="Exercise video"
           />
         </View>
@@ -63,23 +118,71 @@ export function VideoPlayer({ videoUrl }: VideoPlayerProps) {
     }
   }
 
-  // Native (or non-YouTube URL, or errored): styled play button card
+  // Nothing to render
+  if (!videoUrl) return null;
+
+  // Playing mode — inline video with expo-video
+  if (mode === "playing" && canPlayInline) {
+    return (
+      <View className="mb-4 rounded-xl overflow-hidden bg-card" style={{ aspectRatio: 16 / 9 }}>
+        <VideoView
+          player={player}
+          style={{ flex: 1, width: "100%" }}
+          contentFit="contain"
+          nativeControls
+          onFirstFrameRender={() => {
+            // First frame rendered — thumbnail is already gone
+          }}
+        />
+      </View>
+    );
+  }
+
+  // Errored state
+  if (mode === "errored") {
+    return (
+      <TouchableOpacity
+        className="mb-4 bg-card border border-border rounded-xl overflow-hidden"
+        activeOpacity={0.7}
+        onPress={handleOpenUrl}
+        accessibilityLabel="Tap to retry video"
+        accessibilityRole="link"
+      >
+        <View className="flex-row items-center px-4 py-4">
+          <View className="w-12 h-12 rounded-full bg-danger/20 items-center justify-center mr-4">
+            <Ionicons name="alert-circle-outline" size={24} color="#D65F5F" />
+          </View>
+          <View className="flex-1">
+            <Text className="text-surface-50 text-sm font-semibold">
+              Video unavailable
+            </Text>
+            <Text className="text-surface-400 text-xs mt-0.5">
+              {error ?? "Tap to open in browser"}
+            </Text>
+          </View>
+          <Ionicons name="open-outline" size={20} color="#707074" />
+        </View>
+      </TouchableOpacity>
+    );
+  }
+
+  // Thumbnail mode — play button overlay (default)
   return (
     <TouchableOpacity
       className="mb-4 bg-card border border-border rounded-xl overflow-hidden"
-      activeOpacity={0.7}
-      onPress={() => {
-        Linking.openURL(videoUrl).catch(() => setErrored(true));
-      }}
-      accessibilityLabel={isYouTubeUrl(videoUrl) ? "Watch tutorial on YouTube" : "Watch video"}
-      accessibilityRole="link"
+      activeOpacity={0.8}
+      onPress={handlePlay}
+      accessibilityLabel={
+        isYouTubeUrl(videoUrl) ? "Watch tutorial on YouTube" : "Play video"
+      }
+      accessibilityRole="button"
     >
       <View className="flex-row items-center px-4 py-4">
         {/* Play icon */}
         <View className="w-12 h-12 rounded-full bg-titanium/20 items-center justify-center mr-4">
-          <Text className="text-titanium text-xl ml-0.5" style={{ marginTop: 1 }}>
-            ▶
-          </Text>
+          <View className="ml-0.5">
+            <Ionicons name="play" size={22} color="#B9B9B6" />
+          </View>
         </View>
 
         {/* Text */}
@@ -88,12 +191,16 @@ export function VideoPlayer({ videoUrl }: VideoPlayerProps) {
             {isYouTubeUrl(videoUrl) ? "Watch on YouTube" : "Watch Tutorial"}
           </Text>
           <Text className="text-surface-400 text-xs mt-0.5">
-            {errored ? "Tap to retry" : "Tap to play"}
+            {canPlayInline ? "Tap to play inline" : "Tap to open"}
           </Text>
         </View>
 
-        {/* External link indicator */}
-        <Text className="text-surface-500 text-lg">↗</Text>
+        {/* Icon */}
+        {canPlayInline ? (
+          <Ionicons name="play-circle-outline" size={22} color="#B9B9B6" />
+        ) : (
+          <Ionicons name="open-outline" size={20} color="#707074" />
+        )}
       </View>
     </TouchableOpacity>
   );

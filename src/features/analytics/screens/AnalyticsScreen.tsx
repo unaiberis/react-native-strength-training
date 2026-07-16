@@ -6,7 +6,7 @@ import { ErrorBoundary } from "@/shared/ui/ErrorBoundary";
 import { EmptyState } from "@/shared/ui/EmptyState";
 
 import { useAnalytics, type AnalyticsPeriod } from "../hooks/useAnalytics";
-import { BarChart } from "../components/BarChart";
+import { VolumeChart } from "../components/VolumeChart";
 import { PersonalRecordsSection } from "@/features/records/components/PersonalRecordsSection";
 
 // ─── Sub-components ─────────────────────────────────────────────────────
@@ -174,11 +174,9 @@ export function AnalyticsScreen() {
                 <Text className="text-surface-50 text-base font-bold mb-3">
                   {period === "weekly" ? "Weekly Volume" : "Monthly Volume"}
                 </Text>
-                <BarChart
+                <VolumeChart
                   data={displayChart.map((d) => ({ period: d.period, volume: d.volume }))}
-                  valueKey="volume"
-                  barColor="#B9B9B6"
-                  height={isLoading ? 120 : Math.max(120, displayChart.length * 32)}
+                  height={200}
                 />
               </View>
 

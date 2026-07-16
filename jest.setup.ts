@@ -159,5 +159,115 @@ jest.mock("react-native-reanimated", () => {
   };
 });
 
+// Mock lottie-react-native
+jest.mock("lottie-react-native", () => {
+  const React = require("react");
+  const { View } = require("react-native");
+  const LottieView = (props) =>
+    React.createElement(View, { testID: "lottie-view", ...props }, null);
+  LottieView.displayName = "LottieView";
+  return {
+    __esModule: true,
+    default: LottieView,
+  };
+});
+
+// Mock expo-video
+jest.mock("expo-video", () => ({
+  useVideoPlayer: () => ({
+    play: jest.fn(),
+    pause: jest.fn(),
+    playing: false,
+    loop: false,
+    muted: false,
+    currentTime: 0,
+    duration: 0,
+    volume: 1,
+    status: "idle",
+  }),
+  VideoView: ({ children, ...props }) => {
+    const React = require("react");
+    const { View } = require("react-native");
+    return React.createElement(View, { testID: "video-view", ...props }, children);
+  },
+}));
+
+// Mock victory-native (node test env doesn't support react-native-svg)
+jest.mock("victory-native", () => {
+  const React = require("react");
+  const { View, Text } = require("react-native");
+
+  const MockVictory = (props) =>
+    React.createElement(View, { testID: "victory-chart" },
+      React.createElement(Text, null, props.title || "VictoryChart"),
+      props.children,
+    );
+  MockVictory.displayName = "VictoryChart";
+
+  return {
+    VictoryChart: MockVictory,
+    VictoryBar: ({ data, style, ...props }) =>
+      React.createElement(View, { testID: "victory-bar" },
+        React.createElement(Text, null, `Bar: ${data?.length || 0} items`),
+      ),
+    VictoryLine: ({ data, style, ...props }) =>
+      React.createElement(View, { testID: "victory-line" },
+        React.createElement(Text, null, `Line: ${data?.length || 0} items`),
+      ),
+    VictoryScatter: ({ data }) =>
+      React.createElement(View, { testID: "victory-scatter" },
+        React.createElement(Text, null, `Scatter: ${data?.length || 0} points`),
+      ),
+    VictoryAxis: (props) =>
+      React.createElement(View, { testID: "victory-axis" }),
+    VictoryContainer: (props) =>
+      React.createElement(View, { testID: "victory-container" }, props.children),
+    VictoryTheme: { material: {} },
+    VictoryLabel: (props) =>
+      React.createElement(Text, null, props.text || ""),
+    VictoryTooltip: () => null,
+    VictoryPortal: ({ children }) => children,
+  };
+});
+
+// Mock react-native-svg
+jest.mock("react-native-svg", () => {
+  const React = require("react");
+  const { View } = require("react-native");
+
+  const createMockComponent = (name) =>
+    function MockSvgComponent(props) {
+      return React.createElement(View, { ...props, testID: "svg-" + name }, props.children);
+    };
+
+  return {
+    __esModule: true,
+    default: createMockComponent("Svg"),
+    Svg: createMockComponent("Svg"),
+    Rect: createMockComponent("Rect"),
+    Circle: createMockComponent("Circle"),
+    Line: createMockComponent("Line"),
+    Path: createMockComponent("Path"),
+    G: createMockComponent("G"),
+    Text: createMockComponent("Text"),
+    Defs: createMockComponent("Defs"),
+    LinearGradient: createMockComponent("LinearGradient"),
+    Stop: createMockComponent("Stop"),
+    ClipPath: createMockComponent("ClipPath"),
+    Polygon: createMockComponent("Polygon"),
+    Polyline: createMockComponent("Polyline"),
+    Ellipse: createMockComponent("Ellipse"),
+  };
+});
+
+// Mock GradientBackground (used by many screens)
+jest.mock("@/shared/ui/GradientBackground", () => ({
+  GradientBackground: (props) => {
+    const React = require("react");
+    const { View } = require("react-native");
+    return React.createElement(View, null, props.children);
+  },
+}));
+
 // Suppress console noise during tests
 global.console.error = jest.fn();

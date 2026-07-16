@@ -30,7 +30,7 @@ describe("VideoPlayer", () => {
       <VideoPlayer videoUrl="https://www.youtube.com/watch?v=dQw4w9WgXcQ" />,
     );
     expect(getByText("Watch on YouTube")).toBeTruthy();
-    expect(getByText("Tap to play")).toBeTruthy();
+    expect(getByText("Tap to open")).toBeTruthy();
   });
 
   it("renders a 'Watch Tutorial' card for non-YouTube URLs on native", () => {
@@ -40,7 +40,7 @@ describe("VideoPlayer", () => {
     expect(getByText("Watch Tutorial")).toBeTruthy();
   });
 
-  it("calls Linking.openURL when tapped", () => {
+  it("calls Linking.openURL when YouTube URL tapped", () => {
     const url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
     const { getByText } = render(<VideoPlayer videoUrl={url} />);
     fireEvent.press(getByText("Watch on YouTube"));
@@ -52,5 +52,13 @@ describe("VideoPlayer", () => {
       <VideoPlayer videoUrl="https://youtu.be/dQw4w9WgXcQ" />,
     );
     expect(getByText("Watch on YouTube")).toBeTruthy();
+  });
+
+  it("renders 'Tap to play inline' for direct video URLs", () => {
+    const { getByText } = render(
+      <VideoPlayer videoUrl="https://example.com/video.mp4" />,
+    );
+    expect(getByText("Watch Tutorial")).toBeTruthy();
+    expect(getByText("Tap to play inline")).toBeTruthy();
   });
 });

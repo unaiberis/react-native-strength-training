@@ -5,7 +5,9 @@ import { GradientBackground } from "@/shared/ui/GradientBackground";
 import { useAnalytics, type AnalyticsPeriod } from "../hooks/useAnalytics";
 import { useProgression } from "@/features/records/hooks/useProgression";
 import { BarChart, PRTimelineChart } from "../components/BarChart";
-import { LineChart, type LineChartDataPoint } from "../components/LineChart";
+import { VolumeChart } from "../components/VolumeChart";
+import { ExerciseProgressChart } from "../components/ExerciseProgressChart";
+import { type LineChartDataPoint } from "../components/LineChart";
 
 /**
  * ExerciseTimelineScreen — Per-exercise progress detail view.
@@ -121,18 +123,15 @@ export function ExerciseTimelineScreen() {
           </View>
         )}
 
-        {/* Max Weight Progression — Line Chart with Trend */}
+        {/* Max Weight Progression — Line Chart */}
         {progressionChartData.length > 1 && (
           <View className="bg-card rounded-2xl p-4 mb-4 border border-border">
             <Text className="text-surface-50 text-base font-bold mb-3">Max Weight Progression</Text>
-            <LineChart
+            <ExerciseProgressChart
               data={progressionChartData}
-              lineColor="#B9B9B6"
-              trendColor="#D7D7D2"
-              showTrend
-              trendWindow={3}
               yLabel="Weight (kg)"
-              height={180}
+              height={220}
+              lineColor="#B9B9B6"
             />
           </View>
         )}
