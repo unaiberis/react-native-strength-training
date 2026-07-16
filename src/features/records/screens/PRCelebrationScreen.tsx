@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from "react";
-import { View, Text, Dimensions, Platform } from "react-native";
+import { View, Text, Dimensions } from "react-native";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -8,21 +8,11 @@ import Animated, {
   withSpring,
   Easing,
   interpolate,
-  type SharedValue,
 } from "react-native-reanimated";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { GradientBackground } from "@/shared/ui/GradientBackground";
 import { Button } from "@/shared/ui/Button";
-
-// ─── Types ─────────────────────────────────────────────────────────────────
-
-interface PRCelebrationProps {
-  exerciseName?: string;
-  previousPR?: number;
-  newPR: number;
-  unit?: string;
-}
 
 // ─── Confetti Particle ────────────────────────────────────────────────────
 

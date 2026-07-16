@@ -91,15 +91,6 @@ export function VideoPlayer({ videoUrl }: VideoPlayerProps) {
     }
   }, [videoUrl, canPlayInline, handleOpenUrl]);
 
-  const handleError = useCallback(
-    (err: any) => {
-      console.warn("[VideoPlayer] expo-video error:", err);
-      setError("Video playback failed");
-      setMode("errored");
-    },
-    [],
-  );
-
   // Web: YouTube iframe embed (reuse existing pattern)
   if (Platform.OS === "web" && videoUrl) {
     const youtubeId = parseYouTubeId(videoUrl);
