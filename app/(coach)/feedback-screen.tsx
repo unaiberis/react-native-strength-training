@@ -6,8 +6,9 @@ import {
   ActivityIndicator,
   TouchableOpacity,
 } from "react-native";
-import { useRouter, useLocalSearchParams, Stack } from "expo-router";
+import { useLocalSearchParams, Stack } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { BackButton } from "@/shared/ui/BackButton";
 import { DETAIL_HEADER } from "@/constants/theme";
 import { useCoachFeedback } from "@/features/coach/hooks/useCoachFeedback";
 
@@ -31,7 +32,6 @@ export default function FeedbackScreen() {
     athleteId: string;
     athleteName: string;
   }>();
-  const router = useRouter();
   const { data: feedback, isLoading, error, refetch } = useCoachFeedback(athleteId);
 
   const sortedFeedback = useMemo(
@@ -52,14 +52,7 @@ export default function FeedbackScreen() {
             : "Feedback",
           ...DETAIL_HEADER,
           headerLeft: () => (
-            <TouchableOpacity
-              onPress={() => router.back()}
-              className="ml-2 min-w-[44px] min-h-[44px] items-center justify-center"
-              accessibilityRole="button"
-              accessibilityLabel="Go back"
-            >
-              <Ionicons name="chevron-back" size={22} color={DETAIL_HEADER.headerTintColor} />
-            </TouchableOpacity>
+            <BackButton />
           ),
         }}
       />

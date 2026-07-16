@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   RefreshControl,
 } from "react-native";
+import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { BackButton } from "@/shared/ui/BackButton";
 import { GradientBackground } from "@/shared/ui/GradientBackground";
@@ -76,23 +77,13 @@ export default function NotificationsScreen() {
     [markAsRead, router],
   );
 
-  const handleBack = useCallback(() => {
-    router.back();
-  }, [router]);
-
   // ─── Empty State ──────────────────────────────────────────────────
   if (notifications.length === 0) {
     return (
       <GradientBackground>
         <View className="flex-1 px-4 pt-16">
           <View className="flex-row items-center mb-6">
-            <TouchableOpacity
-              onPress={handleBack}
-              className="mr-3"
-              accessibilityLabel="Go back"
-            >
-              <Ionicons name="chevron-back" size={24} color="#B9B9B6" />
-            </TouchableOpacity>
+            <BackButton fallbackRoute="/(tabs)/profile" />
             <ScreenTitle title="Notifications" />
           </View>
           <EmptyState
@@ -112,13 +103,7 @@ export default function NotificationsScreen() {
         {/* ─── Header ──────────────────────────────────────────────── */}
         <View className="flex-row items-center justify-between px-4 pt-16 pb-2">
           <View className="flex-row items-center">
-            <TouchableOpacity
-              onPress={handleBack}
-              className="mr-3"
-              accessibilityLabel="Go back"
-            >
-              <Ionicons name="chevron-back" size={24} color="#B9B9B6" />
-            </TouchableOpacity>
+            <BackButton fallbackRoute="/(tabs)/profile" />
             <ScreenTitle title="Notifications" />
           </View>
           {unreadCount > 0 && (

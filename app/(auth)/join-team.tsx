@@ -9,6 +9,7 @@ import {
   Platform,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { BackButton } from "@/shared/ui/BackButton";
 import { useAuthStore } from "@/stores/auth-store";
 import { GradientBackground } from "@/shared/ui/GradientBackground";
 import { Card } from "@/shared/ui/Card";
@@ -86,14 +87,9 @@ export default function JoinTeamScreen() {
             disabled={loading}
           />
 
-          <TouchableOpacity
-            onPress={() => router.back()}
-            className="mt-4 items-center"
-            accessibilityRole="button"
-            accessibilityLabel="Go back"
-          >
-            <Text className="text-surface-400 text-sm">Cancel</Text>
-          </TouchableOpacity>
+          <View className="mt-4 items-center">
+            <BackButton fallbackRoute="/(auth)" />
+          </View>
         </Card>
       </KeyboardAvoidingView>
     </GradientBackground>

@@ -1,7 +1,7 @@
 import { View, Text, ScrollView, Pressable } from "react-native";
-import { useRouter } from "expo-router";
 import { useForm, Controller, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { BackButton } from "@/shared/ui/BackButton";
 import { Input } from "@/shared/ui/Input";
 import { Button } from "@/shared/ui/Button";
 import { ScreenTitle } from "@/shared/ui/ScreenTitle";
@@ -103,7 +103,6 @@ const GOAL_OPTIONS: ChipOption<GoalValue>[] = [
 export function EditProfileScreen() {
   const user = useAuthStore((s) => s.user);
   const isOnline = useAuthStore((s) => s.isOnline);
-  const router = useRouter();
   const { mutate, isPending, error } = useUpdateProfile();
 
   const {
@@ -270,11 +269,7 @@ export function EditProfileScreen() {
             disabled={!isOnline}
             onPress={handleSubmit(onSubmit)}
           />
-          <Button
-            title="Cancel"
-            variant="ghost"
-            onPress={() => router.back()}
-          />
+          <BackButton fallbackRoute="/(tabs)/profile" />
         </ScreenLayout>
       </ScrollView>
     </GradientBackground>

@@ -2,6 +2,7 @@ import { useCallback } from "react";
 import { View, Text, ScrollView, TouchableOpacity } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { BackButton } from "@/shared/ui/BackButton";
 import { GradientBackground } from "@/shared/ui/GradientBackground";
 import { ScreenTitle } from "@/shared/ui/ScreenTitle";
 import { Card } from "@/shared/ui/Card";
@@ -86,10 +87,6 @@ export default function NotificationDetailScreen() {
   const iconName = typeIcons[type] ?? "information-circle-outline";
   const action = typeActions[type] ?? null;
 
-  const handleBack = useCallback(() => {
-    router.back();
-  }, [router]);
-
   const handleAction = useCallback(() => {
     if (action) {
       router.push(action.route as any);
@@ -101,13 +98,7 @@ export default function NotificationDetailScreen() {
       <ScrollView className="flex-1 px-4 pt-16">
         {/* ─── Header with back ───────────────────────────────────── */}
         <View className="flex-row items-center mb-6">
-          <TouchableOpacity
-            onPress={handleBack}
-            className="mr-3"
-            accessibilityLabel="Go back"
-          >
-            <Ionicons name="chevron-back" size={24} color="#B9B9B6" />
-          </TouchableOpacity>
+          <BackButton fallbackRoute="/(tabs)/notifications" />
           <ScreenTitle title="Notification" />
         </View>
 

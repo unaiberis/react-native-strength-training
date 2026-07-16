@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { useRouter, useLocalSearchParams, Stack } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { BackButton } from "@/shared/ui/BackButton";
 import { DETAIL_HEADER } from "@/constants/theme";
 import { useAthleteDetail, useUnlinkAthlete } from "@/features/coach/hooks/useAthleteDetail";
 import { useAssignments } from "@/features/coach/hooks/useProgramAssignment";
@@ -59,9 +60,7 @@ export default function AthleteDetailScreen() {
         <Text className="text-surface-50 text-lg font-semibold mb-2">
           Athlete Not Found
         </Text>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Text className="text-titanium text-sm">Go back</Text>
-        </TouchableOpacity>
+        <BackButton fallbackRoute="/(coach)" />
       </View>
     );
   }

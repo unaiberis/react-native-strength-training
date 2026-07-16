@@ -1,13 +1,12 @@
 import { useState } from "react";
 import { View, Text, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
-import { useRouter } from "expo-router";
+import { BackButton } from "@/shared/ui/BackButton";
 import { Button } from "../../../shared/ui/Button";
 import { Input } from "../../../shared/ui/Input";
 import { GradientBackground } from "../../../shared/ui/GradientBackground";
 import { requestPasswordReset } from "../../../lib/pocketbase/services/auth";
 
 export function ForgotPasswordScreen() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -99,12 +98,7 @@ export function ForgotPasswordScreen() {
               disabled={isSuccess}
             />
 
-            <Button
-              title="Back to login"
-              variant="ghost"
-              onPress={() => router.back()}
-              disabled={isSubmitting}
-            />
+            <BackButton fallbackRoute="/(auth)/login" />
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

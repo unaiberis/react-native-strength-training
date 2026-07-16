@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from "react-native";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
+import { BackButton } from "@/shared/ui/BackButton";
 import { GradientBackground } from "@/shared/ui/GradientBackground";
 import { useAnalytics, type AnalyticsPeriod } from "../hooks/useAnalytics";
 import { useProgression } from "@/features/records/hooks/useProgression";
@@ -18,7 +19,6 @@ import { type LineChartDataPoint } from "../components/LineChart";
  */
 export function ExerciseTimelineScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const router = useRouter();
   const [period] = useState<AnalyticsPeriod>("weekly");
 
   const {
@@ -86,9 +86,9 @@ export function ExerciseTimelineScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* Back button */}
-        <TouchableOpacity onPress={() => router.back()} className="mb-4">
-          <Text className="text-surface-400 text-sm">{"\u2190"} Back to Analytics</Text>
-        </TouchableOpacity>
+        <View className="flex-row items-center mb-4">
+          <BackButton fallbackRoute="/(tabs)/analytics" />
+        </View>
 
         <Text className="text-surface-50 text-2xl font-bold mb-1">
           {exercise?.name ?? "Unknown Exercise"}

@@ -1,5 +1,6 @@
-import { useRouter } from "expo-router";
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
+import { useRouter } from "expo-router";
+import { BackButton } from "@/shared/ui/BackButton";
 import { GradientBackground } from "@/shared/ui/GradientBackground";
 import { ScreenTitle } from "@/shared/ui/ScreenTitle";
 import { Card } from "@/shared/ui/Card";
@@ -32,13 +33,11 @@ export default function UnitPreferencesRoute() {
     <GradientBackground>
       <ScrollView className="flex-1 px-4 pt-16">
         <View className="flex-row items-center mb-6">
-          <TouchableOpacity
-            onPress={() => router.back()}
-            className="mr-3"
-            accessibilityLabel="Go back"
-          >
-            <Text className="text-titanium text-2xl">{"<"}</Text>
-          </TouchableOpacity>
+        <Button
+          title="Done"
+          variant="primary"
+          onPress={() => router.back()}
+        />
           <ScreenTitle title="Unit Preferences" />
         </View>
 
@@ -92,11 +91,7 @@ export default function UnitPreferencesRoute() {
           </View>
         </Card>
 
-        <Button
-          title="Done"
-          variant="primary"
-          onPress={() => router.back()}
-        />
+        <BackButton fallbackRoute="/(tabs)/profile" />
       </ScrollView>
     </GradientBackground>
   );
