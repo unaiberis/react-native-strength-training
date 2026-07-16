@@ -215,7 +215,7 @@ export function PRCelebrationScreen() {
   };
 
   return (
-    <View className="flex-1 bg-background">
+    <View className="flex-1 bg-bg">
       {/* Confetti layer */}
       {particles.map((config, index) => (
         <Particle key={index} config={config} index={index} />
