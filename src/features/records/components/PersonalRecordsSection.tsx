@@ -6,10 +6,12 @@ import { Card } from "@/shared/ui/Card";
 import { Button } from "@/shared/ui/Button";
 import {
   usePersonalRecords,
+  usePRTimeline,
   getPRTypeLabel,
   formatPRValue,
 } from "@/features/records/hooks/usePersonalRecords";
 import type { PRDisplayItem } from "@/features/records/hooks/usePersonalRecords";
+import { LineChart } from "@/features/analytics/components/LineChart";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────
 
@@ -63,16 +65,21 @@ const PRCard = memo(function PRCard({ record }: { record: PRDisplayItem }) {
 // ─── Exercise PR Group ────────────────────────────────────────────────────
 
 const ExercisePRGroup = memo(function ExercisePRGroup({
+  exerciseId,
   exerciseName,
   records,
   isExpanded,
   onToggle,
 }: {
+  exerciseId: string;
   exerciseName: string;
   records: PRDisplayItem[];
   isExpanded: boolean;
   onToggle: () => void;
 }) {
+  const { chartData, isLoading: timelineLoading } = usePRTimeline(
+    isExpanded ? exerciseId : undefined,
+  );
   return (
     <Card className="mb-3">
       <TouchableOpacity
@@ -101,6 +108,29 @@ const ExercisePRGroup = memo(function ExercisePRGroup({
           {records.map((record) => (
             <PRCard key={record.id} record={record} />
           ))}
+
+          {/* Progress chart */}
+          {chartData.length > 1 && (
+            <View className="mt-4 pt-3 border-t border-surface-700">
+              <Text className="text-surface-300 text-xs font-semibold uppercase tracking-wider mb-2">
+                Progress
+              </Text>
+              {timelineLoading ? (
+                <View className="items-center justify-center py-4">
+                  <ActivityIndicator size="small" color="#A4A4A8" />
+                </View>
+              ) : (
+                <LineChart
+                  data={chartData}
+                  height={140}
+                  lineColor="#B9B9B6"
+                  yLabel="Est. 1RM (kg)"
+                  showTrend
+                  trendWindow={3}
+                />
+              )}
+            </View>
+          )}
         </View>
       )}
     </Card>
@@ -178,6 +208,7 @@ export function PersonalRecordsSection(): ReactElement {
           {groupedByExercise.map((group) => (
             <ExercisePRGroup
               key={group.exerciseId}
+              exerciseId={group.exerciseId}
               exerciseName={group.exerciseName}
               records={group.records}
               isExpanded={expandedExercises.has(group.exerciseId)}

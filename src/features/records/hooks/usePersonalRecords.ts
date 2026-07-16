@@ -2,7 +2,8 @@ import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuthStore } from "../../../stores/auth-store";
 import * as PRsService from "../../../lib/pocketbase/services/prs";
-import type { ComputedPR, PRType } from "../../../lib/pocketbase/services/prs";
+import type { ComputedPR, PRType, PRHistoryEntry } from "../../../lib/pocketbase/services/prs";
+import type { LineChartDataPoint } from "../../analytics/components/LineChart";
 
 const PRS_QUERY_KEY = "personal-records";
 
@@ -131,6 +132,41 @@ export function useExercisePRs(exerciseId: string | undefined) {
     staleTime: 1000 * 60 * 5,
     gcTime: 1000 * 60 * 30,
   });
+}
+
+/**
+ * Query hook for PR timeline data (estimated 1RM over time) for a specific exercise.
+ * Returns data points suitable for rendering in a LineChart.
+ */
+export function usePRTimeline(exerciseId: string | undefined) {
+  const userId = useAuthStore((s) => s.user?.id);
+
+  const query = useQuery({
+    queryKey: [PRS_QUERY_KEY, "timeline", exerciseId],
+    queryFn: () => PRsService.getPRHistory(exerciseId!, "estimated_one_rep_max"),
+    enabled: !!userId && !!exerciseId,
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 30,
+  });
+
+  const timeline: PRHistoryEntry[] = query.data ?? [];
+
+  const chartData: LineChartDataPoint[] = useMemo(
+    () =>
+      timeline.map((entry) => ({
+        date: entry.date,
+        value: Math.round(entry.value),
+      })),
+    [timeline],
+  );
+
+  return {
+    chartData,
+    timeline,
+    isLoading: query.isLoading,
+    isRefetching: query.isRefetching,
+    refetch: query.refetch,
+  };
 }
 
 // ─── Display helpers ──────────────────────────────────────────────────────

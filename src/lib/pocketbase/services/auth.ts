@@ -49,6 +49,20 @@ export async function signIn(input: LoginInput): Promise<AuthResult> {
 }
 
 /**
+ * Request a password reset email for the given address.
+ */
+export async function requestPasswordReset(
+  email: string,
+): Promise<{ error: string | null }> {
+  try {
+    await pb.collection("users").requestPasswordReset(email);
+    return { error: null };
+  } catch (err: any) {
+    return { error: mapAuthError(err) };
+  }
+}
+
+/**
  * Sign out the current user.
  */
 export async function signOut(): Promise<{ error: string | null }> {

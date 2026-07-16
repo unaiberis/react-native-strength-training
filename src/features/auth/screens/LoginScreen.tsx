@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { View, Text, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
+import { View, Text, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "expo-router";
 import { Button } from "../../../shared/ui/Button";
 import { Input } from "../../../shared/ui/Input";
 import { GradientBackground } from "../../../shared/ui/GradientBackground";
@@ -10,6 +11,7 @@ import { useAuth } from "../hooks/useAuth";
 
 export function LoginScreen() {
   const { login } = useAuth();
+  const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -103,6 +105,17 @@ export function LoginScreen() {
               />
             )}
           />
+
+          <TouchableOpacity
+            onPress={() => router.push("/(auth)/forgot-password")}
+            className="items-end -mt-2 mb-4"
+            accessibilityRole="button"
+            accessibilityLabel="Forgot password"
+          >
+            <Text className="text-surface-400 text-sm font-semibold">
+              Forgot password?
+            </Text>
+          </TouchableOpacity>
 
           <Button
             title="Entrar"
