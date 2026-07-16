@@ -1,11 +1,13 @@
-import { type ComponentProps } from "react";
+import { type ComponentProps, useCallback } from "react";
 import {
   TouchableOpacity,
   Text,
   type ViewStyle,
   ActivityIndicator,
+  Platform,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { impactAsync, ImpactFeedbackStyle } from "expo-haptics";
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 
@@ -58,10 +60,28 @@ function Button({
   icon,
   className,
   style,
+  onPress,
   ...props
 }: ButtonProps) {
   const styles = variantStyles[variant];
   const isDisabled = disabled || loading;
+
+  const handlePress = useCallback(
+    (e: any) => {
+      // Trigger haptic feedback on primary & danger buttons (native only)
+      if (Platform.OS !== "web" && (variant === "primary" || variant === "danger")) {
+        try {
+          impactAsync(
+            variant === "danger" ? ImpactFeedbackStyle.Heavy : ImpactFeedbackStyle.Medium,
+          ).catch(() => {});
+        } catch {
+          // Haptics unavailable — silently skip
+        }
+      }
+      onPress?.(e);
+    },
+    [onPress, variant],
+  );
 
   return (
     <TouchableOpacity
@@ -75,6 +95,7 @@ function Button({
       `}
       style={style as ViewStyle}
       activeOpacity={0.7}
+      onPress={handlePress}
       {...props}
     >
       {loading && (

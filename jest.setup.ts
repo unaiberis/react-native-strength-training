@@ -101,5 +101,63 @@ jest.mock("@expo/vector-icons", () => ({
     React.createElement("Text", null, name),
 }));
 
+// Mock react-native-reanimated for node test environment
+// Reanimated hooks (useSharedValue, useDerivedValue, etc.) are replaced with
+// plain JS equivalents so that components using them can render in jest.
+jest.mock("react-native-reanimated", () => {
+  const { View, Text, ScrollView } = require("react-native");
+  const mockVal = (v: any) => ({ value: v });
+
+  return {
+    useSharedValue: (init: any) => ({ value: init }),
+    useDerivedValue: (fn: () => any) => mockVal(fn()),
+    useAnimatedStyle: (fn: () => any) => fn(),
+    useAnimatedProps: (fn: () => any) => fn(),
+    withTiming: (toValue: any, _config?: any) => toValue,
+    withSpring: (toValue: any, _config?: any) => toValue,
+    withDelay: (_delay: number, anim: any) => anim,
+    interpolate: (_val: any, _in: any[], _out: any[]) => _out[_out.length - 1],
+    Extrapolation: { CLAMP: "clamp", EXTEND: "extend", IDENTITY: "identity" },
+    Easing: {
+      linear: () => {},
+      ease: () => {},
+      in: () => {},
+      out: () => {},
+      inOut: () => {},
+      cubic: () => {},
+      poly: () => {},
+      sin: () => {},
+      exp: () => {},
+      circle: () => {},
+      back: () => {},
+      bounce: () => {},
+      elastic: () => {},
+      bezier: () => {},
+      inFn: () => {},
+      outFn: () => {},
+      inOutFn: () => {},
+    },
+    runOnJS: (fn: any) => fn,
+    runOnUI: (fn: any) => fn,
+    cancelAnimation: () => {},
+    makeMutable: (init: any) => ({ value: init }),
+    createAnimatedComponent: (Comp: any) => Comp,
+    Animated: {
+      View,
+      Text,
+      ScrollView,
+      FlatList: ScrollView,
+      Image: View,
+      createAnimatedComponent: (Comp: any) => Comp,
+    },
+    default: {
+      View,
+      Text,
+      ScrollView,
+    },
+    __esModule: true,
+  };
+});
+
 // Suppress console noise during tests
 global.console.error = jest.fn();

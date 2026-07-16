@@ -260,10 +260,10 @@ export default function RootLayout() {
           <View className="flex-1">
             <OfflineBanner />
             <Stack screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="(auth)" />
-              <Stack.Screen name="(tabs)" />
-              <Stack.Screen name="(coach)" />
-              <Stack.Screen name="active" options={{ headerShown: false, presentation: "fullScreenModal" }} />
+              <Stack.Screen name="(auth)" options={{ animation: "fade" }} />
+              <Stack.Screen name="(tabs)" options={{ animation: "slide_from_right" }} />
+              <Stack.Screen name="(coach)" options={{ animation: "slide_from_right" }} />
+              <Stack.Screen name="active" options={{ headerShown: false, presentation: "fullScreenModal", animation: "fade" }} />
             </Stack>
           </View>
         </AuthGate>
