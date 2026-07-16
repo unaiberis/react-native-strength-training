@@ -172,8 +172,6 @@ function AssignModal({
 }) {
   const assignProgram = useAssignProgram();
   const { data: teams } = useMyTeams();
-  const { data: memberships } = useMyTeams(); // Will use for athlete selection via team
-
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedAthleteId, setSelectedAthleteId] = useState<string | null>(null);
   const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null);
