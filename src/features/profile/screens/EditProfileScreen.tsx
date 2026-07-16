@@ -9,6 +9,7 @@ import { ScreenLayout } from "@/shared/ui/ScreenLayout";
 import { GradientBackground } from "@/shared/ui/GradientBackground";
 import { useAuthStore } from "@/stores/auth-store";
 import { useUpdateProfile } from "../hooks/useUpdateProfile";
+import { useUnitPreferences, type WeightUnit } from "../hooks/useUnitPreferences";
 import {
   profileSchema,
   type ProfileFormValues,
@@ -104,6 +105,8 @@ export function EditProfileScreen() {
   const user = useAuthStore((s) => s.user);
   const isOnline = useAuthStore((s) => s.isOnline);
   const { mutate, isPending, error } = useUpdateProfile();
+
+  const { unit: weightUnit, setUnit: setWeightUnit } = useUnitPreferences();
 
   const {
     control,
@@ -259,6 +262,43 @@ export function EditProfileScreen() {
               />
             )}
           />
+
+          {/* ─── Weight Unit Preference ──────────────────────────── */}
+          <View className="mb-5">
+            <Text className="text-surface-400 text-[13px] font-semibold mb-3">
+              Weight Unit
+            </Text>
+            <Text className="text-surface-500 text-xs mb-3 leading-4">
+              Choose how weights are displayed throughout the app.
+            </Text>
+            <View className="flex-row gap-2">
+              {(["kg", "lbs"] as WeightUnit[]).map((unit) => {
+                const selected = weightUnit === unit;
+                return (
+                  <Pressable
+                    key={unit}
+                    onPress={() => setWeightUnit(unit)}
+                    className={`flex-1 py-3 px-4 rounded-xl border ${
+                      selected
+                        ? "border-titanium bg-cardSoft"
+                        : "border-border bg-card"
+                    }`}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected }}
+                    accessibilityLabel={unit === "kg" ? "Kilograms" : "Pounds"}
+                  >
+                    <Text
+                      className={`text-center font-semibold ${
+                        selected ? "text-titanium" : "text-surface-400"
+                      }`}
+                    >
+                      {unit === "kg" ? "Kilograms (kg)" : "Pounds (lbs)"}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </View>
 
           {error && (
             <View className="bg-danger/10 border border-danger rounded-xl px-4 py-3 mb-4">

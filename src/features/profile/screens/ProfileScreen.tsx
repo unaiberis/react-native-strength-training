@@ -1,11 +1,10 @@
-import { useState, useMemo } from "react";
+import { useMemo } from "react";
 import {
   View,
   Text,
   ScrollView,
   Alert,
   Platform,
-  TextInput,
   TouchableOpacity,
 } from "react-native";
 import { useRouter } from "expo-router";
@@ -25,19 +24,12 @@ import { ProfileHeader } from "../components/ProfileHeader";
 import { ProfileStats } from "../components/ProfileStats";
 import { ProfileMenu } from "../components/ProfileMenu";
 
-type WeightUnit = "kg" | "lbs";
-
 export function ProfileScreen() {
   const router = useRouter();
   const { user, logout } = useAuth();
   const query = useProfileStats();
   const { data: syncCount } = usePendingSyncCount();
   const { unreadCount: notificationUnreadCount } = useNotifications();
-
-  // ─── Local state for editable fields ──────────────────────────────────
-  const [bodyweight, setBodyweight] = useState("");
-  const [weightUnit, setWeightUnit] = useState<WeightUnit>("kg");
-  const [isEditingBodyweight, setIsEditingBodyweight] = useState(false);
 
   // ─── Derived data ─────────────────────────────────────────────────────
   const email = user?.email ?? "No email";
@@ -98,16 +90,6 @@ export function ProfileScreen() {
       "Help & Support",
       "Contact support@example.com for assistance.",
     );
-  };
-
-  const handleSaveBodyweight = () => {
-    const num = parseFloat(bodyweight);
-    if (isNaN(num) || num <= 0) {
-      Alert.alert("Invalid weight", "Please enter a valid number");
-      return;
-    }
-    setIsEditingBodyweight(false);
-    // Future: persist to DB or preferences store
   };
 
   /** Teams section — shows the user's team memberships. */
@@ -210,68 +192,13 @@ export function ProfileScreen() {
 
         {/* ─── Profile Menu ──────────────────────────────────────────── */}
         <ProfileMenu
-          onEditProfile={handleEditProfile}
           onNotifications={handleNotifications}
           notificationUnreadCount={notificationUnreadCount}
-          onUnitPreferences={() => router.push("/(tabs)/unit-preferences")}
           onWellness={() => router.push("/(tabs)/wellness")}
           onHistory={() => router.push("/(tabs)/history/index")}
           onHelp={handleHelp}
           onSignOut={handleLogout}
         />
-
-        {/* ─── Bodyweight ──────────────────────────────────────────── */}
-        <Card title="Bodyweight" className="mb-4">
-          <View className="flex-row items-center justify-between">
-            {isEditingBodyweight ? (
-              <View className="flex-row items-center flex-1 gap-3">
-                <TextInput
-                  className="flex-1 bg-cardSoft text-surface-100 text-lg font-semibold rounded-xl px-4 py-3 border border-border"
-                  placeholder="Enter weight"
-                  placeholderTextColor="#707074"
-                  keyboardType="decimal-pad"
-                  value={bodyweight}
-                  onChangeText={setBodyweight}
-                  autoFocus
-                />
-                <TouchableOpacity
-                  onPress={handleSaveBodyweight}
-                  className="bg-titanium rounded-xl px-5 py-3"
-                >
-                  <Text className="text-background font-bold">Save</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => {
-                    setIsEditingBodyweight(false);
-                    setBodyweight("");
-                  }}
-                  className="rounded-xl px-3 py-3"
-                >
-                  <Text className="text-surface-400 font-bold">Cancel</Text>
-                </TouchableOpacity>
-              </View>
-            ) : (
-              <>
-                <View className="flex-row items-center gap-3">
-                  <Ionicons name="scale-outline" size={20} color="#A4A4A8" />
-                  <Text className="text-surface-100 text-lg font-semibold">
-                    {bodyweight
-                      ? `${bodyweight} ${weightUnit}`
-                      : "Not set"}
-                  </Text>
-                </View>
-                <TouchableOpacity
-                  onPress={() => setIsEditingBodyweight(true)}
-                  className="bg-cardSoft rounded-xl px-4 py-2 border border-border"
-                >
-                  <Text className="text-surface-300 text-sm font-semibold">
-                    Edit
-                  </Text>
-                </TouchableOpacity>
-              </>
-            )}
-          </View>
-        </Card>
 
         {/* ─── Account Info ────────────────────────────────────────── */}
         <Card title="Account Info" className="mb-4">

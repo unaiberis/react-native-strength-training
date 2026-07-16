@@ -13,6 +13,7 @@ import * as Haptics from "expo-haptics";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { ErrorBoundary } from "@/shared/ui/ErrorBoundary";
+import { GradientBackground } from "@/shared/ui/GradientBackground";
 import { Card } from "@/shared/ui/Card";
 import { Button } from "@/shared/ui/Button";
 import { useAuthStore } from "@/stores/auth-store";
@@ -225,15 +226,18 @@ export function TeamDetailScreen() {
 
   if (membersLoading) {
     return (
-      <View className="flex-1 items-center justify-center">
-        <ActivityIndicator size="large" color="#B9B9B6" />
-      </View>
+      <GradientBackground>
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator size="large" color="#B9B9B6" />
+        </View>
+      </GradientBackground>
     );
   }
 
   return (
-    <ErrorBoundary>
-      <ScrollView className="flex-1 px-4 pt-4">
+    <GradientBackground>
+      <ErrorBoundary>
+        <ScrollView className="flex-1 px-4 pt-4">
         {/* ─── Team Name + Description ──────────────── */}
         <Card className="mb-4">
           <View className="flex-row items-center justify-between mb-1">
@@ -419,5 +423,6 @@ export function TeamDetailScreen() {
         </Card>
       </ScrollView>
     </ErrorBoundary>
+    </GradientBackground>
   );
 }

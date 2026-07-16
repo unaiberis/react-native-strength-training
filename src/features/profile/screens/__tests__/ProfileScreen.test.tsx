@@ -117,9 +117,7 @@ describe("ProfileScreen", () => {
   it("renders profile menu items", () => {
     render(<ProfileScreen />);
 
-    // Edit Profile appears in header AND menu — expect multiple matches
-    expect(screen.getAllByText("Edit Profile").length).toBe(2);
-    expect(screen.getByText("Unit Preferences")).toBeTruthy();
+    expect(screen.getAllByText("Edit Profile").length).toBe(1);
     expect(screen.getByText("Wellness Dashboard")).toBeTruthy();
     expect(screen.getByText("Workout History")).toBeTruthy();
     expect(screen.getByText("Help & Support")).toBeTruthy();
@@ -138,13 +136,6 @@ describe("ProfileScreen", () => {
     render(<ProfileScreen />);
 
     expect(screen.queryByText(/pending sync/i)).toBeNull();
-  });
-
-  it("renders Bodyweight card", () => {
-    render(<ProfileScreen />);
-
-    expect(screen.getByText("Bodyweight")).toBeTruthy();
-    expect(screen.getByText("Not set")).toBeTruthy();
   });
 
   it("shows warning sync badge when pending items exist", () => {
@@ -180,20 +171,6 @@ describe("ProfileScreen", () => {
     render(<ProfileScreen />);
 
     expect(screen.getByText("5")).toBeTruthy();
-  });
-
-  it("shows Bodyweight edit button and toggles input", () => {
-    render(<ProfileScreen />);
-
-    // Initial state: shows "Not set" and "Edit" button
-    expect(screen.getByText("Not set")).toBeTruthy();
-    expect(screen.getByText("Edit")).toBeTruthy();
-
-    // Tap Edit to toggle bodyweight editing
-    fireEvent.press(screen.getByText("Edit"));
-    // Now we should see Save and Cancel buttons
-    expect(screen.getByText("Save")).toBeTruthy();
-    expect(screen.getByText("Cancel")).toBeTruthy();
   });
 
   it("renders Notifications menu item", () => {

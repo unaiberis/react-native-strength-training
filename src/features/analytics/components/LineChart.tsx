@@ -244,8 +244,11 @@ export function LineChart({
                 const x = i * 60 + 30 - dotDiameter / 2;
                 const y = getY(point.value);
 
-                const dateLabel = point.date.length >= 10
-                  ? point.date.substring(5) // "MM-DD"
+                // Extract YYYY-MM-DD first (handles both "2026-06-09" and
+                // "2026-06-09 00:00:00.000Z" from PocketBase), then show MM-DD
+                const datePart = point.date.substring(0, 10);
+                const dateLabel = datePart.length === 10
+                  ? datePart.substring(5) // "MM-DD"
                   : point.date;
 
                 return (

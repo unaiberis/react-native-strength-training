@@ -5,10 +5,8 @@ import { Card } from "../../../shared/ui/Card";
 // ─── Types ─────────────────────────────────────────────────────────────────
 
 interface ProfileMenuProps {
-  onEditProfile: () => void;
   onNotifications: () => void;
   notificationUnreadCount?: number;
-  onUnitPreferences: () => void;
   onWellness: () => void;
   onHistory: () => void;
   onHelp: () => void;
@@ -64,16 +62,14 @@ function MenuItem({ icon, label, onPress, danger, badgeCount }: MenuItemProps) {
 /**
  * Menu list for the profile screen.
  *
- * Renders navigation items: Edit Profile, Unit Preferences,
- * Wellness Dashboard, Workout History, Help & Support, and Sign Out.
+ * Renders navigation items: Notifications, Wellness Dashboard,
+ * Workout History, Help & Support, and Sign Out.
  * Each item has an Ionicons icon, label, and chevron-forward indicator.
  * Sign Out is rendered with danger styling.
  */
 function ProfileMenu({
-  onEditProfile,
   onNotifications,
   notificationUnreadCount = 0,
-  onUnitPreferences,
   onWellness,
   onHistory,
   onHelp,
@@ -82,20 +78,10 @@ function ProfileMenu({
   return (
     <Card className="mb-4">
       <MenuItem
-        icon="person-outline"
-        label="Edit Profile"
-        onPress={onEditProfile}
-      />
-      <MenuItem
         icon="notifications-outline"
         label="Notifications"
         onPress={onNotifications}
         badgeCount={notificationUnreadCount}
-      />
-      <MenuItem
-        icon="settings-outline"
-        label="Unit Preferences"
-        onPress={onUnitPreferences}
       />
       <MenuItem
         icon="heart-outline"
