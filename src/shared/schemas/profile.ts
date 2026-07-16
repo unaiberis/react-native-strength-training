@@ -14,7 +14,7 @@ const optionalPositiveNumber = (max: number, label: string) =>
     .optional()
     .refine(
       (v) => v === undefined || v === "" || (Number(v) > 0 && Number(v) <= max),
-      `${label} must be between 0 and ${max}`,
+      `${label} must be greater than 0 and at most ${max}`,
     )
     .transform((v) => (v === "" || v === undefined ? undefined : Number(v)));
 

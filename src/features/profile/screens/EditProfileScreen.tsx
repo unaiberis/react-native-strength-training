@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { View, Text, ScrollView, Pressable } from "react-native";
 import { useRouter } from "expo-router";
 import { useForm, Controller, type Resolver } from "react-hook-form";
@@ -141,8 +140,8 @@ export function EditProfileScreen() {
           <ScreenTitle title="Edit Profile" className="mb-6" />
 
           {!isOnline && (
-            <View className="bg-danger/10 border border-danger rounded-xl px-4 py-3 mb-4">
-              <Text className="text-danger text-sm">
+            <View className="bg-amber-900/60 rounded-xl px-4 py-3 mb-4">
+              <Text className="text-amber-300 text-sm font-medium">
                 You're offline — profile changes need a connection
               </Text>
             </View>
