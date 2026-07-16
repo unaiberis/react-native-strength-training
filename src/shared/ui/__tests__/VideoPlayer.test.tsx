@@ -61,4 +61,56 @@ describe("VideoPlayer", () => {
     expect(getByText("Watch Tutorial")).toBeTruthy();
     expect(getByText("Tap to play inline")).toBeTruthy();
   });
+
+  // ─── New: inline expo-video playback ─────────────────────────────────────
+
+  it("transitions to inline video view when pressing a direct video URL", () => {
+    const { getByText, getByTestId } = render(
+      <VideoPlayer videoUrl="https://example.com/video.mp4" />,
+    );
+    fireEvent.press(getByText("Watch Tutorial"));
+    // Should now render the VideoView (mocked as testID "video-view")
+    expect(getByTestId("video-view")).toBeTruthy();
+  });
+
+  it("shows error UI when Linking.openURL fails for YouTube URL", async () => {
+    mockOpenURL.mockRejectedValueOnce(new Error("No app found"));
+    const { getByText, findByText } = render(
+      <VideoPlayer videoUrl="https://www.youtube.com/watch?v=abc123" />,
+    );
+    fireEvent.press(getByText("Watch on YouTube"));
+    // Error state is set asynchronously (inside .catch handler)
+    expect(await findByText("Video unavailable")).toBeTruthy();
+  });
+
+  // ─── Edge cases ──────────────────────────────────────────────────────────
+
+  it("renders with HLS direct video URL", () => {
+    const { getByText } = render(
+      <VideoPlayer videoUrl="https://example.com/stream.m3u8" />,
+    );
+    expect(getByText("Watch Tutorial")).toBeTruthy();
+    expect(getByText("Tap to play inline")).toBeTruthy();
+  });
+
+  it("renders with .mov direct video URL", () => {
+    const { getByText } = render(
+      <VideoPlayer videoUrl="https://example.com/clip.mov" />,
+    );
+    expect(getByText("Tap to play inline")).toBeTruthy();
+  });
+
+  it("renders YouTube embed URL", () => {
+    const { getByText } = render(
+      <VideoPlayer videoUrl="https://www.youtube.com/embed/abc123" />,
+    );
+    expect(getByText("Watch on YouTube")).toBeTruthy();
+  });
+
+  it("calls handleOpenUrl correctly for non-direct URLs", () => {
+    const url = "https://vimeo.com/654321";
+    const { getByText } = render(<VideoPlayer videoUrl={url} />);
+    fireEvent.press(getByText("Watch Tutorial"));
+    expect(mockOpenURL).toHaveBeenCalledWith(url);
+  });
 });

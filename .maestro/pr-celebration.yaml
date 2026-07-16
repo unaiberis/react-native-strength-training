@@ -1,0 +1,25 @@
+# E2E: PR Celebration overlay
+# Triggered when user logs a set that exceeds their personal record.
+appId: com.strengthtraining.app
+---
+# 1. Start a workout
+- tapOn: "Start Workout"
+- assertVisible: "Active Workout"
+
+# 2. Log a set with weight that should trigger PR
+- tapOn:
+    id: "weight-input"
+- inputText: "150"
+- tapOn:
+    id: "reps-input"
+- inputText: "5"
+- tapOn: "Log Set"
+
+# 3. PR celebration should appear
+- assertVisible: "New Personal Record!"
+- assertVisible: "Continue"
+- assertVisible: "Share"
+
+# 4. Press Continue to go back
+- tapOn: "Continue"
+- assertNotVisible: "New Personal Record!"

@@ -3,20 +3,21 @@ import { render, fireEvent } from "@testing-library/react-native";
 import { PRCelebrationScreen } from "../PRCelebrationScreen";
 
 const mockBack = jest.fn();
+let mockParams: Record<string, string> = {
+  exerciseName: "Bench Press",
+  newPR: "120",
+  previousPR: "110",
+  unit: "kg",
+};
 
-// Mock expo-router
+// Mock expo-router with dynamic params
 jest.mock("expo-router", () => ({
   useRouter: () => ({
     push: jest.fn(),
     replace: jest.fn(),
     back: mockBack,
   }),
-  useLocalSearchParams: () => ({
-    exerciseName: "Bench Press",
-    newPR: "120",
-    previousPR: "110",
-    unit: "kg",
-  }),
+  useLocalSearchParams: () => mockParams,
   Stack: { Screen: () => null },
 }));
 
@@ -29,6 +30,12 @@ jest.mock("@/shared/ui/GradientBackground", () => ({
 describe("PRCelebrationScreen", () => {
   beforeEach(() => {
     mockBack.mockClear();
+    mockParams = {
+      exerciseName: "Bench Press",
+      newPR: "120",
+      previousPR: "110",
+      unit: "kg",
+    };
   });
 
   it("renders PR celebration title", () => {
@@ -62,5 +69,24 @@ describe("PRCelebrationScreen", () => {
     const { getByText } = render(<PRCelebrationScreen />);
     fireEvent.press(getByText("Continue"));
     expect(mockBack).toHaveBeenCalled();
+  });
+
+  it("hides previous PR comparison when previousPR is not provided", () => {
+    mockParams = {
+      exerciseName: "Squat",
+      newPR: "200",
+      unit: "kg",
+    };
+    const { queryByText } = render(<PRCelebrationScreen />);
+    expect(queryByText("Previous:")).toBeNull();
+  });
+
+  it("renders with default unit and exercise name when params missing", () => {
+    mockParams = {
+      newPR: "100",
+    };
+    const { getByText } = render(<PRCelebrationScreen />);
+    expect(getByText("Exercise")).toBeTruthy();
+    expect(getByText("100")).toBeTruthy();
   });
 });

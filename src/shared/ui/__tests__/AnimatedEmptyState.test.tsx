@@ -28,6 +28,20 @@ describe("AnimatedEmptyState", () => {
     expect(onPress).toHaveBeenCalledTimes(1);
   });
 
+  it("renders Lottie animation when source is provided", () => {
+    const { getByTestId, getByText } = render(
+      <AnimatedEmptyState
+        source={{ uri: "animation.json" }}
+        title="Lottie Title"
+        subtitle="With animation"
+      />,
+    );
+    // lottie-react-native is mocked to render a View with testID="lottie-view"
+    expect(getByTestId("lottie-view")).toBeTruthy();
+    expect(getByText("Lottie Title")).toBeTruthy();
+    expect(getByText("With animation")).toBeTruthy();
+  });
+
   it("falls back to EmptyState when no Lottie source provided", () => {
     const { getByText } = render(
       <AnimatedEmptyState
@@ -45,5 +59,18 @@ describe("AnimatedEmptyState", () => {
     );
     expect(getByText("Only Title")).toBeTruthy();
     expect(queryByText("undefined")).toBeNull();
+  });
+
+  it("calls action onPress when action button tapped", () => {
+    const onPress = jest.fn();
+    const { getByText } = render(
+      <AnimatedEmptyState
+        source={{ uri: "anim.json" }}
+        title="With Action"
+        action={{ label: "Go", onPress }}
+      />,
+    );
+    fireEvent.press(getByText("Go"));
+    expect(onPress).toHaveBeenCalledTimes(1);
   });
 });
