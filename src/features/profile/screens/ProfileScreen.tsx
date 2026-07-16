@@ -13,6 +13,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Card } from "../../../shared/ui/Card";
 import { Button } from "../../../shared/ui/Button";
 import { ScreenTitle } from "../../../shared/ui/ScreenTitle";
+import { ScreenLayout } from "../../../shared/ui/ScreenLayout";
 import { GradientBackground } from "../../../shared/ui/GradientBackground";
 import { useAuth } from "../../auth/hooks/useAuth";
 import { useProfileStats } from "../hooks/useProfileStats";
@@ -164,6 +165,7 @@ export function ProfileScreen() {
   return (
     <GradientBackground>
       <ScrollView className="flex-1 px-4 pt-16">
+        <ScreenLayout>
         <ScreenTitle title="Profile" className="mb-6" />
 
         {/* ─── Profile Header ─────────────────────────────────────────── */}
@@ -290,6 +292,7 @@ export function ProfileScreen() {
         </Card>
 
         <View className="h-8" />
+        </ScreenLayout>
       </ScrollView>
     </GradientBackground>
   );

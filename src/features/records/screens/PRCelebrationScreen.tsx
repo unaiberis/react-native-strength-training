@@ -147,6 +147,34 @@ function AnimatedValue({
   );
 }
 
+// ─── Animated Trophy ──────────────────────────────────────────────────────
+
+function AnimatedTrophy() {
+  const scale = useSharedValue(0);
+  const rotate = useSharedValue(-20);
+
+  useEffect(() => {
+    scale.value = withDelay(100, withSpring(1, { damping: 6, stiffness: 100 }));
+    rotate.value = withDelay(100, withSpring(0, { damping: 10, stiffness: 80 }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [
+      { scale: scale.value },
+      { rotate: `${rotate.value}deg` },
+    ],
+  }));
+
+  return (
+    <Animated.View style={animatedStyle} className="mb-6">
+      <View className="w-20 h-20 rounded-full bg-titanium/20 items-center justify-center">
+        <Ionicons name="trophy" size={40} color="#B9B9B6" />
+      </View>
+    </Animated.View>
+  );
+}
+
 // ─── Screen ───────────────────────────────────────────────────────────────
 
 /**
@@ -196,12 +224,8 @@ export function PRCelebrationScreen() {
       {/* Content */}
       <GradientBackground>
         <View className="flex-1 items-center justify-center px-8">
-          {/* Trophy icon */}
-          <Animated.View className="mb-6">
-            <View className="w-20 h-20 rounded-full bg-titanium/20 items-center justify-center">
-              <Ionicons name="trophy" size={40} color="#B9B9B6" />
-            </View>
-          </Animated.View>
+          {/* Trophy icon — spring entrance */}
+          <AnimatedTrophy />
 
           {/* Title */}
           <Text className="text-surface-50 text-2xl font-black mb-2 text-center">

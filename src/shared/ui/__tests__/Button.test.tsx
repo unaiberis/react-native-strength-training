@@ -82,18 +82,18 @@ describe("Button", () => {
       expect(onPress).toHaveBeenCalledTimes(1);
     });
 
-    it("does not fire haptics on secondary variant", () => {
+    it("fires Light impact on secondary variant", () => {
       const onPress = jest.fn();
       render(<Button title="Secondary" variant="secondary" onPress={onPress} />);
       fireEvent.press(screen.getByText("Secondary"));
-      expect(mockImpactAsync).not.toHaveBeenCalled();
+      expect(mockImpactAsync).toHaveBeenCalledWith(ImpactFeedbackStyle.Light);
       expect(onPress).toHaveBeenCalledTimes(1);
     });
 
-    it("does not fire haptics on ghost variant", () => {
+    it("fires Light impact on ghost variant", () => {
       render(<Button title="Ghost" variant="ghost" />);
       fireEvent.press(screen.getByText("Ghost"));
-      expect(mockImpactAsync).not.toHaveBeenCalled();
+      expect(mockImpactAsync).toHaveBeenCalledWith(ImpactFeedbackStyle.Light);
     });
 
     it("does not fire haptics on web platform", () => {

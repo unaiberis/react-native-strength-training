@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Tabs, useRouter } from "expo-router";
 import { useAuthStore } from "../../src/stores/auth-store";
-import { Text, View, Pressable, type LayoutChangeEvent } from "react-native";
+import { Text, View, Pressable, type LayoutChangeEvent, Platform } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { GradientBackground } from "../../src/shared/ui/GradientBackground";
 import Animated, {
@@ -9,6 +9,7 @@ import Animated, {
   useAnimatedStyle,
   withSpring,
 } from "react-native-reanimated";
+import { impactAsync, ImpactFeedbackStyle } from "expo-haptics";
 
 // ─── Sync Banner ────────────────────────────────────────────────────────────
 
@@ -171,7 +172,13 @@ function CustomTabBar({
               key={route.key}
               accessibilityRole="tab"
               accessibilityState={isFocused ? { selected: true } : {}}
-              onPress={() => navigation.navigate(route.name, route.params)}
+              onPress={() => {
+                // Light haptic on tab press (native only)
+                if (Platform.OS !== "web") {
+                  impactAsync(ImpactFeedbackStyle.Light).catch(() => {});
+                }
+                navigation.navigate(route.name, route.params);
+              }}
               style={{
                 flex: 1,
                 alignItems: "center",

@@ -68,12 +68,16 @@ function Button({
 
   const handlePress = useCallback(
     (e: any) => {
-      // Trigger haptic feedback on primary & danger buttons (native only)
-      if (Platform.OS !== "web" && (variant === "primary" || variant === "danger")) {
+      // Trigger haptic feedback on button press (native only)
+      if (Platform.OS !== "web") {
         try {
-          impactAsync(
-            variant === "danger" ? ImpactFeedbackStyle.Heavy : ImpactFeedbackStyle.Medium,
-          ).catch(() => {});
+          if (variant === "danger") {
+            impactAsync(ImpactFeedbackStyle.Heavy).catch(() => {});
+          } else if (variant === "primary") {
+            impactAsync(ImpactFeedbackStyle.Medium).catch(() => {});
+          } else {
+            impactAsync(ImpactFeedbackStyle.Light).catch(() => {});
+          }
         } catch {
           // Haptics unavailable — silently skip
         }

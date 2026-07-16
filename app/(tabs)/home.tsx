@@ -7,6 +7,7 @@ import { StatCard } from "@/shared/ui/StatCard";
 import { GradientBackground } from "@/shared/ui/GradientBackground";
 import { ErrorBoundary } from "@/shared/ui/ErrorBoundary";
 import { SkeletonCard } from "@/shared/ui/SkeletonLoader";
+import { ScreenLayout } from "@/shared/ui/ScreenLayout";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { useHomeStats, relativeDate } from "@/features/home/hooks/useHomeStats";
 import { WeekCalendarSection } from "@/features/calendar/components/WeekCalendarSection";
@@ -44,6 +45,7 @@ export default function HomeScreen() {
             />
           }
         >
+          <ScreenLayout>
           {/* Greeting */}
           <Text className="text-surface-50 text-[34px] font-black tracking-[-0.8] mb-1">
             Welcome back, {displayName}
@@ -185,6 +187,7 @@ export default function HomeScreen() {
               </View>
             )}
           </Card>
+          </ScreenLayout>
         </ScrollView>
       </GradientBackground>
     </ErrorBoundary>

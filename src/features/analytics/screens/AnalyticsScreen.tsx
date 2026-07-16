@@ -4,6 +4,7 @@ import { useRouter } from "expo-router";
 import { GradientBackground } from "@/shared/ui/GradientBackground";
 import { ErrorBoundary } from "@/shared/ui/ErrorBoundary";
 import { EmptyState } from "@/shared/ui/EmptyState";
+import { ScreenLayout } from "@/shared/ui/ScreenLayout";
 
 import { useAnalytics, type AnalyticsPeriod } from "../hooks/useAnalytics";
 import { VolumeChart } from "../components/VolumeChart";
@@ -126,6 +127,7 @@ export function AnalyticsScreen() {
             />
           }
         >
+          <ScreenLayout>
           {/* Header */}
           <Text className="text-surface-50 text-[34px] font-black tracking-[-0.8] mb-1">
             Analytics
@@ -212,6 +214,7 @@ export function AnalyticsScreen() {
 
           {/* Bottom spacing */}
           <View className="h-8" />
+          </ScreenLayout>
         </ScrollView>
       </GradientBackground>
     </ErrorBoundary>
