@@ -12,6 +12,7 @@ export default function WorkoutLayout() {
       <Stack.Screen name="self-assessment" />
       <Stack.Screen name="assessment-results" />
       <Stack.Screen name="notes" />
+      <Stack.Screen name="pr-celebration" />
     </Stack>
   );
 }
