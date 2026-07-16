@@ -136,7 +136,10 @@ export function EditProfileScreen() {
     <GradientBackground>
       <ScrollView className="flex-1 px-4 pt-16">
         <ScreenLayout>
-          <ScreenTitle title="Edit Profile" className="mb-6" />
+          <View className="flex-row items-center mb-6">
+            <BackButton fallbackRoute="/(tabs)/profile" />
+            <ScreenTitle title="Edit Profile" />
+          </View>
 
           {!isOnline && (
             <View className="bg-amber-900/60 rounded-xl px-4 py-3 mb-4">

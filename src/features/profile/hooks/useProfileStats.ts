@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useAuthStore } from "../../../stores/auth-store";
 import { pb } from "../../../lib/pocketbase/client";
 
-const PROFILE_STATS_QUERY_KEY = "profile-stats";
+export const PROFILE_STATS_QUERY_KEY = "profile-stats";
 
 export interface ProfileStats {
   totalWorkouts: number;

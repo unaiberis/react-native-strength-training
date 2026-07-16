@@ -8,8 +8,9 @@ jest.mock("@/lib/pocketbase/services/auth", () => ({
 }));
 
 const mockRouterBack = jest.fn();
+const mockRouterCanGoBack = jest.fn(() => true);
 jest.mock("expo-router", () => ({
-  useRouter: () => ({ back: mockRouterBack, push: jest.fn(), replace: jest.fn() }),
+  useRouter: () => ({ back: mockRouterBack, push: jest.fn(), replace: jest.fn(), canGoBack: mockRouterCanGoBack }),
   useSegments: () => [],
   useLocalSearchParams: () => ({}),
   Stack: { Screen: () => null },
@@ -28,7 +29,7 @@ describe("ForgotPasswordScreen", () => {
 
     expect(screen.getByText("Reset password")).toBeTruthy();
     expect(screen.getByText("Send Reset Link")).toBeTruthy();
-    expect(screen.getByText("Back to login")).toBeTruthy();
+    expect(screen.getByLabelText("Go back")).toBeTruthy();
   });
 
   it("shows error when submitting with empty email", () => {
@@ -74,10 +75,10 @@ describe("ForgotPasswordScreen", () => {
     expect(mockRequestPasswordReset).toHaveBeenCalledWith("invalid@example.com");
   });
 
-  it("navigates back when 'Back to login' is pressed", () => {
+  it("navigates back when back button is pressed", () => {
     render(<ForgotPasswordScreen />);
 
-    fireEvent.press(screen.getByText("Back to login"));
+    fireEvent.press(screen.getByLabelText("Go back"));
 
     expect(mockRouterBack).toHaveBeenCalled();
   });

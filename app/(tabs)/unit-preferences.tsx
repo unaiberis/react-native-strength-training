@@ -33,11 +33,7 @@ export default function UnitPreferencesRoute() {
     <GradientBackground>
       <ScrollView className="flex-1 px-4 pt-16">
         <View className="flex-row items-center mb-6">
-        <Button
-          title="Done"
-          variant="primary"
-          onPress={() => router.back()}
-        />
+          <BackButton fallbackRoute="/(tabs)/profile" />
           <ScreenTitle title="Unit Preferences" />
         </View>
 
@@ -91,7 +87,11 @@ export default function UnitPreferencesRoute() {
           </View>
         </Card>
 
-        <BackButton fallbackRoute="/(tabs)/profile" />
+        <Button
+          title="Done"
+          variant="primary"
+          onPress={() => router.back()}
+        />
       </ScrollView>
     </GradientBackground>
   );
