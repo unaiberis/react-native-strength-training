@@ -52,18 +52,20 @@ const tabIcons: Record<string, keyof typeof Ionicons.glyphMap> = {
   calendar: "calendar-outline",
   home: "home-outline",
   train: "barbell-outline",
+  wellness: "heart-outline",
   analytics: "stats-chart-outline",
   profile: "person-outline",
 };
 
 /** Order of visible tabs in the tab bar. */
-const VISIBLE_TABS = ["calendar", "home", "train", "analytics", "profile"] as const;
+const VISIBLE_TABS = ["calendar", "home", "train", "wellness", "analytics", "profile"] as const;
 
 /** Labels for the visible tabs (mirrors Tabs.Screen title options). */
 const VISIBLE_TAB_LABELS: Record<string, string> = {
   calendar: "Calendar",
   home: "Home",
   train: "Train",
+  wellness: "Wellness",
   analytics: "Analytics",
   profile: "Profile",
 };
@@ -282,6 +284,12 @@ export default function TabsLayout() {
             }}
           />
           <Tabs.Screen
+            name="wellness"
+            options={{
+              title: "Wellness",
+            }}
+          />
+          <Tabs.Screen
             name="analytics"
             options={{
               title: "Analytics",
@@ -300,7 +308,6 @@ export default function TabsLayout() {
           <Tabs.Screen name="history/index" options={{ href: null, headerShown: true, headerTitle: "Workout History", ...DETAIL_HEADER }} />
           <Tabs.Screen name="history/[id]" options={{ href: null, headerShown: true, headerTitle: "Workout Details", ...DETAIL_HEADER }} />
           <Tabs.Screen name="analytics/exercise/[id]" options={{ href: null, headerShown: true, headerTitle: "Exercise Progress", ...DETAIL_HEADER }} />
-          <Tabs.Screen name="wellness" options={{ href: null, headerShown: true, headerTitle: "Wellness", ...DETAIL_HEADER }} />
           <Tabs.Screen name="notifications" options={{ href: null, headerShown: false }} />
           <Tabs.Screen name="notification/[id]" options={{ href: null, headerShown: false }} />
           <Tabs.Screen name="team/[id]" options={{ href: null, headerShown: false }} />
