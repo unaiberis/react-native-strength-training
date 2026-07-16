@@ -13,7 +13,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Card } from "../../../shared/ui/Card";
 import { Button } from "../../../shared/ui/Button";
 import { ScreenTitle } from "../../../shared/ui/ScreenTitle";
-import { ScreenLayout } from "../../../shared/ui/ScreenLayout";
+import { ScreenLayout } from "@/shared/ui/ScreenLayout";
 import { GradientBackground } from "../../../shared/ui/GradientBackground";
 import { useAuth } from "../../auth/hooks/useAuth";
 import { useProfileStats } from "../hooks/useProfileStats";
