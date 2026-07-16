@@ -6,8 +6,8 @@ import {
   TouchableOpacity,
   RefreshControl,
 } from "react-native";
-import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { BackButton } from "@/shared/ui/BackButton";
 import { GradientBackground } from "@/shared/ui/GradientBackground";
 import { ScreenTitle } from "@/shared/ui/ScreenTitle";
 import { Card } from "@/shared/ui/Card";
