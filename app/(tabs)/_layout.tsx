@@ -81,7 +81,7 @@ function AnimatedTabIcon({
       <Ionicons
         name={name}
         size={22}
-        color={focused ? "#B9B9B6" : "#71717a"}
+        color={focused ? "#B9B9B6" : "#707074"}
       />
     </Animated.View>
   );
