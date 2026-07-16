@@ -55,7 +55,7 @@ jest.mock("@/features/calendar/components/WeekCalendarSection", () => ({
 
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react-native";
-import HomeScreen from "../index";
+import HomeScreen from "../home";
 
 function todayString(): string {
   const d = new Date();

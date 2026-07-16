@@ -1,10 +1,17 @@
 import { useEffect } from "react";
 import { Tabs, useRouter } from "expo-router";
-import { useAuthStore } from "../../src/stores/auth-store";
+import { useAuthStore } from "@/stores/auth-store";
 import { View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { GradientBackground } from "../../src/shared/ui/GradientBackground";
-import { OfflineBanner } from "../../src/shared/ui/OfflineBanner";
+import { GradientBackground } from "@/shared/ui/GradientBackground";
+import { OfflineBanner } from "@/shared/ui/OfflineBanner";
+import {
+  TAB_BAR_BG,
+  TAB_BAR_BORDER,
+  TAB_BAR_HEIGHT,
+  TAB_BAR_ACTIVE_TINT,
+  TAB_BAR_INACTIVE_TINT,
+} from "@/constants/theme";
 
 const tabIcons: Record<string, keyof typeof Ionicons.glyphMap> = {
   athletes: "people-outline",
@@ -36,14 +43,14 @@ export default function CoachTabsLayout() {
           screenOptions={{
             headerShown: false,
             tabBarStyle: {
-              backgroundColor: "#0B0B0C",
-              borderTopColor: "#343437",
+              backgroundColor: TAB_BAR_BG,
+              borderTopColor: TAB_BAR_BORDER,
               borderTopWidth: 1,
               paddingTop: 4,
-              height: 56,
+              height: TAB_BAR_HEIGHT,
             },
-            tabBarActiveTintColor: "#B9B9B6",
-            tabBarInactiveTintColor: "#707074",
+            tabBarActiveTintColor: TAB_BAR_ACTIVE_TINT,
+            tabBarInactiveTintColor: TAB_BAR_INACTIVE_TINT,
           }}
         >
           {/* Primary tab: Athletes */}
@@ -55,7 +62,7 @@ export default function CoachTabsLayout() {
                 <Ionicons
                   name={tabIcons.athletes}
                   size={22}
-                  color={focused ? "#B9B9B6" : "#71717a"}
+                  color={focused ? TAB_BAR_ACTIVE_TINT : TAB_BAR_INACTIVE_TINT}
                 />
               ),
             }}

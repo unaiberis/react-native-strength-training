@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useRouter } from "expo-router";
-import { useAuthStore } from "../../src/stores/auth-store";
+import { useAuthStore } from "@/stores/auth-store";
 
 /**
  * Coach entry — redirects to the Athletes list.

@@ -7,15 +7,15 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { Card } from "../../src/shared/ui/Card";
-import { Button } from "../../src/shared/ui/Button";
-import { ErrorBoundary } from "../../src/shared/ui/ErrorBoundary";
-import { GradientBackground } from "../../src/shared/ui/GradientBackground";
-import { EmptyState } from "../../src/shared/ui/EmptyState";
+import { Card } from "@/shared/ui/Card";
+import { Button } from "@/shared/ui/Button";
+import { ErrorBoundary } from "@/shared/ui/ErrorBoundary";
+import { GradientBackground } from "@/shared/ui/GradientBackground";
+import { EmptyState } from "@/shared/ui/EmptyState";
 import {
   useAthleteAssignments,
   findAssignedToday,
-} from "../../src/features/athlete-assignments/hooks/useAthleteAssignments";
+} from "@/features/athlete-assignments/hooks/useAthleteAssignments";
 
 export default function TrainScreen() {
   const router = useRouter();

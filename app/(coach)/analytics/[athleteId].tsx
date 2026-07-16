@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { View, Text, ScrollView, ActivityIndicator, RefreshControl } from "react-native";
 import { useLocalSearchParams, Stack } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
+import { DETAIL_HEADER } from "@/constants/theme";
 import { pb } from "@/lib/pocketbase/client";
 import { useCoachAnalytics } from "@/features/coach/hooks/useCoachAnalytics";
 
@@ -118,8 +119,7 @@ export default function CoachAnalyticsScreen() {
       <Stack.Screen
         options={{
           headerTitle: "Analytics",
-          headerStyle: { backgroundColor: "#050505" },
-          headerTintColor: "#F4F4F2",
+          ...DETAIL_HEADER,
         }}
       />
       <ScrollView

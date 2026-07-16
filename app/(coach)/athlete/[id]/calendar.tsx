@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import { useRouter, useLocalSearchParams, Stack } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { DETAIL_HEADER } from "@/constants/theme";
 import { Card } from "@/shared/ui/Card";
 import { CalendarGrid } from "@/features/calendar/components/CalendarGrid";
 import { useAthleteCalendar } from "@/features/coach/hooks/useAthleteCalendar";
@@ -75,8 +76,7 @@ export default function CoachAthleteCalendarScreen() {
           headerTitle: athlete?.displayName
             ? `${athlete.displayName}'s Calendar`
             : "Athlete Calendar",
-          headerStyle: { backgroundColor: "#050505" },
-          headerTintColor: "#F4F4F2",
+          ...DETAIL_HEADER,
         }}
       />
       <ScrollView className="flex-1 px-4 pt-4">

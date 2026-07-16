@@ -1,11 +1,11 @@
 import { useRouter } from "expo-router";
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
-import { GradientBackground } from "../../src/shared/ui/GradientBackground";
-import { ScreenTitle } from "../../src/shared/ui/ScreenTitle";
-import { Card } from "../../src/shared/ui/Card";
-import { Button } from "../../src/shared/ui/Button";
-import { useUnitPreferences } from "../../src/features/profile/hooks/useUnitPreferences";
-import type { WeightUnit } from "../../src/features/profile/hooks/useUnitPreferences";
+import { GradientBackground } from "@/shared/ui/GradientBackground";
+import { ScreenTitle } from "@/shared/ui/ScreenTitle";
+import { Card } from "@/shared/ui/Card";
+import { Button } from "@/shared/ui/Button";
+import { useUnitPreferences } from "@/features/profile/hooks/useUnitPreferences";
+import type { WeightUnit } from "@/features/profile/hooks/useUnitPreferences";
 
 export default function UnitPreferencesRoute() {
   const router = useRouter();

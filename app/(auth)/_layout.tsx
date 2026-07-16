@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { Stack, useRouter } from "expo-router";
-import { useAuthStore } from "../../src/stores/auth-store";
+import { useAuthStore } from "@/stores/auth-store";
 
 export default function AuthLayout() {
   const router = useRouter();
@@ -25,6 +25,7 @@ export default function AuthLayout() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="login" />
       <Stack.Screen name="register" />
+      <Stack.Screen name="forgot-password" />
       <Stack.Screen name="signup-info" />
       <Stack.Screen name="join-team" />
     </Stack>

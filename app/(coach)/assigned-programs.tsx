@@ -1,4 +1,4 @@
-import { AssignedProgramsScreen } from "../../src/features/coach/screens/AssignedProgramsScreen";
+import { AssignedProgramsScreen } from "@/features/coach/screens/AssignedProgramsScreen";
 
 export default function AssignedProgramsRoute() {
   return <AssignedProgramsScreen />;

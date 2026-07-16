@@ -1,5 +1,5 @@
-import { ErrorBoundary } from "../../src/shared/ui/ErrorBoundary";
-import { ProfileScreen } from "../../src/features/profile/screens/ProfileScreen";
+import { ErrorBoundary } from "@/shared/ui/ErrorBoundary";
+import { ProfileScreen } from "@/features/profile/screens/ProfileScreen";
 
 export default function ProfileRoute() {
   return (

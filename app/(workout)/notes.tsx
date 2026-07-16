@@ -1,5 +1,5 @@
-import { ErrorBoundary } from "../../src/shared/ui/ErrorBoundary";
-import { NotesScreen } from "../../src/features/workout/screens/NotesScreen";
+import { ErrorBoundary } from "@/shared/ui/ErrorBoundary";
+import { NotesScreen } from "@/features/workout/screens/NotesScreen";
 
 /**
  * Notes route within the (workout) stack group.

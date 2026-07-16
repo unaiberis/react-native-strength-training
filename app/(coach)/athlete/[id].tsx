@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { useRouter, useLocalSearchParams, Stack } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { DETAIL_HEADER } from "@/constants/theme";
 import { useAthleteDetail, useUnlinkAthlete } from "@/features/coach/hooks/useAthleteDetail";
 import { useAssignments } from "@/features/coach/hooks/useProgramAssignment";
 
@@ -70,8 +71,7 @@ export default function AthleteDetailScreen() {
       <Stack.Screen
         options={{
           headerTitle: athlete.displayName,
-          headerStyle: { backgroundColor: "#050505" },
-          headerTintColor: "#F4F4F2",
+          ...DETAIL_HEADER,
           headerRight: () => (
             <TouchableOpacity
               onPress={handleUnlink}

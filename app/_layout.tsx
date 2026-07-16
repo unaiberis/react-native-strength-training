@@ -2,13 +2,13 @@ import { useEffect } from "react";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useAuthStore } from "../src/stores/auth-store";
-import { getSession } from "../src/lib/pocketbase/services/auth";
-import { pb } from "../src/lib/pocketbase/client";
+import { useAuthStore } from "@/stores/auth-store";
+import { getSession } from "@/lib/pocketbase/services/auth";
+import { pb } from "@/lib/pocketbase/client";
 import "../global.css";
 import { View, ActivityIndicator, Text, Platform } from "react-native";
-import { GradientBackground } from "../src/shared/ui/GradientBackground";
-import { OfflineBanner } from "../src/shared/ui/OfflineBanner";
+import { GradientBackground } from "@/shared/ui/GradientBackground";
+import { OfflineBanner } from "@/shared/ui/OfflineBanner";
 import { useColorScheme } from "nativewind";
 
 const OFFLINE_ENABLED = process.env.EXPO_PUBLIC_OFFLINE_ENABLED === "true";
@@ -87,10 +87,10 @@ function AuthGate({ children }: { children: React.ReactNode }) {
           { SyncEngine, SyncMeta, ChangeQueue, IdMapping },
           { persistQueryClient: persist },
         ] = await Promise.all([
-          import("../src/lib/db/init"),
-          import("../src/lib/db/network-monitor"),
-          import("../src/lib/db/sqlite-storage"),
-          import("../src/lib/db"),
+          import("@/lib/db/init"),
+          import("@/lib/db/network-monitor"),
+          import("@/lib/db/sqlite-storage"),
+          import("@/lib/db"),
           import("@tanstack/react-query-persist-client"),
         ]);
 

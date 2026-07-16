@@ -63,7 +63,6 @@ jest.mock("@/features/calendar/components/WeekCalendarSection", () => ({
 }));
 
 import HomeScreen from "../home";
-import HomeIndexScreen from "../index";
 
 function setStats(overrides: Partial<ReturnType<typeof defaultStats>>) {
   mockUseHomeStats.mockReturnValue({ ...defaultStats(), ...overrides });
@@ -91,11 +90,6 @@ describe("Home screens do not show 'Best e1RM' (RED 3.1)", () => {
     expect(screen.getByText("This Week")).toBeTruthy();
   });
 
-  it("index.tsx does not render the 'Best e1RM' stat card", () => {
-    render(<HomeIndexScreen />);
-    expect(screen.queryByText("Best e1RM")).toBeNull();
-    expect(screen.getByText("This Week")).toBeTruthy();
-  });
 });
 
 describe("home.tsx branch coverage", () => {

@@ -11,6 +11,11 @@ import { ScreenLayout } from "@/shared/ui/ScreenLayout";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { useHomeStats, relativeDate } from "@/features/home/hooks/useHomeStats";
 import { WeekCalendarSection } from "@/features/calendar/components/WeekCalendarSection";
+import { PressScale } from "@/shared/ui/PressScale";
+import {
+  useAthleteAssignments,
+  findAssignedToday,
+} from "@/features/athlete-assignments/hooks/useAthleteAssignments";
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -27,6 +32,9 @@ export default function HomeScreen() {
     refetch,
     isRefetching,
   } = useHomeStats();
+
+  const { currentProgram, upcomingPrograms } = useAthleteAssignments();
+  const assignedToday = findAssignedToday([currentProgram, ...upcomingPrograms]);
 
   const onRefresh = useCallback(() => {
     refetch();
@@ -53,6 +61,23 @@ export default function HomeScreen() {
           <Text className="text-surface-400 text-base mb-6">
             Ready to train?
           </Text>
+
+          {/* ── Assigned Today Chip ─────────────────────────────────────── */}
+          {assignedToday && (
+            <TouchableOpacity
+              onPress={() =>
+                router.push("/(tabs)/train")
+              }
+              className="flex-row items-center gap-2 bg-cardSoft rounded-full px-4 py-2 mb-4 border border-border self-start"
+              accessibilityRole="button"
+              accessibilityLabel="Entrenamiento asignado hoy"
+            >
+              <Ionicons name="calendar-outline" size={16} color="#B9B9B6" />
+              <Text className="text-surface-100 text-sm font-semibold">
+                Entrenamiento asignado hoy
+              </Text>
+            </TouchableOpacity>
+          )}
 
           {/* ── Week Calendar ───────────────────────────────────────────── */}
           <WeekCalendarSection />
@@ -113,23 +138,24 @@ export default function HomeScreen() {
 
           {/* ── Quick Actions ──────────────────────────────────────────── */}
           <View className="flex-row mb-6" style={{ gap: 12 }}>
-            <TouchableOpacity
-              onPress={() => router.push("/history")}
-              style={{ flex: 1, minWidth: 0 }}
-              className="bg-card rounded-2xl p-4 border border-border shadow-button active:opacity-80"
-              accessibilityRole="button"
-              accessibilityLabel="View workout history"
-            >
-              <View className="mb-1">
-                <Ionicons name="bar-chart-outline" size={24} color="#B9B9B6" />
-              </View>
-              <Text className="text-surface-100 text-sm font-semibold">
-                History
-              </Text>
-              <Text className="text-surface-500 text-xs mt-0.5">
-                Past
-              </Text>
-            </TouchableOpacity>
+            <PressScale scaleTo={0.97} style={{ flex: 1, minWidth: 0 }}>
+              <TouchableOpacity
+                onPress={() => router.push("/history")}
+                className="bg-card rounded-2xl p-4 border border-border shadow-button active:opacity-80"
+                accessibilityRole="button"
+                accessibilityLabel="View workout history"
+              >
+                <View className="mb-1">
+                  <Ionicons name="bar-chart-outline" size={24} color="#B9B9B6" />
+                </View>
+                <Text className="text-surface-100 text-sm font-semibold">
+                  History
+                </Text>
+                <Text className="text-surface-500 text-xs mt-0.5">
+                  Past
+                </Text>
+              </TouchableOpacity>
+            </PressScale>
           </View>
 
           {/* ── Recent Activity ─────────────────────────────────────────── */}

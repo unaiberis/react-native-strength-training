@@ -2,8 +2,8 @@ import { useEffect, useRef } from "react";
 import { SafeAreaView, View, Text } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { Button } from "../src/shared/ui/Button";
-import { GradientBackground } from "../src/shared/ui/GradientBackground";
+import { Button } from "@/shared/ui/Button";
+import { GradientBackground } from "@/shared/ui/GradientBackground";
 import { useAuthStore } from "@/stores/auth-store";
 
 function SplashLogo() {
