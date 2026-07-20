@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   View,
   Text,
@@ -34,6 +34,17 @@ export function CoachAssignmentScreen() {
   const [step, setStep] = useState<"athlete" | "team" | "template" | "confirm">(
     params.athleteId ? (params.teamId ? "template" : "team") : "athlete",
   );
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredAthletes = useMemo(() => {
+    if (!searchQuery.trim()) return athletes;
+    const q = searchQuery.toLowerCase();
+    return athletes.filter(
+      (a) =>
+        a.displayName.toLowerCase().includes(q) ||
+        a.email.toLowerCase().includes(q),
+    );
+  }, [athletes, searchQuery]);
 
   const assignMutation = useAssignProgram();
   const { athletes } = useCoachDashboard();
@@ -82,7 +93,7 @@ export function CoachAssignmentScreen() {
           headerTintColor: "#F4F4F2",
         }}
       />
-      <ScrollView className="flex-1 px-4 pt-4">
+      <ScrollView className="flex-1 px-4 pt-4 bg-soft">
         {/* Step indicator */}
         <View className="flex-row items-center justify-center mb-6 gap-2">
           {["athlete", "team", "template", "confirm"].map((s, i) => (
@@ -90,9 +101,9 @@ export function CoachAssignmentScreen() {
               <View
                 className={`w-8 h-8 rounded-full items-center justify-center ${
                   step === s
-                    ? "bg-surface-50"
+                    ? "bg-sacred"
                     : ["athlete", "team", "template", "confirm"].indexOf(step) >= i
-                      ? "bg-green-900/40"
+                      ? "bg-card border border-sacred/30"
                       : "bg-graphite"
                 }`}
               >
@@ -101,7 +112,7 @@ export function CoachAssignmentScreen() {
                     step === s
                       ? "text-background"
                       : ["athlete", "team", "template", "confirm"].indexOf(step) >= i
-                        ? "text-green-400"
+                        ? "text-sacred"
                         : "text-surface-500"
                   }`}
                 >
@@ -112,7 +123,7 @@ export function CoachAssignmentScreen() {
                 <View
                   className={`w-8 h-0.5 mx-1 ${
                     ["athlete", "team", "template", "confirm"].indexOf(step) > i
-                      ? "bg-green-900/40"
+                      ? "bg-sacred/30"
                       : "bg-graphite"
                   }`}
                 />
@@ -134,7 +145,30 @@ export function CoachAssignmentScreen() {
                 </Text>
               </View>
             ) : (
-              athletes.map((a) => (
+              <>
+                {/* Search bar */}
+                <View className="flex-row items-center bg-card border border-border rounded-xl px-3 mb-4 min-h-[44px]">
+                  <Ionicons name="search-outline" size={18} color="#707074" />
+                  <TextInput
+                    className="flex-1 text-surface-50 text-sm ml-2"
+                    placeholder="Search athletes..."
+                    placeholderTextColor="#707074"
+                    value={searchQuery}
+                    onChangeText={setSearchQuery}
+                    accessibilityLabel="Search athletes"
+                  />
+                  {searchQuery.length > 0 && (
+                    <TouchableOpacity
+                      onPress={() => setSearchQuery("")}
+                      className="min-w-[44px] min-h-[44px] items-center justify-center"
+                      accessibilityRole="button"
+                      accessibilityLabel="Clear search"
+                    >
+                      <Ionicons name="close-circle" size={18} color="#707074" />
+                    </TouchableOpacity>
+                  )}
+                </View>
+              {filteredAthletes.map((a) => (
                 <TouchableOpacity
                   key={a.id}
                   className={`bg-card border rounded-2xl p-4 mb-3 shadow-button ${
@@ -165,13 +199,14 @@ export function CoachAssignmentScreen() {
                       <Ionicons
                         name="checkmark-circle"
                         size={20}
-                        color="#4ade80"
+                        color="#D7D7D2"
                         className="ml-auto"
                       />
                     )}
                   </View>
                 </TouchableOpacity>
-              ))
+              ))}
+            </>
             )}
           </>
         )}
@@ -225,7 +260,7 @@ export function CoachAssignmentScreen() {
                       <Ionicons
                         name="checkmark-circle"
                         size={20}
-                        color="#4ade80"
+                        color="#D7D7D2"
                       />
                     )}
                   </View>
@@ -263,14 +298,26 @@ export function CoachAssignmentScreen() {
                 }}
               >
                 <View className="flex-row items-center justify-between">
-                  <Text className="text-surface-50 font-semibold">
-                    {t.name}
-                  </Text>
+                  <View className="flex-1 mr-2">
+                    <Text className="text-surface-50 font-semibold">
+                      {t.name}
+                    </Text>
+                    <View className="flex-row items-center gap-3 mt-1">
+                      <Text className="text-surface-500 text-xs">
+                        {t.exercises.length} exercises
+                      </Text>
+                      {t.description ? (
+                        <Text className="text-surface-500 text-xs flex-1" numberOfLines={1}>
+                          {t.description}
+                        </Text>
+                      ) : null}
+                    </View>
+                  </View>
                   {selectedTemplate === t.id && (
                     <Ionicons
                       name="checkmark-circle"
                       size={20}
-                      color="#4ade80"
+                      color="#D7D7D2"
                     />
                   )}
                 </View>
@@ -324,11 +371,13 @@ export function CoachAssignmentScreen() {
                   START DATE
                 </Text>
                 <TextInput
-                  className="bg-backgroundSoft border border-border rounded-xl px-4 py-3 text-surface-50 text-base mt-1"
+                  className="bg-soft border border-border rounded-xl px-4 py-3 text-surface-50 text-base mt-1"
                   value={startDate}
                   onChangeText={setStartDate}
                   placeholder="YYYY-MM-DD"
                   placeholderTextColor="#707074"
+                  inputMode="numeric"
+                  keyboardType="numeric"
                 />
               </View>
             </View>
