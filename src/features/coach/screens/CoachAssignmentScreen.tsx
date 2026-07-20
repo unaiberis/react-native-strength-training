@@ -36,6 +36,9 @@ export function CoachAssignmentScreen() {
   );
   const [searchQuery, setSearchQuery] = useState("");
 
+  const assignMutation = useAssignProgram();
+  const { athletes } = useCoachDashboard();
+
   const filteredAthletes = useMemo(() => {
     if (!searchQuery.trim()) return athletes;
     const q = searchQuery.toLowerCase();
@@ -45,9 +48,6 @@ export function CoachAssignmentScreen() {
         a.email.toLowerCase().includes(q),
     );
   }, [athletes, searchQuery]);
-
-  const assignMutation = useAssignProgram();
-  const { athletes } = useCoachDashboard();
   const { data: teams = [] } = useUserTeams();
   const { data: templates } = useTemplates();
 
