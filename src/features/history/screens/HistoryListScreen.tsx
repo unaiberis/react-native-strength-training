@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { t } from "@lingui/core/macro";
 import { useRouter } from "expo-router";
 import { Card } from "../../../shared/ui/Card";
 import { Button } from "../../../shared/ui/Button";
@@ -56,7 +57,7 @@ function SessionRow({
             className="text-surface-100 text-base font-semibold"
             numberOfLines={1}
           >
-            {session.templateName ?? "Free Workout"}
+            {session.templateName ?? t`Free Workout`}
           </Text>
           <Text className="text-surface-400 text-xs mt-0.5">
             {formatDate(session.started_at)} · {formatTime(session.started_at)}
@@ -111,7 +112,7 @@ function FilterBar({
   const [showPicker, setShowPicker] = useState(false);
 
   const selectedName = filters.exerciseId
-    ? exercises?.data?.find((e) => e.id === filters.exerciseId)?.name ?? "Unknown"
+    ? exercises?.data?.find((e) => e.id === filters.exerciseId)?.name ?? t`Unknown`
     : null;
 
   return (
@@ -123,12 +124,12 @@ function FilterBar({
             filters.exerciseId ? "" : ""
           }`}
         >
-          <Text className="text-surface-500 text-xs mr-2">Filter:</Text>
+          <Text className="text-surface-500 text-xs mr-2">{t`Filter:`}</Text>
           <Text
             className={`text-sm flex-1 ${filters.exerciseId ? "text-surface-100" : "text-surface-500"}`}
             numberOfLines={1}
           >
-            {selectedName ?? "All exercises"}
+            {selectedName ?? t`All exercises`}
           </Text>
           <Text className="text-surface-500 text-xs">
             {showPicker ? "▲" : "▼"}
@@ -140,7 +141,7 @@ function FilterBar({
             onPress={() => onChange({ exerciseId: null })}
             className="bg-surface-800 rounded-xl px-3 py-2.5 border border-surface-700"
           >
-            <Text className="text-surface-400 text-xs">Clear</Text>
+            <Text className="text-surface-400 text-xs">{t`Clear`}</Text>
           </TouchableOpacity>
         )}
       </View>
@@ -149,7 +150,7 @@ function FilterBar({
       {showPicker && (
         <View className="mt-2 bg-surface-800 border border-surface-700 rounded-xl max-h-48">
           <FlatList
-            data={[{ id: null, name: "All exercises" } as { id: string | null; name: string }, ...(exercises?.data ?? [])]}
+            data={[{ id: null, name: t`All exercises` } as { id: string | null; name: string }, ...(exercises?.data ?? [])]}
             keyExtractor={(item) => item.id ?? "__all__"}
             renderItem={({ item }) => (
               <TouchableOpacity
@@ -251,13 +252,13 @@ export function HistoryListScreen() {
           <Ionicons name="clipboard-outline" size={48} color="#B9B9B6" />
         </View>
         <Text className="text-surface-100 text-lg font-semibold mb-2">
-          No workouts yet
+          {t`No workouts yet`}
         </Text>
         <Text className="text-surface-400 text-center mb-6">
-          Complete your first workout to see your history here.
+          {t`Complete your first workout to see your history here.`}
         </Text>
         <Button
-          title="Start a Workout"
+          title={t`Start a Workout`}
           variant="primary"
           onPress={() => router.push("/(tabs)/train")}
         />

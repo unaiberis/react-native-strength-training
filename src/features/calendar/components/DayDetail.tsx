@@ -10,6 +10,7 @@
 import { memo } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { t } from "@lingui/core/macro";
 import { Card } from "@/shared/ui/Card";
 import { EmptyState } from "@/shared/ui/EmptyState";
 
@@ -65,10 +66,10 @@ const WorkoutCard = memo(function WorkoutCard({
         </View>
         <View className="flex-1">
           <Text className="text-surface-50 text-base font-bold">
-            {workout.name ?? "Free Workout"}
+            {workout.name ?? t`Free Workout`}
           </Text>
           <Text className="text-surface-500 text-xs mt-0.5">
-            {workout.completed ? "Completed" : "In Progress"}
+            {workout.completed ? t`Completed` : t`In Progress`}
           </Text>
         </View>
       </View>
@@ -78,7 +79,9 @@ const WorkoutCard = memo(function WorkoutCard({
         <View className="flex-row items-center gap-1.5">
           <Ionicons name="layers-outline" size={14} color="#A4A4A8" />
           <Text className="text-surface-400 text-xs">
-            {workout.blockCount} block{workout.blockCount !== 1 ? "s" : ""}
+            {workout.blockCount === 1
+              ? t`${workout.blockCount} block`
+              : t`${workout.blockCount} blocks`}
           </Text>
         </View>
         {workout.estimatedMinutes != null && (
@@ -101,7 +104,7 @@ const WorkoutCard = memo(function WorkoutCard({
         }
       >
         <Text className="text-surface-50 text-sm font-bold">
-          {workout.completed ? "View Details" : "Start Workout"}
+          {workout.completed ? t`View Details` : t`Start Workout`}
         </Text>
       </TouchableOpacity>
     </Card>
@@ -122,7 +125,7 @@ const CompletedSummary = memo(function CompletedSummary({
       {volume != null && (
         <View className="flex-1 bg-cardSoft border border-border rounded-xl p-3 items-center">
           <Text className="text-surface-400 text-xs font-semibold uppercase tracking-wide">
-            Volume
+            {t`Volume`}
           </Text>
           <Text className="text-surface-50 text-lg font-bold mt-1">
             {volume.toLocaleString()} kg
@@ -132,7 +135,7 @@ const CompletedSummary = memo(function CompletedSummary({
       {prCount != null && prCount > 0 && (
         <View className="flex-1 bg-cardSoft border border-border rounded-xl p-3 items-center">
           <Text className="text-surface-400 text-xs font-semibold uppercase tracking-wide">
-            PRs
+            {t`PRs`}
           </Text>
           <Text className="text-sacred text-lg font-bold mt-1">
             +{prCount}
@@ -156,10 +159,10 @@ function DayDetail({ date, workout, onStartWorkout, onViewDetail }: DayDetailPro
     return (
       <EmptyState
         icon="calendar-outline"
-        title="No Workout Scheduled"
-        subtitle="Rest days are part of the plan. Stay ready."
+        title={t`No Workout Scheduled`}
+        subtitle={t`Rest days are part of the plan. Stay ready.`}
         action={{
-          label: "Start a Workout",
+          label: t`Start a Workout`,
           onPress: onStartWorkout,
           variant: "secondary",
         }}

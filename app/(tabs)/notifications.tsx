@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   RefreshControl,
 } from "react-native";
+import { t } from "@lingui/core/macro";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { BackButton } from "@/shared/ui/BackButton";
@@ -84,11 +85,11 @@ export default function NotificationsScreen() {
         <View className="flex-1 px-4 pt-16">
           <View className="flex-row items-center mb-6">
             <BackButton fallbackRoute="/(tabs)/profile" />
-            <ScreenTitle title="Notifications" />
+            <ScreenTitle title={t`Notifications`} />
           </View>
           <EmptyState
             icon="notifications-outline"
-            title="No notifications yet"
+            title={t`No notifications yet`}
             subtitle='When you get notifications from your coach or achievements, they will appear here.'
           />
         </View>
@@ -104,7 +105,7 @@ export default function NotificationsScreen() {
         <View className="flex-row items-center justify-between px-4 pt-16 pb-2">
           <View className="flex-row items-center">
             <BackButton fallbackRoute="/(tabs)/profile" />
-            <ScreenTitle title="Notifications" />
+            <ScreenTitle title={t`Notifications`} />
           </View>
           {unreadCount > 0 && (
             <TouchableOpacity

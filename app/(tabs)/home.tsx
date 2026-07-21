@@ -1,5 +1,6 @@
 import { useCallback } from "react";
 import { View, Text, ScrollView, TouchableOpacity, RefreshControl } from "react-native";
+import { t } from "@lingui/core/macro";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { Card } from "@/shared/ui/Card";
@@ -56,10 +57,10 @@ export default function HomeScreen() {
           <ScreenLayout>
           {/* Greeting */}
           <Text className="text-surface-50 text-[34px] font-black tracking-[-0.8] mb-1">
-            Welcome back, {displayName}
+            {t`Welcome back, ${displayName}`}
           </Text>
           <Text className="text-surface-400 text-base mb-6">
-            Ready to train?
+            {t`Ready to train?`}
           </Text>
 
           {/* ── Assigned Today Chip ─────────────────────────────────────── */}
@@ -84,7 +85,7 @@ export default function HomeScreen() {
 
           {/* ── Quick Stats ─────────────────────────────────────────────── */}
           <Text className="text-surface-50 text-xl font-extrabold tracking-[-0.5] mb-3">
-            Quick Stats
+            {t`Quick Stats`}
           </Text>
 
           {/* Row 1: 3 stat cards */}
@@ -100,7 +101,7 @@ export default function HomeScreen() {
                 <StatCard
                   icon="fitness-outline"
                   value={totalWorkouts}
-                  label="Workouts"
+                  label={t`Workouts`}
                 />
               )}
             </View>
@@ -115,7 +116,7 @@ export default function HomeScreen() {
                 <StatCard
                   icon="barbell-outline"
                   value={totalSets}
-                  label="Sets"
+                  label={t`Sets`}
                 />
               )}
             </View>
@@ -130,7 +131,7 @@ export default function HomeScreen() {
                 <StatCard
                   icon="calendar-outline"
                   value={thisWeekWorkouts}
-                  label="This Week"
+                  label={t`This Week`}
                 />
               )}
             </View>
@@ -149,17 +150,17 @@ export default function HomeScreen() {
                   <Ionicons name="bar-chart-outline" size={24} color="#B9B9B6" />
                 </View>
                 <Text className="text-surface-100 text-sm font-semibold">
-                  History
+                  {t`History`}
                 </Text>
                 <Text className="text-surface-500 text-xs mt-0.5">
-                  Past
+                  {t`Past`}
                 </Text>
               </TouchableOpacity>
             </PressScale>
           </View>
 
           {/* ── Recent Activity ─────────────────────────────────────────── */}
-          <Card title="Recent Activity" className="mb-8">
+          <Card title={t`Recent Activity`} className="mb-8">
             {isLoading ? (
               <View>
                 {[1, 2, 3].map((i) => (
@@ -180,7 +181,7 @@ export default function HomeScreen() {
               </View>
             ) : recentSessions.length === 0 ? (
               <Text className="text-surface-400">
-                Complete a workout to see your recent activity.
+                {t`Complete a workout to see your recent activity.`}
               </Text>
             ) : (
               <View className="gap-3">
@@ -204,8 +205,9 @@ export default function HomeScreen() {
                           : "—"}
                       </Text>
                       <Text className="text-surface-500 text-xs">
-                        {session.exerciseCount} exercise
-                        {session.exerciseCount !== 1 ? "s" : ""}
+                        {session.exerciseCount === 1
+                          ? t`${session.exerciseCount} exercise`
+                          : t`${session.exerciseCount} exercises`}
                       </Text>
                     </View>
                   </View>

@@ -5,6 +5,7 @@ import {
   ScrollView,
   ActivityIndicator,
 } from "react-native";
+import { t } from "@lingui/core/macro";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { Card } from "@/shared/ui/Card";
@@ -36,7 +37,7 @@ export default function TrainScreen() {
       <GradientBackground>
         <ScrollView className="flex-1 px-4 pt-16">
           <Text className="text-surface-50 text-[34px] font-black tracking-[-0.8] mb-6">
-            Train
+            {t`Train`}
           </Text>
 
           {isLoading && (
@@ -48,8 +49,8 @@ export default function TrainScreen() {
           {!isLoading && !assignedToday && (
             <EmptyState
               icon="barbell-outline"
-              title="No training scheduled for today"
-              subtitle="Your coach will assign training for today's workout. Check back later or view your calendar for upcoming sessions."
+              title={t`No training scheduled for today`}
+              subtitle={t`Your coach will assign training for today's workout. Check back later or view your calendar for upcoming sessions.`}
             />
           )}
 
@@ -64,12 +65,12 @@ export default function TrainScreen() {
                     {assignedToday.name}
                   </Text>
                   <Text className="text-surface-400 text-sm">
-                    Today's Assigned Workout
+                    {t`Today's Assigned Workout`}
                   </Text>
                 </View>
               </View>
               <Button
-                title="Start Workout"
+                title={t`Start Workout`}
                 variant="primary"
                 onPress={handleStartWorkout}
               />

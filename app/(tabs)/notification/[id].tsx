@@ -1,5 +1,6 @@
 import { useCallback } from "react";
 import { View, Text, ScrollView, TouchableOpacity } from "react-native";
+import { t } from "@lingui/core/macro";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { BackButton } from "@/shared/ui/BackButton";
@@ -99,7 +100,7 @@ export default function NotificationDetailScreen() {
         {/* ─── Header with back ───────────────────────────────────── */}
         <View className="flex-row items-center mb-6">
           <BackButton fallbackRoute="/(tabs)/notifications" />
-          <ScreenTitle title="Notification" />
+          <ScreenTitle title={t`Notification`} />
         </View>
 
         {/* ─── Notification Card ──────────────────────────────────── */}

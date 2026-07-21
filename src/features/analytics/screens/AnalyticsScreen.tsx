@@ -1,6 +1,7 @@
 import { useState, useMemo, useCallback } from "react";
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl } from "react-native";
 import { useRouter } from "expo-router";
+import { t } from "@lingui/core/macro";
 import { GradientBackground } from "@/shared/ui/GradientBackground";
 import { ErrorBoundary } from "@/shared/ui/ErrorBoundary";
 import { EmptyState } from "@/shared/ui/EmptyState";
@@ -90,7 +91,7 @@ export function AnalyticsScreen() {
       <ErrorBoundary>
         <GradientBackground>
           <View className="flex-1 items-center justify-center px-6">
-            <Text className="text-danger text-lg mb-2">Failed to load analytics</Text>
+            <Text className="text-danger text-lg mb-2">{t`Failed to load analytics`}</Text>
             <Text className="text-surface-400 text-xs mb-4 text-center px-4">{message}</Text>
             <TouchableOpacity
               onPress={() => refetch()}
@@ -98,7 +99,7 @@ export function AnalyticsScreen() {
               accessibilityRole="button"
               accessibilityLabel="Retry loading analytics"
             >
-              <Text className="text-surface-50 font-medium">Retry</Text>
+              <Text className="text-surface-50 font-medium">{t`Retry`}</Text>
             </TouchableOpacity>
           </View>
         </GradientBackground>
@@ -130,21 +131,21 @@ export function AnalyticsScreen() {
           <ScreenLayout>
           {/* Header */}
           <Text className="text-surface-50 text-[34px] font-black tracking-[-0.8] mb-1">
-            Analytics
+            {t`Analytics`}
           </Text>
           <Text className="text-surface-400 text-sm mb-6">
-            Your training trends and progress
+            {t`Your training trends and progress`}
           </Text>
 
           {/* Period toggle */}
           <View className="flex-row bg-card rounded-2xl p-1 mb-6 self-start border border-border">
             <PeriodToggleButton
-              label="Weekly"
+              label={t`Weekly`}
               active={period === "weekly"}
               onPress={() => setPeriod("weekly")}
             />
             <PeriodToggleButton
-              label="Monthly"
+              label={t`Monthly`}
               active={period === "monthly"}
               onPress={() => setPeriod("monthly")}
             />
@@ -154,10 +155,10 @@ export function AnalyticsScreen() {
           {showEmpty ? (
             <EmptyState
               icon="stats-chart-outline"
-              title="No Analytics Data"
-              subtitle="Complete a workout to see your analytics."
+              title={t`No Analytics Data`}
+              subtitle={t`Complete a workout to see your analytics.`}
               action={{
-                label: "Start Workout",
+                label: t`Start Workout`,
                 onPress: () => router.push("/(tabs)/train"),
               }}
               className="py-8"
@@ -166,15 +167,15 @@ export function AnalyticsScreen() {
             <>
               {/* Summary stats */}
               <View className="flex-row gap-3 mb-6">
-                <StatCard label="Total Volume" value={isLoading ? "---" : formatVolume(displayVolume)} />
-                <StatCard label="Workouts" value={isLoading ? "---" : String(displaySessions)} />
-                <StatCard label="Exercises" value={isLoading ? "---" : String(displayExercises.length)} />
+                <StatCard label={t`Total Volume`} value={isLoading ? "---" : formatVolume(displayVolume)} />
+                <StatCard label={t`Workouts`} value={isLoading ? "---" : String(displaySessions)} />
+                <StatCard label={t`Exercises`} value={isLoading ? "---" : String(displayExercises.length)} />
               </View>
 
               {/* Volume Trend Chart */}
               <View className="bg-card rounded-2xl p-4 mb-4 border border-border shadow-card">
                 <Text className="text-surface-50 text-base font-bold mb-3">
-                  {period === "weekly" ? "Weekly Volume" : "Monthly Volume"}
+                  {period === "weekly" ? t`Weekly Volume` : t`Monthly Volume`}
                 </Text>
                 <VolumeChart
                   data={displayChart.map((d) => ({ period: d.period, volume: d.volume }))}
@@ -183,11 +184,11 @@ export function AnalyticsScreen() {
               </View>
 
               {/* Exercise PR Timelines */}
-              <Text className="text-surface-50 text-xl font-extrabold tracking-[-0.5] mb-3">Exercise Progress</Text>
+              <Text className="text-surface-50 text-xl font-extrabold tracking-[-0.5] mb-3">{t`Exercise Progress`}</Text>
               {!isLoading && displayExercises.length === 0 && (
                 <View className="bg-card rounded-2xl p-6 mb-4 border border-border items-center shadow-card">
                   <Text className="text-surface-400 text-sm">
-                    Complete some workouts to see your exercise progress here.
+                    {t`Complete some workouts to see your exercise progress here.`}
                   </Text>
                 </View>
               )}
@@ -202,7 +203,7 @@ export function AnalyticsScreen() {
                 >
                   <View className="flex-row justify-between items-center">
                     <Text className="text-surface-50 font-bold text-base">{ex.name}</Text>
-                    <Text className="text-surface-400 text-xs">Tap for details</Text>
+                    <Text className="text-surface-400 text-xs">{t`Tap for details`}</Text>
                   </View>
                 </TouchableOpacity>
               ))}
