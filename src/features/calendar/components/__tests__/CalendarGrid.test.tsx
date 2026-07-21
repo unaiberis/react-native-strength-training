@@ -97,7 +97,7 @@ describe("CalendarGrid", () => {
       React.createElement(CalendarGrid, { ...defaultProps, calendarMonth: cm, onSelectDay }),
     );
 
-    // July 2026 starts on Wednesday — overflow from June: 28, 29, 30
+    // July 2026 starts on Wednesday — Mon-based overflow from June: 29, 30
     // Day 30 appears in BOTH June (overflow) and July (current month).
     // Day 31 is ONLY in July (current month). Day 8 appears twice:
     // once in July (current month, day 8) and once in August (Aug 8 overflow).

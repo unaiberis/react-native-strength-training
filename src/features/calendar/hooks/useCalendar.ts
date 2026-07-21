@@ -37,7 +37,8 @@ function daysInMonth(year: number, month: number): number {
 }
 
 function firstDayOfMonth(year: number, month: number): number {
-  return new Date(year, month, 1).getDay();
+  // Convert Sunday-based getDay() (0=Sun) to Monday-based index (0=Mon)
+  return (new Date(year, month, 1).getDay() + 6) % 7;
 }
 
 function formatDate(year: number, month: number, day: number): string {

@@ -4,7 +4,7 @@ import type { CalendarDay, CalendarMonth } from "../hooks/useCalendar";
 
 // ─── Constants ──────────────────────────────────────────────────────────
 
-const DAY_HEADERS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const DAY_HEADERS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 // ─── Props ──────────────────────────────────────────────────────────────
 

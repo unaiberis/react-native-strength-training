@@ -62,13 +62,13 @@ describe("buildCalendarMonth", () => {
   });
 
   it("includes overflow days from previous and next months", () => {
-    // July 2026 starts on Wednesday (day 3)
+    // July 2026 starts on Wednesday — Mon-based index = 2
     const result = buildCalendarMonth(2026, 6, new Map());
-    // First 3 days should be from June (previous month)
-    const prevMonthDays = result.days.slice(0, 3);
+    // First 2 days should be from June (Mon, Tue overflow)
+    const prevMonthDays = result.days.slice(0, 2);
     expect(prevMonthDays.every((d) => !d.isCurrentMonth)).toBe(true);
-    // Current month starts at index 3
+    // Current month starts at index 2
     const currentIndex = result.days.findIndex((d) => d.isCurrentMonth && d.day === 1);
-    expect(currentIndex).toBe(3);
+    expect(currentIndex).toBe(2);
   });
 });
