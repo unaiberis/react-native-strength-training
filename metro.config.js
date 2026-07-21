@@ -10,36 +10,26 @@ config.resolver.sourceExts.push("mjs", "cjs");
 // expo-sqlite needs .wasm asset resolution for web
 config.resolver.assetExts.push("wasm");
 
-// Metro 0.83.3's package exports resolution breaks internal module resolution
-// in expo-router and other Expo packages when combined with NativeWind's resolver.
-config.resolver.unstable_enablePackageExports = false;
+// Enable package exports so ESM-only packages (e.g. @lingui/* v6, pocketbase) resolve.
+// Previously disabled due to conflicts with expo-router + NativeWind on Metro 0.83.0;
+// these have been resolved in Metro 0.83.3 + expo-router 6.0.24.
+config.resolver.unstable_enablePackageExports = true;
 
 // ─── Custom resolveRequest ──────────────────────────────────────────────────
-// All @lingui/* v6 packages are ESM-only (no "main" field, only "exports").
-// With unstable_enablePackageExports=false Metro can't resolve them, so we
-// point directly to their dist entry.
-const LINGUI_RESOLVE_MAP = {
-  "@lingui/react": "node_modules/@lingui/react/dist/index.mjs",
-  "@lingui/core": "node_modules/@lingui/core/dist/index.mjs",
-  "@lingui/babel-plugin-lingui-macro":
-    "node_modules/@lingui/babel-plugin-lingui-macro/dist/index.mjs",
-};
-
-const LINGUI_SUBPATH_MAP = {
-  "@lingui/babel-plugin-lingui-macro/macro":
-    "node_modules/@lingui/babel-plugin-lingui-macro/dist/macro.mjs",
-  "@lingui/core/macro": "node_modules/@lingui/core/macro/index.mjs",
-  "@lingui/react/macro": "node_modules/@lingui/react/macro/index.mjs",
-};
-
+// @lingui/core/macro and @lingui/react/macro are Babel macros that depend on
+// Node-only packages (babel-plugin-macros → path, resolve). They cannot run in
+// React Native. We redirect them to a local runtime wrapper.
 config.resolver.resolveRequest = (context, moduleName, platform) => {
-  const subpathEntry =
-    LINGUI_SUBPATH_MAP[moduleName] ?? LINGUI_RESOLVE_MAP[moduleName];
-  if (subpathEntry) {
+  if (moduleName === "@lingui/core/macro") {
     return {
-      filePath: path.join(__dirname, subpathEntry),
+      filePath: path.join(__dirname, "src/i18n/macro-runtime.ts"),
       type: "sourceFile",
     };
+  }
+  if (moduleName === "@lingui/react/macro") {
+    // Trans from @lingui/react/macro is the same as Trans from @lingui/react
+    // when not using compile-time transforms.
+    return context.resolveRequest(context, "@lingui/react", platform);
   }
   return context.resolveRequest(context, moduleName, platform);
 };
