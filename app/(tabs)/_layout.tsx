@@ -128,22 +128,10 @@ function CustomTabBar({
   const activeVisibleIndex = VISIBLE_TABS.indexOf(currentTabName);
   const hasVisibleTab = activeVisibleIndex >= 0;
 
-  const indicatorOffset = useSharedValue(0);
-
-  useEffect(() => {
-    if (containerWidth <= 0 || !hasVisibleTab) return;
-    const center =
-      tabWidth * activeVisibleIndex + tabWidth / 2 - INDICATOR_WIDTH / 2;
-    indicatorOffset.value = withSpring(center, {
-      damping: 15,
-      stiffness: 120,
-    });
+  const indicatorLeft = useMemo(() => {
+    if (containerWidth <= 0 || !hasVisibleTab) return 0;
+    return tabWidth * activeVisibleIndex + tabWidth / 2 - INDICATOR_WIDTH / 2;
   }, [activeVisibleIndex, containerWidth, tabWidth, hasVisibleTab]);
-
-  const indicatorStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: indicatorOffset.value }],
-    width: INDICATOR_WIDTH,
-  }));
 
   const handleContainerLayout = useCallback((e: LayoutChangeEvent) => {
     setContainerWidth(e.nativeEvent.layout.width);
@@ -210,20 +198,18 @@ function CustomTabBar({
         })}
       </View>
 
-      {/* Sliding indicator bar — hidden when a hidden route is active */}
+      {/* Indicator bar — hidden when a hidden route is active */}
       {hasVisibleTab ? (
-        <Animated.View
-          style={[
-            indicatorStyle,
-            {
-              position: "absolute",
-              bottom: 0,
-              left: 0,
-              height: 2,
-              backgroundColor: TAB_BAR_INDICATOR,
-              borderRadius: 1,
-            },
-          ]}
+        <View
+          style={{
+            position: "absolute",
+            bottom: 0,
+            left: indicatorLeft,
+            width: INDICATOR_WIDTH,
+            height: 2,
+            backgroundColor: TAB_BAR_INDICATOR,
+            borderRadius: 1,
+          }}
         />
       ) : null}
     </View>
