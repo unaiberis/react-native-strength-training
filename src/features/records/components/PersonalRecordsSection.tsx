@@ -2,6 +2,7 @@ import { memo, useState, useCallback, type ReactElement } from "react";
 import { View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { t } from "@lingui/core/macro";
 import { Card } from "@/shared/ui/Card";
 import { Button } from "@/shared/ui/Button";
 import {
@@ -39,7 +40,7 @@ const PRCard = memo(function PRCard({ record }: { record: PRDisplayItem }) {
           </Text>
         </View>
         <View className="items-end">
-          <Text className="text-brand-500 text-sm font-bold">PR</Text>
+          <Text className="text-brand-500 text-sm font-bold">{t`PR`}</Text>
           {record.achieved_at && (
             <Text className="text-surface-500 text-xs mt-0.5">
               {formatDate(record.achieved_at)}
@@ -51,10 +52,10 @@ const PRCard = memo(function PRCard({ record }: { record: PRDisplayItem }) {
       {(record.weight_kg != null || record.reps != null) && (
         <View className="flex-row items-center gap-2 mt-2 pt-2 border-t border-surface-700">
           {record.weight_kg != null && (
-            <Text className="text-surface-400 text-xs">{record.weight_kg} kg</Text>
+            <Text className="text-surface-400 text-xs">{record.weight_kg}{" "}{t`kg`}</Text>
           )}
           {record.reps != null && (
-            <Text className="text-surface-400 text-xs">× {record.reps} reps</Text>
+            <Text className="text-surface-400 text-xs">× {record.reps} {t`reps`}</Text>
           )}
         </View>
       )}
@@ -86,9 +87,11 @@ const ExercisePRGroup = memo(function ExercisePRGroup({
         onPress={onToggle}
         className="flex-row justify-between items-center active:opacity-80 min-h-[44px]"
         accessibilityRole="button"
-        accessibilityLabel={`${exerciseName}: ${records.length} PRs. Tap to ${
-          isExpanded ? "collapse" : "expand"
-        }`}
+        accessibilityLabel={
+          isExpanded
+            ? t`${exerciseName}: ${records.length} PRs. Tap to collapse`
+            : t`${exerciseName}: ${records.length} PRs. Tap to expand`
+        }
       >
         <Text className="text-surface-100 text-base font-semibold flex-1 mr-2" numberOfLines={1}>
           {exerciseName}
@@ -96,7 +99,7 @@ const ExercisePRGroup = memo(function ExercisePRGroup({
         <View className="flex-row items-center gap-2">
           <View className="bg-brand-500/20 rounded-lg px-2 py-0.5">
             <Text className="text-brand-400 text-xs font-medium">
-              {records.length} PR{records.length !== 1 ? "s" : ""}
+              {records.length}{" "}{records.length === 1 ? t`PR` : t`PRs`}
             </Text>
           </View>
           <Text className="text-surface-500 text-sm">{isExpanded ? "▲" : "▼"}</Text>
@@ -113,7 +116,7 @@ const ExercisePRGroup = memo(function ExercisePRGroup({
           {chartData.length > 1 && (
             <View className="mt-4 pt-3 border-t border-surface-700">
               <Text className="text-surface-300 text-xs font-semibold uppercase tracking-wider mb-2">
-                Progress
+                {t`Progress`}
               </Text>
               {timelineLoading ? (
                 <View className="items-center justify-center py-4">
@@ -124,7 +127,7 @@ const ExercisePRGroup = memo(function ExercisePRGroup({
                   data={chartData}
                   height={140}
                   lineColor="#B9B9B6"
-                  yLabel="Est. 1RM (kg)"
+                  yLabel={t`Est. 1RM (kg)`}
                   showTrend
                   trendWindow={3}
                 />
@@ -164,13 +167,14 @@ export function PersonalRecordsSection(): ReactElement {
   return (
     <View className="mt-8">
       <Text className="text-surface-50 text-xl font-extrabold tracking-[-0.5] mb-3">
-        Personal Records
+        {t`Personal Records`}
       </Text>
       {hasRecords && (
         <Text className="text-surface-400 text-sm mb-4">
-          {totalPRs} personal record{totalPRs !== 1 ? "s" : ""} across{" "}
-          {groupedByExercise.length} exercise
-          {groupedByExercise.length !== 1 ? "s" : ""}
+          {totalPRs}{" "}
+          {totalPRs === 1 ? t`personal record` : t`personal records`}{" "}
+          {t`across`} {groupedByExercise.length}{" "}
+          {groupedByExercise.length === 1 ? t`exercise` : t`exercises`}
         </Text>
       )}
 
@@ -188,14 +192,13 @@ export function PersonalRecordsSection(): ReactElement {
             <Ionicons name="trophy-outline" size={48} color="#B9B9B6" />
           </View>
           <Text className="text-surface-100 text-lg font-semibold mb-2">
-            No records yet
+            {t`No records yet`}
           </Text>
           <Text className="text-surface-400 text-center mb-6">
-            Complete workouts to start tracking your personal records. PRs are
-            automatically detected when you beat your previous best.
+            {t`Complete workouts to start tracking your personal records. PRs are automatically detected when you beat your previous best.`}
           </Text>
           <Button
-            title="Start a Workout"
+            title={t`Start a Workout`}
             variant="primary"
             onPress={() => router.push("/(tabs)/train")}
           />

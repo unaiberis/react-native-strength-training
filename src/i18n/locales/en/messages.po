@@ -46,9 +46,23 @@ msgstr ""
 msgid "{days} days"
 msgstr ""
 
+#. placeholder {0}: records.length
+#: src/features/records/components/PersonalRecordsSection.tsx
+msgid "{exerciseName}: {0} PRs. Tap to collapse"
+msgstr "{exerciseName}: {0} PRs. Tap to collapse"
+
+#. placeholder {0}: records.length
+#: src/features/records/components/PersonalRecordsSection.tsx
+msgid "{exerciseName}: {0} PRs. Tap to expand"
+msgstr "{exerciseName}: {0} PRs. Tap to expand"
+
 #: src/features/profile/components/ProfileStats.tsx
 msgid "1 day"
 msgstr ""
+
+#: src/features/records/hooks/usePersonalRecords.ts
+msgid "1RM"
+msgstr "1RM"
 
 #: src/features/workout/screens/AssessmentResultsScreen.tsx
 msgid "Above avg"
@@ -61,6 +75,10 @@ msgstr ""
 #: src/features/profile/screens/ProfileScreen.tsx
 msgid "Account Info"
 msgstr ""
+
+#: src/features/records/components/PersonalRecordsSection.tsx
+msgid "across"
+msgstr "across"
 
 #: src/features/profile/screens/EditProfileScreen.tsx
 msgid "Advanced"
@@ -120,6 +138,14 @@ msgstr ""
 msgid "Below avg"
 msgstr "Below avg"
 
+#: src/features/records/hooks/usePersonalRecords.ts
+msgid "Best Reps at Weight"
+msgstr "Best Reps at Weight"
+
+#: src/features/records/hooks/usePersonalRecords.ts
+msgid "Best Volume Set"
+msgstr "Best Volume Set"
+
 #: src/features/profile/screens/EditProfileScreen.tsx
 msgid "Bodyweight"
 msgstr ""
@@ -176,6 +202,10 @@ msgstr "Complete a workout to see your recent activity."
 msgid "Complete some workouts to see your exercise progress here."
 msgstr "Complete some workouts to see your exercise progress here."
 
+#: src/features/records/components/PersonalRecordsSection.tsx
+msgid "Complete workouts to start tracking your personal records. PRs are automatically detected when you beat your previous best."
+msgstr "Complete workouts to start tracking your personal records. PRs are automatically detected when you beat your previous best."
+
 #: src/features/history/screens/HistoryListScreen.tsx
 msgid "Complete your first workout to see your history here."
 msgstr "Complete your first workout to see your history here."
@@ -187,6 +217,10 @@ msgstr "Completed"
 #: src/features/profile/screens/ProfileScreen.tsx
 msgid "Contact support@example.com for assistance."
 msgstr ""
+
+#: src/features/records/screens/PRCelebrationScreen.tsx
+msgid "Continue"
+msgstr "Continue"
 
 #: src/features/auth/screens/RegisterScreen.tsx
 msgid "Crea tu cuenta para empezar a entrenar."
@@ -278,9 +312,25 @@ msgstr "Error"
 msgid "Español"
 msgstr ""
 
+#: src/features/records/components/PersonalRecordsSection.tsx
+msgid "Est. 1RM (kg)"
+msgstr "Est. 1RM (kg)"
+
+#: src/features/records/hooks/usePersonalRecords.ts
+msgid "Estimated 1RM"
+msgstr "Estimated 1RM"
+
 #: src/features/workout/screens/SelfAssessmentScreen.tsx
 msgid "Excellent"
 msgstr "Excellent"
+
+#: src/features/records/components/PersonalRecordsSection.tsx
+msgid "exercise"
+msgstr "exercise"
+
+#: src/features/records/screens/PRCelebrationScreen.tsx
+msgid "Exercise"
+msgstr "Exercise"
 
 #: app/(tabs)/_layout.tsx
 msgid "Exercise Details"
@@ -294,6 +344,10 @@ msgstr "Exercise Library"
 #: src/features/analytics/screens/AnalyticsScreen.tsx
 msgid "Exercise Progress"
 msgstr "Exercise Progress"
+
+#: src/features/records/components/PersonalRecordsSection.tsx
+msgid "exercises"
+msgstr "exercises"
 
 #: src/features/analytics/screens/AnalyticsScreen.tsx
 msgid "Exercises"
@@ -474,6 +528,11 @@ msgstr ""
 msgid "June"
 msgstr ""
 
+#: src/features/records/components/PersonalRecordsSection.tsx
+#: src/features/records/screens/PRCelebrationScreen.tsx
+msgid "kg"
+msgstr "kg"
+
 #: src/features/profile/screens/EditProfileScreen.tsx
 msgid "Kilograms"
 msgstr ""
@@ -571,6 +630,10 @@ msgstr ""
 msgid "Neutral"
 msgstr "Neutral"
 
+#: src/features/records/screens/PRCelebrationScreen.tsx
+msgid "New Personal Record!"
+msgstr "New Personal Record!"
+
 #: src/features/analytics/screens/AnalyticsScreen.tsx
 msgid "No Analytics Data"
 msgstr "No Analytics Data"
@@ -582,6 +645,10 @@ msgstr "No assessment data found."
 #: app/(tabs)/notifications.tsx
 msgid "No notifications yet"
 msgstr "No notifications yet"
+
+#: src/features/records/components/PersonalRecordsSection.tsx
+msgid "No records yet"
+msgstr "No records yet"
 
 #: app/(tabs)/train.tsx
 msgid "No training scheduled for today"
@@ -633,7 +700,16 @@ msgstr ""
 msgid "Past"
 msgstr "Past"
 
+#: src/features/records/components/PersonalRecordsSection.tsx
+msgid "personal record"
+msgstr "personal record"
+
+#: src/features/records/components/PersonalRecordsSection.tsx
+msgid "personal records"
+msgstr "personal records"
+
 #: src/features/profile/components/ProfileStats.tsx
+#: src/features/records/components/PersonalRecordsSection.tsx
 msgid "Personal Records"
 msgstr ""
 
@@ -649,12 +725,25 @@ msgstr ""
 msgid "Pounds (lbs)"
 msgstr ""
 
+#: src/features/records/components/PersonalRecordsSection.tsx
+msgid "PR"
+msgstr "PR"
+
+#: src/features/records/screens/PRCelebrationScreen.tsx
+msgid "Previous:"
+msgstr "Previous:"
+
 #: app/(tabs)/_layout.tsx
 #: src/features/profile/screens/ProfileScreen.tsx
 msgid "Profile"
 msgstr ""
 
+#: src/features/records/components/PersonalRecordsSection.tsx
+msgid "Progress"
+msgstr "Progress"
+
 #: src/features/calendar/components/DayDetail.tsx
+#: src/features/records/components/PersonalRecordsSection.tsx
 msgid "PRs"
 msgstr "PRs"
 
@@ -677,6 +766,10 @@ msgstr "Recent Activity"
 #: src/features/auth/screens/RegisterScreen.tsx
 msgid "Registro de atleta"
 msgstr ""
+
+#: src/features/records/components/PersonalRecordsSection.tsx
+msgid "reps"
+msgstr "reps"
 
 #: src/features/auth/screens/ForgotPasswordScreen.tsx
 msgid "Reset password"
@@ -738,6 +831,10 @@ msgstr "Session RPE"
 msgid "Sets"
 msgstr "Sets"
 
+#: src/features/records/screens/PRCelebrationScreen.tsx
+msgid "Share"
+msgstr "Share"
+
 #: src/features/profile/components/ProfileMenu.tsx
 #: src/features/profile/screens/ProfileScreen.tsx
 msgid "Sign Out"
@@ -780,6 +877,7 @@ msgstr "Soreness (1-5)"
 #: src/features/calendar/components/DayDetail.tsx
 #: src/features/calendar/components/WorkoutDayList.tsx
 #: src/features/history/screens/HistoryListScreen.tsx
+#: src/features/records/components/PersonalRecordsSection.tsx
 msgid "Start a Workout"
 msgstr "Start a Workout"
 
