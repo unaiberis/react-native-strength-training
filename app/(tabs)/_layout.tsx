@@ -244,7 +244,7 @@ export default function TabsLayout() {
 
   return (
     <GradientBackground>
-      <View className="flex-1">
+      <View className="flex-1 bg-soft">
         <SyncBanner />
         <Tabs
           tabBar={(props) => <CustomTabBar {...props} />}

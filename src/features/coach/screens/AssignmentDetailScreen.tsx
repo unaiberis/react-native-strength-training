@@ -167,7 +167,7 @@ export function AssignmentDetailScreen() {
   if (!assignment) {
     return (
       <ErrorBoundary>
-        <View className="flex-1 items-center justify-center px-8">
+        <View className="flex-1 items-center justify-center px-8 bg-soft">
           <Ionicons name="alert-circle-outline" size={48} color="#707074" />
           <Text className="text-surface-50 text-lg font-semibold mt-4 mb-2">
             Assignment Not Found

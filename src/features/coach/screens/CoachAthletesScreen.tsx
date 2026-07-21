@@ -257,7 +257,7 @@ export function CoachAthletesScreen() {
         </View>
 
         {filteredAthletes.length === 0 ? (
-          <View className="flex-1 items-center justify-center px-8">
+          <View className="flex-1 items-center justify-center px-8 bg-soft">
             <View className="w-16 h-16 rounded-full bg-graphite items-center justify-center mb-4">
               <Ionicons name="people-outline" size={28} color="#B9B9B6" />
             </View>

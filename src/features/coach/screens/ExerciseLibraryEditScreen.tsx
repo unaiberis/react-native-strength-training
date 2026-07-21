@@ -89,7 +89,7 @@ export function ExerciseLibraryEditScreen() {
 
   if (!exercise) {
     return (
-      <View className="flex-1 items-center justify-center px-8">
+      <View className="flex-1 items-center justify-center px-8 bg-soft">
         <Text className="text-surface-50 text-lg font-semibold mb-2">
           Exercise Not Found
         </Text>
