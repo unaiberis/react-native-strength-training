@@ -12,6 +12,20 @@ const mockI18n = {
   load: () => {},
   locale: "es",
   availableLocales: ["es", "en"],
+  // Core translation method: given a message ID (hash) and optional params,
+  // returns the translated text from the active catalog.
+  // In test mode the catalogs aren't loaded, so we return the source message
+  // from the English catalog or the hash as fallback.
+  _: (id: string, params?: Record<string, unknown>) => {
+    if (params) {
+      let result = id;
+      for (const [key, val] of Object.entries(params)) {
+        result = result.replace(`{${key}}`, String(val ?? ""));
+      }
+      return result;
+    }
+    return id;
+  },
 };
 
 export function setupI18n() {

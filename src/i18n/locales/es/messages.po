@@ -104,7 +104,7 @@ msgstr "Unidad de peso"
 
 #: app/(tabs)/_layout.tsx
 msgid "Calendar"
-msgstr ""
+msgstr "Calendario"
 
 #: src/features/profile/screens/ProfileScreen.tsx
 msgid "Cancel"
@@ -233,11 +233,11 @@ msgstr "Español"
 
 #: app/(tabs)/_layout.tsx
 msgid "Exercise Details"
-msgstr ""
+msgstr "Detalles del ejercicio"
 
 #: app/(tabs)/_layout.tsx
 msgid "Exercise Library"
-msgstr ""
+msgstr "Biblioteca de ejercicios"
 
 #: app/(tabs)/_layout.tsx
 #: src/features/analytics/screens/AnalyticsScreen.tsx
@@ -308,7 +308,7 @@ msgstr "Historial"
 
 #: app/(tabs)/_layout.tsx
 msgid "Home"
-msgstr ""
+msgstr "Inicio"
 
 #: src/features/profile/screens/EditProfileScreen.tsx
 msgid "Hypertrophy"
@@ -508,7 +508,7 @@ msgstr "Septiembre"
 
 #: app/(tabs)/_layout.tsx
 msgid "Session expired. Log in again to sync."
-msgstr ""
+msgstr "Sesión expirada. Inicia sesión de nuevo para sincronizar."
 
 #: app/(tabs)/home.tsx
 msgid "Sets"
@@ -521,7 +521,7 @@ msgstr "Cerrar sesión"
 
 #: app/(tabs)/_layout.tsx
 msgid "Some changes couldn't sync"
-msgstr ""
+msgstr "Algunos cambios no pudieron sincronizarse"
 
 #: src/features/calendar/components/DayDetail.tsx
 #: src/features/calendar/components/WorkoutDayList.tsx
@@ -545,11 +545,11 @@ msgstr "Dom"
 
 #: app/(tabs)/_layout.tsx
 msgid "Sync error"
-msgstr ""
+msgstr "Error de sincronización"
 
 #: app/(tabs)/_layout.tsx
 msgid "Syncing…"
-msgstr ""
+msgstr "Sincronizando…"
 
 #: src/features/analytics/screens/AnalyticsScreen.tsx
 msgid "Tap for details"
@@ -627,7 +627,7 @@ msgstr "¡Bienvenido de nuevo!"
 
 #: app/(tabs)/_layout.tsx
 msgid "Wellness"
-msgstr ""
+msgstr "Bienestar"
 
 #: src/features/profile/components/ProfileMenu.tsx
 msgid "Wellness Dashboard"
@@ -635,7 +635,7 @@ msgstr "Panel de bienestar"
 
 #: app/(tabs)/_layout.tsx
 msgid "Workout Details"
-msgstr ""
+msgstr "Detalles del entrenamiento"
 
 #: app/(tabs)/_layout.tsx
 #: src/features/profile/components/ProfileMenu.tsx
@@ -649,7 +649,7 @@ msgstr "Entrenamientos"
 
 #: app/(tabs)/_layout.tsx
 msgid "You're offline — changes sync when connected"
-msgstr ""
+msgstr "Estás offline — los cambios se sincronizan al conectar"
 
 #: src/features/profile/screens/EditProfileScreen.tsx
 msgid "You're offline — profile changes need a connection"
