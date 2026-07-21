@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity } from "react-native";
+import { t } from "@lingui/core/macro";
 import { GradientBackground } from "@/shared/ui/GradientBackground";
 import { useWellnessTrends } from "../hooks/useWellnessTrends";
 import { LineChart, type LineChartDataPoint } from "@/features/analytics/components/LineChart";
@@ -16,11 +17,11 @@ interface MetricConfig {
 }
 
 const METRICS: MetricConfig[] = [
-  { key: "sessionRpe", label: "Session RPE", color: "#D65F5F", yLabel: "RPE (1-10)", minValue: 1, maxValue: 10 },
-  { key: "sleep", label: "Sleep Quality", color: "#5FA8D6", yLabel: "Sleep (1-5)", minValue: 1, maxValue: 5 },
-  { key: "fatigue", label: "Fatigue", color: "#D6A65F", yLabel: "Fatigue (1-5)", minValue: 1, maxValue: 5 },
-  { key: "soreness", label: "Soreness", color: "#A65FD6", yLabel: "Soreness (1-5)", minValue: 1, maxValue: 5 },
-  { key: "mood", label: "Mood", color: "#5FD6A6", yLabel: "Mood (1-5)", minValue: 1, maxValue: 5 },
+  { key: "sessionRpe", label: t`Session RPE`, color: "#D65F5F", yLabel: t`RPE (1-10)`, minValue: 1, maxValue: 10 },
+  { key: "sleep", label: t`Sleep Quality`, color: "#5FA8D6", yLabel: t`Sleep (1-5)`, minValue: 1, maxValue: 5 },
+  { key: "fatigue", label: t`Fatigue`, color: "#D6A65F", yLabel: t`Fatigue (1-5)`, minValue: 1, maxValue: 5 },
+  { key: "soreness", label: t`Soreness`, color: "#A65FD6", yLabel: t`Soreness (1-5)`, minValue: 1, maxValue: 5 },
+  { key: "mood", label: t`Mood`, color: "#5FD6A6", yLabel: t`Mood (1-5)`, minValue: 1, maxValue: 5 },
 ];
 
 // ─── Sub-components ────────────────────────────────────────────────────────
@@ -40,18 +41,18 @@ function PeriodCard({
   };
 }) {
   const metrics = [
-    { label: "RPE", value: period.avgSessionRpe },
-    { label: "Sleep", value: period.avgSleep },
-    { label: "Fatigue", value: period.avgFatigue },
-    { label: "Soreness", value: period.avgSoreness },
-    { label: "Mood", value: period.avgMood },
+    { label: t`RPE`, value: period.avgSessionRpe },
+    { label: t`Sleep`, value: period.avgSleep },
+    { label: t`Fatigue`, value: period.avgFatigue },
+    { label: t`Soreness`, value: period.avgSoreness },
+    { label: t`Mood`, value: period.avgMood },
   ];
 
   return (
     <View className="bg-card rounded-2xl p-4 border border-border mb-3 shadow-card">
       <View className="flex-row justify-between items-center mb-3">
         <Text className="text-surface-50 text-base font-bold">{label}</Text>
-        <Text className="text-surface-500 text-xs">{period.entryCount} entries</Text>
+        <Text className="text-surface-500 text-xs">{t`${period.entryCount} entries`}</Text>
       </View>
       <View className="flex-row flex-wrap gap-2">
         {metrics.map((m) => (
@@ -73,11 +74,12 @@ function EmptyState() {
   return (
     <View className="bg-card rounded-2xl p-6 border border-border items-center mb-4 shadow-card">
       <Text className="text-surface-100 text-lg font-semibold mb-2">
-        No wellness data yet
+        {t`No wellness data yet`}
       </Text>
       <Text className="text-surface-400 text-sm text-center">
-        Start logging your daily wellness after workouts to see trends here.
-        Track your RPE, sleep, fatigue, soreness, and mood over time.
+        {t`Start logging your daily wellness after workouts to see trends here.`}
+        {"\n"}
+        {t`Track your RPE, sleep, fatigue, soreness, and mood over time.`}
       </Text>
     </View>
   );
@@ -95,7 +97,7 @@ function MetricTrendChart({
   return (
     <View className="bg-card rounded-2xl p-4 border border-border mb-3 shadow-card">
       <Text className="text-surface-50 text-base font-bold mb-1">{metric.label}</Text>
-      <Text className="text-surface-500 text-xs mb-3">Daily values over time</Text>
+      <Text className="text-surface-500 text-xs mb-3">{t`Daily values over time`}</Text>
       <LineChart
         data={data}
         lineColor={metric.color}
@@ -149,7 +151,7 @@ export function WellnessDashboardScreen() {
       <GradientBackground>
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="small" color="#B9B9B6" />
-          <Text className="text-surface-400 text-lg mt-3">Loading wellness trends...</Text>
+          <Text className="text-surface-400 text-lg mt-3">{t`Loading wellness trends...`}</Text>
         </View>
       </GradientBackground>
     );
@@ -159,12 +161,12 @@ export function WellnessDashboardScreen() {
     return (
       <GradientBackground>
         <View className="flex-1 items-center justify-center px-6">
-          <Text className="text-danger text-lg mb-2">Failed to load wellness data</Text>
+          <Text className="text-danger text-lg mb-2">{t`Failed to load wellness data`}</Text>
           <TouchableOpacity
             onPress={() => refetch()}
             className="bg-card px-6 py-2 rounded-xl border border-border shadow-button"
           >
-            <Text className="text-surface-50 font-medium">Retry</Text>
+            <Text className="text-surface-50 font-medium">{t`Retry`}</Text>
           </TouchableOpacity>
         </View>
       </GradientBackground>
@@ -181,23 +183,23 @@ export function WellnessDashboardScreen() {
       >
         {/* Header */}
         <Text className="text-surface-50 text-[34px] font-black tracking-[-0.8] mb-1">
-          Wellness
+          {t`Wellness`}
         </Text>
         <Text className="text-surface-400 text-sm mb-6">
-          Track your recovery and wellbeing trends
+          {t`Track your recovery and wellbeing trends`}
         </Text>
 
         {/* Period Averages */}
         {hasData && (
           <>
             <Text className="text-surface-50 text-xl font-extrabold tracking-[-0.5] mb-3">
-              Rolling Averages
+              {t`Rolling Averages`}
             </Text>
             {periods.map((period) => {
               const labels: Record<string, string> = {
-                "7d": "Last 7 Days",
-                "30d": "Last 30 Days",
-                "90d": "Last 90 Days",
+                "7d": t`Last 7 Days`,
+                "30d": t`Last 30 Days`,
+                "90d": t`Last 90 Days`,
               };
               return (
                 <PeriodCard
@@ -214,7 +216,7 @@ export function WellnessDashboardScreen() {
         {hasData && (
           <>
             <Text className="text-surface-50 text-xl font-extrabold tracking-[-0.5] mb-3 mt-2">
-              Trends
+              {t`Trends`}
             </Text>
             {METRICS.map((metric) => {
               const chartData = chartDataByMetric.get(metric.key) ?? [];

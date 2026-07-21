@@ -21,6 +21,11 @@ msgstr "{0} bloque"
 msgid "{0} blocks"
 msgstr "{0} bloques"
 
+#. placeholder {0}: period.entryCount
+#: src/features/wellness/screens/WellnessDashboardScreen.tsx
+msgid "{0} entries"
+msgstr "{0} entradas"
+
 #. placeholder {0}: session.exerciseCount
 #: app/(tabs)/home.tsx
 msgid "{0} exercise"
@@ -44,6 +49,10 @@ msgstr "{days} días"
 #: src/features/profile/components/ProfileStats.tsx
 msgid "1 day"
 msgstr "1 día"
+
+#: src/features/workout/screens/AssessmentResultsScreen.tsx
+msgid "Above avg"
+msgstr "Sobre el promedio"
 
 #: src/features/auth/screens/LoginScreen.tsx
 msgid "Accede a tu cuenta"
@@ -78,6 +87,14 @@ msgstr "Abril"
 msgid "Are you sure you want to sign out?"
 msgstr "¿Estás seguro de que quieres cerrar sesión?"
 
+#: src/features/workout/screens/AssessmentResultsScreen.tsx
+msgid "Assessment"
+msgstr "Evaluación"
+
+#: src/features/workout/screens/SelfAssessmentScreen.tsx
+msgid "Assessment saved successfully!"
+msgstr "¡Evaluación guardada exitosamente!"
+
 #: src/features/auth/screens/RegisterScreen.tsx
 msgid "At least 8 characters, 1 uppercase"
 msgstr "Mínimo 8 caracteres, 1 mayúscula"
@@ -90,9 +107,18 @@ msgstr "Atleta"
 msgid "August"
 msgstr "Agosto"
 
+#. placeholder {0}: formatAvg(avgVal)
+#: src/features/workout/screens/AssessmentResultsScreen.tsx
+msgid "Avg: {0}"
+msgstr "Prom: {0}"
+
 #: src/features/profile/screens/EditProfileScreen.tsx
 msgid "Beginner"
 msgstr "Principiante"
+
+#: src/features/workout/screens/AssessmentResultsScreen.tsx
+msgid "Below avg"
+msgstr "Debajo del promedio"
 
 #: src/features/profile/screens/EditProfileScreen.tsx
 msgid "Bodyweight"
@@ -134,6 +160,10 @@ msgstr "Limpiar"
 msgid "Coach"
 msgstr "Entrenador"
 
+#: src/features/workout/screens/AssessmentResultsScreen.tsx
+msgid "Complete a workout and self-assessment to see results here."
+msgstr "Completa un entrenamiento y autoevaluación para ver resultados aquí."
+
 #: src/features/analytics/screens/AnalyticsScreen.tsx
 msgid "Complete a workout to see your analytics."
 msgstr "Completa un entrenamiento para ver tus analíticas."
@@ -166,6 +196,10 @@ msgstr "Crea tu cuenta para empezar a entrenar."
 msgid "Crear cuenta"
 msgstr "Crear cuenta"
 
+#: src/features/workout/screens/AssessmentResultsScreen.tsx
+msgid "Current"
+msgstr "Actual"
+
 #: src/features/profile/components/ProfileStats.tsx
 msgid "Current Streak"
 msgstr "Racha actual"
@@ -173,6 +207,10 @@ msgstr "Racha actual"
 #: src/features/home/hooks/useHomeStats.ts
 msgid "Custom Workout"
 msgstr "Entrenamiento personalizado"
+
+#: src/features/wellness/screens/WellnessDashboardScreen.tsx
+msgid "Daily values over time"
+msgstr "Valores diarios en el tiempo"
 
 #: src/features/calendar/components/CalendarGrid.tsx
 msgid "December"
@@ -182,6 +220,11 @@ msgstr "Diciembre"
 #: src/features/profile/screens/EditProfileScreen.tsx
 msgid "Display Name"
 msgstr "Nombre visible"
+
+#: src/features/workout/screens/AssessmentResultsScreen.tsx
+#: src/features/workout/screens/SelfAssessmentScreen.tsx
+msgid "Done"
+msgstr "Listo"
 
 #: src/features/profile/screens/EditProfileScreen.tsx
 msgid "e.g. 180"
@@ -227,9 +270,17 @@ msgstr "Introduce tu contraseña"
 msgid "Entrar"
 msgstr "Entrar"
 
+#: src/features/workout/screens/SelfAssessmentScreen.tsx
+msgid "Error"
+msgstr "Error"
+
 #: src/features/profile/screens/EditProfileScreen.tsx
 msgid "Español"
 msgstr "Español"
+
+#: src/features/workout/screens/SelfAssessmentScreen.tsx
+msgid "Excellent"
+msgstr "Excelente"
 
 #: app/(tabs)/_layout.tsx
 msgid "Exercise Details"
@@ -252,9 +303,34 @@ msgstr "Ejercicios"
 msgid "Experience"
 msgstr "Experiencia"
 
+#: src/features/workout/screens/SelfAssessmentScreen.tsx
+msgid "Extremely Hard"
+msgstr "Extremadamente Duro"
+
 #: src/features/analytics/screens/AnalyticsScreen.tsx
 msgid "Failed to load analytics"
 msgstr "Error al cargar analíticas"
+
+#: src/features/wellness/screens/WellnessDashboardScreen.tsx
+msgid "Failed to load wellness data"
+msgstr "Error al cargar datos de bienestar"
+
+#: src/features/workout/screens/SelfAssessmentScreen.tsx
+msgid "Failed to save assessment"
+msgstr "Error al guardar la evaluación"
+
+#: src/features/workout/screens/SelfAssessmentScreen.tsx
+msgid "Fair"
+msgstr "Regular"
+
+#: src/features/wellness/screens/WellnessDashboardScreen.tsx
+#: src/features/workout/screens/AssessmentResultsScreen.tsx
+msgid "Fatigue"
+msgstr "Fatiga"
+
+#: src/features/wellness/screens/WellnessDashboardScreen.tsx
+msgid "Fatigue (1-5)"
+msgstr "Fatiga (1-5)"
 
 #: src/features/calendar/components/CalendarGrid.tsx
 msgid "February"
@@ -285,9 +361,29 @@ msgstr "Vie"
 msgid "General Fitness"
 msgstr "Condición física general"
 
+#: src/features/workout/screens/AssessmentResultsScreen.tsx
+msgid "Go Home"
+msgstr "Ir a Inicio"
+
 #: src/features/profile/screens/EditProfileScreen.tsx
 msgid "Goal"
 msgstr "Objetivo"
+
+#: src/features/workout/screens/SelfAssessmentScreen.tsx
+msgid "Good"
+msgstr "Bueno"
+
+#: src/features/workout/screens/SelfAssessmentScreen.tsx
+msgid "Great"
+msgstr "Genial"
+
+#: src/features/workout/screens/SelfAssessmentScreen.tsx
+msgid "Hard"
+msgstr "Duro"
+
+#: src/features/workout/screens/SelfAssessmentScreen.tsx
+msgid "Hard+"
+msgstr "Duro+"
 
 #: src/features/profile/screens/EditProfileScreen.tsx
 msgid "Height"
@@ -302,6 +398,14 @@ msgstr "Unidad de altura"
 msgid "Help & Support"
 msgstr "Ayuda y soporte"
 
+#: src/features/workout/screens/SelfAssessmentScreen.tsx
+msgid "Help us understand how you're feeling. This helps adjust future sessions."
+msgstr "Ayúdanos a entender cómo te sientes. Esto ayuda a ajustar sesiones futuras."
+
+#: src/features/workout/screens/SelfAssessmentScreen.tsx
+msgid "High"
+msgstr "Alto"
+
 #: app/(tabs)/home.tsx
 msgid "History"
 msgstr "Historial"
@@ -309,6 +413,30 @@ msgstr "Historial"
 #: app/(tabs)/_layout.tsx
 msgid "Home"
 msgstr "Inicio"
+
+#: src/features/workout/screens/WorkoutCompleteScreen.tsx
+msgid "How did it feel? (optional)"
+msgstr "¿Cómo te sentiste? (opcional)"
+
+#: src/features/workout/screens/SelfAssessmentScreen.tsx
+msgid "How fatigued do you feel?"
+msgstr "¿Qué tan fatigado te sientes?"
+
+#: src/features/workout/screens/SelfAssessmentScreen.tsx
+msgid "How is your mood today?"
+msgstr "¿Cómo está tu ánimo hoy?"
+
+#: src/features/workout/screens/SelfAssessmentScreen.tsx
+msgid "How sore are you today?"
+msgstr "¿Qué tan adolorido estás hoy?"
+
+#: src/features/workout/screens/SelfAssessmentScreen.tsx
+msgid "How was the workout?"
+msgstr "¿Cómo fue el entrenamiento?"
+
+#: src/features/workout/screens/SelfAssessmentScreen.tsx
+msgid "How well did you sleep last night?"
+msgstr "¿Qué tan bien dormiste anoche?"
 
 #: src/features/profile/screens/EditProfileScreen.tsx
 msgid "Hypertrophy"
@@ -358,9 +486,41 @@ msgstr "Kilogramos (kg)"
 msgid "Language"
 msgstr "Idioma"
 
+#: src/features/wellness/screens/WellnessDashboardScreen.tsx
+msgid "Last 30 Days"
+msgstr "Últimos 30 Días"
+
+#: src/features/wellness/screens/WellnessDashboardScreen.tsx
+msgid "Last 7 Days"
+msgstr "Últimos 7 Días"
+
+#: src/features/wellness/screens/WellnessDashboardScreen.tsx
+msgid "Last 90 Days"
+msgstr "Últimos 90 Días"
+
+#: src/features/workout/screens/SelfAssessmentScreen.tsx
+msgid "Light"
+msgstr "Ligero"
+
+#: src/features/workout/screens/AssessmentResultsScreen.tsx
+msgid "Loading assessment..."
+msgstr "Cargando evaluación..."
+
+#: src/features/wellness/screens/WellnessDashboardScreen.tsx
+msgid "Loading wellness trends..."
+msgstr "Cargando tendencias de bienestar..."
+
+#: src/features/workout/screens/SelfAssessmentScreen.tsx
+msgid "Low"
+msgstr "Bajo"
+
 #: src/features/calendar/components/CalendarGrid.tsx
 msgid "March"
 msgstr "Marzo"
+
+#: src/features/workout/screens/SelfAssessmentScreen.tsx
+msgid "Max Effort"
+msgstr "Máximo Esfuerzo"
 
 #: src/features/calendar/components/CalendarGrid.tsx
 msgid "May"
@@ -374,6 +534,14 @@ msgstr "Miembro desde"
 msgid "Metric (kg/cm)"
 msgstr "Métrico (kg/cm)"
 
+#: src/features/workout/screens/SelfAssessmentScreen.tsx
+msgid "Mild"
+msgstr "Leve"
+
+#: src/features/workout/screens/SelfAssessmentScreen.tsx
+msgid "Moderate"
+msgstr "Moderado"
+
 #: src/features/calendar/components/CalendarGrid.tsx
 msgid "Mon"
 msgstr "Lun"
@@ -386,13 +554,30 @@ msgstr "Mensual"
 msgid "Monthly Volume"
 msgstr "Volumen mensual"
 
+#: src/features/wellness/screens/WellnessDashboardScreen.tsx
+#: src/features/workout/screens/AssessmentResultsScreen.tsx
+msgid "Mood"
+msgstr "Ánimo"
+
+#: src/features/wellness/screens/WellnessDashboardScreen.tsx
+msgid "Mood (1-5)"
+msgstr "Ánimo (1-5)"
+
 #: src/features/profile/screens/ProfileScreen.tsx
 msgid "My Teams"
 msgstr "Mis equipos"
 
+#: src/features/workout/screens/SelfAssessmentScreen.tsx
+msgid "Neutral"
+msgstr "Neutral"
+
 #: src/features/analytics/screens/AnalyticsScreen.tsx
 msgid "No Analytics Data"
 msgstr "Sin datos de analíticas"
+
+#: src/features/workout/screens/AssessmentResultsScreen.tsx
+msgid "No assessment data found."
+msgstr "No se encontraron datos de evaluación."
 
 #: app/(tabs)/notifications.tsx
 msgid "No notifications yet"
@@ -402,6 +587,10 @@ msgstr "Sin notificaciones aún"
 msgid "No training scheduled for today"
 msgstr "Sin entrenamiento programado para hoy"
 
+#: src/features/wellness/screens/WellnessDashboardScreen.tsx
+msgid "No wellness data yet"
+msgstr "Aún no hay datos de bienestar"
+
 #: src/features/calendar/components/DayDetail.tsx
 msgid "No Workout Scheduled"
 msgstr "Sin entrenamiento programado"
@@ -409,6 +598,10 @@ msgstr "Sin entrenamiento programado"
 #: src/features/history/screens/HistoryListScreen.tsx
 msgid "No workouts yet"
 msgstr "Sin entrenamientos aún"
+
+#: src/features/workout/screens/SelfAssessmentScreen.tsx
+msgid "None"
+msgstr "Ninguno"
 
 #: app/(tabs)/notification/[id].tsx
 msgid "Notification"
@@ -427,6 +620,10 @@ msgstr "Noviembre"
 msgid "October"
 msgstr "Octubre"
 
+#: src/features/workout/screens/SelfAssessmentScreen.tsx
+msgid "Overall difficulty of today's workout"
+msgstr "Dificultad general del entrenamiento de hoy"
+
 #: src/features/auth/screens/LoginScreen.tsx
 #: src/features/auth/screens/RegisterScreen.tsx
 msgid "Password"
@@ -439,6 +636,10 @@ msgstr "Pasado"
 #: src/features/profile/components/ProfileStats.tsx
 msgid "Personal Records"
 msgstr "Récords personales"
+
+#: src/features/workout/screens/SelfAssessmentScreen.tsx
+msgid "Poor"
+msgstr "Malo"
 
 #: src/features/profile/screens/EditProfileScreen.tsx
 msgid "Pounds"
@@ -460,6 +661,10 @@ msgstr "RPs"
 #: app/(tabs)/home.tsx
 msgid "Quick Stats"
 msgstr "Estadísticas rápidas"
+
+#: src/features/workout/screens/SelfAssessmentScreen.tsx
+msgid "Quite Sore"
+msgstr "Bastante Adolorido"
 
 #: app/(tabs)/home.tsx
 msgid "Ready to train?"
@@ -487,8 +692,21 @@ msgid "Rest days are part of the plan. Stay ready."
 msgstr "Los días de descanso son parte del plan. Mantente listo."
 
 #: src/features/analytics/screens/AnalyticsScreen.tsx
+#: src/features/wellness/screens/WellnessDashboardScreen.tsx
 msgid "Retry"
 msgstr "Reintentar"
+
+#: src/features/wellness/screens/WellnessDashboardScreen.tsx
+msgid "Rolling Averages"
+msgstr "Promedios Móviles"
+
+#: src/features/wellness/screens/WellnessDashboardScreen.tsx
+msgid "RPE"
+msgstr "RPE"
+
+#: src/features/wellness/screens/WellnessDashboardScreen.tsx
+msgid "RPE (1-10)"
+msgstr "RPE (1-10)"
 
 #: src/features/calendar/components/CalendarGrid.tsx
 msgid "Sat"
@@ -510,6 +728,12 @@ msgstr "Septiembre"
 msgid "Session expired. Log in again to sync."
 msgstr "Sesión expirada. Inicia sesión de nuevo para sincronizar."
 
+#: src/features/wellness/screens/WellnessDashboardScreen.tsx
+#: src/features/workout/screens/AssessmentResultsScreen.tsx
+#: src/features/workout/screens/SelfAssessmentScreen.tsx
+msgid "Session RPE"
+msgstr "RPE de la Sesión"
+
 #: app/(tabs)/home.tsx
 msgid "Sets"
 msgstr "Series"
@@ -519,15 +743,49 @@ msgstr "Series"
 msgid "Sign Out"
 msgstr "Cerrar sesión"
 
+#: src/features/workout/screens/SelfAssessmentScreen.tsx
+msgid "Skip for Now"
+msgstr "Saltar por Ahora"
+
+#: src/features/wellness/screens/WellnessDashboardScreen.tsx
+msgid "Sleep"
+msgstr "Sueño"
+
+#: src/features/wellness/screens/WellnessDashboardScreen.tsx
+msgid "Sleep (1-5)"
+msgstr "Sueño (1-5)"
+
+#: src/features/wellness/screens/WellnessDashboardScreen.tsx
+#: src/features/workout/screens/AssessmentResultsScreen.tsx
+msgid "Sleep Quality"
+msgstr "Calidad del Sueño"
+
 #: app/(tabs)/_layout.tsx
 msgid "Some changes couldn't sync"
 msgstr "Algunos cambios no pudieron sincronizarse"
+
+#: src/features/workout/screens/SelfAssessmentScreen.tsx
+msgid "Somewhat Hard"
+msgstr "Algo Duro"
+
+#: src/features/wellness/screens/WellnessDashboardScreen.tsx
+#: src/features/workout/screens/AssessmentResultsScreen.tsx
+msgid "Soreness"
+msgstr "Dolor Muscular"
+
+#: src/features/wellness/screens/WellnessDashboardScreen.tsx
+msgid "Soreness (1-5)"
+msgstr "Dolor Muscular (1-5)"
 
 #: src/features/calendar/components/DayDetail.tsx
 #: src/features/calendar/components/WorkoutDayList.tsx
 #: src/features/history/screens/HistoryListScreen.tsx
 msgid "Start a Workout"
 msgstr "Iniciar entrenamiento"
+
+#: src/features/wellness/screens/WellnessDashboardScreen.tsx
+msgid "Start logging your daily wellness after workouts to see trends here."
+msgstr "Comienza a registrar tu bienestar diario después de los entrenamientos para ver tendencias aquí."
 
 #: app/(tabs)/train.tsx
 #: src/features/analytics/screens/AnalyticsScreen.tsx
@@ -538,6 +796,18 @@ msgstr "Iniciar entrenamiento"
 #: src/features/profile/screens/EditProfileScreen.tsx
 msgid "Strength"
 msgstr "Fuerza"
+
+#: src/features/workout/screens/SelfAssessmentScreen.tsx
+msgid "Submit Assessment"
+msgstr "Enviar Evaluación"
+
+#: src/features/workout/screens/WorkoutCompleteScreen.tsx
+msgid "Submit Feedback"
+msgstr "Enviar Comentario"
+
+#: src/features/workout/screens/WorkoutCompleteScreen.tsx
+msgid "Submitting..."
+msgstr "Enviando..."
 
 #: src/features/calendar/components/CalendarGrid.tsx
 msgid "Sun"
@@ -555,6 +825,10 @@ msgstr "Sincronizando…"
 msgid "Tap for details"
 msgstr "Toca para ver detalles"
 
+#: src/features/workout/screens/SelfAssessmentScreen.tsx
+msgid "Terrible"
+msgstr "Terrible"
+
 #: app/(tabs)/home.tsx
 msgid "This Week"
 msgstr "Esta semana"
@@ -567,6 +841,10 @@ msgstr "Jue"
 msgid "Today's Assigned Workout"
 msgstr "Entrenamiento asignado hoy"
 
+#: src/features/workout/screens/AssessmentResultsScreen.tsx
+msgid "Today's self-assessment vs your 7-day average"
+msgstr "Autoevaluación de hoy vs tu promedio de 7 días"
+
 #: src/features/analytics/screens/AnalyticsScreen.tsx
 #: src/features/profile/components/ProfileStats.tsx
 msgid "Total Volume"
@@ -576,10 +854,22 @@ msgstr "Volumen total"
 msgid "Total Workouts"
 msgstr "Entrenamientos totales"
 
+#: src/features/wellness/screens/WellnessDashboardScreen.tsx
+msgid "Track your recovery and wellbeing trends"
+msgstr "Sigue tus tendencias de recuperación y bienestar"
+
+#: src/features/wellness/screens/WellnessDashboardScreen.tsx
+msgid "Track your RPE, sleep, fatigue, soreness, and mood over time."
+msgstr "Sigue tu RPE, sueño, fatiga, dolor muscular y ánimo a lo largo del tiempo."
+
 #: app/(tabs)/_layout.tsx
 #: app/(tabs)/train.tsx
 msgid "Train"
 msgstr "Entrenar"
+
+#: src/features/wellness/screens/WellnessDashboardScreen.tsx
+msgid "Trends"
+msgstr "Tendencias"
 
 #: src/features/calendar/components/CalendarGrid.tsx
 msgid "Tue"
@@ -593,9 +883,41 @@ msgstr "Desconocido"
 msgid "User ID"
 msgstr "ID de usuario"
 
+#: src/features/workout/screens/SelfAssessmentScreen.tsx
+msgid "Validation Error"
+msgstr "Error de Validación"
+
+#: src/features/workout/screens/SelfAssessmentScreen.tsx
+msgid "Very Hard"
+msgstr "Muy Duro"
+
+#: src/features/workout/screens/SelfAssessmentScreen.tsx
+msgid "Very Hard+"
+msgstr "Muy Duro+"
+
+#: src/features/workout/screens/SelfAssessmentScreen.tsx
+msgid "Very High"
+msgstr "Muy Alto"
+
+#: src/features/workout/screens/SelfAssessmentScreen.tsx
+msgid "Very Light"
+msgstr "Muy Ligero"
+
+#: src/features/workout/screens/SelfAssessmentScreen.tsx
+msgid "Very Low"
+msgstr "Muy Bajo"
+
+#: src/features/workout/screens/SelfAssessmentScreen.tsx
+msgid "Very Sore"
+msgstr "Muy Adolorido"
+
 #: src/features/calendar/components/DayDetail.tsx
 msgid "View Details"
 msgstr "Ver detalles"
+
+#: src/features/workout/screens/AssessmentResultsScreen.tsx
+msgid "View Full Wellness Dashboard"
+msgstr "Ver Panel Completo de Bienestar"
 
 #: src/features/calendar/components/DayDetail.tsx
 msgid "Volume"
@@ -626,6 +948,7 @@ msgid "Welcome back!"
 msgstr "¡Bienvenido de nuevo!"
 
 #: app/(tabs)/_layout.tsx
+#: src/features/wellness/screens/WellnessDashboardScreen.tsx
 msgid "Wellness"
 msgstr "Bienestar"
 
@@ -663,6 +986,10 @@ msgstr "Tu entrenador asignará el entrenamiento de hoy. Vuelve más tarde o rev
 #: src/features/profile/screens/EditProfileScreen.tsx
 msgid "Your name"
 msgstr "Tu nombre"
+
+#: src/features/workout/screens/AssessmentResultsScreen.tsx
+msgid "Your self-assessment summary"
+msgstr "Tu resumen de autoevaluación"
 
 #: src/features/analytics/screens/AnalyticsScreen.tsx
 msgid "Your training trends and progress"

@@ -1,5 +1,6 @@
 import { useCallback, useState } from "react";
 import { View, Text, ScrollView, TouchableOpacity, Alert } from "react-native";
+import { t } from "@lingui/core/macro";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { Button } from "@/shared/ui/Button";
 import { Card } from "@/shared/ui/Card";
@@ -18,48 +19,48 @@ interface LikertOption {
 }
 
 const SESSION_RPE_OPTIONS: LikertOption[] = [
-  { value: 1, label: "Very Light" },
-  { value: 2, label: "Light" },
-  { value: 3, label: "Moderate" },
-  { value: 4, label: "Somewhat Hard" },
-  { value: 5, label: "Hard" },
-  { value: 6, label: "Hard+" },
-  { value: 7, label: "Very Hard" },
-  { value: 8, label: "Very Hard+" },
-  { value: 9, label: "Extremely Hard" },
-  { value: 10, label: "Max Effort" },
+  { value: 1, label: t`Very Light` },
+  { value: 2, label: t`Light` },
+  { value: 3, label: t`Moderate` },
+  { value: 4, label: t`Somewhat Hard` },
+  { value: 5, label: t`Hard` },
+  { value: 6, label: t`Hard+` },
+  { value: 7, label: t`Very Hard` },
+  { value: 8, label: t`Very Hard+` },
+  { value: 9, label: t`Extremely Hard` },
+  { value: 10, label: t`Max Effort` },
 ];
 
 const SLEEP_OPTIONS: LikertOption[] = [
-  { value: 1, label: "Terrible" },
-  { value: 2, label: "Poor" },
-  { value: 3, label: "Fair" },
-  { value: 4, label: "Good" },
-  { value: 5, label: "Excellent" },
+  { value: 1, label: t`Terrible` },
+  { value: 2, label: t`Poor` },
+  { value: 3, label: t`Fair` },
+  { value: 4, label: t`Good` },
+  { value: 5, label: t`Excellent` },
 ];
 
 const QUALITY_OPTIONS: LikertOption[] = [
-  { value: 1, label: "Very Low" },
-  { value: 2, label: "Low" },
-  { value: 3, label: "Moderate" },
-  { value: 4, label: "High" },
-  { value: 5, label: "Very High" },
+  { value: 1, label: t`Very Low` },
+  { value: 2, label: t`Low` },
+  { value: 3, label: t`Moderate` },
+  { value: 4, label: t`High` },
+  { value: 5, label: t`Very High` },
 ];
 
 const SORENESS_OPTIONS: LikertOption[] = [
-  { value: 1, label: "None" },
-  { value: 2, label: "Mild" },
-  { value: 3, label: "Moderate" },
-  { value: 4, label: "Quite Sore" },
-  { value: 5, label: "Very Sore" },
+  { value: 1, label: t`None` },
+  { value: 2, label: t`Mild` },
+  { value: 3, label: t`Moderate` },
+  { value: 4, label: t`Quite Sore` },
+  { value: 5, label: t`Very Sore` },
 ];
 
 const MOOD_OPTIONS: LikertOption[] = [
-  { value: 1, label: "Very Low" },
-  { value: 2, label: "Low" },
-  { value: 3, label: "Neutral" },
-  { value: 4, label: "Good" },
-  { value: 5, label: "Great" },
+  { value: 1, label: t`Very Low` },
+  { value: 2, label: t`Low` },
+  { value: 3, label: t`Neutral` },
+  { value: 4, label: t`Good` },
+  { value: 5, label: t`Great` },
 ];
 
 interface LikertField {
@@ -70,10 +71,10 @@ interface LikertField {
 }
 
 const FIELDS: LikertField[] = [
-  { key: "sleepQuality", question: "How well did you sleep last night?", options: SLEEP_OPTIONS, icon: "\uD83C\uDF19" },
-  { key: "fatigue", question: "How fatigued do you feel?", options: QUALITY_OPTIONS, icon: "\u26A1" },
-  { key: "soreness", question: "How sore are you today?", options: SORENESS_OPTIONS, icon: "\uD83E\uDDB5" },
-  { key: "mood", question: "How is your mood today?", options: MOOD_OPTIONS, icon: "\uD83D\uDE0A" },
+  { key: "sleepQuality", question: t`How well did you sleep last night?`, options: SLEEP_OPTIONS, icon: "\uD83C\uDF19" },
+  { key: "fatigue", question: t`How fatigued do you feel?`, options: QUALITY_OPTIONS, icon: "\u26A1" },
+  { key: "soreness", question: t`How sore are you today?`, options: SORENESS_OPTIONS, icon: "\uD83E\uDDB5" },
+  { key: "mood", question: t`How is your mood today?`, options: MOOD_OPTIONS, icon: "\uD83D\uDE0A" },
 ];
 
 // ─── Likert Row Component ───────────────────────────────────────────────
@@ -147,8 +148,8 @@ function SessionRpeSelector({
       <View className="flex-row items-center gap-3 mb-3">
         <Text className="text-xl">{/* flex emoji */}</Text>
         <View className="flex-1">
-          <Text className="text-surface-50 text-sm font-semibold">Session RPE</Text>
-          <Text className="text-surface-400 text-xs">Overall difficulty of today's workout</Text>
+          <Text className="text-surface-50 text-sm font-semibold">{t`Session RPE`}</Text>
+          <Text className="text-surface-400 text-xs">{t`Overall difficulty of today's workout`}</Text>
         </View>
       </View>
       <View className="flex-row justify-between gap-1">
@@ -228,7 +229,7 @@ export function SelfAssessmentScreen() {
 
     if (!validation.valid) {
       const firstError = Object.values(validation.errors)[0];
-      Alert.alert("Validation Error", firstError);
+      Alert.alert(t`Validation Error`, firstError);
       return;
     }
 
@@ -246,7 +247,7 @@ export function SelfAssessmentScreen() {
       // Navigate to assessment results with the created entry ID
       router.replace(`/(workout)/assessment-results?id=${result.id}`);
     } catch (err) {
-      Alert.alert("Error", (err as Error).message ?? "Failed to save assessment");
+      Alert.alert(t`Error`, (err as Error).message ?? t`Failed to save assessment`);
     }
   }, [form, isComplete, saveMutation, params.sessionId, router]);
 
@@ -263,10 +264,10 @@ export function SelfAssessmentScreen() {
         >
           {/* Header */}
           <Text className="text-surface-50 text-2xl font-bold mb-1">
-            How was the workout?
+            {t`How was the workout?`}
           </Text>
           <Text className="text-surface-400 text-sm mb-6">
-            Help us understand how you're feeling. This helps adjust future sessions.
+            {t`Help us understand how you're feeling. This helps adjust future sessions.`}
           </Text>
 
           {/* Session RPE */}
@@ -291,7 +292,7 @@ export function SelfAssessmentScreen() {
           {saveMutation.isSuccess && (
             <Card className="mb-4">
               <Text className="text-surface-400 text-sm text-center">
-                Assessment saved successfully!
+                {t`Assessment saved successfully!`}
               </Text>
             </Card>
           )}
@@ -300,7 +301,7 @@ export function SelfAssessmentScreen() {
           {saveMutation.isError && (
             <Card className="mb-4 border-danger/30">
               <Text className="text-danger text-sm text-center">
-                {saveMutation.error?.message ?? "Failed to save assessment"}
+                {saveMutation.error?.message ?? t`Failed to save assessment`}
               </Text>
             </Card>
           )}
@@ -308,7 +309,7 @@ export function SelfAssessmentScreen() {
           {/* Actions */}
           <View className="w-full gap-3 mt-2">
             <Button
-              title={saveMutation.isSuccess ? "Done" : "Submit Assessment"}
+              title={saveMutation.isSuccess ? t`Done` : t`Submit Assessment`}
               variant="primary"
               onPress={saveMutation.isSuccess ? handleSkip : handleSubmit}
               disabled={!isComplete && !saveMutation.isSuccess}
@@ -316,7 +317,7 @@ export function SelfAssessmentScreen() {
             />
             {!saveMutation.isSuccess && (
               <Button
-                title="Skip for Now"
+                title={t`Skip for Now`}
                 variant="ghost"
                 onPress={handleSkip}
               />

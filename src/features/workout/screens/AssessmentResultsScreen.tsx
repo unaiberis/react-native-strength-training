@@ -1,5 +1,6 @@
 import { useCallback } from "react";
 import { View, Text, ScrollView, ActivityIndicator } from "react-native";
+import { t } from "@lingui/core/macro";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { Button } from "@/shared/ui/Button";
@@ -23,11 +24,11 @@ interface MetricConfig {
 }
 
 const METRICS: MetricConfig[] = [
-  { key: "sessionRpe", label: "Session RPE", icon: "flame-outline", maxValue: 10, color: "#FF6B35" },
-  { key: "sleep", label: "Sleep Quality", icon: "moon-outline", maxValue: 5, color: "#6366F1" },
-  { key: "fatigue", label: "Fatigue", icon: "battery-half-outline", maxValue: 5, color: "#F59E0B" },
-  { key: "soreness", label: "Soreness", icon: "bandage-outline", maxValue: 5, color: "#10B981" },
-  { key: "mood", label: "Mood", icon: "happy-outline", maxValue: 5, color: "#8B5CF6" },
+  { key: "sessionRpe", label: t`Session RPE`, icon: "flame-outline", maxValue: 10, color: "#FF6B35" },
+  { key: "sleep", label: t`Sleep Quality`, icon: "moon-outline", maxValue: 5, color: "#6366F1" },
+  { key: "fatigue", label: t`Fatigue`, icon: "battery-half-outline", maxValue: 5, color: "#F59E0B" },
+  { key: "soreness", label: t`Soreness`, icon: "bandage-outline", maxValue: 5, color: "#10B981" },
+  { key: "mood", label: t`Mood`, icon: "happy-outline", maxValue: 5, color: "#8B5CF6" },
 ];
 
 // ─── Gauge Dots ────────────────────────────────────────────────────────────
@@ -123,7 +124,7 @@ function MetricCard({
 
       {/* Average + trend */}
       <View className="flex-row items-center gap-2">
-        <Text className="text-textMuted text-xs">Avg: {formatAvg(avgVal)}</Text>
+        <Text className="text-textMuted text-xs">{t`Avg: ${formatAvg(avgVal)}`}</Text>
         <TrendIcon trend={trend} />
       </View>
     </Card>
@@ -166,7 +167,7 @@ export function AssessmentResultsScreen() {
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color="#B9B9B6" />
           <Text className="text-surface-400 text-sm mt-4">
-            Loading assessment...
+            {t`Loading assessment...`}
           </Text>
         </View>
       </GradientBackground>
@@ -184,18 +185,18 @@ export function AssessmentResultsScreen() {
             contentContainerStyle={{ paddingTop: 80, paddingBottom: 32 }}
           >
             <ScreenTitle
-              title="Assessment"
-              subtitle="Your self-assessment summary"
+              title={t`Assessment`}
+              subtitle={t`Your self-assessment summary`}
             />
             <Card className="mt-6">
               <Text className="text-surface-400 text-center py-8">
-                No assessment data found.{'\n'}
-                Complete a workout and self-assessment to see results here.
+                {t`No assessment data found.`}{'\n'}
+                {t`Complete a workout and self-assessment to see results here.`}
               </Text>
             </Card>
             <View className="w-full gap-3 mt-6">
               <Button
-                title="Go Home"
+                title={t`Go Home`}
                 variant="primary"
                 onPress={handleDone}
               />
@@ -217,8 +218,8 @@ export function AssessmentResultsScreen() {
         >
           {/* Header */}
           <ScreenTitle
-            title="Assessment"
-            subtitle="Today's self-assessment vs your 7-day average"
+            title={t`Assessment`}
+            subtitle={t`Today's self-assessment vs your 7-day average`}
           />
 
           {/* Metrics */}
@@ -238,28 +239,28 @@ export function AssessmentResultsScreen() {
           <View className="flex-row items-center gap-4 mb-6">
             <View className="flex-row items-center gap-1.5">
               <View className="w-2.5 h-2.5 rounded-full bg-titanium" />
-              <Text className="text-textSubtle text-xs">Current</Text>
+              <Text className="text-textSubtle text-xs">{t`Current`}</Text>
             </View>
             <View className="flex-row items-center gap-1.5">
               <Ionicons name="arrow-up" size={12} color="#D7D7D2" />
-              <Text className="text-textSubtle text-xs">Above avg</Text>
+              <Text className="text-textSubtle text-xs">{t`Above avg`}</Text>
             </View>
             <View className="flex-row items-center gap-1.5">
               <Ionicons name="arrow-down" size={12} color="#D65F5F" />
-              <Text className="text-textSubtle text-xs">Below avg</Text>
+              <Text className="text-textSubtle text-xs">{t`Below avg`}</Text>
             </View>
           </View>
 
           {/* Actions */}
           <View className="w-full gap-3">
             <Button
-              title="View Full Wellness Dashboard"
+              title={t`View Full Wellness Dashboard`}
               variant="secondary"
               icon="analytics-outline"
               onPress={handleGoWellness}
             />
             <Button
-              title="Done"
+              title={t`Done`}
               variant="primary"
               icon="checkmark-outline"
               onPress={handleDone}

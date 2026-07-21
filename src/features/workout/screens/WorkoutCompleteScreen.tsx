@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { View, Text, ScrollView, TouchableOpacity, TextInput, Platform } from "react-native";
+import { t } from "@lingui/core/macro";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";
@@ -241,7 +242,7 @@ export function WorkoutCompleteScreen() {
               {/* Notes input */}
               <TextInput
                 className="bg-surface-900 border border-surface-700 rounded-xl px-4 py-3 text-surface-50 text-[15px] mb-4 min-h-[80px]"
-                placeholder="How did it feel? (optional)"
+                placeholder={t`How did it feel? (optional)`}
                 placeholderTextColor="#707074"
                 multiline
                 value={feedbackNotes}
@@ -251,7 +252,7 @@ export function WorkoutCompleteScreen() {
 
               {/* Submit button */}
               <Button
-                title={submitFeedback.isPending ? "Submitting..." : "Submit Feedback"}
+                title={submitFeedback.isPending ? t`Submitting...` : t`Submit Feedback`}
                 variant="primary"
                 disabled={rating === 0 || submitFeedback.isPending}
                 onPress={() => {
