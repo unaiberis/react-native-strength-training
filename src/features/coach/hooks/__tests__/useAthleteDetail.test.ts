@@ -10,7 +10,11 @@ jest.mock("@/lib/pocketbase/services/coach-athletes", () => ({
   unlinkAthlete: jest.fn(),
 }));
 jest.mock("@/lib/pocketbase/services/program-assignments", () => ({
-  listAssignments: (...args: any[]) => mockListAssignments(...args),
+  listAssignmentsWithTemplateNames: (...args: any[]) => mockListAssignments(...args),
+  listAssignments: jest.fn(),
+}));
+jest.mock("@/lib/pocketbase/services/templates", () => ({
+  fetchTemplateNameMap: jest.fn().mockResolvedValue(new Map()),
 }));
 
 import { useAthleteDetail } from "../useAthleteDetail";

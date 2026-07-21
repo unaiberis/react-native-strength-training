@@ -29,7 +29,7 @@ describe("schema migrations", () => {
   });
 
   describe("runMigrations", () => {
-    it("creates all 10 tables", async () => {
+    it("creates all tables", async () => {
       await runMigrations(mockDb as any);
 
       // Collect all SQL calls and check for CREATE TABLE statements
@@ -39,7 +39,7 @@ describe("schema migrations", () => {
           sql.trim().toUpperCase().startsWith("CREATE TABLE"),
         );
 
-      expect(createTableCalls).toHaveLength(13);
+      expect(createTableCalls).toHaveLength(TABLES.length);
 
       // Verify each table name appears
       const allSql = execAsyncMock.mock.calls
@@ -68,7 +68,10 @@ describe("schema migrations", () => {
       // exercise_sets: 2 (session, dirty)
       // change_queue: 3 (status, created, group)
       // workout_feedback: 2 (athlete, synced)
-      expect(indexCalls).toHaveLength(18);
+      // teams: 1 (created_by)
+      // team_memberships: 3 (user_id, team_id, role)
+      // notifications: 2 (user_id, read)
+      expect(indexCalls).toHaveLength(20);
     });
 
     it("creates exercises table with expected columns", async () => {
@@ -163,14 +166,14 @@ describe("schema migrations", () => {
       await runMigrations(mockDb as any);
       await runMigrations(mockDb as any);
 
-      // Count CREATE TABLE calls — should be 22 (11 per run)
+      // Count CREATE TABLE calls — should be TABLES.length * 2
       const createTableCalls = execAsyncMock.mock.calls
         .map(([sql]: [string]) => sql)
         .filter((sql: string) =>
           sql.trim().toUpperCase().startsWith("CREATE TABLE"),
         );
 
-      expect(createTableCalls).toHaveLength(26);
+      expect(createTableCalls).toHaveLength(TABLES.length * 2);
     });
 
     it("executes tables in the correct dependency order", async () => {

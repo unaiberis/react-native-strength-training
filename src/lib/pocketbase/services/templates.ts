@@ -83,6 +83,30 @@ async function getTemplateExercises(
 }
 
 /**
+ * Fetch a batch of template names by their IDs.
+ * Returns a map of template_id → name.
+ */
+export async function fetchTemplateNameMap(
+  ids: string[],
+): Promise<Map<string, string>> {
+  if (ids.length === 0) return new Map();
+  try {
+    const uniqueIds = [...new Set(ids)];
+    const filter = uniqueIds.map((id) => `id = '${id}'`).join(" || ");
+    const records = await pb.collection("workout_templates").getFullList({
+      filter,
+      fields: "id,name",
+      $autoCancel: false,
+    });
+    return new Map(
+      (records ?? []).map((r: any) => [r.id, r.name ?? "Untitled Program"]),
+    );
+  } catch {
+    return new Map();
+  }
+}
+
+/**
  * List all templates for the current user.
  */
 export async function listTemplates(

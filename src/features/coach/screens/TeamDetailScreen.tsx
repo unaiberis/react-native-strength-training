@@ -18,6 +18,7 @@ import { Card } from "@/shared/ui/Card";
 import { Button } from "@/shared/ui/Button";
 import { useAuthStore } from "@/stores/auth-store";
 import {
+  useTeam,
   useTeamMembers,
   useUpdateTeam,
   useDeleteTeam,
@@ -42,6 +43,7 @@ export function TeamDetailScreen() {
   const userId = useAuthStore((s) => s.user?.id);
   const isTeamAdmin = useAuthStore((s) => s.isTeamAdmin);
 
+  const { data: teamData, isLoading: teamLoading } = useTeam(teamId);
   const { data: members = [], isLoading: membersLoading } = useTeamMembers(teamId);
   const updateTeamMutation = useUpdateTeam();
   const deleteTeamMutation = useDeleteTeam();
@@ -224,7 +226,7 @@ export function TeamDetailScreen() {
     </View>
   );
 
-  if (membersLoading) {
+  if (membersLoading || teamLoading) {
     return (
       <GradientBackground>
         <View className="flex-1 items-center justify-center">
@@ -242,8 +244,7 @@ export function TeamDetailScreen() {
         <Card className="mb-4">
           <View className="flex-row items-center justify-between mb-1">
             <Text className="text-surface-50 text-2xl font-bold flex-1">
-              {/* Show name from first member's team — we don't have a useTeam hook */}
-              Team
+              {teamData?.name ?? "Team"}
             </Text>
             {canDelete && (
               <TouchableOpacity
@@ -260,6 +261,12 @@ export function TeamDetailScreen() {
               </TouchableOpacity>
             )}
           </View>
+
+          {teamData?.description && (
+            <Text className="text-surface-400 text-sm mt-1 mb-2">
+              {teamData.description}
+            </Text>
+          )}
 
           {canManage && !editing && (
             <TouchableOpacity

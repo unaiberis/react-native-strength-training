@@ -162,6 +162,20 @@ CREATE TABLE IF NOT EXISTS teams (
   updated_at TEXT NOT NULL DEFAULT (datetime('now'))
 );`;
 
+const CREATE_NOTIFICATIONS = `
+CREATE TABLE IF NOT EXISTS notifications (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  type TEXT NOT NULL CHECK(type IN ('workout_assigned','program_updated','feedback_reply','achievement','system')),
+  title TEXT NOT NULL,
+  body TEXT NOT NULL,
+  data TEXT,
+  read INTEGER NOT NULL DEFAULT 0,
+  synced INTEGER NOT NULL DEFAULT 0,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);`;
+
 const CREATE_TEAM_MEMBERSHIPS = `
 CREATE TABLE IF NOT EXISTS team_memberships (
   id TEXT PRIMARY KEY,
@@ -215,6 +229,10 @@ const CREATE_INDEXES = [
   `CREATE INDEX IF NOT EXISTS idx_team_memberships_user_id ON team_memberships(user_id);`,
   `CREATE INDEX IF NOT EXISTS idx_team_memberships_team_id ON team_memberships(team_id);`,
   `CREATE INDEX IF NOT EXISTS idx_team_memberships_role ON team_memberships(role);`,
+
+  // notifications
+  `CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON notifications(user_id);`,
+  `CREATE INDEX IF NOT EXISTS idx_notifications_read ON notifications(read);`,
 ];
 
 const SEED_SCHEMA_VERSION = `
@@ -242,6 +260,7 @@ export const TABLES: readonly string[] = [
   "workout_feedback",
   "teams",
   "team_memberships",
+  "notifications",
 ] as const;
 
 // ─── Migration Runner ───────────────────────────────────────────────────
@@ -279,6 +298,7 @@ export async function runMigrations(db: SQLiteDatabase): Promise<void> {
   await db.execAsync(CREATE_WORKOUT_FEEDBACK);
   await db.execAsync(CREATE_TEAMS);
   await db.execAsync(CREATE_TEAM_MEMBERSHIPS);
+  await db.execAsync(CREATE_NOTIFICATIONS);
 
   // Create indexes
   for (const indexSql of CREATE_INDEXES) {

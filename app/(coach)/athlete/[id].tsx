@@ -10,15 +10,49 @@ import {
 } from "react-native";
 import { useRouter, useLocalSearchParams, Stack } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { t } from "@lingui/core/macro";
+import { Trans } from "@lingui/react/macro";
 import { BackButton } from "@/shared/ui/BackButton";
+import { Card } from "@/shared/ui/Card";
 import { DETAIL_HEADER } from "@/constants/theme";
 import { useAthleteDetail, useUnlinkAthlete } from "@/features/coach/hooks/useAthleteDetail";
-import { useAssignments } from "@/features/coach/hooks/useProgramAssignment";
+import { useCoachFeedback } from "@/features/coach/hooks/useCoachFeedback";
+
+function formatDate(dateStr: string): string {
+  try {
+    return new Date(dateStr).toLocaleDateString(undefined, {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  } catch {
+    return dateStr;
+  }
+}
+
+function StarRating({ rating }: { rating: number }) {
+  return (
+    <View className="flex-row gap-0.5">
+      {[1, 2, 3, 4, 5].map((star) => (
+        <Ionicons
+          key={star}
+          name={star <= rating ? "star" : "star-outline"}
+          size={14}
+          color={star <= rating ? "#D7D7D2" : "#343437"}
+        />
+      ))}
+    </View>
+  );
+}
 
 export default function AthleteDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { athlete, assignments, isLoading, refetch, error } = useAthleteDetail(id);
+  const {
+    data: feedbackEntries = [],
+    isLoading: feedbackLoading,
+  } = useCoachFeedback(id);
   const unlinkMutation = useUnlinkAthlete();
 
   const handleUnlink = useCallback(() => {
@@ -105,7 +139,7 @@ export default function AthleteDetailScreen() {
                 {athlete.email}
               </Text>
               <Text className="text-surface-500 text-xs mt-1">
-                Joined {new Date(athlete.created).toLocaleDateString()}
+                <Trans>Joined</Trans> {formatDate(athlete.created)}
               </Text>
             </View>
           </View>
@@ -166,26 +200,65 @@ export default function AthleteDetailScreen() {
             </Text>
           </View>
         ) : (
-          activeAssignments.map((a) => (
-            <View
-              key={a.id}
-              className="bg-card border border-border rounded-2xl p-4 mb-3"
-            >
-              <View className="flex-row items-center justify-between">
-                <View className="flex-1">
-                  <Text className="text-surface-50 font-semibold">
-                    {a.template_id}
-                  </Text>
-                  <Text className="text-surface-400 text-xs mt-1">
-                    Starts {new Date(a.started_at).toLocaleDateString()}
-                  </Text>
-                </View>
-                <View className="bg-green-900/40 px-3 py-1 rounded-full">
-                  <Text className="text-green-400 text-xs font-medium">
-                    {a.status}
-                  </Text>
+          activeAssignments.map((a) => {
+            const aWithName = a as any;
+            return (
+              <View
+                key={a.id}
+                className="bg-card border border-border rounded-2xl p-4 mb-3"
+              >
+                <View className="flex-row items-center justify-between">
+                  <View className="flex-1">
+                    <Text className="text-surface-50 font-semibold">
+                      {aWithName.templateName ?? "Template name unavailable"}
+                    </Text>
+                    <Text className="text-surface-400 text-xs mt-1">
+                      <Trans>Starts</Trans> {formatDate(a.started_at)}
+                    </Text>
+                  </View>
+                  <View className="bg-green-900/40 px-3 py-1 rounded-full">
+                    <Text className="text-green-400 text-xs font-medium">
+                      {a.status}
+                    </Text>
+                  </View>
                 </View>
               </View>
+            );
+          })
+        )}
+
+        {/* Feedback section */}
+        <Text className="text-surface-50 text-lg font-bold mb-3 mt-2">
+          Feedback
+        </Text>
+        {feedbackLoading ? (
+          <View className="bg-card border border-border rounded-2xl p-5 items-center mb-4">
+            <ActivityIndicator size="small" color="#B9B9B6" />
+          </View>
+        ) : feedbackEntries.length === 0 ? (
+          <View className="bg-card border border-border rounded-2xl p-5 items-center mb-4">
+            <Ionicons name="chatbubble-outline" size={24} color="#707074" />
+            <Text className="text-surface-400 text-sm mt-2">
+              No feedback yet
+            </Text>
+          </View>
+        ) : (
+          feedbackEntries.slice(0, 5).map((entry) => (
+            <View
+              key={entry.id}
+              className="bg-card border border-border rounded-2xl p-4 mb-3"
+            >
+              <View className="flex-row items-center justify-between mb-2">
+                <StarRating rating={entry.rating} />
+                <Text className="text-surface-500 text-xs">
+                  {formatDate(entry.created_at)}
+                </Text>
+              </View>
+              {entry.notes && (
+                <Text className="text-surface-300 text-sm leading-5">
+                  {entry.notes}
+                </Text>
+              )}
             </View>
           ))
         )}
@@ -196,44 +269,47 @@ export default function AthleteDetailScreen() {
             <Text className="text-surface-50 text-lg font-bold mb-3 mt-2">
               Assignment History
             </Text>
-            {assignments.map((a) => (
-              <View
-                key={a.id}
-                className="bg-card border border-border rounded-2xl p-4 mb-3"
-              >
-                <View className="flex-row items-center justify-between">
-                  <View className="flex-1">
-                    <Text className="text-surface-50 font-semibold">
-                      {a.template_id}
-                    </Text>
-                    <Text className="text-surface-400 text-xs mt-1">
-                      {new Date(a.started_at).toLocaleDateString()}
-                    </Text>
-                  </View>
-                  <View
-                    className={`px-3 py-1 rounded-full ${
-                      a.status === "completed"
-                        ? "bg-blue-900/40"
-                        : a.status === "cancelled"
-                          ? "bg-red-900/40"
-                          : "bg-green-900/40"
-                    }`}
-                  >
-                    <Text
-                      className={`text-xs font-medium ${
+            {assignments.map((a) => {
+              const aWithName = a as any;
+              return (
+                <View
+                  key={a.id}
+                  className="bg-card border border-border rounded-2xl p-4 mb-3"
+                >
+                  <View className="flex-row items-center justify-between">
+                    <View className="flex-1">
+                      <Text className="text-surface-50 font-semibold">
+                        {aWithName.templateName ?? "Template name unavailable"}
+                      </Text>
+                      <Text className="text-surface-400 text-xs mt-1">
+                        {formatDate(a.started_at)}
+                      </Text>
+                    </View>
+                    <View
+                      className={`px-3 py-1 rounded-full ${
                         a.status === "completed"
-                          ? "text-blue-400"
+                          ? "bg-blue-900/40"
                           : a.status === "cancelled"
-                            ? "text-red-400"
-                            : "text-green-400"
+                            ? "bg-red-900/40"
+                            : "bg-green-900/40"
                       }`}
                     >
-                      {a.status}
-                    </Text>
+                      <Text
+                        className={`text-xs font-medium ${
+                          a.status === "completed"
+                            ? "text-blue-400"
+                            : a.status === "cancelled"
+                              ? "text-red-400"
+                              : "text-green-400"
+                        }`}
+                      >
+                        {a.status}
+                      </Text>
+                    </View>
                   </View>
                 </View>
-              </View>
-            ))}
+              );
+            })}
           </>
         )}
       </ScrollView>

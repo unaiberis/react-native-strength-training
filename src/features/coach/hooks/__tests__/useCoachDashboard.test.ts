@@ -9,10 +9,15 @@ jest.mock("@/stores/auth-store", () => ({
     selector({ user: { id: mockUserId }, isOnline: true }),
 }));
 
-// Mock the service
+// Mock services
 const mockListAthletes = jest.fn();
 jest.mock("@/lib/pocketbase/services/coach-athletes", () => ({
   listAthletes: (...args: any[]) => mockListAthletes(...args),
+}));
+
+const mockGetFeedbackCounts = jest.fn();
+jest.mock("@/lib/pocketbase/services/feedback", () => ({
+  getFeedbackCountsForAthletes: (...args: any[]) => mockGetFeedbackCounts(...args),
 }));
 
 import { useCoachDashboard } from "../useCoachDashboard";

@@ -11,8 +11,10 @@ import { memo } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { t } from "@lingui/core/macro";
+import { Trans } from "@lingui/react/macro";
 import { Card } from "@/shared/ui/Card";
 import { EmptyState } from "@/shared/ui/EmptyState";
+import type { ProgramSummary } from "@/features/athlete-assignments/hooks/program-types";
 
 // ─── Types ──────────────────────────────────────────────────────────────
 
@@ -29,6 +31,7 @@ interface DayDetailProps {
   workout: WorkoutSummary | null;
   onStartWorkout: () => void;
   onViewDetail: () => void;
+  pastPrograms?: ProgramSummary[];
 }
 
 // ─── Helpers ────────────────────────────────────────────────────────────
@@ -153,34 +156,79 @@ const CompletedSummary = memo(function CompletedSummary({
  *
  * Displays the workout summary card if a workout exists, or an
  * empty state encouraging rest if the day is free.
+ * Also shows past program assignments (completed/cancelled) for the selected date.
  */
-function DayDetail({ date, workout, onStartWorkout, onViewDetail }: DayDetailProps) {
-  if (!workout) {
-    return (
-      <EmptyState
-        icon="calendar-outline"
-        title={t`No Workout Scheduled`}
-        subtitle={t`Rest days are part of the plan. Stay ready.`}
-        action={{
-          label: t`Start a Workout`,
-          onPress: onStartWorkout,
-          variant: "secondary",
-        }}
-        className="mt-4"
-      />
-    );
-  }
+function DayDetail({ date, workout, onStartWorkout, onViewDetail, pastPrograms }: DayDetailProps) {
+  const pastProgramsForDate = (pastPrograms ?? []).filter(
+    (p) => p.startDate === date,
+  );
 
   return (
     <View className="mt-2">
       <Text className="text-surface-400 text-xs font-semibold mb-1 ml-1">
         {formatDisplayDate(date)}
       </Text>
-      <WorkoutCard
-        workout={workout}
-        onStartWorkout={onStartWorkout}
-        onViewDetail={onViewDetail}
-      />
+
+      {workout ? (
+        <WorkoutCard
+          workout={workout}
+          onStartWorkout={onStartWorkout}
+          onViewDetail={onViewDetail}
+        />
+      ) : (
+        <EmptyState
+          icon="calendar-outline"
+          title={t`No Workout Scheduled`}
+          subtitle={t`Rest days are part of the plan. Stay ready.`}
+          action={{
+            label: t`Start a Workout`,
+            onPress: onStartWorkout,
+            variant: "secondary",
+          }}
+          className="mt-4"
+        />
+      )}
+
+      {/* Past assignments */}
+      {pastProgramsForDate.length > 0 && (
+        <View className="mt-4">
+          <Text className="text-surface-500 text-xs font-semibold uppercase tracking-wide mb-2">
+            <Trans>Past Assignments</Trans>
+          </Text>
+          {pastProgramsForDate.map((p) => (
+            <View
+              key={p.id}
+              className="bg-card border border-border rounded-2xl p-3 mb-2"
+            >
+              <View className="flex-row items-center justify-between">
+                <Text className="text-surface-50 text-sm font-semibold flex-1">
+                  {p.name}
+                </Text>
+                <View
+                  className={`px-2 py-0.5 rounded-full ml-2 ${
+                    p.status === "completed"
+                      ? "bg-blue-900/40"
+                      : "bg-red-900/40"
+                  }`}
+                >
+                  <Text
+                    className={`text-[10px] font-medium ${
+                      p.status === "completed"
+                        ? "text-blue-400"
+                        : "text-red-400"
+                    }`}
+                  >
+                    {p.status}
+                  </Text>
+                </View>
+              </View>
+              <Text className="text-surface-500 text-xs mt-1">
+                {p.startDate} — {p.endDate}
+              </Text>
+            </View>
+          ))}
+        </View>
+      )}
     </View>
   );
 }

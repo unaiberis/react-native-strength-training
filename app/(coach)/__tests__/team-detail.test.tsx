@@ -35,6 +35,7 @@ const mockUpdateMemberRoleMutate = jest.fn();
 const mockCreateInviteMutate = jest.fn();
 
 jest.mock("@/features/coach/hooks/useTeams", () => ({
+  useTeam: () => ({ data: { id: "team-1", name: "Test Team", description: "A test team" }, isLoading: false }),
   useTeamMembers: (...args: any[]) => mockUseTeamMembers(...args),
   useUpdateTeam: () => ({ mutate: mockUpdateTeamMutate, isPending: false }),
   useDeleteTeam: () => ({ mutate: mockDeleteTeamMutate, isPending: false }),

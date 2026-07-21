@@ -1,5 +1,6 @@
 import { pb } from "../client";
 import type { ProgramAssignmentRow } from "../../../types/pocketbase";
+import { fetchTemplateNameMap } from "./templates";
 
 /** Input for creating a new program assignment. */
 export interface CreateAssignmentInput {
@@ -82,6 +83,25 @@ export async function listAssignments(
   } catch (err: any) {
     throw new Error(err.message ?? "Failed to list assignments");
   }
+}
+
+/**
+ * List all program assignments for a given athlete, enriched with template names.
+ * Fetches template names in a parallel query and attaches them to each row.
+ */
+export async function listAssignmentsWithTemplateNames(
+  athleteId: string,
+): Promise<(ProgramAssignmentRow & { templateName: string | null })[]> {
+  const rows = await listAssignments(athleteId);
+  if (rows.length === 0) return [];
+
+  const templateIds = rows.map((r) => r.template_id);
+  const nameMap = await fetchTemplateNameMap(templateIds);
+
+  return rows.map((r) => ({
+    ...r,
+    templateName: nameMap.get(r.template_id) ?? null,
+  }));
 }
 
 /**

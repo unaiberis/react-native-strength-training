@@ -12,7 +12,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useAuthStore } from "../../../stores/auth-store";
-import { listAssignments } from "../../../lib/pocketbase/services/program-assignments";
+import { listAssignmentsWithTemplateNames } from "../../../lib/pocketbase/services/program-assignments";
 import type { ProgramAssignmentRow } from "../../../types/pocketbase";
 import {
   computeProgramProgress,
@@ -67,6 +67,8 @@ export interface MapOptions {
   totalWeeks?: number;
   /** Reference "today" for status classification (defaults to `new Date()`). */
   today?: Date;
+  /** Template name to use instead of placeholder. */
+  templateName?: string | null;
 }
 
 // ─── Constants ───────────────────────────────────────────────────────────────
@@ -128,9 +130,11 @@ export function mapAssignmentToProgramSummary(
     totalWeeks,
   );
 
+  const programName = opts.templateName ?? "Untitled Program";
+
   return {
     id: row.id,
-    name: "Untitled Program",
+    name: programName,
     description: "",
     startDate,
     endDate,
@@ -143,22 +147,25 @@ export function mapAssignmentToProgramSummary(
 }
 
 /**
- * Derive the `currentProgram` and `upcomingPrograms` lists from a set of
- * assignment rows.
+ * Derive the `currentProgram`, `upcomingPrograms`, and `pastPrograms` lists
+ * from a set of assignment rows.
  *
  * Rules (D4 / D6):
- *  - skip `cancelled` rows;
+ *  - skip `cancelled` rows for current/upcoming (but include in pastPrograms);
  *  - `currentProgram` = the `active` assignment with the latest `started_at`
  *    that is `<= today` (nearest started_at, not after today);
  *  - `upcomingPrograms` = assignments whose `started_at > today`
  *    (status-driven to "upcoming");
- *  - `completed` rows with `started_at <= today` are NOT surfaced (history is
- *    out of scope).
+ *  - `pastPrograms` = completed or cancelled assignments with `started_at <= today`.
  */
 export function deriveCurrentAndUpcoming(
-  rows: ProgramAssignmentRow[],
+  rows: (ProgramAssignmentRow & { templateName?: string | null })[],
   today: Date = new Date(),
-): { currentProgram: ProgramSummary | null; upcomingPrograms: ProgramSummary[] } {
+): {
+  currentProgram: ProgramSummary | null;
+  upcomingPrograms: ProgramSummary[];
+  pastPrograms: ProgramSummary[];
+} {
   const visible = rows.filter((r) => r.status !== "cancelled");
 
   const currentRow = visible
@@ -178,12 +185,36 @@ export function deriveCurrentAndUpcoming(
         new Date(a.started_at).getTime() - new Date(b.started_at).getTime(),
     );
 
+  // Past programs: completed or cancelled assignments with started_at <= today
+  const pastRows = rows
+    .filter(
+      (r) =>
+        (r.status === "completed" || r.status === "cancelled") &&
+        new Date(r.started_at).getTime() <= today.getTime(),
+    )
+    .sort(
+      (a, b) =>
+        new Date(b.started_at).getTime() - new Date(a.started_at).getTime(),
+    );
+
   return {
     currentProgram: currentRow
-      ? mapAssignmentToProgramSummary(currentRow, { today })
+      ? mapAssignmentToProgramSummary(currentRow, {
+          today,
+          templateName: (currentRow as any).templateName,
+        })
       : null,
     upcomingPrograms: upcomingRows.map((r) =>
-      mapAssignmentToProgramSummary(r, { today }),
+      mapAssignmentToProgramSummary(r, {
+        today,
+        templateName: (r as any).templateName,
+      }),
+    ),
+    pastPrograms: pastRows.map((r) =>
+      mapAssignmentToProgramSummary(r, {
+        today,
+        templateName: (r as any).templateName,
+      }),
     ),
   };
 }
@@ -192,14 +223,14 @@ export function deriveCurrentAndUpcoming(
 
 /**
  * Fetch the authenticated athlete's program assignments and derive the
- * `currentProgram` + `upcomingPrograms` lists.
+ * `currentProgram`, `upcomingPrograms`, and `pastPrograms` lists.
  *
- * Online-only (R1): calls `listAssignments(user.id)`; surfaces loading/error
- * via the query lifecycle.
+ * Uses `listAssignmentsWithTemplateNames` to resolve template names.
  */
 export function useAthleteAssignments(): {
   currentProgram: ProgramSummary | null;
   upcomingPrograms: ProgramSummary[];
+  pastPrograms: ProgramSummary[];
   isLoading: boolean;
   error: unknown;
   refetch: () => void;
@@ -208,16 +239,18 @@ export function useAthleteAssignments(): {
 
   const query = useQuery({
     queryKey: ["programs", userId],
-    queryFn: () => listAssignments(userId as string),
+    queryFn: () => listAssignmentsWithTemplateNames(userId as string),
     enabled: !!userId,
   });
 
   const rows = query.data ?? [];
-  const { currentProgram, upcomingPrograms } = deriveCurrentAndUpcoming(rows);
+  const { currentProgram, upcomingPrograms, pastPrograms } =
+    deriveCurrentAndUpcoming(rows);
 
   return {
     currentProgram,
     upcomingPrograms,
+    pastPrograms,
     isLoading: query.isLoading,
     error: query.error,
     refetch: () => {

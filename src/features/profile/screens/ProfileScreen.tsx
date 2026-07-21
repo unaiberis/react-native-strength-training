@@ -19,6 +19,7 @@ import { GradientBackground } from "../../../shared/ui/GradientBackground";
 import { useAuth } from "../../auth/hooks/useAuth";
 import { useProfileStats } from "../hooks/useProfileStats";
 import { usePendingSyncCount } from "../hooks/usePendingSyncCount";
+import { useProfileCoach } from "../hooks/useProfileCoach";
 import { useUserTeams } from "../../coach/hooks/useTeams";
 import { useAuthStore } from "../../../stores/auth-store";
 import { useNotifications } from "../../notifications/hooks/useNotifications";
@@ -32,6 +33,11 @@ export function ProfileScreen() {
   const query = useProfileStats();
   const { data: syncCount } = usePendingSyncCount();
   const { unreadCount: notificationUnreadCount } = useNotifications();
+  const { coaches: myCoaches } = useProfileCoach();
+
+  const userRole = useAuthStore((s) => s.role);
+  const isTeamCoachFlag = useAuthStore((s) => s.isTeamCoach);
+  const isCoachView = userRole === "coach" || isTeamCoachFlag;
 
   // ─── Derived data ─────────────────────────────────────────────────────
   const email = user?.email ?? "No email";
@@ -167,6 +173,57 @@ export function ProfileScreen() {
           personalRecords={personalRecords}
           totalVolume={totalVolume}
         />
+
+        {/* ─── My Coach / Your Athletes ──────────────────────────── */}
+        {isCoachView ? (
+          <Card title={t`Coaching`} className="mb-4">
+            <View className="flex-row items-center gap-3 py-2">
+              <View className="w-10 h-10 rounded-full bg-graphite items-center justify-center">
+                <Ionicons name="people-outline" size={20} color="#B9B9B6" />
+              </View>
+              <View className="flex-1">
+                <Text className="text-surface-50 text-sm font-semibold">
+                  <Trans>Your Athletes</Trans>
+                </Text>
+                <Text className="text-surface-400 text-xs">
+                  <Trans>View and manage your athletes from the dashboard</Trans>
+                </Text>
+              </View>
+            </View>
+          </Card>
+        ) : (
+          <Card title={t`My Coach`} className="mb-4">
+            {myCoaches.length === 0 ? (
+              <View className="py-3 items-center">
+                <Ionicons name="person-outline" size={24} color="#707074" />
+                <Text className="text-surface-400 text-sm mt-2 text-center">
+                  <Trans>You don't have a coach yet</Trans>
+                </Text>
+              </View>
+            ) : (
+              myCoaches.map((coach) => (
+                <View
+                  key={coach.id}
+                  className="flex-row items-center gap-3 py-2 border-b border-border last:border-b-0"
+                >
+                  <View className="w-10 h-10 rounded-full bg-graphite items-center justify-center">
+                    <Text className="text-surface-50 font-bold text-sm">
+                      {coach.displayName.charAt(0).toUpperCase()}
+                    </Text>
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-surface-50 text-sm font-semibold">
+                      {coach.displayName}
+                    </Text>
+                    <Text className="text-surface-400 text-xs">
+                      {coach.email}
+                    </Text>
+                  </View>
+                </View>
+              ))
+            )}
+          </Card>
+        )}
 
         {/* ─── My Teams ────────────────────────────────────────────── */}
         <MyTeamsSection />

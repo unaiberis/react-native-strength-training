@@ -94,7 +94,7 @@ export function CoachAthletesScreen() {
   );
 
   const renderAthlete = useCallback(
-    ({ item }: { item: (typeof athletes)[0] }) => (
+    ({ item }: { item: (typeof athletes)[0] & { feedbackCount?: number } }) => (
           <Pressable
             onPress={() => router.push(`/(coach)/athlete/${item.id}`)}
             className="bg-card border border-border rounded-2xl p-4 mb-3 shadow-card hover:bg-card-soft active:opacity-90"
@@ -109,9 +109,18 @@ export function CoachAthletesScreen() {
                     </Text>
                   </View>
                   <View className="flex-1">
-                    <Text className="text-surface-50 font-semibold text-base">
-                      {item.displayName}
-                    </Text>
+                    <View className="flex-row items-center gap-2">
+                      <Text className="text-surface-50 font-semibold text-base">
+                        {item.displayName}
+                      </Text>
+                      {item.feedbackCount != null && item.feedbackCount > 0 && (
+                        <View className="bg-brand-500/20 rounded-full px-2 py-0.5">
+                          <Text className="text-brand-500 text-[10px] font-bold">
+                            {item.feedbackCount} feedback
+                          </Text>
+                        </View>
+                      )}
+                    </View>
                     <Text className="text-surface-400 text-xs">{item.email}</Text>
                   </View>
                 </View>

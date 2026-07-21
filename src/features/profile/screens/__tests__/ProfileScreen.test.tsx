@@ -38,6 +38,13 @@ jest.mock("@/features/profile/hooks/usePendingSyncCount", () => ({
   usePendingSyncCount: (...args: any[]) => mockUsePendingSyncCount(...args),
 }));
 
+// ─── Mock useProfileCoach ────────────────────────────────────────────────────
+
+const mockUseProfileCoach = jest.fn();
+jest.mock("@/features/profile/hooks/useProfileCoach", () => ({
+  useProfileCoach: (...args: any[]) => mockUseProfileCoach(...args),
+}));
+
 // ─── Mock useUserTeams ──────────────────────────────────────────────────────
 
 const mockUseUserTeams = jest.fn();
@@ -89,6 +96,11 @@ function defaultMocks() {
     markAsRead: jest.fn(),
     markAllAsRead: jest.fn(),
     refetch: jest.fn(),
+  });
+  mockUseProfileCoach.mockReturnValue({
+    coaches: [],
+    isLoading: false,
+    error: null,
   });
 }
 

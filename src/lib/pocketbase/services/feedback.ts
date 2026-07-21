@@ -1,5 +1,5 @@
 import { pb } from "../client";
-import type { WorkoutFeedbackRow } from "../../../types/pocketbase";
+import type { WorkoutFeedbackRow, AthleteSummary } from "../../../types/pocketbase";
 
 // ─── Input Types ─────────────────────────────────────────────────────────
 
@@ -58,5 +58,32 @@ export async function listFeedback(
     throw new Error(
       "Failed to list feedback: " + (err.message ?? String(err)),
     );
+  }
+}
+
+/**
+ * Get feedback counts for a list of athlete IDs.
+ * Returns a map of athlete_id → total feedback count.
+ * Lightweight — only fetches ids + athlete_id fields.
+ */
+export async function getFeedbackCountsForAthletes(
+  athleteIds: string[],
+): Promise<Map<string, number>> {
+  if (athleteIds.length === 0) return new Map();
+  try {
+    const uniqueIds = [...new Set(athleteIds)];
+    const filter = uniqueIds.map((id) => `athlete_id = '${id}'`).join(" || ");
+    const records = await pb.collection("workout_feedback").getFullList({
+      filter,
+      fields: "id,athlete_id",
+      $autoCancel: false,
+    });
+    const counts = new Map<string, number>();
+    for (const r of records as any[]) {
+      counts.set(r.athlete_id, (counts.get(r.athlete_id) ?? 0) + 1);
+    }
+    return counts;
+  } catch {
+    return new Map();
   }
 }

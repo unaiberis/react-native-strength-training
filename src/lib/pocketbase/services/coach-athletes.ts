@@ -126,6 +126,55 @@ export async function getAthlete(userId: string): Promise<UserRow | null> {
 }
 
 /**
+ * Get the coach(es) for a given athlete by looking at their team memberships.
+ * Returns the user records of team members with "coach" or "admin" roles
+ * in any team the athlete belongs to.
+ */
+export async function getAthleteCoach(
+  userId: string,
+): Promise<{ id: string; displayName: string; email: string }[]> {
+  try {
+    // Step 1: Get athlete's team memberships
+    const memberships = await pb.collection("team_memberships").getFullList({
+      filter: `user_id = '${userId}'`,
+      $autoCancel: false,
+    });
+    if (memberships.length === 0) return [];
+
+    const teamIds = [...new Set(memberships.map((m: any) => m.team_id))] as string[];
+    const teamFilter = teamIds.map((id: string) => `team_id = '${id}'`).join(" || ");
+
+    // Step 2: Get coach/admin members in those teams
+    const coachMemberships = await pb.collection("team_memberships").getFullList({
+      filter: `(${teamFilter}) && (role = 'coach' || role = 'admin')`,
+      expand: "user_id",
+      $autoCancel: false,
+    });
+    if (coachMemberships.length === 0) return [];
+
+    // Step 3: Unique coach user IDs
+    const coachIds = [
+      ...new Set(coachMemberships.map((m: any) => m.user_id)),
+    ] as string[];
+
+    // Step 4: Fetch user records
+    const userFilter = coachIds.map((id: string) => `id = '${id}'`).join(" || ");
+    const users = await pb.collection("users").getFullList({
+      filter: userFilter,
+      $autoCancel: false,
+    });
+
+    return (users ?? []).map((u: any) => ({
+      id: u.id,
+      displayName: u.displayName ?? u.email?.split("@")[0] ?? "Coach",
+      email: u.email ?? "",
+    }));
+  } catch (err: any) {
+    throw new Error(err.message ?? "Failed to fetch athlete's coach");
+  }
+}
+
+/**
  * Unlink an athlete from a team by removing their team membership.
  */
 export async function unlinkAthlete(athleteId: string, teamId?: string): Promise<void> {

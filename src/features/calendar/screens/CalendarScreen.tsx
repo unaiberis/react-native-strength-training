@@ -174,7 +174,7 @@ export function CalendarScreen() {
 
   // Assigned-today indicator (R5): surface a chip when an assignment start_date
   // matches today or the selected calendar day, deep-linking to its detail.
-  const { currentProgram, upcomingPrograms } = useAthleteAssignments();
+  const { currentProgram, upcomingPrograms, pastPrograms } = useAthleteAssignments();
   const todayStrVal = todayStr();
   const matchDate = selectedDate ?? todayStrVal;
   const assignedChip =
@@ -323,6 +323,7 @@ export function CalendarScreen() {
                   workout={dayWorkout ? mapToWorkoutSummary(dayWorkout) : null}
                   onStartWorkout={handleStartWorkout}
                   onViewDetail={handleViewDetail}
+                  pastPrograms={pastPrograms}
                 />
               )}
             </>

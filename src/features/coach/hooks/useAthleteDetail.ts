@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getAthlete, unlinkAthlete } from "@/lib/pocketbase/services/coach-athletes";
-import { listAssignments } from "@/lib/pocketbase/services/program-assignments";
+import { listAssignmentsWithTemplateNames } from "@/lib/pocketbase/services/program-assignments";
 import type { UserRow, ProgramAssignmentRow } from "@/types/pocketbase";
 
 const ATHLETE_DETAIL_QUERY_KEY = "athlete-detail";
@@ -19,7 +19,7 @@ export function useAthleteDetail(athleteId: string | undefined) {
 
   const assignmentsQuery = useQuery({
     queryKey: [ATHLETE_ASSIGNMENTS_KEY, athleteId],
-    queryFn: () => listAssignments(athleteId!),
+    queryFn: () => listAssignmentsWithTemplateNames(athleteId!),
     enabled: !!athleteId,
     staleTime: 1000 * 60 * 2,
   });

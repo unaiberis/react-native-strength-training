@@ -7,6 +7,7 @@ import type { TeamRow, TeamMembershipRow, TeamRole, TeamMember } from "@/types/p
 const MY_TEAMS_KEY = "my-teams"
 const TEAM_MEMBERS_KEY = "team-members"
 const MY_MEMBERSHIPS_KEY = "my-memberships"
+const TEAM_DETAIL_KEY = "team-detail"
 
 // ─── Queries ──────────────────────────────────────
 
@@ -47,6 +48,18 @@ export function useMyMemberships() {
     enabled: !!userId,
     staleTime: 1000 * 60 * 2,
   })
+}
+
+/**
+ * Fetch a single team by its ID.
+ */
+export function useTeam(teamId: string | null) {
+  return useQuery({
+    queryKey: [TEAM_DETAIL_KEY, teamId],
+    queryFn: () => teamsService.getTeamById(teamId!),
+    enabled: !!teamId,
+    staleTime: 1000 * 60 * 5,
+  });
 }
 
 // ─── Mutations ────────────────────────────────────
