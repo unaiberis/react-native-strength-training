@@ -154,6 +154,24 @@ src/features/<feature>/
 └── (components/)             # Opcional — componentes privados del feature
 ```
 
+### Coach feature module pattern
+
+El módulo coach tiene estructura extendida por su complejidad:
+
+```
+src/features/coach/
+├── hooks/                    # useCoachDashboard, useCoachAnalytics, useCoachExercises, useProgramAssignment, useTeams, useAthleteDetail, useAthleteCalendar, useCoachFeedback
+├── screens/                  # CoachAthletesScreen, AssignmentDetailScreen, WorkoutBuilderScreen, AssignedProgramsScreen, etc.
+├── components/               # ExercisePrescriptionForm, SetSchemeEditor, etc.
+src/lib/pocketbase/services/
+├── coach-athletes.ts         # listAthletes() — dashboard data
+├── coach-analytics.ts        # getVolumeHistory, getComplianceHistory, getPREvolution
+├── program-assignments.ts    # assignProgram, listAssignments, unassignProgram, etc.
+├── teams.ts                  # team CRUD
+├── team-memberships.ts       # member CRUD
+├── team-invites.ts           # invite creation/redemption
+```
+
 ### Barrel exports
 
 ```
@@ -403,9 +421,67 @@ git commit -m "docs: document PocketBase collection schema"
 
 ---
 
+## Route Structure (Expo Router)
+
+```
+app/
+├── (auth)/                          # Auth stack (sin tabs)
+│   ├── _layout.tsx
+│   ├── login.tsx
+│   ├── register.tsx
+│   ├── forgot-password.tsx
+│   ├── signup-info.tsx              # Onboarding post-registro
+│   └── join-team.tsx                # Unirse a equipo por código
+├── (tabs)/                          # Athlete tabs (6 tabs)
+│   ├── _layout.tsx                  # Tab bar config
+│   ├── index.tsx                    # Redirección entry
+│   ├── calendar.tsx                 # Calendario semana/mes
+│   ├── home.tsx                     # Home con stats
+│   ├── train.tsx                    # Entrenar (inicia workout)
+│   ├── wellness.tsx                 # Bienestar (5 métricas)
+│   ├── analytics.tsx                # Analytics (volumen, tendencias)
+│   ├── profile.tsx                  # Perfil atleta
+│   ├── exercises/index.tsx          # Biblioteca ejercicios
+│   ├── exercises/[id].tsx           # Detalle ejercicio (con video)
+│   ├── history/index.tsx            # Historial workouts
+│   ├── history/[id].tsx             # Detalle sesión
+│   ├── analytics/exercise/[id].tsx  # Progreso por ejercicio
+│   ├── notifications.tsx            # Lista notificaciones
+│   ├── notification/[id].tsx        # Detalle notificación
+│   ├── team/[id].tsx                # Detalle equipo (atleta)
+│   └── edit-profile.tsx             # Editar perfil
+├── (coach)/                         # Coach stack (tab layout)
+│   ├── _layout.tsx
+│   ├── index.tsx                    # Redirige a /athletes
+│   ├── athletes.tsx                 # Lista atletas con stats
+│   ├── athlete/[id].tsx             # Perfil atleta (coach view)
+│   ├── athlete/[id]/calendar.tsx    # Calendario del atleta
+│   ├── analytics/[athleteId].tsx    # Analítica completa
+│   ├── assign.tsx                   # Wizard asignación programa
+│   ├── assigned-programs.tsx        # Programas asignados
+│   ├── assignment/[id].tsx          # Detalle asignación
+│   ├── library/index.tsx            # Biblioteca ejercicios (coach)
+│   ├── library/create.tsx           # Crear ejercicio
+│   ├── library/[id]/edit.tsx        # Editar ejercicio
+│   ├── teams/[id].tsx               # Detalle equipo (coach)
+│   ├── workout-builder/index.tsx    # Builder de templates
+│   └── workout-builder/[id].tsx     # Editar template
+├── (workout)/                       # Full-screen modal (sin tabs)
+│   ├── _layout.tsx
+│   ├── active.tsx                   # Workout activo
+│   ├── self-assessment.tsx          # Autoevaluación post-workout
+│   ├── assessment-results.tsx       # Resultados comparativos
+│   ├── notes.tsx                    # Notas de sesión
+│   └── pr-celebration.tsx           # Celebración PR
+├── _layout.tsx                      # Root: AuthGate + QueryClient + I18n + Offline init
+└── index.tsx                        # Entry: auth check → route según rol
+```
+
+---
+
 ## Estructura Funcional — TheHybridProject
 
-> Fuente: WhatsApp images 2026-07-05. Estructura funcional + flujos de usuario.
+> Fuente: WhatsApp images 2026-07-05. Estructura funcional inicial + flujos de usuario.
 > ⚠️ **Referencia de diseño del cliente:** `TheHybridProject_v0_1/` es el prototipo que envía el cliente. Todos los estilos nuevos deben seguir su design system. NO usar estilos alternativos sin consultar.
 
 ### Design Tokens (del cliente)
@@ -434,66 +510,94 @@ FontWeights:   title/h2:800, h3:700, body:500, small:600
 ### 1. Auth
 
 - Login
-- Registro atleta
+- Registro atleta + onboarding (unidades, experiencia, goal, peso, altura)
 - Recuperar contraseña
+- Unirse a equipo por código de invitación
+- Role-based routing (coach → `/(coach)`, athlete → `/(tabs)`)
 
 ### 2. Athlete App
 
-- Home / Calendario
-- Entrenamiento de hoy
-- Registro de ejercicio
-- Historial
-- Evolución
-- Métricas de bienestar
-- Perfil
+- **Calendario** — semana + mes, sesiones completadas, programas asignados
+- **Home** — stats card con volumen, workouts, streak, PRs
+- **Entrenamiento de hoy** — ActiveWorkoutScreen con 4 block types (straight_set, amrap, emom, circuit)
+- **Registro de ejercicio** — sets con peso, reps, RIR, RPE, tempo, warmup
+- **Historial** — lista + detalle de sesiones pasadas
+- **Evolución** — gráficos volumen (bar chart), tendencias (line chart con SMA), progreso por ejercicio, timeline de PRs
+- **Métricas de bienestar** — 5 métricas (RPE sesión, sueño, fatiga, dolor, ánimo), tendencias 7d/30d/90d, autoevaluación post-workout
+- **Perfil** — header con stats, editar perfil, equipos, notificaciones, badge sync offline
+- **Notificaciones** — scaffold listo (PocketBase collection pendiente)
+- **Equipos** — detalle de equipo, miembros, roles (athlete-facing)
 
 ### 3. Coach Software
 
-- Dashboard entrenador
-- Lista de atletas
-- Perfil de atleta
-- Crear entrenamiento
-- Biblioteca de ejercicios
-- Asignar entrenamiento
-- Analítica de atleta
+- **Dashboard** — lista de atletas con búsqueda, filtro activos/inactivos, stats por atleta (volumen, compliance, último workout)
+- **Perfil de atleta** — detalle, programas activos, historial asignaciones, desvincular
+- **Calendario del atleta** — grid mensual con fechas asignadas, navegación a detalle
+- **Crear entrenamiento** — WorkoutBuilder con bloques (normal/warmup/cooldown/superset), prescripción de ejercicios, esquema de series, RPE, descanso, notas
+- **Biblioteca de ejercicios** — CRUD completo con nombre, categoría, descripción, video_url, sets/reps/rest default, archive/unarchive
+- **Asignar entrenamiento** — wizard multi-paso: atleta → equipo → template → fecha, con CRUD completo de asignaciones, estados (active/completed/cancelled), barra de progreso
+- **Analítica de atleta** — Volumen over time (bar chart), Compliance semanal (color-coded), PR Evolution (e1RM timeline), Wellness (sleep/fatigue/soreness/mood promedios)
+- **Equipos** — CRUD completo, miembros con roles, invitaciones por código, join team por atleta
+- **Feedback del atleta** — visualización de ratings y notas post-workout
 
 ### Flujo del Atleta
 
 ```
-Login → Calendario semanal/mensual → Entrenamiento de hoy → Ver ejercicios
-→ Registrar peso / reps / RIR / notas → Marcar entrenamiento completado
-→ Enviar feedback
+Login/Register + onboarding → Calendario semana/mes → Home (stats)
+→ Entrenar: ver ejercicios del día → Registrar peso/reps/RIR/RPE/tempo
+→ Workout complete → Autoevaluación (RPE, sueño, fatiga, dolor, ánimo)
+→ Ver resultados comparativos → ¿Nuevo PR? → Celebración
+→ Feedback (rating 1-5 + notas) → Dashboard / Wellness / Analytics / Profile
 ```
 
 ### Flujo del Entrenador
 
 ```
-Login entrenador → Dashboard → Seleccionar atleta → Crear entrenamiento
-→ Añadir ejercicios + vídeos → Configurar series, reps, RIR, descanso, notas
-→ Asignar fecha → Atleta lo recibe en su calendario
+Login (rol coach) → Dashboard atletas → Seleccionar atleta
+→ Ver perfil / calendario / analítica del atleta
+→ Crear entrenamiento: bloques → ejercicios → series/RPE/descanso → guardar template
+→ Asignar programa: wizard atleta → equipo → template → fecha
+→ Atleta lo recibe en su calendario
+→ Recibir y ver feedback del atleta post-workout
 ```
 
-### Gap con el Proyecto Actual
+### Estado Actual vs Prototipo TheHybridProject
 
-| Módulo TheHybridProject | Estado Actual | Gap |
-|------------------------|---------------|-----|
-| Auth (login, registro, recuperar) | ✅ Existe | Completado |
-| Home / Calendario | ❌ No existe | Crear calendario semanal/mensual |
-| Entrenamiento de hoy | ✅ Existe | `ActiveWorkoutScreen` |
-| Registro de ejercicio | ✅ Existe | `ExerciseSetRow` en DB |
-| Historial | ✅ Existe | `useHistory` hook |
-| Evolución | ⚠️ Parcial | `usePersonalRecords` — falta gráfica evolución temporal |
-| Métricas de bienestar | ❌ No existe | Nuevo módulo completo |
-| Perfil (atleta) | ❌ No existe | Crear perfil screen |
-| Coach Dashboard | ❌ No existe | Nuevo módulo completo |
-| Coach → Crear entrenamiento | ⚠️ Parcial | Templates existen pero no hay flujo coach→atleta |
-| Coach → Asignar entrenamiento | ❌ No existe | Falta asignación a atleta específico |
-| Coach → Analítica de atleta | ❌ No existe | Nuevo módulo |
-| Videos en ejercicios | ❌ No existe | Campo `video_url` no existe en schema |
-| Feedback del atleta | ❌ No existe | Nuevo modelo de datos |
+| Módulo | Estado | Detalle |
+|--------|--------|---------|
+| Auth (login, registro, recuperar) | ✅ Completo | + SignUpInfo onboarding + Join Team by invite + role routing |
+| Home / Calendario | ✅ Completo | Week strip + month grid + day detail + assigned programs |
+| Entrenamiento de hoy | ✅ Completo | ActiveWorkoutScreen + 4 block types (straight_set, amrap, emom, circuit) |
+| Registro de ejercicio | ✅ Completo | Sets con peso, reps, RIR, RPE, warmup, tempo |
+| Historial | ✅ Completo | HistoryList + HistoryDetail con resúmenes completos |
+| Evolución / Analytics | ✅ Completo | Bar chart volumen, line chart tendencias (SMA), progreso por ejercicio, PR timeline, victory-native charts |
+| Métricas de bienestar | ✅ Completo | Wellness tab + 5 métricas + tendencias 7d/30d/90d + autoevaluación post-workout |
+| Perfil (atleta) | ✅ Completo | Stats, editar, equipos, notificaciones, sync badge |
+| Coach Dashboard | ✅ Completo | Lista atletas con búsqueda, filtros, stats individuales |
+| Coach → Crear entrenamiento | ✅ Completo | WorkoutBuilder con bloques, prescripción ejercicios, strategy pattern |
+| Coach → Asignar entrenamiento | ✅ Completo | Wizard multi-paso + CRUD asignaciones + estados + barra progreso |
+| Coach → Analítica de atleta | ✅ Completo | Volumen, compliance, PR evolution, wellness (charts) |
+| Coach → Biblioteca ejercicios | ✅ Completo | CRUD + video_url + archive/unarchive |
+| Coach → Equipos | ✅ Completo | CRUD + miembros + roles + invites + join |
+| Coach → Calendario atleta | ✅ Completo | Grid mensual + navegación a detalle |
+| Videos en ejercicios | ✅ Completo | `video_url` en schema, PocketBase, VideoPlayer, create/edit incluye campo |
+| Feedback del atleta | ✅ Completo | Rating post-workout + notas + coach puede ver |
+| Notificaciones | 🟡 Scaffold | Hooks + rutas listas, falta PocketBase collection |
+
+### Features adicionales (no en prototipo original)
+
+| Feature | Estado | Ubicación |
+|---------|--------|-----------|
+| Offline-first (SQLite + Sync Engine) | ✅ Completo | `src/lib/db/` — sync-engine, change-queue, id-mapping |
+| Program Assignments (sistema completo) | ✅ Completo | `src/features/athlete-assignments/` + `src/lib/pocketbase/services/program-assignments.ts` |
+| Athlete-facing assignment hooks | ✅ Completo | `useAthleteAssignments` — `findAssignedOnDate`, `deriveCurrentAndUpcoming`, `computeProgramProgress` |
+| React Query persistence (SQLite) | ✅ Completo | `src/lib/db/sqlite-storage.ts` |
+| Strategy Pattern (block types) | ✅ Completo | `src/features/workout/strategies/BlockTypeStrategy.ts` |
+| i18n (Lingui) | ✅ Completo | `src/i18n/` |
+| Shared UI Components (25+) | ✅ Completo | `src/shared/ui/` — Button, Card, Input, VideoPlayer, RestTimer, RpeSlider, ProgressRing, etc. |
 
 ---
 
 *Fin de AGENTS.md. Complementa PROJECT_REPORT.md.*
 *Generado 2026-07-01 para orchestrators entrantes.*
-*Actualizado 2026-07-05 con estructura funcional TheHybridProject (WhatsApp images).*
+*Actualizado 2026-07-21 con estado real del proyecto completo.*
