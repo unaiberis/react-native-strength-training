@@ -115,7 +115,7 @@ export function CoachAthletesScreen() {
                       </Text>
                       {item.feedbackCount != null && item.feedbackCount > 0 && (
                         <View className="bg-brand-500/20 rounded-full px-2 py-0.5">
-                          <Text className="text-brand-500 text-[10px] font-bold">
+                          <Text className="text-brand-400 text-[10px] font-bold">
                             {item.feedbackCount} feedback
                           </Text>
                         </View>

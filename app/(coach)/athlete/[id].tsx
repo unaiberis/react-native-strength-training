@@ -229,7 +229,7 @@ export default function AthleteDetailScreen() {
 
         {/* Feedback section */}
         <Text className="text-surface-50 text-lg font-bold mb-3 mt-2">
-          Feedback
+          <Trans>Feedback</Trans>
         </Text>
         {feedbackLoading ? (
           <View className="bg-card border border-border rounded-2xl p-5 items-center mb-4">
@@ -239,7 +239,7 @@ export default function AthleteDetailScreen() {
           <View className="bg-card border border-border rounded-2xl p-5 items-center mb-4">
             <Ionicons name="chatbubble-outline" size={24} color="#707074" />
             <Text className="text-surface-400 text-sm mt-2">
-              No feedback yet
+              <Trans>No feedback yet</Trans>
             </Text>
           </View>
         ) : (
