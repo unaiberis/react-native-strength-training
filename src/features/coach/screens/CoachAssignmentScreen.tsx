@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   View,
   Text,
   TextInput,
-  TouchableOpacity,
+  Pressable,
   ScrollView,
   Alert,
   ActivityIndicator,
@@ -34,9 +34,20 @@ export function CoachAssignmentScreen() {
   const [step, setStep] = useState<"athlete" | "team" | "template" | "confirm">(
     params.athleteId ? (params.teamId ? "template" : "team") : "athlete",
   );
+  const [searchQuery, setSearchQuery] = useState("");
 
   const assignMutation = useAssignProgram();
   const { athletes } = useCoachDashboard();
+
+  const filteredAthletes = useMemo(() => {
+    if (!searchQuery.trim()) return athletes;
+    const q = searchQuery.toLowerCase();
+    return athletes.filter(
+      (a) =>
+        a.displayName.toLowerCase().includes(q) ||
+        a.email.toLowerCase().includes(q),
+    );
+  }, [athletes, searchQuery]);
   const { data: teams = [] } = useUserTeams();
   const { data: templates } = useTemplates();
 
@@ -82,7 +93,7 @@ export function CoachAssignmentScreen() {
           headerTintColor: "#F4F4F2",
         }}
       />
-      <ScrollView className="flex-1 px-4 pt-4">
+      <ScrollView className="flex-1 px-4 pt-4 bg-soft">
         {/* Step indicator */}
         <View className="flex-row items-center justify-center mb-6 gap-2">
           {["athlete", "team", "template", "confirm"].map((s, i) => (
@@ -90,9 +101,9 @@ export function CoachAssignmentScreen() {
               <View
                 className={`w-8 h-8 rounded-full items-center justify-center ${
                   step === s
-                    ? "bg-surface-50"
+                    ? "bg-sacred"
                     : ["athlete", "team", "template", "confirm"].indexOf(step) >= i
-                      ? "bg-green-900/40"
+                      ? "bg-card border border-sacred/30"
                       : "bg-graphite"
                 }`}
               >
@@ -101,7 +112,7 @@ export function CoachAssignmentScreen() {
                     step === s
                       ? "text-background"
                       : ["athlete", "team", "template", "confirm"].indexOf(step) >= i
-                        ? "text-green-400"
+                        ? "text-sacred"
                         : "text-surface-500"
                   }`}
                 >
@@ -112,7 +123,7 @@ export function CoachAssignmentScreen() {
                 <View
                   className={`w-8 h-0.5 mx-1 ${
                     ["athlete", "team", "template", "confirm"].indexOf(step) > i
-                      ? "bg-green-900/40"
+                      ? "bg-sacred/30"
                       : "bg-graphite"
                   }`}
                 />
@@ -134,10 +145,33 @@ export function CoachAssignmentScreen() {
                 </Text>
               </View>
             ) : (
-              athletes.map((a) => (
-                <TouchableOpacity
+              <>
+                {/* Search bar */}
+                <View className="flex-row items-center bg-card border border-border rounded-xl px-3 mb-4 min-h-[44px]">
+                  <Ionicons name="search-outline" size={18} color="#707074" />
+                  <TextInput
+                    className="flex-1 text-surface-50 text-sm ml-2"
+                    placeholder="Search athletes..."
+                    placeholderTextColor="#707074"
+                    value={searchQuery}
+                    onChangeText={setSearchQuery}
+                    accessibilityLabel="Search athletes"
+                  />
+                  {searchQuery.length > 0 && (
+                    <Pressable
+                      onPress={() => setSearchQuery("")}
+                      className="min-w-[44px] min-h-[44px] items-center justify-center hover:opacity-70 active:opacity-50"
+                      accessibilityRole="button"
+                      accessibilityLabel="Clear search"
+                    >
+                      <Ionicons name="close-circle" size={18} color="#707074" />
+                    </Pressable>
+                  )}
+                </View>
+              {filteredAthletes.map((a) => (
+                <Pressable
                   key={a.id}
-                  className={`bg-card border rounded-2xl p-4 mb-3 shadow-button ${
+                  className={`bg-card border rounded-2xl p-4 mb-3 shadow-button hover:bg-card-soft hover:border-sacred/30 active:opacity-90 ${
                   selectedAthlete === a.id
                     ? "border-surface-50"
                     : "border-border"
@@ -165,13 +199,14 @@ export function CoachAssignmentScreen() {
                       <Ionicons
                         name="checkmark-circle"
                         size={20}
-                        color="#4ade80"
+                        color="#D7D7D2"
                         className="ml-auto"
                       />
                     )}
                   </View>
-                </TouchableOpacity>
-              ))
+                </Pressable>
+              ))}
+            </>
             )}
           </>
         )}
@@ -190,9 +225,9 @@ export function CoachAssignmentScreen() {
               </View>
             ) : (
               teams.map((t) => (
-                <TouchableOpacity
+                <Pressable
                   key={t.id}
-                  className={`bg-card border rounded-2xl p-4 mb-3 shadow-button ${
+                  className={`bg-card border rounded-2xl p-4 mb-3 shadow-button hover:bg-card-soft hover:border-sacred/30 active:opacity-90 ${
                   selectedTeam === t.id
                     ? "border-surface-50"
                     : "border-border"
@@ -225,21 +260,21 @@ export function CoachAssignmentScreen() {
                       <Ionicons
                         name="checkmark-circle"
                         size={20}
-                        color="#4ade80"
+                        color="#D7D7D2"
                       />
                     )}
                   </View>
-                </TouchableOpacity>
+                </Pressable>
               ))
             )}
-            <TouchableOpacity
-              className="mt-2"
+            <Pressable
+              className="mt-2 hover:opacity-70 active:opacity-50"
               onPress={() => setStep("athlete")}
             >
               <Text className="text-titanium text-sm text-center">
                 ← Back to athlete selection
               </Text>
-            </TouchableOpacity>
+            </Pressable>
           </>
         )}
 
@@ -250,40 +285,52 @@ export function CoachAssignmentScreen() {
               Select Program for {athleteName}
             </Text>
             {(templates ?? []).map((t: any) => (
-              <TouchableOpacity
-                key={t.id}
-                className={`bg-card border rounded-2xl p-4 mb-3 shadow-button ${
-                  selectedTemplate === t.id
-                    ? "border-surface-50"
-                    : "border-border"
-                }`}
-                onPress={() => {
-                  setSelectedTemplate(t.id);
-                  setStep("confirm");
-                }}
-              >
-                <View className="flex-row items-center justify-between">
-                  <Text className="text-surface-50 font-semibold">
-                    {t.name}
-                  </Text>
-                  {selectedTemplate === t.id && (
-                    <Ionicons
-                      name="checkmark-circle"
-                      size={20}
-                      color="#4ade80"
-                    />
-                  )}
-                </View>
-              </TouchableOpacity>
+              <Pressable
+                  key={t.id}
+                  className={`bg-card border rounded-2xl p-4 mb-3 shadow-button hover:bg-card-soft hover:border-sacred/30 active:opacity-90 ${
+                    selectedTemplate === t.id
+                      ? "border-surface-50"
+                      : "border-border"
+                  }`}
+                  onPress={() => {
+                    setSelectedTemplate(t.id);
+                    setStep("confirm");
+                  }}
+                >
+                  <View className="flex-row items-center justify-between">
+                    <View className="flex-1 mr-2">
+                      <Text className="text-surface-50 font-semibold">
+                        {t.name}
+                      </Text>
+                      <View className="flex-row items-center gap-3 mt-1">
+                        <Text className="text-surface-500 text-xs">
+                          {t.exercises.length} exercises
+                        </Text>
+                        {t.description ? (
+                          <Text className="text-surface-500 text-xs flex-1" numberOfLines={1}>
+                            {t.description}
+                          </Text>
+                        ) : null}
+                      </View>
+                    </View>
+                    {selectedTemplate === t.id && (
+                      <Ionicons
+                        name="checkmark-circle"
+                        size={20}
+                        color="#D7D7D2"
+                      />
+                    )}
+                  </View>
+                </Pressable>
             ))}
-            <TouchableOpacity
-              className="mt-2"
+            <Pressable
+              className="mt-2 hover:opacity-70 active:opacity-50"
               onPress={() => setStep("team")}
             >
               <Text className="text-titanium text-sm text-center">
                 ← Back to team selection
               </Text>
-            </TouchableOpacity>
+            </Pressable>
           </>
         )}
 
@@ -324,24 +371,26 @@ export function CoachAssignmentScreen() {
                   START DATE
                 </Text>
                 <TextInput
-                  className="bg-backgroundSoft border border-border rounded-xl px-4 py-3 text-surface-50 text-base mt-1"
+                  className="bg-soft border border-border rounded-xl px-4 py-3 text-surface-50 text-base mt-1"
                   value={startDate}
                   onChangeText={setStartDate}
                   placeholder="YYYY-MM-DD"
                   placeholderTextColor="#707074"
+                  inputMode="numeric"
+                  keyboardType="numeric"
                 />
               </View>
             </View>
 
             <View className="flex-row gap-3">
-              <TouchableOpacity
-              className="flex-1 bg-card border border-border rounded-2xl py-4 items-center shadow-button"
-              onPress={() => setStep("template")}
+              <Pressable
+                className="flex-1 bg-card border border-border rounded-2xl py-4 items-center shadow-button hover:bg-card-soft active:opacity-90"
+                onPress={() => setStep("template")}
               >
                 <Text className="text-surface-400 font-semibold">Back</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                className={`flex-1 bg-surface-50 rounded-2xl py-4 items-center ${
+              </Pressable>
+              <Pressable
+                className={`flex-1 bg-surface-50 rounded-2xl py-4 items-center hover:opacity-90 active:opacity-80 ${
                   assignMutation.isPending ? "opacity-50" : ""
                 }`}
                 onPress={handleConfirm}
@@ -354,7 +403,7 @@ export function CoachAssignmentScreen() {
                     Confirm Assignment
                   </Text>
                 )}
-              </TouchableOpacity>
+              </Pressable>
             </View>
           </>
         )}

@@ -3,7 +3,7 @@ import {
   View,
   Text,
   FlatList,
-  TouchableOpacity,
+  Pressable,
   TextInput,
   RefreshControl,
   Alert,
@@ -95,13 +95,12 @@ export function CoachAthletesScreen() {
 
   const renderAthlete = useCallback(
     ({ item }: { item: (typeof athletes)[0] }) => (
-          <View className="bg-card border border-border rounded-2xl p-4 mb-3 shadow-card">
-            <TouchableOpacity
-              onPress={() => router.push(`/(coach)/athlete/${item.id}`)}
-              activeOpacity={0.7}
-              accessibilityRole="button"
-              accessibilityLabel={`View athlete details for ${item.displayName}`}
-            >
+          <Pressable
+            onPress={() => router.push(`/(coach)/athlete/${item.id}`)}
+            className="bg-card border border-border rounded-2xl p-4 mb-3 shadow-card hover:bg-card-soft active:opacity-90"
+            accessibilityRole="button"
+            accessibilityLabel={`View athlete details for ${item.displayName}`}
+          >
               <View className="flex-row items-center justify-between">
                 <View className="flex-row items-center gap-3 flex-1">
                   <View className="w-10 h-10 rounded-full bg-graphite items-center justify-center">
@@ -117,25 +116,24 @@ export function CoachAthletesScreen() {
                   </View>
                 </View>
                 <View className="flex-row items-center gap-2">
-                  <TouchableOpacity
+                  <Pressable
                     onPress={() => router.push(`/(coach)/analytics/${item.id}`)}
-                    className="bg-graphite rounded-xl p-2 min-w-[44px] min-h-[44px] items-center justify-center"
+                    className="bg-graphite rounded-xl p-2 min-w-[44px] min-h-[44px] items-center justify-center hover:bg-card-soft active:opacity-90"
                     accessibilityRole="button"
                     accessibilityLabel={`View analytics for ${item.displayName}`}
                   >
                     <Ionicons name="trending-up-outline" size={18} color="#B9B9B6" />
-                  </TouchableOpacity>
-                  <TouchableOpacity
+                  </Pressable>
+                  <Pressable
                     onPress={() => handleUnlink(item.id, item.displayName)}
-                    className="bg-graphite rounded-xl p-2 min-w-[44px] min-h-[44px] items-center justify-center"
+                    className="bg-graphite rounded-xl p-2 min-w-[44px] min-h-[44px] items-center justify-center hover:bg-danger/10 active:opacity-90"
                     accessibilityRole="button"
                     accessibilityLabel={`Unlink ${item.displayName}`}
                   >
                     <Ionicons name="close-outline" size={18} color="#D65F5F" />
-                  </TouchableOpacity>
+                  </Pressable>
                 </View>
               </View>
-            </TouchableOpacity>
 
             {/* Quick stats + Alerts */}
             <View className="flex-row flex-wrap items-center gap-2 mt-3 pt-3 border-t border-border">
@@ -155,7 +153,7 @@ export function CoachAthletesScreen() {
 
               {/* Compliance bar */}
               <View className="flex-1 min-w-[80px] ml-auto">
-                <View className="h-1.5 bg-surface-800 rounded-full overflow-hidden">
+                <View className="h-1.5 bg-graphite rounded-full overflow-hidden">
                   <View
                     className={`h-full rounded-full ${item.complianceRate >= 0.5 ? "bg-titanium" : "bg-danger"}`}
                     style={{ width: `${Math.min(item.complianceRate * 100, 100)}%` }}
@@ -169,7 +167,7 @@ export function CoachAthletesScreen() {
 
             {/* Alert badges */}
             {item.thisWeekWorkouts === 0 && item.totalWorkouts > 0 && (
-              <View className="flex-row mt-2 bg-danger/10 rounded-lg px-2 py-1.5 items-center gap-1.5">
+              <View className="flex-row mt-2 bg-card-soft rounded-lg px-2 py-1.5 items-center gap-1.5">
                 <Text className="text-danger text-xs font-medium">⚠ Inactive</Text>
                 <Text className="text-surface-400 text-[10px]">
                   {item.lastWorkoutDate ? `Last workout ${relativeDate(item.lastWorkoutDate)}` : "No workouts yet"}
@@ -177,14 +175,14 @@ export function CoachAthletesScreen() {
               </View>
             )}
             {item.complianceRate < 0.5 && item.totalWorkouts > 0 && (
-              <View className="flex-row mt-1.5 bg-amber-400/10 rounded-lg px-2 py-1.5 items-center gap-1.5">
-                <Text className="text-amber-400 text-xs font-medium">⚠ Low compliance</Text>
+              <View className="flex-row mt-1.5 bg-card-soft rounded-lg px-2 py-1.5 items-center gap-1.5">
+                <Text className="text-sacred text-xs font-medium">⚠ Low compliance</Text>
                 <Text className="text-surface-400 text-[10px]">
                   {Math.round(item.complianceRate * 100)}% — needs attention
                 </Text>
               </View>
             )}
-          </View>
+          </Pressable>
     ),
     [router, handleUnlink],
   );
@@ -201,7 +199,7 @@ export function CoachAthletesScreen() {
 
   return (
     <ErrorBoundary>
-      <View className="flex-1 px-4 pt-4">
+      <View className="flex-1 px-4 pt-4 bg-soft">
         {/* Dashboard header */}
         {!isLoading && (
           <View className="flex-row gap-2 mb-4">
@@ -209,12 +207,12 @@ export function CoachAthletesScreen() {
               <Text className="text-surface-50 text-2xl font-bold">{totalAthletes}</Text>
               <Text className="text-surface-400 text-xs mt-1 text-center">Athletes</Text>
             </View>
-            <View className="flex-1 bg-card border border-border rounded-2xl p-3 shadow-card items-center">
-              <Text className="text-green-400 text-2xl font-bold">{activeCount}</Text>
+            <View className="flex-1 bg-card border border-border border-l-4 border-l-sacred/50 rounded-2xl p-3 shadow-card items-center">
+              <Text className="text-sacred text-2xl font-bold">{activeCount}</Text>
               <Text className="text-surface-400 text-xs mt-1 text-center">Active This Wk</Text>
             </View>
-            <View className="flex-1 bg-card border border-border rounded-2xl p-3 shadow-card items-center">
-              <Text className="text-amber-400 text-2xl font-bold">{inactiveCount}</Text>
+            <View className="flex-1 bg-card border border-border border-l-4 border-l-danger/50 rounded-2xl p-3 shadow-card items-center">
+              <Text className="text-sacred text-2xl font-bold">{inactiveCount}</Text>
               <Text className="text-surface-400 text-xs mt-1 text-center">Inactive</Text>
             </View>
             <View className="flex-1 bg-card border border-border rounded-2xl p-3 shadow-card items-center">
@@ -238,14 +236,14 @@ export function CoachAthletesScreen() {
             accessibilityLabel="Search athletes"
           />
           {searchQuery.length > 0 && (
-            <TouchableOpacity
+            <Pressable
               onPress={() => setSearchQuery("")}
-              className="min-w-[44px] min-h-[44px] items-center justify-center"
+              className="min-w-[44px] min-h-[44px] items-center justify-center hover:opacity-70 active:opacity-50"
               accessibilityRole="button"
               accessibilityLabel="Clear search"
             >
               <Ionicons name="close-circle" size={18} color="#707074" />
-            </TouchableOpacity>
+            </Pressable>
           )}
         </View>
 
