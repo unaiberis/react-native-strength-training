@@ -37,7 +37,7 @@ export default function CoachTabsLayout() {
 
   return (
     <GradientBackground>
-      <View className="flex-1">
+      <View className="flex-1 bg-soft">
         <OfflineBanner />
         <Tabs
           screenOptions={{
