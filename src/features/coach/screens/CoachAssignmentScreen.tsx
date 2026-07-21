@@ -384,8 +384,8 @@ export function CoachAssignmentScreen() {
 
             <View className="flex-row gap-3">
               <Pressable
-              className="flex-1 bg-card border border-border rounded-2xl py-4 items-center shadow-button hover:bg-card-soft active:opacity-90"
-              onPress={() => setStep("template")}
+                className="flex-1 bg-card border border-border rounded-2xl py-4 items-center shadow-button hover:bg-card-soft active:opacity-90"
+                onPress={() => setStep("template")}
               >
                 <Text className="text-surface-400 font-semibold">Back</Text>
               </Pressable>
