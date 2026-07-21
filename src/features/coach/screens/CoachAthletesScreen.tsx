@@ -3,7 +3,7 @@ import {
   View,
   Text,
   FlatList,
-  TouchableOpacity,
+  Pressable,
   TextInput,
   RefreshControl,
   Alert,
@@ -95,13 +95,12 @@ export function CoachAthletesScreen() {
 
   const renderAthlete = useCallback(
     ({ item }: { item: (typeof athletes)[0] }) => (
-          <View className="bg-card border border-border rounded-2xl p-4 mb-3 shadow-card">
-            <TouchableOpacity
-              onPress={() => router.push(`/(coach)/athlete/${item.id}`)}
-              activeOpacity={0.7}
-              accessibilityRole="button"
-              accessibilityLabel={`View athlete details for ${item.displayName}`}
-            >
+          <Pressable
+            onPress={() => router.push(`/(coach)/athlete/${item.id}`)}
+            className="bg-card border border-border rounded-2xl p-4 mb-3 shadow-card hover:bg-card-soft active:opacity-90"
+            accessibilityRole="button"
+            accessibilityLabel={`View athlete details for ${item.displayName}`}
+          >
               <View className="flex-row items-center justify-between">
                 <View className="flex-row items-center gap-3 flex-1">
                   <View className="w-10 h-10 rounded-full bg-graphite items-center justify-center">
@@ -117,25 +116,24 @@ export function CoachAthletesScreen() {
                   </View>
                 </View>
                 <View className="flex-row items-center gap-2">
-                  <TouchableOpacity
+                  <Pressable
                     onPress={() => router.push(`/(coach)/analytics/${item.id}`)}
-                    className="bg-graphite rounded-xl p-2 min-w-[44px] min-h-[44px] items-center justify-center"
+                    className="bg-graphite rounded-xl p-2 min-w-[44px] min-h-[44px] items-center justify-center hover:bg-card-soft active:opacity-90"
                     accessibilityRole="button"
                     accessibilityLabel={`View analytics for ${item.displayName}`}
                   >
                     <Ionicons name="trending-up-outline" size={18} color="#B9B9B6" />
-                  </TouchableOpacity>
-                  <TouchableOpacity
+                  </Pressable>
+                  <Pressable
                     onPress={() => handleUnlink(item.id, item.displayName)}
-                    className="bg-graphite rounded-xl p-2 min-w-[44px] min-h-[44px] items-center justify-center"
+                    className="bg-graphite rounded-xl p-2 min-w-[44px] min-h-[44px] items-center justify-center hover:bg-danger/10 active:opacity-90"
                     accessibilityRole="button"
                     accessibilityLabel={`Unlink ${item.displayName}`}
                   >
                     <Ionicons name="close-outline" size={18} color="#D65F5F" />
-                  </TouchableOpacity>
+                  </Pressable>
                 </View>
               </View>
-            </TouchableOpacity>
 
             {/* Quick stats + Alerts */}
             <View className="flex-row flex-wrap items-center gap-2 mt-3 pt-3 border-t border-border">
@@ -184,7 +182,7 @@ export function CoachAthletesScreen() {
                 </Text>
               </View>
             )}
-          </View>
+          </Pressable>
     ),
     [router, handleUnlink],
   );
@@ -238,14 +236,14 @@ export function CoachAthletesScreen() {
             accessibilityLabel="Search athletes"
           />
           {searchQuery.length > 0 && (
-            <TouchableOpacity
+            <Pressable
               onPress={() => setSearchQuery("")}
-              className="min-w-[44px] min-h-[44px] items-center justify-center"
+              className="min-w-[44px] min-h-[44px] items-center justify-center hover:opacity-70 active:opacity-50"
               accessibilityRole="button"
               accessibilityLabel="Clear search"
             >
               <Ionicons name="close-circle" size={18} color="#707074" />
-            </TouchableOpacity>
+            </Pressable>
           )}
         </View>
 

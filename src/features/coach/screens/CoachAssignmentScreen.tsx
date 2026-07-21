@@ -3,7 +3,7 @@ import {
   View,
   Text,
   TextInput,
-  TouchableOpacity,
+  Pressable,
   ScrollView,
   Alert,
   ActivityIndicator,
@@ -158,20 +158,20 @@ export function CoachAssignmentScreen() {
                     accessibilityLabel="Search athletes"
                   />
                   {searchQuery.length > 0 && (
-                    <TouchableOpacity
+                    <Pressable
                       onPress={() => setSearchQuery("")}
-                      className="min-w-[44px] min-h-[44px] items-center justify-center"
+                      className="min-w-[44px] min-h-[44px] items-center justify-center hover:opacity-70 active:opacity-50"
                       accessibilityRole="button"
                       accessibilityLabel="Clear search"
                     >
                       <Ionicons name="close-circle" size={18} color="#707074" />
-                    </TouchableOpacity>
+                    </Pressable>
                   )}
                 </View>
               {filteredAthletes.map((a) => (
-                <TouchableOpacity
+                <Pressable
                   key={a.id}
-                  className={`bg-card border rounded-2xl p-4 mb-3 shadow-button ${
+                  className={`bg-card border rounded-2xl p-4 mb-3 shadow-button hover:bg-card-soft hover:border-sacred/30 active:opacity-90 ${
                   selectedAthlete === a.id
                     ? "border-surface-50"
                     : "border-border"
@@ -204,7 +204,7 @@ export function CoachAssignmentScreen() {
                       />
                     )}
                   </View>
-                </TouchableOpacity>
+                </Pressable>
               ))}
             </>
             )}
@@ -225,9 +225,9 @@ export function CoachAssignmentScreen() {
               </View>
             ) : (
               teams.map((t) => (
-                <TouchableOpacity
+                <Pressable
                   key={t.id}
-                  className={`bg-card border rounded-2xl p-4 mb-3 shadow-button ${
+                  className={`bg-card border rounded-2xl p-4 mb-3 shadow-button hover:bg-card-soft hover:border-sacred/30 active:opacity-90 ${
                   selectedTeam === t.id
                     ? "border-surface-50"
                     : "border-border"
@@ -264,17 +264,17 @@ export function CoachAssignmentScreen() {
                       />
                     )}
                   </View>
-                </TouchableOpacity>
+                </Pressable>
               ))
             )}
-            <TouchableOpacity
-              className="mt-2"
+            <Pressable
+              className="mt-2 hover:opacity-70 active:opacity-50"
               onPress={() => setStep("athlete")}
             >
               <Text className="text-titanium text-sm text-center">
                 ← Back to athlete selection
               </Text>
-            </TouchableOpacity>
+            </Pressable>
           </>
         )}
 
@@ -285,52 +285,52 @@ export function CoachAssignmentScreen() {
               Select Program for {athleteName}
             </Text>
             {(templates ?? []).map((t: any) => (
-              <TouchableOpacity
-                key={t.id}
-                className={`bg-card border rounded-2xl p-4 mb-3 shadow-button ${
-                  selectedTemplate === t.id
-                    ? "border-surface-50"
-                    : "border-border"
-                }`}
-                onPress={() => {
-                  setSelectedTemplate(t.id);
-                  setStep("confirm");
-                }}
-              >
-                <View className="flex-row items-center justify-between">
-                  <View className="flex-1 mr-2">
-                    <Text className="text-surface-50 font-semibold">
-                      {t.name}
-                    </Text>
-                    <View className="flex-row items-center gap-3 mt-1">
-                      <Text className="text-surface-500 text-xs">
-                        {t.exercises.length} exercises
+              <Pressable
+                  key={t.id}
+                  className={`bg-card border rounded-2xl p-4 mb-3 shadow-button hover:bg-card-soft hover:border-sacred/30 active:opacity-90 ${
+                    selectedTemplate === t.id
+                      ? "border-surface-50"
+                      : "border-border"
+                  }`}
+                  onPress={() => {
+                    setSelectedTemplate(t.id);
+                    setStep("confirm");
+                  }}
+                >
+                  <View className="flex-row items-center justify-between">
+                    <View className="flex-1 mr-2">
+                      <Text className="text-surface-50 font-semibold">
+                        {t.name}
                       </Text>
-                      {t.description ? (
-                        <Text className="text-surface-500 text-xs flex-1" numberOfLines={1}>
-                          {t.description}
+                      <View className="flex-row items-center gap-3 mt-1">
+                        <Text className="text-surface-500 text-xs">
+                          {t.exercises.length} exercises
                         </Text>
-                      ) : null}
+                        {t.description ? (
+                          <Text className="text-surface-500 text-xs flex-1" numberOfLines={1}>
+                            {t.description}
+                          </Text>
+                        ) : null}
+                      </View>
                     </View>
+                    {selectedTemplate === t.id && (
+                      <Ionicons
+                        name="checkmark-circle"
+                        size={20}
+                        color="#D7D7D2"
+                      />
+                    )}
                   </View>
-                  {selectedTemplate === t.id && (
-                    <Ionicons
-                      name="checkmark-circle"
-                      size={20}
-                      color="#D7D7D2"
-                    />
-                  )}
-                </View>
-              </TouchableOpacity>
+                </Pressable>
             ))}
-            <TouchableOpacity
-              className="mt-2"
+            <Pressable
+              className="mt-2 hover:opacity-70 active:opacity-50"
               onPress={() => setStep("team")}
             >
               <Text className="text-titanium text-sm text-center">
                 ← Back to team selection
               </Text>
-            </TouchableOpacity>
+            </Pressable>
           </>
         )}
 
@@ -383,14 +383,14 @@ export function CoachAssignmentScreen() {
             </View>
 
             <View className="flex-row gap-3">
-              <TouchableOpacity
-              className="flex-1 bg-card border border-border rounded-2xl py-4 items-center shadow-button"
+              <Pressable
+              className="flex-1 bg-card border border-border rounded-2xl py-4 items-center shadow-button hover:bg-card-soft active:opacity-90"
               onPress={() => setStep("template")}
               >
                 <Text className="text-surface-400 font-semibold">Back</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                className={`flex-1 bg-surface-50 rounded-2xl py-4 items-center ${
+              </Pressable>
+              <Pressable
+                className={`flex-1 bg-surface-50 rounded-2xl py-4 items-center hover:opacity-90 active:opacity-80 ${
                   assignMutation.isPending ? "opacity-50" : ""
                 }`}
                 onPress={handleConfirm}
@@ -403,7 +403,7 @@ export function CoachAssignmentScreen() {
                     Confirm Assignment
                   </Text>
                 )}
-              </TouchableOpacity>
+              </Pressable>
             </View>
           </>
         )}
