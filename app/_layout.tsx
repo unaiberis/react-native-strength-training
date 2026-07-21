@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -15,6 +15,44 @@ import { I18nProvider } from "@/i18n/I18nProvider";
 
 const OFFLINE_ENABLED = process.env.EXPO_PUBLIC_OFFLINE_ENABLED === "true";
 const IS_WEB = Platform.OS === "web";
+
+/** Web-only debug: detect white/near-white DOM elements causing white backgrounds. */
+function WhiteBgDebugger() {
+  const detect = useCallback(async () => {
+    if (!IS_WEB) return;
+    // Dynamic import so the module is tree-shaken on native
+    const { detectWhiteBackground } = await import(
+      "@/lib/debug/white-background-detector"
+    );
+    const result = detectWhiteBackground();
+    if (result.found.length > 0) {
+      console.warn(
+        `⚠️ White background: ${result.found.length} element(s) found. Press Ctrl+Shift+D to re-scan.`,
+      );
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!IS_WEB) return;
+    // Run after mount, then again after 2s (for dynamic content)
+    detect();
+    const timer = setTimeout(detect, 2000);
+    // Re-run on Ctrl+Shift+D
+    const handler = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.shiftKey && e.key === "D") {
+        e.preventDefault();
+        detect();
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("keydown", handler);
+    };
+  }, [detect]);
+
+  return null;
+}
 
 /** Force dark mode — this app is dark-only by design. */
 function ForceDarkMode({ children }: { children: React.ReactNode }) {
@@ -259,6 +297,7 @@ export default function RootLayout() {
       <QueryClientProvider client={queryClient}>
         <I18nProvider>
         <AuthGate>
+          <WhiteBgDebugger />
           <StatusBar style="light" />
           <View className="flex-1 bg-background">
             <OfflineBanner />
