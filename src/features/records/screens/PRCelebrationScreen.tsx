@@ -9,6 +9,7 @@ import Animated, {
   Easing,
   interpolate,
 } from "react-native-reanimated";
+import { t } from "@lingui/core/macro";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { GradientBackground } from "@/shared/ui/GradientBackground";
@@ -197,10 +198,10 @@ export function PRCelebrationScreen() {
     unit?: string;
   }>();
 
-  const exerciseName = params.exerciseName ?? "Exercise";
+  const exerciseName = params.exerciseName ?? t`Exercise`;
   const newPR = parseFloat(params.newPR ?? "0");
   const previousPR = params.previousPR ? parseFloat(params.previousPR) : null;
-  const unit = params.unit ?? "kg";
+  const unit = params.unit ?? t`kg`;
 
   const particles = useMemo(() => generateParticles(), []);
 
@@ -229,7 +230,7 @@ export function PRCelebrationScreen() {
 
           {/* Title */}
           <Text className="text-surface-50 text-2xl font-black mb-2 text-center">
-            New Personal Record!
+            {t`New Personal Record!`}
           </Text>
 
           {/* Exercise name */}
@@ -243,7 +244,7 @@ export function PRCelebrationScreen() {
           {/* Previous PR comparison */}
           {previousPR != null && previousPR > 0 && (
             <View className="flex-row items-center gap-2 mt-4 mb-8">
-              <Text className="text-surface-500 text-sm">Previous:</Text>
+              <Text className="text-surface-500 text-sm">{t`Previous:`}</Text>
               <Text className="text-surface-400 text-base font-semibold line-through">
                 {previousPR} {unit}
               </Text>
@@ -260,12 +261,12 @@ export function PRCelebrationScreen() {
           {/* Actions */}
           <View className="w-full gap-3 pb-10">
             <Button
-              title="Continue"
+              title={t`Continue`}
               variant="primary"
               onPress={handleContinue}
             />
             <Button
-              title="Share"
+              title={t`Share`}
               variant="secondary"
               onPress={handleShare}
               icon="share-outline"

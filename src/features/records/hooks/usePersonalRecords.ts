@@ -1,3 +1,4 @@
+import { t } from "@lingui/core/macro";
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuthStore } from "../../../stores/auth-store";
@@ -172,10 +173,10 @@ export function usePRTimeline(exerciseId: string | undefined) {
 // ─── Display helpers ──────────────────────────────────────────────────────
 
 const PR_TYPE_LABELS: Record<PRType, string> = {
-  one_rep_max: "1RM",
-  estimated_one_rep_max: "Estimated 1RM",
-  best_volume_set: "Best Volume Set",
-  best_reps_at_weight: "Best Reps at Weight",
+  one_rep_max: t`1RM`,
+  estimated_one_rep_max: t`Estimated 1RM`,
+  best_volume_set: t`Best Volume Set`,
+  best_reps_at_weight: t`Best Reps at Weight`,
 };
 
 const PR_TYPE_UNITS: Record<PRType, string> = {
