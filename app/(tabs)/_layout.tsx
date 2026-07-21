@@ -3,6 +3,8 @@ import { Tabs, useRouter } from "expo-router";
 import { useAuthStore } from "@/stores/auth-store";
 import { Text, View, Pressable, type LayoutChangeEvent, Platform } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { t } from "@lingui/core/macro";
+import { Trans } from "@lingui/react/macro";
 import { GradientBackground } from "@/shared/ui/GradientBackground";
 import Animated, {
   useSharedValue,
@@ -27,11 +29,11 @@ function SyncBanner() {
   const syncStatus = useAuthStore((s) => s.syncStatus);
 
   const banner = useMemo(() => {
-    if (!isOnline) return { text: "You're offline — changes sync when connected", bg: "bg-amber-900/60", textColor: "text-amber-300" };
-    if (syncStatus === "syncing") return { text: "Syncing\u2026", bg: "bg-brand-900/40", textColor: "text-brand-300" };
-    if (syncStatus === "dead-letters") return { text: "Some changes couldn't sync", bg: "bg-red-900/40", textColor: "text-red-300" };
-    if (syncStatus === "auth-expired") return { text: "Session expired. Log in again to sync.", bg: "bg-red-900/40", textColor: "text-red-300" };
-    if (syncStatus === "error") return { text: "Sync error", bg: "bg-amber-900/40", textColor: "text-amber-300" };
+    if (!isOnline) return { text: t`You're offline — changes sync when connected`, bg: "bg-amber-900/60", textColor: "text-amber-300" };
+    if (syncStatus === "syncing") return { text: t`Syncing\u2026`, bg: "bg-brand-900/40", textColor: "text-brand-300" };
+    if (syncStatus === "dead-letters") return { text: t`Some changes couldn't sync`, bg: "bg-red-900/40", textColor: "text-red-300" };
+    if (syncStatus === "auth-expired") return { text: t`Session expired. Log in again to sync.`, bg: "bg-red-900/40", textColor: "text-red-300" };
+    if (syncStatus === "error") return { text: t`Sync error`, bg: "bg-amber-900/40", textColor: "text-amber-300" };
     return null;
   }, [isOnline, syncStatus]);
 
@@ -62,12 +64,12 @@ const VISIBLE_TABS = ["calendar", "home", "train", "wellness", "analytics", "pro
 
 /** Labels for the visible tabs (mirrors Tabs.Screen title options). */
 const VISIBLE_TAB_LABELS: Record<string, string> = {
-  calendar: "Calendar",
-  home: "Home",
-  train: "Train",
-  wellness: "Wellness",
-  analytics: "Analytics",
-  profile: "Profile",
+  calendar: t`Calendar`,
+  home: t`Home`,
+  train: t`Train`,
+  wellness: t`Wellness`,
+  analytics: t`Analytics`,
+  profile: t`Profile`,
 };
 
 /** Width of the sliding indicator bar in px. */
@@ -140,7 +142,7 @@ function CustomTabBar({
   return (
     <View
       onLayout={handleContainerLayout}
-      accessibilityRole="tabbar"
+      role="tablist"
       style={{
         backgroundColor: TAB_BAR_BG,
         borderTopColor: TAB_BAR_BORDER,
@@ -166,8 +168,8 @@ function CustomTabBar({
           return (
             <Pressable
               key={tabName}
-              accessibilityRole="tab"
-              accessibilityState={isFocused ? { selected: true } : {}}
+              role="tab"
+              aria-selected={isFocused}
               onPress={() => {
                 if (Platform.OS !== "web") {
                   impactAsync(ImpactFeedbackStyle.Light).catch(() => {});
@@ -254,46 +256,46 @@ export default function TabsLayout() {
           <Tabs.Screen
             name="calendar"
             options={{
-              title: "Calendar",
+              title: t`Calendar`,
             }}
           />
           <Tabs.Screen
             name="home"
             options={{
-              title: "Home",
+              title: t`Home`,
             }}
           />
           <Tabs.Screen
             name="train"
             options={{
-              title: "Train",
+              title: t`Train`,
             }}
           />
           <Tabs.Screen
             name="wellness"
             options={{
-              title: "Wellness",
+              title: t`Wellness`,
             }}
           />
           <Tabs.Screen
             name="analytics"
             options={{
-              title: "Analytics",
+              title: t`Analytics`,
             }}
           />
           <Tabs.Screen
             name="profile"
             options={{
-              title: "Profile",
+              title: t`Profile`,
             }}
           />
           {/* Hidden routes — navigated to from other screens, not shown in tab bar */}
           <Tabs.Screen name="index" options={{ href: null }} />
-          <Tabs.Screen name="exercises/index" options={{ href: null, headerShown: true, headerTitle: "Exercise Library", ...DETAIL_HEADER }} />
-          <Tabs.Screen name="exercises/[id]" options={{ href: null, headerShown: true, headerTitle: "Exercise Details", ...DETAIL_HEADER }} />
-          <Tabs.Screen name="history/index" options={{ href: null, headerShown: true, headerTitle: "Workout History", ...DETAIL_HEADER }} />
-          <Tabs.Screen name="history/[id]" options={{ href: null, headerShown: true, headerTitle: "Workout Details", ...DETAIL_HEADER }} />
-          <Tabs.Screen name="analytics/exercise/[id]" options={{ href: null, headerShown: true, headerTitle: "Exercise Progress", ...DETAIL_HEADER }} />
+          <Tabs.Screen name="exercises/index" options={{ href: null, headerShown: true, headerTitle: t`Exercise Library`, ...DETAIL_HEADER }} />
+          <Tabs.Screen name="exercises/[id]" options={{ href: null, headerShown: true, headerTitle: t`Exercise Details`, ...DETAIL_HEADER }} />
+          <Tabs.Screen name="history/index" options={{ href: null, headerShown: true, headerTitle: t`Workout History`, ...DETAIL_HEADER }} />
+          <Tabs.Screen name="history/[id]" options={{ href: null, headerShown: true, headerTitle: t`Workout Details`, ...DETAIL_HEADER }} />
+          <Tabs.Screen name="analytics/exercise/[id]" options={{ href: null, headerShown: true, headerTitle: t`Exercise Progress`, ...DETAIL_HEADER }} />
           <Tabs.Screen name="notifications" options={{ href: null, headerShown: false }} />
           <Tabs.Screen name="notification/[id]" options={{ href: null, headerShown: false }} />
           <Tabs.Screen name="team/[id]" options={{ href: null, headerShown: false }} />

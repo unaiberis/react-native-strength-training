@@ -72,6 +72,87 @@ jest.mock("expo-router", () => ({
   Tabs: () => null,
 }));
 
+// ─── Lingui i18n mocks (macro modules) ───────────────────────────────
+// Screens use `t` and `Trans` from Lingui macros. Without babel transform
+// the macros fall back to runtime. These mocks return the source string
+// unchanged so tests continue to work without an actual i18n catalog.
+jest.mock("@lingui/core/macro", () => {
+  const _t = (
+    literals: any,
+    ...placeholders: any[]
+  ): string => {
+    if (Array.isArray(literals)) {
+      let result = "";
+      for (let i = 0; i < literals.length; i++) {
+        result += literals[i];
+        if (i < placeholders.length) result += String(placeholders[i] ?? "");
+      }
+      return result;
+    }
+    if (typeof literals === "object" && literals !== null)
+      return (literals as any).message ?? (literals as any).id ?? "";
+    return String(literals ?? "");
+  };
+  return {
+    t: _t,
+    msg: (...args: any[]) => ({ message: _t(...args) }),
+    plural: (_val: any, opts: any) => opts.one ?? opts.other,
+    defineMessage: (...args: any[]) => ({ message: _t(...args) }),
+  };
+});
+
+jest.mock("@lingui/react/macro", () => {
+  const React = require("react");
+  return {
+    t: (
+      literals: any,
+      ...placeholders: any[]
+    ): string => {
+      if (Array.isArray(literals)) {
+        let result = "";
+        for (let i = 0; i < literals.length; i++) {
+          result += literals[i];
+          if (i < placeholders.length) result += String(placeholders[i] ?? "");
+        }
+        return result;
+      }
+      if (typeof literals === "object" && literals !== null)
+        return (literals as any).message ?? (literals as any).id ?? "";
+      return String(literals ?? "");
+    },
+    Trans: ({ children, message }: any) => children ?? message ?? null,
+    useLingui: () => ({
+      i18n: { locale: "es" },
+      t: (s: string) => s,
+    }),
+  };
+});
+
+// Mock @lingui/react — I18nProvider component used by app layout
+jest.mock("@lingui/react", () => {
+  const React = require("react");
+  return {
+    I18nProvider: ({ children }: any) =>
+      React.createElement(React.Fragment, null, children),
+    Trans: ({ children, message }: any) => children ?? message ?? null,
+    useLingui: () => ({
+      i18n: { locale: "es" },
+    }),
+  };
+});
+
+// Mock expo-localization for locale detection
+jest.mock("expo-localization", () => ({
+  getLocales: () => [{ locale: "es", languageCode: "es", languageTag: "es" }],
+  getCalendars: () => [],
+  getCurrencies: () => [],
+  getCountryCode: () => ({ code: "ES", region: "es" }),
+  getRegion: () => "es",
+  getTimeZone: () => "Europe/Madrid",
+  locale: "es",
+  locales: ["es", "en"],
+}));
+
 // Mock expo-linear-gradient for GradientBackground
 jest.mock("expo-linear-gradient", () => ({
   LinearGradient: ({ children }: { children: React.ReactNode }) =>

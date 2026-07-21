@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { View, Text, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
+import { t } from "@lingui/core/macro";
+import { Trans } from "@lingui/react/macro";
 import { BackButton } from "@/shared/ui/BackButton";
 import { Button } from "../../../shared/ui/Button";
 import { Input } from "../../../shared/ui/Input";
@@ -14,7 +16,7 @@ export function ForgotPasswordScreen() {
 
   const handleSubmit = async () => {
     if (!email.trim()) {
-      setError("Enter your email address");
+      setError(t`Enter your email address`);
       return;
     }
 
@@ -30,7 +32,7 @@ export function ForgotPasswordScreen() {
         setIsSuccess(true);
       }
     } catch {
-      setError("An unexpected error occurred");
+      setError(t`An unexpected error occurred`);
     } finally {
       setIsSubmitting(false);
     }
@@ -51,14 +53,13 @@ export function ForgotPasswordScreen() {
               className="text-surface-50"
               style={{ fontSize: 32, fontWeight: "900" }}
             >
-              Reset password
+              <Trans>Reset password</Trans>
             </Text>
             <Text
               className="text-surface-400 mt-2"
               style={{ fontSize: 15, lineHeight: 22 }}
             >
-              Enter your email address and we'll send you a link to reset your
-              password.
+              <Trans>Enter your email address and we'll send you a link to reset your password.</Trans>
             </Text>
           </View>
 
@@ -72,13 +73,13 @@ export function ForgotPasswordScreen() {
             {isSuccess && (
               <View className="bg-success/10 border border-success rounded-xl px-4 py-3">
                 <Text className="text-success text-sm">
-                  Check your email for the reset link
+                  <Trans>Check your email for the reset link</Trans>
                 </Text>
               </View>
             )}
 
             <Input
-              label="Email"
+              label={t`Email`}
               placeholder="you@example.com"
               keyboardType="email-address"
               autoCapitalize="none"
@@ -92,7 +93,7 @@ export function ForgotPasswordScreen() {
             />
 
             <Button
-              title="Send Reset Link"
+              title={t`Send Reset Link`}
               loading={isSubmitting}
               onPress={handleSubmit}
               disabled={isSuccess}

@@ -3,6 +3,8 @@ import { View, Text, KeyboardAvoidingView, Platform, ScrollView, Pressable } fro
 import { useRouter } from "expo-router";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { t } from "@lingui/core/macro";
+import { Trans } from "@lingui/react/macro";
 import { Button } from "../../../shared/ui/Button";
 import { Input } from "../../../shared/ui/Input";
 import { GradientBackground } from "../../../shared/ui/GradientBackground";
@@ -62,13 +64,13 @@ export function RegisterScreen() {
             className="text-surface-50"
             style={{ fontSize: 32, fontWeight: "900" }}
           >
-            Registro de atleta
+            <Trans>Registro de atleta</Trans>
           </Text>
           <Text
             className="text-surface-400 mt-2"
             style={{ fontSize: 15, lineHeight: 22 }}
           >
-            Crea tu cuenta para empezar a entrenar.
+            <Trans>Crea tu cuenta para empezar a entrenar.</Trans>
           </Text>
         </View>
 
@@ -84,8 +86,8 @@ export function RegisterScreen() {
             name="displayName"
             render={({ field: { onChange, onBlur, value } }) => (
               <Input
-                label="Display Name"
-                placeholder="Your name"
+                label={t`Display Name`}
+                placeholder={t`Your name`}
                 autoCapitalize="words"
                 autoComplete="name"
                 value={value}
@@ -101,7 +103,7 @@ export function RegisterScreen() {
             name="email"
             render={({ field: { onChange, onBlur, value } }) => (
               <Input
-                label="Email"
+                label={t`Email`}
                 placeholder="you@example.com"
                 keyboardType="email-address"
                 autoCapitalize="none"
@@ -119,8 +121,8 @@ export function RegisterScreen() {
             name="password"
             render={({ field: { onChange, onBlur, value } }) => (
               <Input
-                label="Password"
-                placeholder="At least 8 characters, 1 uppercase"
+                label={t`Password`}
+                placeholder={t`At least 8 characters, 1 uppercase`}
                 secureTextEntry
                 autoCapitalize="none"
                 autoComplete="new-password"
@@ -138,7 +140,7 @@ export function RegisterScreen() {
             render={({ field: { onChange, value } }) => (
               <View>
                 <Text className="text-surface-400 text-sm mb-2 font-medium">
-                  I am a...
+                  <Trans>I am a...</Trans>
                 </Text>
                 <View className="flex-row gap-3">
                   <Pressable
@@ -154,7 +156,7 @@ export function RegisterScreen() {
                         value === "athlete" ? "text-titanium" : "text-surface-400"
                       }`}
                     >
-                      Athlete
+                      <Trans>Athlete</Trans>
                     </Text>
                   </Pressable>
                   <Pressable
@@ -170,7 +172,7 @@ export function RegisterScreen() {
                         value === "coach" ? "text-titanium" : "text-surface-400"
                       }`}
                     >
-                      Coach
+                      <Trans>Coach</Trans>
                     </Text>
                   </Pressable>
                 </View>
@@ -179,7 +181,7 @@ export function RegisterScreen() {
           />
 
           <Button
-            title="Crear cuenta"
+            title={t`Crear cuenta`}
             loading={isSubmitting}
             onPress={handleSubmit(onSubmit)}
           />

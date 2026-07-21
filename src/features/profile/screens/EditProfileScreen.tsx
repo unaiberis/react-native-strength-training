@@ -1,6 +1,7 @@
-import { View, Text, ScrollView, Pressable } from "react-native";
+import { View, Text, ScrollView, Pressable, Platform } from "react-native";
 import { useForm, Controller, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { t } from "@lingui/core/macro";
 import { BackButton } from "@/shared/ui/BackButton";
 import { Input } from "@/shared/ui/Input";
 import { Button } from "@/shared/ui/Button";
@@ -8,6 +9,8 @@ import { ScreenTitle } from "@/shared/ui/ScreenTitle";
 import { ScreenLayout } from "@/shared/ui/ScreenLayout";
 import { GradientBackground } from "@/shared/ui/GradientBackground";
 import { useAuthStore } from "@/stores/auth-store";
+import { i18n } from "@/i18n/config";
+import { LOCALE_STORAGE_KEY } from "@/i18n/I18nProvider";
 import { useUpdateProfile } from "../hooks/useUpdateProfile";
 import { useUnitPreferences, type WeightUnit } from "../hooks/useUnitPreferences";
 import {
@@ -84,21 +87,21 @@ function ChipGroup<T extends string>({
 }
 
 const UNIT_OPTIONS: ChipOption<UnitValue>[] = [
-  { value: "metric", label: "Metric (kg/cm)" },
-  { value: "imperial", label: "Imperial (lb/in)" },
+  { value: "metric", label: t`Metric (kg/cm)` },
+  { value: "imperial", label: t`Imperial (lb/in)` },
 ];
 
 const EXPERIENCE_OPTIONS: ChipOption<ExperienceValue>[] = [
-  { value: "beginner", label: "Beginner" },
-  { value: "intermediate", label: "Intermediate" },
-  { value: "advanced", label: "Advanced" },
+  { value: "beginner", label: t`Beginner` },
+  { value: "intermediate", label: t`Intermediate` },
+  { value: "advanced", label: t`Advanced` },
 ];
 
 const GOAL_OPTIONS: ChipOption<GoalValue>[] = [
-  { value: "strength", label: "Strength" },
-  { value: "hypertrophy", label: "Hypertrophy" },
-  { value: "endurance", label: "Endurance" },
-  { value: "general_fitness", label: "General Fitness" },
+  { value: "strength", label: t`Strength` },
+  { value: "hypertrophy", label: t`Hypertrophy` },
+  { value: "endurance", label: t`Endurance` },
+  { value: "general_fitness", label: t`General Fitness` },
 ];
 
 export function EditProfileScreen() {
@@ -141,13 +144,13 @@ export function EditProfileScreen() {
         <ScreenLayout>
           <View className="flex-row items-center mb-6">
             <BackButton fallbackRoute="/(tabs)/profile" />
-            <ScreenTitle title="Edit Profile" />
+            <ScreenTitle title={t`Edit Profile`} />
           </View>
 
           {!isOnline && (
             <View className="bg-amber-900/60 rounded-xl px-4 py-3 mb-4">
               <Text className="text-amber-300 text-sm font-medium">
-                You're offline — profile changes need a connection
+                {t`You're offline — profile changes need a connection`}
               </Text>
             </View>
           )}
@@ -157,8 +160,8 @@ export function EditProfileScreen() {
             name="displayName"
             render={({ field: { onChange, onBlur, value } }) => (
               <Input
-                label="Display Name"
-                placeholder="Your name"
+                label={t`Display Name`}
+                placeholder={t`Your name`}
                 autoCapitalize="words"
                 value={value}
                 onChangeText={onChange}
@@ -169,7 +172,7 @@ export function EditProfileScreen() {
           />
 
           <Input
-            label="Email"
+            label={t`Email`}
             value={user.email}
             editable={false}
             autoCapitalize="none"
@@ -180,8 +183,8 @@ export function EditProfileScreen() {
             name="bodyweight"
             render={({ field: { onChange, onBlur, value } }) => (
               <Input
-                label="Bodyweight"
-                placeholder="e.g. 80"
+                label={t`Bodyweight`}
+                placeholder={t`e.g. 80`}
                 keyboardType="decimal-pad"
                 value={value ?? ""}
                 onChangeText={onChange}
@@ -196,7 +199,7 @@ export function EditProfileScreen() {
             name="bodyweight_unit"
             render={({ field, fieldState }) => (
               <ChipGroup
-                label="Bodyweight Unit"
+                label={t`Bodyweight Unit`}
                 options={UNIT_OPTIONS}
                 value={field.value}
                 onChange={field.onChange}
@@ -210,8 +213,8 @@ export function EditProfileScreen() {
             name="height"
             render={({ field: { onChange, onBlur, value } }) => (
               <Input
-                label="Height"
-                placeholder="e.g. 180"
+                label={t`Height`}
+                placeholder={t`e.g. 180`}
                 keyboardType="decimal-pad"
                 value={value ?? ""}
                 onChangeText={onChange}
@@ -226,7 +229,7 @@ export function EditProfileScreen() {
             name="height_unit"
             render={({ field, fieldState }) => (
               <ChipGroup
-                label="Height Unit"
+                label={t`Height Unit`}
                 options={UNIT_OPTIONS}
                 value={field.value}
                 onChange={field.onChange}
@@ -240,7 +243,7 @@ export function EditProfileScreen() {
             name="experience"
             render={({ field, fieldState }) => (
               <ChipGroup
-                label="Experience"
+                label={t`Experience`}
                 options={EXPERIENCE_OPTIONS}
                 value={field.value}
                 onChange={field.onChange}
@@ -254,7 +257,7 @@ export function EditProfileScreen() {
             name="goal"
             render={({ field, fieldState }) => (
               <ChipGroup
-                label="Goal"
+                label={t`Goal`}
                 options={GOAL_OPTIONS}
                 value={field.value}
                 onChange={field.onChange}
@@ -266,10 +269,10 @@ export function EditProfileScreen() {
           {/* ─── Weight Unit Preference ──────────────────────────── */}
           <View className="mb-5">
             <Text className="text-surface-400 text-[13px] font-semibold mb-3">
-              Weight Unit
+              {t`Weight Unit`}
             </Text>
             <Text className="text-surface-500 text-xs mb-3 leading-4">
-              Choose how weights are displayed throughout the app.
+              {t`Choose how weights are displayed throughout the app.`}
             </Text>
             <View className="flex-row gap-2">
               {(["kg", "lbs"] as WeightUnit[]).map((unit) => {
@@ -285,14 +288,62 @@ export function EditProfileScreen() {
                     }`}
                     accessibilityRole="button"
                     accessibilityState={{ selected }}
-                    accessibilityLabel={unit === "kg" ? "Kilograms" : "Pounds"}
+                    accessibilityLabel={unit === "kg" ? t`Kilograms` : t`Pounds`}
                   >
                     <Text
                       className={`text-center font-semibold ${
                         selected ? "text-titanium" : "text-surface-400"
                       }`}
                     >
-                      {unit === "kg" ? "Kilograms (kg)" : "Pounds (lbs)"}
+                      {unit === "kg" ? t`Kilograms (kg)` : t`Pounds (lbs)`}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </View>
+
+          {/* ─── Language Preference ──────────────────────────── */}
+          <View className="mb-5">
+            <Text className="text-surface-400 text-[13px] font-semibold mb-3">
+              {t`Language`}
+            </Text>
+            <Text className="text-surface-500 text-xs mb-3 leading-4">
+              {t`Choose the app language.`}
+            </Text>
+            <View className="flex-row gap-2">
+              {(["es", "en"] as const).map((lang) => {
+                const selected = i18n.locale === lang;
+                return (
+                  <Pressable
+                    key={lang}
+                    onPress={async () => {
+                      i18n.activate(lang);
+                      // Persist to SecureStore (native) or localStorage (web)
+                      try {
+                        const { setItemAsync } = await import("expo-secure-store");
+                        await setItemAsync(LOCALE_STORAGE_KEY, lang);
+                      } catch {
+                        if (Platform.OS === "web" && typeof window !== "undefined") {
+                          localStorage.setItem(LOCALE_STORAGE_KEY, lang);
+                        }
+                      }
+                    }}
+                    className={`flex-1 py-3 px-4 rounded-xl border ${
+                      selected
+                        ? "border-titanium bg-cardSoft"
+                        : "border-border bg-card"
+                    }`}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected }}
+                    accessibilityLabel={lang === "es" ? t`Español` : t`English`}
+                  >
+                    <Text
+                      className={`text-center font-semibold ${
+                        selected ? "text-titanium" : "text-surface-400"
+                      }`}
+                    >
+                      {lang === "es" ? t`Español` : t`English`}
                     </Text>
                   </Pressable>
                 );
@@ -307,7 +358,7 @@ export function EditProfileScreen() {
           )}
 
           <Button
-            title="Save"
+            title={t`Save`}
             loading={isPending}
             disabled={!isOnline}
             onPress={handleSubmit(onSubmit)}

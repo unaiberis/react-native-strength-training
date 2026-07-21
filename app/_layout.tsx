@@ -10,6 +10,7 @@ import { View, ActivityIndicator, Text, Platform } from "react-native";
 import { GradientBackground } from "@/shared/ui/GradientBackground";
 import { OfflineBanner } from "@/shared/ui/OfflineBanner";
 import { useColorScheme } from "nativewind";
+import { I18nProvider } from "@/i18n/I18nProvider";
 
 const OFFLINE_ENABLED = process.env.EXPO_PUBLIC_OFFLINE_ENABLED === "true";
 const IS_WEB = Platform.OS === "web";
@@ -255,6 +256,7 @@ export default function RootLayout() {
   return (
     <ForceDarkMode>
       <QueryClientProvider client={queryClient}>
+        <I18nProvider>
         <AuthGate>
           <StatusBar style="light" />
           <View className="flex-1">
@@ -267,6 +269,7 @@ export default function RootLayout() {
             </Stack>
           </View>
         </AuthGate>
+        </I18nProvider>
       </QueryClientProvider>
     </ForceDarkMode>
   );

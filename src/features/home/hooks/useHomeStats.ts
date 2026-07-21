@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { t } from "@lingui/core/macro";
 import type { RecordModel } from "pocketbase";
 import { useAuthStore } from "@/stores/auth-store";
 import { pb } from "@/lib/pocketbase/client";
@@ -136,7 +137,7 @@ async function fetchHomeStats(userId: string): Promise<HomeStats> {
       );
 
       // Template name
-      let templateName = "Custom Workout";
+      let templateName = t`Custom Workout`;
       if (session.workout_template_id) {
         try {
           const tmpl = await pb

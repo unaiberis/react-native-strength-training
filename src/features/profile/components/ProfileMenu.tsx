@@ -1,5 +1,6 @@
 import { View, Text, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { t } from "@lingui/core/macro";
 import { Card } from "../../../shared/ui/Card";
 
 // ─── Types ─────────────────────────────────────────────────────────────────
@@ -79,28 +80,28 @@ function ProfileMenu({
     <Card className="mb-4">
       <MenuItem
         icon="notifications-outline"
-        label="Notifications"
+        label={t`Notifications`}
         onPress={onNotifications}
         badgeCount={notificationUnreadCount}
       />
       <MenuItem
         icon="heart-outline"
-        label="Wellness Dashboard"
+        label={t`Wellness Dashboard`}
         onPress={onWellness}
       />
       <MenuItem
         icon="time-outline"
-        label="Workout History"
+        label={t`Workout History`}
         onPress={onHistory}
       />
       <MenuItem
         icon="help-circle-outline"
-        label="Help & Support"
+        label={t`Help & Support`}
         onPress={onHelp}
       />
       <MenuItem
         icon="log-out-outline"
-        label="Sign Out"
+        label={t`Sign Out`}
         onPress={onSignOut}
         danger
       />

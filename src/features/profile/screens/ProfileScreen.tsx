@@ -9,6 +9,8 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { t } from "@lingui/core/macro";
+import { Trans } from "@lingui/react/macro";
 import { Card } from "../../../shared/ui/Card";
 import { Button } from "../../../shared/ui/Button";
 import { ScreenTitle } from "../../../shared/ui/ScreenTitle";
@@ -67,13 +69,13 @@ export function ProfileScreen() {
   // ─── Handlers ─────────────────────────────────────────────────────────
   const handleLogout = () => {
     if (Platform.OS === "web") {
-      const confirmed = window.confirm("Are you sure you want to sign out?");
+      const confirmed = window.confirm(t`Are you sure you want to sign out?`);
       if (confirmed) logout();
       return;
     }
-    Alert.alert("Sign Out", "Are you sure you want to sign out?", [
-      { text: "Cancel", style: "cancel" },
-      { text: "Sign Out", style: "destructive", onPress: logout },
+    Alert.alert(t`Sign Out`, t`Are you sure you want to sign out?`, [
+      { text: t`Cancel`, style: "cancel" },
+      { text: t`Sign Out`, style: "destructive", onPress: logout },
     ]);
   };
 
@@ -87,8 +89,8 @@ export function ProfileScreen() {
 
   const handleHelp = () => {
     Alert.alert(
-      "Help & Support",
-      "Contact support@example.com for assistance.",
+      t`Help & Support`,
+      t`Contact support@example.com for assistance.`,
     );
   };
 
@@ -104,7 +106,7 @@ export function ProfileScreen() {
     if (!teams || teams.length === 0) return null;
 
     return (
-      <Card title="My Teams" className="mb-4">
+      <Card title={t`My Teams`} className="mb-4">
         {teams.map((team) => (
           <TouchableOpacity
             key={team.id}
@@ -131,8 +133,10 @@ export function ProfileScreen() {
                   {team.name}
                 </Text>
                 <Text className="text-surface-400 text-xs">
-                  {team.member_count} member
-                  {team.member_count !== 1 ? "s" : ""}
+                  <Trans>
+                    {team.member_count} member
+                    {team.member_count !== 1 ? "s" : ""}
+                  </Trans>
                 </Text>
               </View>
             </View>
@@ -147,7 +151,7 @@ export function ProfileScreen() {
     <GradientBackground>
       <ScrollView className="flex-1 px-4 pt-16">
         <ScreenLayout>
-        <ScreenTitle title="Profile" className="mb-6" />
+        <ScreenTitle title={t`Profile`} className="mb-6" />
 
         {/* ─── Profile Header ─────────────────────────────────────────── */}
         <ProfileHeader
@@ -184,7 +188,7 @@ export function ProfileScreen() {
                 </Text>
               </View>
               <Text className="text-surface-500 text-xs">
-                Changes queued for sync
+                <Trans>Changes queued for sync</Trans>
               </Text>
             </View>
           </Card>
@@ -201,13 +205,13 @@ export function ProfileScreen() {
         />
 
         {/* ─── Account Info ────────────────────────────────────────── */}
-        <Card title="Account Info" className="mb-4">
+        <Card title={t`Account Info`} className="mb-4">
           <View className="flex-row justify-between py-2 border-b border-border">
-            <Text className="text-surface-400">Member since</Text>
+            <Text className="text-surface-400"><Trans>Member since</Trans></Text>
             <Text className="text-surface-100">{createdAt}</Text>
           </View>
           <View className="flex-row justify-between py-2">
-            <Text className="text-surface-400">User ID</Text>
+            <Text className="text-surface-400"><Trans>User ID</Trans></Text>
             <Text
               className="text-surface-100 text-xs font-mono"
               numberOfLines={1}

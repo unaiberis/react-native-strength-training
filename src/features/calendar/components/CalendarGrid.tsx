@@ -1,10 +1,19 @@
 import { useCallback, useMemo } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
+import { t } from "@lingui/core/macro";
 import type { CalendarDay, CalendarMonth } from "../hooks/useCalendar";
 
 // ─── Constants ──────────────────────────────────────────────────────────
 
-const DAY_HEADERS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const DAY_HEADERS = [
+  t`Mon`,
+  t`Tue`,
+  t`Wed`,
+  t`Thu`,
+  t`Fri`,
+  t`Sat`,
+  t`Sun`,
+];
 
 // ─── Props ──────────────────────────────────────────────────────────────
 
@@ -77,8 +86,8 @@ function MonthHeader({
   onNext: () => void;
 }) {
   const monthNames = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December",
+    t`January`, t`February`, t`March`, t`April`, t`May`, t`June`,
+    t`July`, t`August`, t`September`, t`October`, t`November`, t`December`,
   ];
 
   return (

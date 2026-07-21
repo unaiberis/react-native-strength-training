@@ -3,6 +3,8 @@ import { View, Text, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacit
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "expo-router";
+import { t } from "@lingui/core/macro";
+import { Trans } from "@lingui/react/macro";
 import { Button } from "../../../shared/ui/Button";
 import { Input } from "../../../shared/ui/Input";
 import { GradientBackground } from "../../../shared/ui/GradientBackground";
@@ -53,13 +55,13 @@ export function LoginScreen() {
             className="text-surface-50"
             style={{ fontSize: 32, fontWeight: "900" }}
           >
-            Accede a tu cuenta
+            <Trans>Accede a tu cuenta</Trans>
           </Text>
           <Text
             className="text-surface-400 mt-2"
             style={{ fontSize: 15, lineHeight: 22 }}
           >
-            Introduce tus credenciales para ver tu planificación.
+            <Trans>Introduce tus credenciales para ver tu planificación.</Trans>
           </Text>
         </View>
 
@@ -75,7 +77,7 @@ export function LoginScreen() {
             name="email"
             render={({ field: { onChange, onBlur, value } }) => (
               <Input
-                label="Email"
+                label={t`Email`}
                 placeholder="you@example.com"
                 keyboardType="email-address"
                 autoCapitalize="none"
@@ -93,8 +95,8 @@ export function LoginScreen() {
             name="password"
             render={({ field: { onChange, onBlur, value } }) => (
               <Input
-                label="Password"
-                placeholder="Enter your password"
+                label={t`Password`}
+                placeholder={t`Enter your password`}
                 secureTextEntry
                 autoCapitalize="none"
                 autoComplete="password"
@@ -110,15 +112,15 @@ export function LoginScreen() {
             onPress={() => router.push("/(auth)/forgot-password")}
             className="items-end -mt-2 mb-4"
             accessibilityRole="button"
-            accessibilityLabel="Forgot password"
+            accessibilityLabel={t`Forgot password`}
           >
             <Text className="text-surface-400 text-sm font-semibold">
-              Forgot password?
+              <Trans>Forgot password?</Trans>
             </Text>
           </TouchableOpacity>
 
           <Button
-            title="Entrar"
+            title={t`Entrar`}
             loading={isSubmitting}
             onPress={handleSubmit(onSubmit)}
           />

@@ -1,4 +1,5 @@
 import { View, Text } from "react-native";
+import { t } from "@lingui/core/macro";
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 
@@ -19,7 +20,8 @@ function formatVolume(kg: number): string {
 }
 
 function formatStreak(days: number): string {
-  return `${days} day${days !== 1 ? "s" : ""}`;
+  if (days === 1) return t`1 day`;
+  return t`${days} days`;
 }
 
 // ─── Stat Card ──────────────────────────────────────────────────────────────
@@ -58,19 +60,19 @@ function ProfileStats({
     <View className="flex-row flex-wrap gap-3 mb-6">
       <StatCard
         value={String(totalWorkouts)}
-        label="Total Workouts"
+        label={t`Total Workouts`}
       />
       <StatCard
         value={formatStreak(currentStreak)}
-        label="Current Streak"
+        label={t`Current Streak`}
       />
       <StatCard
         value={String(personalRecords)}
-        label="Personal Records"
+        label={t`Personal Records`}
       />
       <StatCard
         value={formatVolume(totalVolume)}
-        label="Total Volume"
+        label={t`Total Volume`}
       />
     </View>
   );

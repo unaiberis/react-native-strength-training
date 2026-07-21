@@ -1,4 +1,5 @@
 import { View, Text } from "react-native";
+import { t } from "@lingui/core/macro";
 import { Avatar } from "../../../shared/ui/Avatar";
 import { Button } from "../../../shared/ui/Button";
 
@@ -34,7 +35,7 @@ function ProfileHeader({ name, email, onEdit }: ProfileHeaderProps) {
       </Text>
 
       <Button
-        title="Edit Profile"
+        title={t`Edit Profile`}
         variant="ghost"
         size="sm"
         icon="person-outline"

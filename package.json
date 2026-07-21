@@ -11,10 +11,15 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "seed:pb": "node scripts/seed-pocketbase.mjs",
-    "seed:demo": "node scripts/seed-demo-data.mjs"
+    "seed:demo": "node scripts/seed-demo-data.mjs",
+    "lingui:extract": "lingui extract",
+    "lingui:compile": "lingui compile"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
+    "@lingui/cli": "^6.5.0",
+    "@lingui/core": "^6.5.0",
+    "@lingui/react": "^6.5.0",
     "@opentelemetry/api": "^1.9.1",
     "@react-native-community/netinfo": "11.4.1",
     "@react-navigation/native": "^7.0.0",
@@ -26,6 +31,7 @@
     "expo-haptics": "~15.0.8",
     "expo-linear-gradient": "~15.0.8",
     "expo-linking": "~8.0.12",
+    "expo-localization": "^57.0.1",
     "expo-router": "~6.0.24",
     "expo-secure-store": "~15.0.8",
     "expo-splash-screen": "~31.0.13",
