@@ -11,6 +11,26 @@ msgstr ""
 "Content-Type: \n"
 "Content-Transfer-Encoding: \n"
 
+#. placeholder {0}: workout.blockCount
+#: src/features/calendar/components/DayDetail.tsx
+msgid "{0} block"
+msgstr "{0} bloque"
+
+#. placeholder {0}: workout.blockCount
+#: src/features/calendar/components/DayDetail.tsx
+msgid "{0} blocks"
+msgstr "{0} bloques"
+
+#. placeholder {0}: session.exerciseCount
+#: app/(tabs)/home.tsx
+msgid "{0} exercise"
+msgstr "{0} ejercicio"
+
+#. placeholder {0}: session.exerciseCount
+#: app/(tabs)/home.tsx
+msgid "{0} exercises"
+msgstr "{0} ejercicios"
+
 #. placeholder {0}: team.member_count
 #. placeholder {1}: team.member_count !== 1 ? "s" : ""
 #: src/features/profile/screens/ProfileScreen.tsx
@@ -37,9 +57,18 @@ msgstr "Información de la cuenta"
 msgid "Advanced"
 msgstr "Avanzado"
 
+#: src/features/history/screens/HistoryListScreen.tsx
+msgid "All exercises"
+msgstr "Todos los ejercicios"
+
 #: src/features/auth/screens/ForgotPasswordScreen.tsx
 msgid "An unexpected error occurred"
 msgstr "Ocurrió un error inesperado"
+
+#: app/(tabs)/_layout.tsx
+#: src/features/analytics/screens/AnalyticsScreen.tsx
+msgid "Analytics"
+msgstr "Analíticas"
 
 #: src/features/calendar/components/CalendarGrid.tsx
 msgid "April"
@@ -73,6 +102,10 @@ msgstr "Peso corporal"
 msgid "Bodyweight Unit"
 msgstr "Unidad de peso"
 
+#: app/(tabs)/_layout.tsx
+msgid "Calendar"
+msgstr ""
+
 #: src/features/profile/screens/ProfileScreen.tsx
 msgid "Cancel"
 msgstr "Cancelar"
@@ -93,9 +126,33 @@ msgstr "Elige cómo se muestran los pesos en la aplicación."
 msgid "Choose the app language."
 msgstr "Elige el idioma de la aplicación."
 
+#: src/features/history/screens/HistoryListScreen.tsx
+msgid "Clear"
+msgstr "Limpiar"
+
 #: src/features/auth/screens/RegisterScreen.tsx
 msgid "Coach"
 msgstr "Entrenador"
+
+#: src/features/analytics/screens/AnalyticsScreen.tsx
+msgid "Complete a workout to see your analytics."
+msgstr "Completa un entrenamiento para ver tus analíticas."
+
+#: app/(tabs)/home.tsx
+msgid "Complete a workout to see your recent activity."
+msgstr "Completa un entrenamiento para ver tu actividad reciente."
+
+#: src/features/analytics/screens/AnalyticsScreen.tsx
+msgid "Complete some workouts to see your exercise progress here."
+msgstr "Completa algunos entrenamientos para ver tu progreso aquí."
+
+#: src/features/history/screens/HistoryListScreen.tsx
+msgid "Complete your first workout to see your history here."
+msgstr "Completa tu primer entrenamiento para ver tu historial aquí."
+
+#: src/features/calendar/components/DayDetail.tsx
+msgid "Completed"
+msgstr "Completado"
 
 #: src/features/profile/screens/ProfileScreen.tsx
 msgid "Contact support@example.com for assistance."
@@ -174,13 +231,38 @@ msgstr "Entrar"
 msgid "Español"
 msgstr "Español"
 
+#: app/(tabs)/_layout.tsx
+msgid "Exercise Details"
+msgstr ""
+
+#: app/(tabs)/_layout.tsx
+msgid "Exercise Library"
+msgstr ""
+
+#: app/(tabs)/_layout.tsx
+#: src/features/analytics/screens/AnalyticsScreen.tsx
+msgid "Exercise Progress"
+msgstr "Progreso de ejercicios"
+
+#: src/features/analytics/screens/AnalyticsScreen.tsx
+msgid "Exercises"
+msgstr "Ejercicios"
+
 #: src/features/profile/screens/EditProfileScreen.tsx
 msgid "Experience"
 msgstr "Experiencia"
 
+#: src/features/analytics/screens/AnalyticsScreen.tsx
+msgid "Failed to load analytics"
+msgstr "Error al cargar analíticas"
+
 #: src/features/calendar/components/CalendarGrid.tsx
 msgid "February"
 msgstr "Febrero"
+
+#: src/features/history/screens/HistoryListScreen.tsx
+msgid "Filter:"
+msgstr "Filtrar:"
 
 #: src/features/auth/screens/LoginScreen.tsx
 msgid "Forgot password"
@@ -189,6 +271,11 @@ msgstr "Olvidé mi contraseña"
 #: src/features/auth/screens/LoginScreen.tsx
 msgid "Forgot password?"
 msgstr "¿Olvidaste tu contraseña?"
+
+#: src/features/calendar/components/DayDetail.tsx
+#: src/features/history/screens/HistoryListScreen.tsx
+msgid "Free Workout"
+msgstr "Entrenamiento libre"
 
 #: src/features/calendar/components/CalendarGrid.tsx
 msgid "Fri"
@@ -215,6 +302,14 @@ msgstr "Unidad de altura"
 msgid "Help & Support"
 msgstr "Ayuda y soporte"
 
+#: app/(tabs)/home.tsx
+msgid "History"
+msgstr "Historial"
+
+#: app/(tabs)/_layout.tsx
+msgid "Home"
+msgstr ""
+
 #: src/features/profile/screens/EditProfileScreen.tsx
 msgid "Hypertrophy"
 msgstr "Hipertrofia"
@@ -226,6 +321,10 @@ msgstr "Soy..."
 #: src/features/profile/screens/EditProfileScreen.tsx
 msgid "Imperial (lb/in)"
 msgstr "Imperial (lb/in)"
+
+#: src/features/calendar/components/DayDetail.tsx
+msgid "In Progress"
+msgstr "En progreso"
 
 #: src/features/profile/screens/EditProfileScreen.tsx
 msgid "Intermediate"
@@ -279,10 +378,43 @@ msgstr "Métrico (kg/cm)"
 msgid "Mon"
 msgstr "Lun"
 
+#: src/features/analytics/screens/AnalyticsScreen.tsx
+msgid "Monthly"
+msgstr "Mensual"
+
+#: src/features/analytics/screens/AnalyticsScreen.tsx
+msgid "Monthly Volume"
+msgstr "Volumen mensual"
+
 #: src/features/profile/screens/ProfileScreen.tsx
 msgid "My Teams"
 msgstr "Mis equipos"
 
+#: src/features/analytics/screens/AnalyticsScreen.tsx
+msgid "No Analytics Data"
+msgstr "Sin datos de analíticas"
+
+#: app/(tabs)/notifications.tsx
+msgid "No notifications yet"
+msgstr "Sin notificaciones aún"
+
+#: app/(tabs)/train.tsx
+msgid "No training scheduled for today"
+msgstr "Sin entrenamiento programado para hoy"
+
+#: src/features/calendar/components/DayDetail.tsx
+msgid "No Workout Scheduled"
+msgstr "Sin entrenamiento programado"
+
+#: src/features/history/screens/HistoryListScreen.tsx
+msgid "No workouts yet"
+msgstr "Sin entrenamientos aún"
+
+#: app/(tabs)/notification/[id].tsx
+msgid "Notification"
+msgstr "Notificación"
+
+#: app/(tabs)/notifications.tsx
 #: src/features/profile/components/ProfileMenu.tsx
 msgid "Notifications"
 msgstr "Notificaciones"
@@ -300,6 +432,10 @@ msgstr "Octubre"
 msgid "Password"
 msgstr "Contraseña"
 
+#: app/(tabs)/home.tsx
+msgid "Past"
+msgstr "Pasado"
+
 #: src/features/profile/components/ProfileStats.tsx
 msgid "Personal Records"
 msgstr "Récords personales"
@@ -312,9 +448,26 @@ msgstr "Libras"
 msgid "Pounds (lbs)"
 msgstr "Libras (lbs)"
 
+#: app/(tabs)/_layout.tsx
 #: src/features/profile/screens/ProfileScreen.tsx
 msgid "Profile"
 msgstr "Perfil"
+
+#: src/features/calendar/components/DayDetail.tsx
+msgid "PRs"
+msgstr "RPs"
+
+#: app/(tabs)/home.tsx
+msgid "Quick Stats"
+msgstr "Estadísticas rápidas"
+
+#: app/(tabs)/home.tsx
+msgid "Ready to train?"
+msgstr "¿Listo para entrenar?"
+
+#: app/(tabs)/home.tsx
+msgid "Recent Activity"
+msgstr "Actividad reciente"
 
 #: src/features/auth/screens/RegisterScreen.tsx
 msgid "Registro de atleta"
@@ -323,6 +476,19 @@ msgstr "Registro de atleta"
 #: src/features/auth/screens/ForgotPasswordScreen.tsx
 msgid "Reset password"
 msgstr "Restablecer contraseña"
+
+#: src/features/calendar/components/WorkoutDayList.tsx
+msgid "Rest day — No workout scheduled"
+msgstr "Día de descanso — Sin entrenamiento"
+
+#: src/features/calendar/components/DayDetail.tsx
+#: src/features/calendar/components/WorkoutDayList.tsx
+msgid "Rest days are part of the plan. Stay ready."
+msgstr "Los días de descanso son parte del plan. Mantente listo."
+
+#: src/features/analytics/screens/AnalyticsScreen.tsx
+msgid "Retry"
+msgstr "Reintentar"
 
 #: src/features/calendar/components/CalendarGrid.tsx
 msgid "Sat"
@@ -340,10 +506,34 @@ msgstr "Enviar enlace de restablecimiento"
 msgid "September"
 msgstr "Septiembre"
 
+#: app/(tabs)/_layout.tsx
+msgid "Session expired. Log in again to sync."
+msgstr ""
+
+#: app/(tabs)/home.tsx
+msgid "Sets"
+msgstr "Series"
+
 #: src/features/profile/components/ProfileMenu.tsx
 #: src/features/profile/screens/ProfileScreen.tsx
 msgid "Sign Out"
 msgstr "Cerrar sesión"
+
+#: app/(tabs)/_layout.tsx
+msgid "Some changes couldn't sync"
+msgstr ""
+
+#: src/features/calendar/components/DayDetail.tsx
+#: src/features/calendar/components/WorkoutDayList.tsx
+#: src/features/history/screens/HistoryListScreen.tsx
+msgid "Start a Workout"
+msgstr "Iniciar entrenamiento"
+
+#: app/(tabs)/train.tsx
+#: src/features/analytics/screens/AnalyticsScreen.tsx
+#: src/features/calendar/components/DayDetail.tsx
+msgid "Start Workout"
+msgstr "Iniciar entrenamiento"
 
 #: src/features/profile/screens/EditProfileScreen.tsx
 msgid "Strength"
@@ -353,10 +543,31 @@ msgstr "Fuerza"
 msgid "Sun"
 msgstr "Dom"
 
+#: app/(tabs)/_layout.tsx
+msgid "Sync error"
+msgstr ""
+
+#: app/(tabs)/_layout.tsx
+msgid "Syncing…"
+msgstr ""
+
+#: src/features/analytics/screens/AnalyticsScreen.tsx
+msgid "Tap for details"
+msgstr "Toca para ver detalles"
+
+#: app/(tabs)/home.tsx
+msgid "This Week"
+msgstr "Esta semana"
+
 #: src/features/calendar/components/CalendarGrid.tsx
 msgid "Thu"
 msgstr "Jue"
 
+#: app/(tabs)/train.tsx
+msgid "Today's Assigned Workout"
+msgstr "Entrenamiento asignado hoy"
+
+#: src/features/analytics/screens/AnalyticsScreen.tsx
 #: src/features/profile/components/ProfileStats.tsx
 msgid "Total Volume"
 msgstr "Volumen total"
@@ -365,35 +576,94 @@ msgstr "Volumen total"
 msgid "Total Workouts"
 msgstr "Entrenamientos totales"
 
+#: app/(tabs)/_layout.tsx
+#: app/(tabs)/train.tsx
+msgid "Train"
+msgstr "Entrenar"
+
 #: src/features/calendar/components/CalendarGrid.tsx
 msgid "Tue"
 msgstr "Mar"
+
+#: src/features/history/screens/HistoryListScreen.tsx
+msgid "Unknown"
+msgstr "Desconocido"
 
 #: src/features/profile/screens/ProfileScreen.tsx
 msgid "User ID"
 msgstr "ID de usuario"
 
+#: src/features/calendar/components/DayDetail.tsx
+msgid "View Details"
+msgstr "Ver detalles"
+
+#: src/features/calendar/components/DayDetail.tsx
+msgid "Volume"
+msgstr "Volumen"
+
 #: src/features/calendar/components/CalendarGrid.tsx
 msgid "Wed"
 msgstr "Mié"
+
+#: src/features/analytics/screens/AnalyticsScreen.tsx
+msgid "Weekly"
+msgstr "Semanal"
+
+#: src/features/analytics/screens/AnalyticsScreen.tsx
+msgid "Weekly Volume"
+msgstr "Volumen semanal"
 
 #: src/features/profile/screens/EditProfileScreen.tsx
 msgid "Weight Unit"
 msgstr "Unidad de peso"
 
+#: app/(tabs)/home.tsx
+msgid "Welcome back, {displayName}"
+msgstr "Bienvenido de nuevo, {displayName}"
+
+#: app/_layout.tsx
+msgid "Welcome back!"
+msgstr "¡Bienvenido de nuevo!"
+
+#: app/(tabs)/_layout.tsx
+msgid "Wellness"
+msgstr ""
+
 #: src/features/profile/components/ProfileMenu.tsx
 msgid "Wellness Dashboard"
 msgstr "Panel de bienestar"
 
+#: app/(tabs)/_layout.tsx
+msgid "Workout Details"
+msgstr ""
+
+#: app/(tabs)/_layout.tsx
 #: src/features/profile/components/ProfileMenu.tsx
 msgid "Workout History"
 msgstr "Historial de entrenamientos"
+
+#: app/(tabs)/home.tsx
+#: src/features/analytics/screens/AnalyticsScreen.tsx
+msgid "Workouts"
+msgstr "Entrenamientos"
+
+#: app/(tabs)/_layout.tsx
+msgid "You're offline — changes sync when connected"
+msgstr ""
 
 #: src/features/profile/screens/EditProfileScreen.tsx
 msgid "You're offline — profile changes need a connection"
 msgstr "Estás offline — los cambios requieren conexión"
 
+#: app/(tabs)/train.tsx
+msgid "Your coach will assign training for today's workout. Check back later or view your calendar for upcoming sessions."
+msgstr "Tu entrenador asignará el entrenamiento de hoy. Vuelve más tarde o revisa tu calendario para las próximas sesiones."
+
 #: src/features/auth/screens/RegisterScreen.tsx
 #: src/features/profile/screens/EditProfileScreen.tsx
 msgid "Your name"
 msgstr "Tu nombre"
+
+#: src/features/analytics/screens/AnalyticsScreen.tsx
+msgid "Your training trends and progress"
+msgstr "Tus tendencias y progreso de entrenamiento"

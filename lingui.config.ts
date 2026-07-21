@@ -6,7 +6,7 @@ const config = {
   catalogs: [
     {
       path: "<rootDir>/src/i18n/locales/{locale}/messages",
-      include: ["src"],
+      include: ["src", "app"],
     },
   ],
   format: formatter({ lineNumbers: false }),

@@ -7,6 +7,7 @@ import { getSession } from "@/lib/pocketbase/services/auth";
 import { pb } from "@/lib/pocketbase/client";
 import "../global.css";
 import { View, ActivityIndicator, Text, Platform } from "react-native";
+import { t } from "@lingui/core/macro";
 import { GradientBackground } from "@/shared/ui/GradientBackground";
 import { OfflineBanner } from "@/shared/ui/OfflineBanner";
 import { useColorScheme } from "nativewind";
@@ -176,7 +177,7 @@ function AuthGate({ children }: { children: React.ReactNode }) {
                 initTeamRoles(pb.authStore.record!.id);
               }
             } else {
-              if (result.session) msg("Welcome back!");
+              if (result.session) msg(t`Welcome back!`);
               setSession(result.session);
               if (result.session?.user?.id) initTeamRoles(result.session.user.id);
             }

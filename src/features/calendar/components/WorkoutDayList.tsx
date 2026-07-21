@@ -6,6 +6,7 @@
  */
 
 import { View, Text } from "react-native";
+import { t } from "@lingui/core/macro";
 import { EmptyState } from "@/shared/ui/EmptyState";
 import { WorkoutDayItem } from "./WorkoutDayItem";
 import type { WorkoutSummary } from "../hooks/useSessionsForDate";
@@ -53,10 +54,10 @@ function WorkoutDayList({
     return (
       <EmptyState
         icon="calendar-outline"
-        title="Rest day — No workout scheduled"
-        subtitle="Rest days are part of the plan. Stay ready."
+        title={t`Rest day — No workout scheduled`}
+        subtitle={t`Rest days are part of the plan. Stay ready.`}
         action={{
-          label: "Start a Workout",
+          label: t`Start a Workout`,
           onPress: onStartWorkout,
           variant: "secondary",
         }}
