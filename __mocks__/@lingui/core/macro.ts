@@ -56,8 +56,9 @@ export function defineMessage(
   literals: TemplateStringsArray | { message?: string; id?: string },
   ...placeholders: any[]
 ): { message: string } {
-  if (typeof literals === "object" && !Array.isArray(literals)) {
-    return { message: literals.message ?? literals.id ?? "" };
+  if (typeof literals === "object" && !Array.isArray(literals) && !("raw" in literals)) {
+    const opts = literals as { message?: string; id?: string };
+    return { message: opts.message ?? opts.id ?? "" };
   }
   let message = "";
   if (Array.isArray(literals)) {

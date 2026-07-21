@@ -2,3 +2,398 @@ msgid ""
 msgstr ""
 "Language: es\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Content-Type: \n"
+"Content-Transfer-Encoding: \n"
+
+#. placeholder {0}: team.member_count
+#. placeholder {1}: team.member_count !== 1 ? "s" : ""
+#: src/features/profile/screens/ProfileScreen.tsx
+msgid "{0} member{1}"
+msgstr "{0} miembro{1}"
+
+#: src/features/profile/components/ProfileStats.tsx
+msgid "{days} days"
+msgstr "{days} días"
+
+#: src/features/profile/components/ProfileStats.tsx
+msgid "1 day"
+msgstr "1 día"
+
+#: src/features/auth/screens/LoginScreen.tsx
+msgid "Accede a tu cuenta"
+msgstr "Accede a tu cuenta"
+
+#: src/features/profile/screens/ProfileScreen.tsx
+msgid "Account Info"
+msgstr "Información de la cuenta"
+
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "Advanced"
+msgstr "Avanzado"
+
+#: src/features/auth/screens/ForgotPasswordScreen.tsx
+msgid "An unexpected error occurred"
+msgstr "Ocurrió un error inesperado"
+
+#: src/features/calendar/components/CalendarGrid.tsx
+msgid "April"
+msgstr "Abril"
+
+#: src/features/profile/screens/ProfileScreen.tsx
+msgid "Are you sure you want to sign out?"
+msgstr "¿Estás seguro de que quieres cerrar sesión?"
+
+#: src/features/auth/screens/RegisterScreen.tsx
+msgid "At least 8 characters, 1 uppercase"
+msgstr "Mínimo 8 caracteres, 1 mayúscula"
+
+#: src/features/auth/screens/RegisterScreen.tsx
+msgid "Athlete"
+msgstr "Atleta"
+
+#: src/features/calendar/components/CalendarGrid.tsx
+msgid "August"
+msgstr "Agosto"
+
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "Beginner"
+msgstr "Principiante"
+
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "Bodyweight"
+msgstr "Peso corporal"
+
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "Bodyweight Unit"
+msgstr "Unidad de peso"
+
+#: src/features/profile/screens/ProfileScreen.tsx
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: src/features/profile/screens/ProfileScreen.tsx
+msgid "Changes queued for sync"
+msgstr "Cambios pendientes de sincronización"
+
+#: src/features/auth/screens/ForgotPasswordScreen.tsx
+msgid "Check your email for the reset link"
+msgstr "Revisa tu email para el enlace de restablecimiento"
+
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "Choose how weights are displayed throughout the app."
+msgstr "Elige cómo se muestran los pesos en la aplicación."
+
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "Choose the app language."
+msgstr "Elige el idioma de la aplicación."
+
+#: src/features/auth/screens/RegisterScreen.tsx
+msgid "Coach"
+msgstr "Entrenador"
+
+#: src/features/profile/screens/ProfileScreen.tsx
+msgid "Contact support@example.com for assistance."
+msgstr "Contacta a soporte@example.com para asistencia."
+
+#: src/features/auth/screens/RegisterScreen.tsx
+msgid "Crea tu cuenta para empezar a entrenar."
+msgstr "Crea tu cuenta para empezar a entrenar."
+
+#: src/features/auth/screens/RegisterScreen.tsx
+msgid "Crear cuenta"
+msgstr "Crear cuenta"
+
+#: src/features/profile/components/ProfileStats.tsx
+msgid "Current Streak"
+msgstr "Racha actual"
+
+#: src/features/home/hooks/useHomeStats.ts
+msgid "Custom Workout"
+msgstr "Entrenamiento personalizado"
+
+#: src/features/calendar/components/CalendarGrid.tsx
+msgid "December"
+msgstr "Diciembre"
+
+#: src/features/auth/screens/RegisterScreen.tsx
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "Display Name"
+msgstr "Nombre visible"
+
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "e.g. 180"
+msgstr "ej. 180"
+
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "e.g. 80"
+msgstr "ej. 80"
+
+#: src/features/profile/components/ProfileHeader.tsx
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "Edit Profile"
+msgstr "Editar perfil"
+
+#: src/features/auth/screens/ForgotPasswordScreen.tsx
+#: src/features/auth/screens/LoginScreen.tsx
+#: src/features/auth/screens/RegisterScreen.tsx
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "Email"
+msgstr "Email"
+
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "Endurance"
+msgstr "Resistencia"
+
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "English"
+msgstr "Inglés"
+
+#: src/features/auth/screens/ForgotPasswordScreen.tsx
+msgid "Enter your email address"
+msgstr "Introduce tu correo electrónico"
+
+#: src/features/auth/screens/ForgotPasswordScreen.tsx
+msgid "Enter your email address and we'll send you a link to reset your password."
+msgstr "Introduce tu correo y te enviaremos un enlace para restablecer tu contraseña."
+
+#: src/features/auth/screens/LoginScreen.tsx
+msgid "Enter your password"
+msgstr "Introduce tu contraseña"
+
+#: src/features/auth/screens/LoginScreen.tsx
+msgid "Entrar"
+msgstr "Entrar"
+
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "Español"
+msgstr "Español"
+
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "Experience"
+msgstr "Experiencia"
+
+#: src/features/calendar/components/CalendarGrid.tsx
+msgid "February"
+msgstr "Febrero"
+
+#: src/features/auth/screens/LoginScreen.tsx
+msgid "Forgot password"
+msgstr "Olvidé mi contraseña"
+
+#: src/features/auth/screens/LoginScreen.tsx
+msgid "Forgot password?"
+msgstr "¿Olvidaste tu contraseña?"
+
+#: src/features/calendar/components/CalendarGrid.tsx
+msgid "Fri"
+msgstr "Vie"
+
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "General Fitness"
+msgstr "Condición física general"
+
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "Goal"
+msgstr "Objetivo"
+
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "Height"
+msgstr "Altura"
+
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "Height Unit"
+msgstr "Unidad de altura"
+
+#: src/features/profile/components/ProfileMenu.tsx
+#: src/features/profile/screens/ProfileScreen.tsx
+msgid "Help & Support"
+msgstr "Ayuda y soporte"
+
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "Hypertrophy"
+msgstr "Hipertrofia"
+
+#: src/features/auth/screens/RegisterScreen.tsx
+msgid "I am a..."
+msgstr "Soy..."
+
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "Imperial (lb/in)"
+msgstr "Imperial (lb/in)"
+
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "Intermediate"
+msgstr "Intermedio"
+
+#: src/features/auth/screens/LoginScreen.tsx
+msgid "Introduce tus credenciales para ver tu planificación."
+msgstr "Introduce tus credenciales para ver tu planificación."
+
+#: src/features/calendar/components/CalendarGrid.tsx
+msgid "January"
+msgstr "Enero"
+
+#: src/features/calendar/components/CalendarGrid.tsx
+msgid "July"
+msgstr "Julio"
+
+#: src/features/calendar/components/CalendarGrid.tsx
+msgid "June"
+msgstr "Junio"
+
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "Kilograms"
+msgstr "Kilogramos"
+
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "Kilograms (kg)"
+msgstr "Kilogramos (kg)"
+
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "Language"
+msgstr "Idioma"
+
+#: src/features/calendar/components/CalendarGrid.tsx
+msgid "March"
+msgstr "Marzo"
+
+#: src/features/calendar/components/CalendarGrid.tsx
+msgid "May"
+msgstr "Mayo"
+
+#: src/features/profile/screens/ProfileScreen.tsx
+msgid "Member since"
+msgstr "Miembro desde"
+
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "Metric (kg/cm)"
+msgstr "Métrico (kg/cm)"
+
+#: src/features/calendar/components/CalendarGrid.tsx
+msgid "Mon"
+msgstr "Lun"
+
+#: src/features/profile/screens/ProfileScreen.tsx
+msgid "My Teams"
+msgstr "Mis equipos"
+
+#: src/features/profile/components/ProfileMenu.tsx
+msgid "Notifications"
+msgstr "Notificaciones"
+
+#: src/features/calendar/components/CalendarGrid.tsx
+msgid "November"
+msgstr "Noviembre"
+
+#: src/features/calendar/components/CalendarGrid.tsx
+msgid "October"
+msgstr "Octubre"
+
+#: src/features/auth/screens/LoginScreen.tsx
+#: src/features/auth/screens/RegisterScreen.tsx
+msgid "Password"
+msgstr "Contraseña"
+
+#: src/features/profile/components/ProfileStats.tsx
+msgid "Personal Records"
+msgstr "Récords personales"
+
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "Pounds"
+msgstr "Libras"
+
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "Pounds (lbs)"
+msgstr "Libras (lbs)"
+
+#: src/features/profile/screens/ProfileScreen.tsx
+msgid "Profile"
+msgstr "Perfil"
+
+#: src/features/auth/screens/RegisterScreen.tsx
+msgid "Registro de atleta"
+msgstr "Registro de atleta"
+
+#: src/features/auth/screens/ForgotPasswordScreen.tsx
+msgid "Reset password"
+msgstr "Restablecer contraseña"
+
+#: src/features/calendar/components/CalendarGrid.tsx
+msgid "Sat"
+msgstr "Sáb"
+
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "Save"
+msgstr "Guardar"
+
+#: src/features/auth/screens/ForgotPasswordScreen.tsx
+msgid "Send Reset Link"
+msgstr "Enviar enlace de restablecimiento"
+
+#: src/features/calendar/components/CalendarGrid.tsx
+msgid "September"
+msgstr "Septiembre"
+
+#: src/features/profile/components/ProfileMenu.tsx
+#: src/features/profile/screens/ProfileScreen.tsx
+msgid "Sign Out"
+msgstr "Cerrar sesión"
+
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "Strength"
+msgstr "Fuerza"
+
+#: src/features/calendar/components/CalendarGrid.tsx
+msgid "Sun"
+msgstr "Dom"
+
+#: src/features/calendar/components/CalendarGrid.tsx
+msgid "Thu"
+msgstr "Jue"
+
+#: src/features/profile/components/ProfileStats.tsx
+msgid "Total Volume"
+msgstr "Volumen total"
+
+#: src/features/profile/components/ProfileStats.tsx
+msgid "Total Workouts"
+msgstr "Entrenamientos totales"
+
+#: src/features/calendar/components/CalendarGrid.tsx
+msgid "Tue"
+msgstr "Mar"
+
+#: src/features/profile/screens/ProfileScreen.tsx
+msgid "User ID"
+msgstr "ID de usuario"
+
+#: src/features/calendar/components/CalendarGrid.tsx
+msgid "Wed"
+msgstr "Mié"
+
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "Weight Unit"
+msgstr "Unidad de peso"
+
+#: src/features/profile/components/ProfileMenu.tsx
+msgid "Wellness Dashboard"
+msgstr "Panel de bienestar"
+
+#: src/features/profile/components/ProfileMenu.tsx
+msgid "Workout History"
+msgstr "Historial de entrenamientos"
+
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "You're offline — profile changes need a connection"
+msgstr "Estás offline — los cambios requieren conexión"
+
+#: src/features/auth/screens/RegisterScreen.tsx
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "Your name"
+msgstr "Tu nombre"

@@ -2,3 +2,398 @@ msgid ""
 msgstr ""
 "Language: en\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Content-Type: \n"
+"Content-Transfer-Encoding: \n"
+
+#. placeholder {0}: team.member_count
+#. placeholder {1}: team.member_count !== 1 ? "s" : ""
+#: src/features/profile/screens/ProfileScreen.tsx
+msgid "{0} member{1}"
+msgstr ""
+
+#: src/features/profile/components/ProfileStats.tsx
+msgid "{days} days"
+msgstr ""
+
+#: src/features/profile/components/ProfileStats.tsx
+msgid "1 day"
+msgstr ""
+
+#: src/features/auth/screens/LoginScreen.tsx
+msgid "Accede a tu cuenta"
+msgstr ""
+
+#: src/features/profile/screens/ProfileScreen.tsx
+msgid "Account Info"
+msgstr ""
+
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "Advanced"
+msgstr ""
+
+#: src/features/auth/screens/ForgotPasswordScreen.tsx
+msgid "An unexpected error occurred"
+msgstr ""
+
+#: src/features/calendar/components/CalendarGrid.tsx
+msgid "April"
+msgstr ""
+
+#: src/features/profile/screens/ProfileScreen.tsx
+msgid "Are you sure you want to sign out?"
+msgstr ""
+
+#: src/features/auth/screens/RegisterScreen.tsx
+msgid "At least 8 characters, 1 uppercase"
+msgstr ""
+
+#: src/features/auth/screens/RegisterScreen.tsx
+msgid "Athlete"
+msgstr ""
+
+#: src/features/calendar/components/CalendarGrid.tsx
+msgid "August"
+msgstr ""
+
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "Beginner"
+msgstr ""
+
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "Bodyweight"
+msgstr ""
+
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "Bodyweight Unit"
+msgstr ""
+
+#: src/features/profile/screens/ProfileScreen.tsx
+msgid "Cancel"
+msgstr ""
+
+#: src/features/profile/screens/ProfileScreen.tsx
+msgid "Changes queued for sync"
+msgstr ""
+
+#: src/features/auth/screens/ForgotPasswordScreen.tsx
+msgid "Check your email for the reset link"
+msgstr ""
+
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "Choose how weights are displayed throughout the app."
+msgstr ""
+
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "Choose the app language."
+msgstr ""
+
+#: src/features/auth/screens/RegisterScreen.tsx
+msgid "Coach"
+msgstr ""
+
+#: src/features/profile/screens/ProfileScreen.tsx
+msgid "Contact support@example.com for assistance."
+msgstr ""
+
+#: src/features/auth/screens/RegisterScreen.tsx
+msgid "Crea tu cuenta para empezar a entrenar."
+msgstr ""
+
+#: src/features/auth/screens/RegisterScreen.tsx
+msgid "Crear cuenta"
+msgstr ""
+
+#: src/features/profile/components/ProfileStats.tsx
+msgid "Current Streak"
+msgstr ""
+
+#: src/features/home/hooks/useHomeStats.ts
+msgid "Custom Workout"
+msgstr ""
+
+#: src/features/calendar/components/CalendarGrid.tsx
+msgid "December"
+msgstr ""
+
+#: src/features/auth/screens/RegisterScreen.tsx
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "Display Name"
+msgstr ""
+
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "e.g. 180"
+msgstr ""
+
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "e.g. 80"
+msgstr ""
+
+#: src/features/profile/components/ProfileHeader.tsx
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "Edit Profile"
+msgstr ""
+
+#: src/features/auth/screens/ForgotPasswordScreen.tsx
+#: src/features/auth/screens/LoginScreen.tsx
+#: src/features/auth/screens/RegisterScreen.tsx
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "Email"
+msgstr ""
+
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "Endurance"
+msgstr ""
+
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "English"
+msgstr ""
+
+#: src/features/auth/screens/ForgotPasswordScreen.tsx
+msgid "Enter your email address"
+msgstr ""
+
+#: src/features/auth/screens/ForgotPasswordScreen.tsx
+msgid "Enter your email address and we'll send you a link to reset your password."
+msgstr ""
+
+#: src/features/auth/screens/LoginScreen.tsx
+msgid "Enter your password"
+msgstr ""
+
+#: src/features/auth/screens/LoginScreen.tsx
+msgid "Entrar"
+msgstr ""
+
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "Español"
+msgstr ""
+
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "Experience"
+msgstr ""
+
+#: src/features/calendar/components/CalendarGrid.tsx
+msgid "February"
+msgstr ""
+
+#: src/features/auth/screens/LoginScreen.tsx
+msgid "Forgot password"
+msgstr ""
+
+#: src/features/auth/screens/LoginScreen.tsx
+msgid "Forgot password?"
+msgstr ""
+
+#: src/features/calendar/components/CalendarGrid.tsx
+msgid "Fri"
+msgstr ""
+
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "General Fitness"
+msgstr ""
+
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "Goal"
+msgstr ""
+
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "Height"
+msgstr ""
+
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "Height Unit"
+msgstr ""
+
+#: src/features/profile/components/ProfileMenu.tsx
+#: src/features/profile/screens/ProfileScreen.tsx
+msgid "Help & Support"
+msgstr ""
+
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "Hypertrophy"
+msgstr ""
+
+#: src/features/auth/screens/RegisterScreen.tsx
+msgid "I am a..."
+msgstr ""
+
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "Imperial (lb/in)"
+msgstr ""
+
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "Intermediate"
+msgstr ""
+
+#: src/features/auth/screens/LoginScreen.tsx
+msgid "Introduce tus credenciales para ver tu planificación."
+msgstr ""
+
+#: src/features/calendar/components/CalendarGrid.tsx
+msgid "January"
+msgstr ""
+
+#: src/features/calendar/components/CalendarGrid.tsx
+msgid "July"
+msgstr ""
+
+#: src/features/calendar/components/CalendarGrid.tsx
+msgid "June"
+msgstr ""
+
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "Kilograms"
+msgstr ""
+
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "Kilograms (kg)"
+msgstr ""
+
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "Language"
+msgstr ""
+
+#: src/features/calendar/components/CalendarGrid.tsx
+msgid "March"
+msgstr ""
+
+#: src/features/calendar/components/CalendarGrid.tsx
+msgid "May"
+msgstr ""
+
+#: src/features/profile/screens/ProfileScreen.tsx
+msgid "Member since"
+msgstr ""
+
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "Metric (kg/cm)"
+msgstr ""
+
+#: src/features/calendar/components/CalendarGrid.tsx
+msgid "Mon"
+msgstr ""
+
+#: src/features/profile/screens/ProfileScreen.tsx
+msgid "My Teams"
+msgstr ""
+
+#: src/features/profile/components/ProfileMenu.tsx
+msgid "Notifications"
+msgstr ""
+
+#: src/features/calendar/components/CalendarGrid.tsx
+msgid "November"
+msgstr ""
+
+#: src/features/calendar/components/CalendarGrid.tsx
+msgid "October"
+msgstr ""
+
+#: src/features/auth/screens/LoginScreen.tsx
+#: src/features/auth/screens/RegisterScreen.tsx
+msgid "Password"
+msgstr ""
+
+#: src/features/profile/components/ProfileStats.tsx
+msgid "Personal Records"
+msgstr ""
+
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "Pounds"
+msgstr ""
+
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "Pounds (lbs)"
+msgstr ""
+
+#: src/features/profile/screens/ProfileScreen.tsx
+msgid "Profile"
+msgstr ""
+
+#: src/features/auth/screens/RegisterScreen.tsx
+msgid "Registro de atleta"
+msgstr ""
+
+#: src/features/auth/screens/ForgotPasswordScreen.tsx
+msgid "Reset password"
+msgstr ""
+
+#: src/features/calendar/components/CalendarGrid.tsx
+msgid "Sat"
+msgstr ""
+
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "Save"
+msgstr ""
+
+#: src/features/auth/screens/ForgotPasswordScreen.tsx
+msgid "Send Reset Link"
+msgstr ""
+
+#: src/features/calendar/components/CalendarGrid.tsx
+msgid "September"
+msgstr ""
+
+#: src/features/profile/components/ProfileMenu.tsx
+#: src/features/profile/screens/ProfileScreen.tsx
+msgid "Sign Out"
+msgstr ""
+
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "Strength"
+msgstr ""
+
+#: src/features/calendar/components/CalendarGrid.tsx
+msgid "Sun"
+msgstr ""
+
+#: src/features/calendar/components/CalendarGrid.tsx
+msgid "Thu"
+msgstr ""
+
+#: src/features/profile/components/ProfileStats.tsx
+msgid "Total Volume"
+msgstr ""
+
+#: src/features/profile/components/ProfileStats.tsx
+msgid "Total Workouts"
+msgstr ""
+
+#: src/features/calendar/components/CalendarGrid.tsx
+msgid "Tue"
+msgstr ""
+
+#: src/features/profile/screens/ProfileScreen.tsx
+msgid "User ID"
+msgstr ""
+
+#: src/features/calendar/components/CalendarGrid.tsx
+msgid "Wed"
+msgstr ""
+
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "Weight Unit"
+msgstr ""
+
+#: src/features/profile/components/ProfileMenu.tsx
+msgid "Wellness Dashboard"
+msgstr ""
+
+#: src/features/profile/components/ProfileMenu.tsx
+msgid "Workout History"
+msgstr ""
+
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "You're offline — profile changes need a connection"
+msgstr ""
+
+#: src/features/auth/screens/RegisterScreen.tsx
+#: src/features/profile/screens/EditProfileScreen.tsx
+msgid "Your name"
+msgstr ""
