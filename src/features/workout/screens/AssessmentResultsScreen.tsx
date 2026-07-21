@@ -60,7 +60,7 @@ function GaugeDots({
 
 function TrendIcon({ trend }: { trend: Trend }) {
   if (trend === "same") {
-    return <Text className="text-textSubtle text-sm font-bold">—</Text>;
+    return <Text className="text-surface-500 text-sm font-bold">—</Text>;
   }
 
   const isUp = trend === "up";
@@ -124,7 +124,7 @@ function MetricCard({
 
       {/* Average + trend */}
       <View className="flex-row items-center gap-2">
-        <Text className="text-textMuted text-xs">{t`Avg: ${formatAvg(avgVal)}`}</Text>
+        <Text className="text-surface-400 text-xs">{t`Avg: ${formatAvg(avgVal)}`}</Text>
         <TrendIcon trend={trend} />
       </View>
     </Card>
@@ -239,15 +239,15 @@ export function AssessmentResultsScreen() {
           <View className="flex-row items-center gap-4 mb-6">
             <View className="flex-row items-center gap-1.5">
               <View className="w-2.5 h-2.5 rounded-full bg-titanium" />
-              <Text className="text-textSubtle text-xs">{t`Current`}</Text>
+              <Text className="text-surface-500 text-xs">{t`Current`}</Text>
             </View>
             <View className="flex-row items-center gap-1.5">
               <Ionicons name="arrow-up" size={12} color="#D7D7D2" />
-              <Text className="text-textSubtle text-xs">{t`Above avg`}</Text>
+              <Text className="text-surface-500 text-xs">{t`Above avg`}</Text>
             </View>
             <View className="flex-row items-center gap-1.5">
               <Ionicons name="arrow-down" size={12} color="#D65F5F" />
-              <Text className="text-textSubtle text-xs">{t`Below avg`}</Text>
+              <Text className="text-surface-500 text-xs">{t`Below avg`}</Text>
             </View>
           </View>
 
