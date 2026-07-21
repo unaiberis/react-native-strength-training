@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Tabs, useRouter } from "expo-router";
 import { useAuthStore } from "@/stores/auth-store";
-import { View } from "react-native";
+import { View, Pressable, Text, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { GradientBackground } from "@/shared/ui/GradientBackground";
 import { OfflineBanner } from "@/shared/ui/OfflineBanner";
@@ -20,6 +20,38 @@ const tabIcons: Record<string, keyof typeof Ionicons.glyphMap> = {
 const tabLabels: Record<string, string> = {
   athletes: "Athletes",
 };
+
+function HeaderRight() {
+  const user = useAuthStore((s) => s.user);
+  const reset = useAuthStore((s) => s.reset);
+  const initial = (user?.displayName ?? user?.email ?? "?").charAt(0).toUpperCase();
+
+  const handleLogout = () => {
+    Alert.alert(
+      "Logout",
+      "Are you sure you want to logout?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Logout",
+          style: "destructive",
+          onPress: () => reset(),
+        },
+      ],
+    );
+  };
+
+  return (
+    <Pressable
+      onPress={handleLogout}
+      className="w-9 h-9 rounded-full bg-card border border-border items-center justify-center active:opacity-70"
+      accessibilityRole="button"
+      accessibilityLabel="Account"
+    >
+      <Text className="text-surface-50 text-sm font-bold">{initial}</Text>
+    </Pressable>
+  );
+}
 
 export default function CoachTabsLayout() {
   const router = useRouter();
@@ -58,6 +90,13 @@ export default function CoachTabsLayout() {
             name="athletes"
             options={{
               title: "Athletes",
+              headerShown: true,
+              headerTitle: "Athletes",
+              headerStyle: { backgroundColor: "#050505" },
+              headerTintColor: "#F4F4F2",
+              headerTitleStyle: { fontWeight: "700" },
+              headerShadowVisible: false,
+              headerRight: () => <HeaderRight />,
               tabBarIcon: ({ focused }) => (
                 <Ionicons
                   name={tabIcons.athletes}
