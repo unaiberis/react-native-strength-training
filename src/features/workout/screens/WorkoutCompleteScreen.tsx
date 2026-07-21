@@ -4,15 +4,15 @@ import { t } from "@lingui/core/macro";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";
-import { Button } from "../../../shared/ui/Button";
-import { Card } from "../../../shared/ui/Card";
-import { GradientBackground } from "../../../shared/ui/GradientBackground";
-import { ProgressRing } from "../../../shared/ui/ProgressRing";
-import { useSessionStore } from "../../../stores/session-store";
-import { useAuthStore } from "../../../stores/auth-store";
+import { Button } from "@/shared/ui/Button";
+import { Card } from "@/shared/ui/Card";
+import { GradientBackground } from "@/shared/ui/GradientBackground";
+import { ProgressRing } from "@/shared/ui/ProgressRing";
+import { useSessionStore } from "@/stores/session-store";
+import { useAuthStore } from "@/stores/auth-store";
 import { useClearSession } from "../hooks/useWorkoutSession";
 import { useSubmitFeedback } from "../hooks/useSubmitFeedback";
-import { computeWorkoutSummary } from "../../../shared/utils/workout-summary";
+import { computeWorkoutSummary } from "@/shared/utils/workout-summary";
 
 // ─── Best Set Badge ──────────────────────────────────────────────────────
 
