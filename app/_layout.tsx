@@ -260,7 +260,7 @@ export default function RootLayout() {
         <I18nProvider>
         <AuthGate>
           <StatusBar style="light" />
-          <View className="flex-1">
+          <View className="flex-1 bg-background">
             <OfflineBanner />
             <Stack screenOptions={{ headerShown: false }}>
               <Stack.Screen name="(auth)" options={{ animation: "fade" }} />
