@@ -59,12 +59,12 @@ jest.mock("@/features/notifications/hooks/useNotifications", () => ({
   useNotifications: (...args: any[]) => mockUseNotifications(...args),
 }));
 
-// ─── Mock Auth Store ─────────────────────────────────────────────────────────
+// ─── Mock Auth Store (mutable per-test) ──────────────────────────────────────
 
+let mockAuthState = { role: null, isTeamCoach: false };
 jest.mock("@/stores/auth-store", () => ({
   useAuthStore: jest.fn((selector: any) => {
-    const state = { role: null, isTeamCoach: false };
-    return selector ? selector(state) : state;
+    return selector ? selector(mockAuthState) : mockAuthState;
   }),
 }));
 
@@ -108,6 +108,7 @@ describe("ProfileScreen", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     defaultMocks();
+    mockAuthState = { role: null, isTeamCoach: false };
   });
 
   it("renders user display name and email", () => {
@@ -196,5 +197,39 @@ describe("ProfileScreen", () => {
 
     fireEvent.press(screen.getAllByText("Edit Profile")[0]);
     expect(mockPush).toHaveBeenCalledWith("/(tabs)/edit-profile");
+  });
+
+  // ─── isCoachView (SPEC-07: role source unification) ──────────────────────
+
+  it("shows Coaching card when isTeamCoach is true", () => {
+    mockAuthState = { role: "athlete", isTeamCoach: true };
+
+    render(<ProfileScreen />);
+
+    expect(screen.getByText("Coaching")).toBeTruthy();
+    expect(screen.getByText("Your Athletes")).toBeTruthy();
+    expect(
+      screen.getByText("View and manage your athletes from the dashboard"),
+    ).toBeTruthy();
+  });
+
+  it("does NOT show Coaching card when isTeamCoach is false", () => {
+    mockAuthState = { role: null, isTeamCoach: false };
+
+    render(<ProfileScreen />);
+
+    expect(screen.queryByText("Coaching")).toBeNull();
+    expect(screen.queryByText("Your Athletes")).toBeNull();
+  });
+
+  it("does NOT show Coaching card when role=coach but isTeamCoach is false (SPEC-07)", () => {
+    // This verifies the role source unification: role === "coach" alone
+    // should NOT grant coach UI without a team membership.
+    mockAuthState = { role: "coach", isTeamCoach: false };
+
+    render(<ProfileScreen />);
+
+    expect(screen.queryByText("Coaching")).toBeNull();
+    expect(screen.queryByText("Your Athletes")).toBeNull();
   });
 });
