@@ -15,13 +15,20 @@ const mockPb = {
   })),
 };
 
+const mockFetchTemplateNameMap = jest.fn();
+
 jest.mock("../../client", () => ({
   pb: mockPb,
+}));
+
+jest.mock("../templates", () => ({
+  fetchTemplateNameMap: (...args: any[]) => mockFetchTemplateNameMap(...args),
 }));
 
 import {
   assignProgram,
   listAssignments,
+  listAssignmentsWithTemplateNames,
   listCoachAssignments,
   unassignProgram,
   updateAssignment,
@@ -142,6 +149,51 @@ describe("PocketBase program-assignments service", () => {
       const result = await listAssignments("athlete-1");
 
       expect(result).toEqual([]);
+    });
+  });
+
+  describe("listAssignmentsWithTemplateNames", () => {
+    beforeEach(() => {
+      mockFetchTemplateNameMap.mockReset();
+    });
+
+    it("returns assignments enriched with template names", async () => {
+      const assignments = [
+        makeAssignment({ id: "pa-1", template_id: "tpl-1" }),
+        makeAssignment({ id: "pa-2", template_id: "tpl-2" }),
+      ];
+      mockGetFullList.mockResolvedValueOnce(assignments);
+      mockFetchTemplateNameMap.mockResolvedValueOnce(
+        new Map([["tpl-1", "Upper Body"], ["tpl-2", "Lower Body"]]),
+      );
+
+      const result = await listAssignmentsWithTemplateNames("athlete-1");
+
+      expect(result).toHaveLength(2);
+      expect(result[0].templateName).toBe("Upper Body");
+      expect(result[1].templateName).toBe("Lower Body");
+      expect(mockFetchTemplateNameMap).toHaveBeenCalledWith(["tpl-1", "tpl-2"]);
+    });
+
+    it("returns empty array when no assignments exist", async () => {
+      mockGetFullList.mockResolvedValueOnce([]);
+
+      const result = await listAssignmentsWithTemplateNames("athlete-1");
+
+      expect(result).toEqual([]);
+      expect(mockFetchTemplateNameMap).not.toHaveBeenCalled();
+    });
+
+    it("sets templateName to null when template not found in map", async () => {
+      const assignments = [
+        makeAssignment({ id: "pa-1", template_id: "tpl-unknown" }),
+      ];
+      mockGetFullList.mockResolvedValueOnce(assignments);
+      mockFetchTemplateNameMap.mockResolvedValueOnce(new Map());
+
+      const result = await listAssignmentsWithTemplateNames("athlete-1");
+
+      expect(result[0].templateName).toBeNull();
     });
   });
 

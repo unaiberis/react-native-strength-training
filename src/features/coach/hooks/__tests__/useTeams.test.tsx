@@ -16,6 +16,7 @@ jest.mock("@/stores/auth-store", () => ({
 }));
 
 const mockGetMyTeams = jest.fn().mockResolvedValue([]);
+const mockGetTeamById = jest.fn().mockResolvedValue(null);
 const mockCreateTeam = jest.fn().mockResolvedValue({});
 const mockDeleteTeam = jest.fn().mockResolvedValue(undefined);
 const mockGetUserTeams = jest.fn().mockResolvedValue([]);
@@ -23,6 +24,7 @@ const mockGetUserTeams = jest.fn().mockResolvedValue([]);
 jest.mock("@/lib/pocketbase/services/teams", () => ({
   getMyTeams: (...args: any[]) => mockGetMyTeams(...args),
   getUserTeams: (...args: any[]) => mockGetUserTeams(...args),
+  getTeamById: (...args: any[]) => mockGetTeamById(...args),
   createTeam: (name: string, desc: string | undefined, userId: string) =>
     mockCreateTeam(name, desc, userId),
   deleteTeam: (id: string) => mockDeleteTeam(id),
@@ -46,6 +48,7 @@ import {
   useUserTeams,
   useCreateTeam,
   useDeleteTeam,
+  useTeam,
   useAddTeamMember,
   useRemoveTeamMember,
   useTeamMembers,
@@ -139,6 +142,28 @@ describe("useTeams hooks", () => {
       const { result } = renderHook(() => useMyMemberships(), { wrapper: createWrapper() });
       await waitFor(() => expect(result.current.isSuccess).toBe(true));
       expect(result.current.data).toHaveLength(1);
+    });
+  });
+
+  describe("useTeam", () => {
+    it("fetches team by ID", async () => {
+      mockGetTeamById.mockResolvedValueOnce({ id: "t1", name: "Test Team", description: "A test team" });
+      const { result } = renderHook(() => useTeam("t1"), { wrapper: createWrapper() });
+      await waitFor(() => expect(result.current.isSuccess).toBe(true));
+      expect(result.current.data?.name).toBe("Test Team");
+      expect(mockGetTeamById).toHaveBeenCalledWith("t1");
+    });
+
+    it("does not fetch when teamId is null", () => {
+      const { result } = renderHook(() => useTeam(null), { wrapper: createWrapper() });
+      expect(result.current.isFetching).toBe(false);
+    });
+
+    it("handles team not found", async () => {
+      mockGetTeamById.mockResolvedValueOnce(null);
+      const { result } = renderHook(() => useTeam("t-nonexistent"), { wrapper: createWrapper() });
+      await waitFor(() => expect(result.current.isSuccess).toBe(true));
+      expect(result.current.data).toBeNull();
     });
   });
 });

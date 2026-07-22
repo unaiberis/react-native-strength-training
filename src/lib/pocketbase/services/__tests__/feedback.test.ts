@@ -15,7 +15,7 @@ jest.mock("../../client", () => ({
   pb: mockPb,
 }));
 
-import { submitFeedback, listFeedback } from "../feedback";
+import { submitFeedback, listFeedback, getFeedbackCountsForAthletes } from "../feedback";
 import type { WorkoutFeedbackRow } from "../../../../types/pocketbase";
 
 const makeFeedbackRow = (
@@ -131,6 +131,53 @@ describe("PocketBase feedback service", () => {
       await expect(listFeedback("athlete-1")).rejects.toThrow(
         "Failed to list feedback:",
       );
+    });
+  });
+
+  describe("getFeedbackCountsForAthletes", () => {
+    it("returns counts for each athlete based on feedback records", async () => {
+      const records = [
+        { id: "fb-1", athlete_id: "athlete-1" },
+        { id: "fb-2", athlete_id: "athlete-1" },
+        { id: "fb-3", athlete_id: "athlete-2" },
+      ];
+      mockGetFullList.mockResolvedValueOnce(records);
+
+      const result = await getFeedbackCountsForAthletes(["athlete-1", "athlete-2"]);
+
+      expect(result.get("athlete-1")).toBe(2);
+      expect(result.get("athlete-2")).toBe(1);
+      expect(mockGetFullList).toHaveBeenCalledWith({
+        filter: "athlete_id = 'athlete-1' || athlete_id = 'athlete-2'",
+        fields: "id,athlete_id",
+        $autoCancel: false,
+      });
+    });
+
+    it("returns empty map when athleteIds array is empty", async () => {
+      const result = await getFeedbackCountsForAthletes([]);
+
+      expect(result.size).toBe(0);
+      expect(mockGetFullList).not.toHaveBeenCalled();
+    });
+
+    it("returns empty map on PocketBase error", async () => {
+      mockGetFullList.mockRejectedValueOnce(new Error("Network error"));
+
+      const result = await getFeedbackCountsForAthletes(["athlete-1"]);
+
+      expect(result.size).toBe(0);
+    });
+
+    it("deduplicates athlete IDs automatically", async () => {
+      const records = [
+        { id: "fb-1", athlete_id: "athlete-1" },
+      ];
+      mockGetFullList.mockResolvedValueOnce(records);
+
+      const result = await getFeedbackCountsForAthletes(["athlete-1", "athlete-1"]);
+
+      expect(result.get("athlete-1")).toBe(1);
     });
   });
 });

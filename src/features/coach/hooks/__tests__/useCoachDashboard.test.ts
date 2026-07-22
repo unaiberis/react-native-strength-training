@@ -78,6 +78,59 @@ describe("useCoachDashboard", () => {
     expect(result.current.totalAthletes).toBe(0);
   });
 
+  it("attaches feedback counts to athletes", async () => {
+    const athletes = [
+      { id: "a1", displayName: "One", email: "a1@test.com", lastWorkoutDate: "2026-07-01T00:00:00Z", totalWorkouts: 10, thisWeekWorkouts: 2, complianceRate: 0.8, totalVolumeKg: 5000 },
+      { id: "a2", displayName: "Two", email: "a2@test.com", lastWorkoutDate: "2026-07-02T00:00:00Z", totalWorkouts: 5, thisWeekWorkouts: 1, complianceRate: 0.5, totalVolumeKg: 2000 },
+    ];
+    mockListAthletes.mockResolvedValueOnce(athletes);
+    mockGetFeedbackCounts.mockResolvedValueOnce(
+      new Map([["a1", 3], ["a2", 1]]),
+    );
+
+    const { result } = renderHook(() => useCoachDashboard(), {
+      wrapper: createWrapper(),
+    });
+
+    await waitFor(() => {
+      expect(result.current.athletes.length).toBe(2);
+    });
+
+    expect(result.current.athletes[0].feedbackCount).toBe(3);
+    expect(result.current.athletes[1].feedbackCount).toBe(1);
+    expect(mockGetFeedbackCounts).toHaveBeenCalledWith(["a1", "a2"]);
+  });
+
+  it("defaults feedback count to 0 when not in map", async () => {
+    const athletes = [
+      { id: "a1", displayName: "One", email: "a1@test.com", lastWorkoutDate: "2026-07-01T00:00:00Z", totalWorkouts: 10, thisWeekWorkouts: 2, complianceRate: 0.8, totalVolumeKg: 5000 },
+    ];
+    mockListAthletes.mockResolvedValueOnce(athletes);
+    mockGetFeedbackCounts.mockResolvedValueOnce(new Map());
+
+    const { result } = renderHook(() => useCoachDashboard(), {
+      wrapper: createWrapper(),
+    });
+
+    await waitFor(() => {
+      expect(result.current.athletes.length).toBe(1);
+    });
+
+    expect(result.current.athletes[0].feedbackCount).toBe(0);
+  });
+
+  it("does not fetch feedback counts when there are no athletes", async () => {
+    mockListAthletes.mockResolvedValueOnce([]);
+
+    const { result } = renderHook(() => useCoachDashboard(), {
+      wrapper: createWrapper(),
+    });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+    expect(mockGetFeedbackCounts).not.toHaveBeenCalled();
+  });
+
   it("handles errors gracefully", async () => {
     mockListAthletes.mockRejectedValueOnce(new Error("Fetch failed"));
 

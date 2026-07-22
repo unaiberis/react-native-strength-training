@@ -181,4 +181,62 @@ describe("DayDetail", () => {
       expect(onViewDetail).toHaveBeenCalledTimes(1);
     });
   });
+
+  describe("pastPrograms", () => {
+    it("renders past assignments section when programs match the date", () => {
+      const pastPrograms = [
+        { id: "p1", name: "Upper Body", status: "completed" as const, startDate: "2026-07-08", endDate: "2026-08-26", description: "", totalWeeks: 8, weeksCompleted: 8, progressPercent: 100, phases: [] },
+      ];
+      const { getByText } = render(
+        React.createElement(DayDetail, {
+          ...defaultProps,
+          date: "2026-07-08",
+          pastPrograms,
+        }),
+      );
+
+      expect(getByText("Past Assignments")).toBeTruthy();
+      expect(getByText("Upper Body")).toBeTruthy();
+      expect(getByText("completed")).toBeTruthy();
+    });
+
+    it("does not render past assignments section when no programs match date", () => {
+      const pastPrograms = [
+        { id: "p1", name: "Upper Body", status: "completed" as const, startDate: "2026-07-01", endDate: "2026-08-26", description: "", totalWeeks: 8, weeksCompleted: 8, progressPercent: 100, phases: [] },
+      ];
+      const { queryByText } = render(
+        React.createElement(DayDetail, {
+          ...defaultProps,
+          date: "2026-07-08",
+          pastPrograms,
+        }),
+      );
+
+      expect(queryByText("Past Assignments")).toBeNull();
+    });
+
+    it("is hidden when pastPrograms is undefined", () => {
+      const { queryByText } = render(
+        React.createElement(DayDetail, defaultProps),
+      );
+
+      expect(queryByText("Past Assignments")).toBeNull();
+    });
+
+    it("shows status badge for non-completed programs", () => {
+      // Note: mapAssignmentToProgramSummary maps cancelled rows to status "active"
+      const pastPrograms = [
+        { id: "p1", name: "Leg Day", status: "active" as const, startDate: "2026-07-08", endDate: "2026-08-26", description: "", totalWeeks: 8, weeksCompleted: 0, progressPercent: 0, phases: [] },
+      ];
+      const { getByText } = render(
+        React.createElement(DayDetail, {
+          ...defaultProps,
+          date: "2026-07-08",
+          pastPrograms,
+        }),
+      );
+
+      expect(getByText("active")).toBeTruthy();
+    });
+  });
 });

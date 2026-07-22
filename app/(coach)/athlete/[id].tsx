@@ -17,9 +17,11 @@ import { DETAIL_HEADER } from "@/constants/theme";
 import { useAthleteDetail, useUnlinkAthlete } from "@/features/coach/hooks/useAthleteDetail";
 import { useCoachFeedback } from "@/features/coach/hooks/useCoachFeedback";
 
-function formatDate(dateStr: string): string {
+export function formatDate(dateStr: string): string {
   try {
-    return new Date(dateStr).toLocaleDateString(undefined, {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return dateStr;
+    return d.toLocaleDateString(undefined, {
       month: "short",
       day: "numeric",
       year: "numeric",
@@ -29,7 +31,7 @@ function formatDate(dateStr: string): string {
   }
 }
 
-function StarRating({ rating }: { rating: number }) {
+export function StarRating({ rating }: { rating: number }) {
   return (
     <View className="flex-row gap-0.5">
       {[1, 2, 3, 4, 5].map((star) => (

@@ -130,14 +130,45 @@ describe("deriveCurrentAndUpcoming", () => {
     expect(currentProgram).toBeNull();
   });
 
-  it("does not surface completed past rows", () => {
+  it("surfaces completed past rows in pastPrograms", () => {
     const completed = makeRow({ id: "asg-done", started_at: "2026-06-01", status: "completed" });
-    const { currentProgram, upcomingPrograms } = deriveCurrentAndUpcoming(
+    const { currentProgram, upcomingPrograms, pastPrograms } = deriveCurrentAndUpcoming(
       [completed],
       TODAY,
     );
     expect(currentProgram).toBeNull();
     expect(upcomingPrograms).toEqual([]);
+    expect(pastPrograms).toHaveLength(1);
+    expect(pastPrograms[0].id).toBe("asg-done");
+    expect(pastPrograms[0].status).toBe("completed");
+  });
+
+  it("includes cancelled rows in pastPrograms but not in current/upcoming", () => {
+    const cancelled = makeRow({ id: "asg-cancelled", started_at: "2026-06-01", status: "cancelled" });
+    const { currentProgram, upcomingPrograms, pastPrograms } = deriveCurrentAndUpcoming(
+      [cancelled],
+      TODAY,
+    );
+    expect(currentProgram).toBeNull();
+    expect(upcomingPrograms).toEqual([]);
+    expect(pastPrograms).toHaveLength(1);
+    expect(pastPrograms[0].id).toBe("asg-cancelled");
+  });
+
+  it("uses templateName when provided via rows", () => {
+    const row = makeRow({
+      started_at: "2026-07-01",
+    });
+    const rowWithName = { ...row, templateName: "Upper Body Strength" };
+    const { currentProgram } = deriveCurrentAndUpcoming([rowWithName], TODAY);
+    expect(currentProgram?.name).toBe("Upper Body Strength");
+  });
+
+  it("falls back to Untitled Program when templateName is missing", () => {
+    const row = makeRow({ started_at: "2026-07-01" });
+    const rowWithNullName = { ...row, templateName: null };
+    const { currentProgram } = deriveCurrentAndUpcoming([rowWithNullName], TODAY);
+    expect(currentProgram?.name).toBe("Untitled Program");
   });
 
   it("boundary: future-only assignment → current null, upcoming length 1", () => {
@@ -164,12 +195,17 @@ describe("useAthleteAssignments (hook)", () => {
     useAuthStore.setState({ user: { id: "ath-1" } } as any);
   });
 
-  it("calls listAssignments(user.id) and surfaces the current program", async () => {
+  it("calls listAssignmentsWithTemplateNames and surfaces current/upcoming/past programs", async () => {
     const B = makeRow({
       id: "asg-b",
       started_at: "2026-07-05",
     });
-    mockListAssignments.mockResolvedValue([B]);
+    const past = makeRow({
+      id: "asg-past",
+      started_at: "2026-06-01",
+      status: "completed",
+    });
+    mockListAssignments.mockResolvedValue([B, past]);
 
     const { result } = renderHook(() => useAthleteAssignments(), {
       wrapper: createWrapper(),
@@ -178,6 +214,8 @@ describe("useAthleteAssignments (hook)", () => {
     await waitFor(() => expect(result.current.isLoading).toBe(false));
     expect(mockListAssignments).toHaveBeenCalledWith("ath-1");
     expect(result.current.currentProgram?.id).toBe("asg-b");
+    expect(result.current.pastPrograms).toHaveLength(1);
+    expect(result.current.pastPrograms[0].id).toBe("asg-past");
     expect(result.current.error).toBeNull();
   });
 
@@ -191,6 +229,7 @@ describe("useAthleteAssignments (hook)", () => {
     await waitFor(() => expect(result.current.isLoading).toBe(false));
     expect(result.current.currentProgram).toBeNull();
     expect(result.current.upcomingPrograms).toEqual([]);
+    expect(result.current.pastPrograms).toEqual([]);
   });
 
   it("propagates errors thrown by listAssignments", async () => {
@@ -203,6 +242,7 @@ describe("useAthleteAssignments (hook)", () => {
     await waitFor(() => expect(result.current.isLoading).toBe(false));
     expect(result.current.error).toBeDefined();
     expect(result.current.currentProgram).toBeNull();
+    expect(result.current.pastPrograms).toEqual([]);
   });
 
   it("does not call listAssignments when user is absent (enabled guard)", async () => {
