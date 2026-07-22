@@ -10,7 +10,7 @@
 import type { SQLiteDatabase } from "expo-sqlite";
 
 const SCHEMA_VERSION_KEY = "schema_version";
-const CURRENT_SCHEMA_VERSION = "6";
+const CURRENT_SCHEMA_VERSION = "7";
 
 // ─── DDL Statements ─────────────────────────────────────────────────────
 

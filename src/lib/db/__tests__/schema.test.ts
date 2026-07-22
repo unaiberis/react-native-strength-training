@@ -159,7 +159,7 @@ describe("schema migrations", () => {
 
       expect(seedCall).toBeDefined();
       expect(seedCall).toContain("schema_version");
-      expect(seedCall).toContain("'6'");
+      expect(seedCall).toContain("'7'");
     });
 
     it("is idempotent — can be called twice", async () => {
@@ -240,7 +240,7 @@ describe("schema migrations", () => {
     });
 
     it("skips migrations when schema is already at current version", async () => {
-      getFirstAsyncMock.mockResolvedValue({ value: "6" });
+      getFirstAsyncMock.mockResolvedValue({ value: "7" });
       execAsyncMock.mockClear();
 
       await runMigrations(mockDb as any);
