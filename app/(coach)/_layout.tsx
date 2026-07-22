@@ -1,22 +1,10 @@
 import { useEffect, useState } from "react";
-import { Tabs, useRouter } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import { useAuthStore } from "@/stores/auth-store";
 import { View, Pressable, Text } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { GradientBackground } from "@/shared/ui/GradientBackground";
 import { OfflineBanner } from "@/shared/ui/OfflineBanner";
-import {
-  TAB_BAR_BG,
-  TAB_BAR_BORDER,
-  TAB_BAR_HEIGHT,
-  TAB_BAR_ACTIVE_TINT,
-  TAB_BAR_INACTIVE_TINT,
-} from "@/constants/theme";
-
-const tabIcons: Record<string, keyof typeof Ionicons.glyphMap> = {
-  athletes: "people-outline",
-};
-
 
 /** Professional user dropdown — avatar initial → menu card with user info + logout. */
 function UserMenu() {
@@ -104,22 +92,13 @@ export default function CoachTabsLayout() {
     <GradientBackground>
       <View className="flex-1 bg-soft">
         <OfflineBanner />
-        <Tabs
+        <Stack
           screenOptions={{
             headerShown: false,
-            tabBarStyle: {
-              backgroundColor: TAB_BAR_BG,
-              borderTopColor: TAB_BAR_BORDER,
-              borderTopWidth: 1,
-              paddingTop: 4,
-              height: TAB_BAR_HEIGHT,
-            },
-            tabBarActiveTintColor: TAB_BAR_ACTIVE_TINT,
-            tabBarInactiveTintColor: TAB_BAR_INACTIVE_TINT,
           }}
         >
-          {/* Primary tab: Athletes */}
-          <Tabs.Screen
+          {/* Primary screen: Athletes */}
+          <Stack.Screen
             name="athletes"
             options={{
               title: "Athletes",
@@ -130,70 +109,63 @@ export default function CoachTabsLayout() {
               headerTitleStyle: { fontWeight: "700" },
               headerShadowVisible: false,
               headerRight: () => <UserMenu />,
-              tabBarIcon: ({ focused }) => (
-                <Ionicons
-                  name={tabIcons.athletes}
-                  size={22}
-                  color={focused ? TAB_BAR_ACTIVE_TINT : TAB_BAR_INACTIVE_TINT}
-                />
-              ),
             }}
           />
 
-          {/* Hidden routes — navigated from screens, not shown in tab bar */}
-          <Tabs.Screen
+          {/* Hidden routes — navigated from screens */}
+          <Stack.Screen
             name="index"
-            options={{ href: null }}
+            options={{ headerShown: false }}
           />
-          <Tabs.Screen
+          <Stack.Screen
             name="athlete/[id]"
-            options={{ href: null, headerShown: false }}
+            options={{ headerShown: false }}
           />
-          <Tabs.Screen
+          <Stack.Screen
             name="athlete/[id]/calendar"
-            options={{ href: null, headerShown: false }}
+            options={{ headerShown: false }}
           />
-          <Tabs.Screen
+          <Stack.Screen
             name="analytics/[athleteId]"
-            options={{ href: null, headerShown: false }}
+            options={{ headerShown: false }}
           />
-          <Tabs.Screen
+          <Stack.Screen
             name="library/index"
-            options={{ href: null }}
+            options={{}}
           />
-          <Tabs.Screen
+          <Stack.Screen
             name="library/create"
-            options={{ href: null, headerShown: false }}
+            options={{ headerShown: false }}
           />
-          <Tabs.Screen
+          <Stack.Screen
             name="library/[id]/edit"
-            options={{ href: null, headerShown: false }}
+            options={{ headerShown: false }}
           />
-          <Tabs.Screen
+          <Stack.Screen
             name="assign"
-            options={{ href: null, headerShown: false }}
+            options={{ headerShown: false }}
           />
-          <Tabs.Screen
+          <Stack.Screen
             name="teams/[id]"
-            options={{ href: null, headerShown: false }}
+            options={{ headerShown: false }}
           />
-          <Tabs.Screen
+          <Stack.Screen
             name="workout-builder/index"
-            options={{ href: null, headerShown: false }}
+            options={{ headerShown: false }}
           />
-          <Tabs.Screen
+          <Stack.Screen
             name="workout-builder/[id]"
-            options={{ href: null, headerShown: false }}
+            options={{ headerShown: false }}
           />
-          <Tabs.Screen
+          <Stack.Screen
             name="assigned-programs"
-            options={{ href: null, headerShown: false }}
+            options={{ headerShown: false }}
           />
-          <Tabs.Screen
+          <Stack.Screen
             name="assignment/[id]"
-            options={{ href: null, headerShown: false }}
+            options={{ headerShown: false }}
           />
-        </Tabs>
+        </Stack>
       </View>
     </GradientBackground>
   );
