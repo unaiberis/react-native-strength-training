@@ -10,7 +10,6 @@ import {
 } from "react-native";
 import { useRouter, useLocalSearchParams, Stack } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { BackButton } from "@/shared/ui/BackButton";
 import { Card } from "@/shared/ui/Card";

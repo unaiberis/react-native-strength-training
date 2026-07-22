@@ -5,6 +5,7 @@ import { View } from "react-native";
 import { GradientBackground } from "@/shared/ui/GradientBackground";
 import { OfflineBanner } from "@/shared/ui/OfflineBanner";
 import { UserMenu } from "@/shared/ui/UserMenu";
+import { DETAIL_HEADER } from "@/constants/theme";
 
 export default function CoachLayout() {
   const router = useRouter();
@@ -36,8 +37,7 @@ export default function CoachLayout() {
               title: "Athletes",
               headerShown: true,
               headerTitle: "Athletes",
-              headerStyle: { backgroundColor: "#050505" },
-              headerTintColor: "#F4F4F2",
+              ...DETAIL_HEADER,
               headerTitleStyle: { fontWeight: "700" },
               headerShadowVisible: false,
               headerRight: () => <UserMenu />,
