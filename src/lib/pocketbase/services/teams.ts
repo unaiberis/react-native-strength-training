@@ -88,10 +88,14 @@ export async function deleteTeam(teamId: string): Promise<void> {
 }
 
 /**
- * Get a user's teams enriched with their role and member/athlete/coach counts.
+ * Get a user's teams enriched with their role, member/athlete/coach counts,
+ * and the list of coaches/admins per team.
+ *
+ * Optimised: 2 queries total regardless of team count.
  */
 export async function getUserTeams(userId: string): Promise<UserTeam[]> {
   try {
+    // 1. Get my memberships → team info + my role
     const memberships = await pb.collection("team_memberships").getFullList({
       filter: `user_id = '${userId}'`,
       expand: "team_id",
@@ -100,21 +104,53 @@ export async function getUserTeams(userId: string): Promise<UserTeam[]> {
 
     if (memberships.length === 0) return [];
 
+    const teamIds = memberships.map((m: any) => m.expand?.team_id?.id).filter(Boolean) as string[];
+    if (teamIds.length === 0) return [];
+
+    // 2. Get ALL members across those teams in a single query with user expand
+    const teamFilter = teamIds.map((id: string) => `team_id = '${id}'`).join(" || ");
+    const allMembers = await pb.collection("team_memberships").getFullList({
+      filter: teamFilter,
+      expand: "user_id",
+      $autoCancel: false,
+    });
+
+    // Group members by team_id
+    const membersByTeam = new Map<string, any[]>();
+    for (const m of allMembers) {
+      const tid = m.team_id as string;
+      if (!membersByTeam.has(tid)) membersByTeam.set(tid, []);
+      membersByTeam.get(tid)!.push(m);
+    }
+
+    // Build results
     const results: UserTeam[] = [];
 
     for (const m of memberships) {
       const team = (m as any).expand?.team_id;
       if (!team) continue;
 
-      // Count members by role
-      const allMembers = await pb.collection("team_memberships").getFullList({
-        filter: `team_id = '${team.id}'`,
-        $autoCancel: false,
-      });
+      const tmMembers = membersByTeam.get(team.id) ?? [];
+      const memberCount = tmMembers.length;
+      const athleteCount = tmMembers.filter((mm: any) => mm.role === "athlete").length;
+      const coachCount = tmMembers.filter((mm: any) => mm.role === "coach" || mm.role === "admin").length;
 
-      const memberCount = allMembers.length;
-      const athleteCount = allMembers.filter((mm: any) => mm.role === "athlete").length;
-      const coachCount = allMembers.filter((mm: any) => mm.role === "coach" || mm.role === "admin").length;
+      // Extract coach/admins for inline display
+      const coaches: { id: string; displayName: string; email: string }[] = [];
+      const seenIds = new Set<string>();
+      for (const mm of tmMembers) {
+        const role = mm.role as string;
+        if (role !== "coach" && role !== "admin") continue;
+        const user = (mm as any).expand?.user_id;
+        if (user && !seenIds.has(user.id)) {
+          seenIds.add(user.id);
+          coaches.push({
+            id: user.id,
+            displayName: user.displayName ?? user.email?.split("@")[0] ?? "Coach",
+            email: user.email ?? "",
+          });
+        }
+      }
 
       results.push({
         id: team.id,
@@ -128,6 +164,7 @@ export async function getUserTeams(userId: string): Promise<UserTeam[]> {
         member_count: memberCount,
         athlete_count: athleteCount,
         coach_count: coachCount,
+        coaches,
       });
     }
 

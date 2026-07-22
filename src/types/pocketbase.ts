@@ -122,12 +122,19 @@ export interface TeamMember extends TeamMembershipRow {
   user_avatar: string | null;
 }
 
+export interface TeamCoachInfo {
+  id: string;
+  displayName: string;
+  email: string;
+}
+
 export interface UserTeam extends TeamRow {
   membership_role: TeamRole;
   membership_position: string | null;
   member_count: number;
   athlete_count: number;
   coach_count: number;
+  coaches: TeamCoachInfo[];
 }
 
 export interface TeamInviteRow {

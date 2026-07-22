@@ -33,8 +33,6 @@ export function ProfileScreen() {
   const query = useProfileStats();
   const { data: syncCount } = usePendingSyncCount();
   const { unreadCount: notificationUnreadCount } = useNotifications();
-  const { coaches: myCoaches } = useProfileCoach();
-
   const userRole = useAuthStore((s) => s.role);
   const isTeamCoachFlag = useAuthStore((s) => s.isTeamCoach);
   const isCoachView = userRole === "coach" || isTeamCoachFlag;
@@ -100,19 +98,42 @@ export function ProfileScreen() {
     );
   };
 
-  /** Teams section — shows the user's team memberships. */
+  /** Role badge coloured pill. */
+  function RoleBadge({ role }: { role: string }) {
+    const colors: Record<string, string> = {
+      admin: "bg-amber-500/20 text-amber-400",
+      coach: "bg-brand-500/20 text-brand-400",
+      athlete: "bg-surface-500/20 text-surface-400",
+    };
+    const c = colors[role] ?? colors.athlete;
+    return (
+      <View className={`rounded-full px-2 py-0.5 ${c.split(" ")[0]}`}>
+        <Text className={`text-[10px] font-bold ${c.split(" ")[1]}`}>
+          {role.charAt(0).toUpperCase() + role.slice(1)}
+        </Text>
+      </View>
+    );
+  }
+
+  /** Teams section — shows the user's team memberships with coaches inline. */
   function MyTeamsSection() {
     const { data: teams, isLoading: teamsLoading } = useUserTeams();
     const innerRouter = useRouter();
     const isCoach =
       useAuthStore((s) => s.role === "coach") ||
       useAuthStore((s) => s.isTeamCoach);
+    const hasCoaches = useProfileCoach().coaches.length > 0;
 
     if (teamsLoading) return null;
-    if (!teams || teams.length === 0) return null;
+
+    // Show a compact "My Coach" fallback only when no teams exist but coaches do
+    if (!teams || teams.length === 0) {
+      if (!hasCoaches) return null;
+      return <MyCoachFallback />;
+    }
 
     return (
-      <Card title={t`My Teams`} className="mb-4">
+      <Card title={t`My Squads & Coaches`} className="mb-4">
         {teams.map((team) => (
           <TouchableOpacity
             key={team.id}
@@ -123,31 +144,97 @@ export function ProfileScreen() {
                 innerRouter.push(`/(tabs)/team/${team.id}`);
               }
             }}
-            className="flex-row items-center justify-between py-3 border-b border-border last:border-b-0"
+            className="flex-row items-start gap-3 py-4 border-b border-border last:border-b-0"
             activeOpacity={0.7}
             accessibilityRole="button"
             accessibilityLabel={`Team: ${team.name}`}
           >
-            <View className="flex-row items-center gap-3">
-              <View className="w-9 h-9 rounded-full bg-graphite items-center justify-center">
-                <Text className="text-surface-50 font-bold text-sm">
-                  {team.name.charAt(0).toUpperCase()}
-                </Text>
-              </View>
-              <View>
-                <Text className="text-surface-100 text-sm font-medium">
+            {/* Team initial */}
+            <View className="w-10 h-10 rounded-full bg-graphite items-center justify-center mt-0.5">
+              <Text className="text-surface-50 font-bold text-sm">
+                {team.name.charAt(0).toUpperCase()}
+              </Text>
+            </View>
+
+            {/* Info column */}
+            <View className="flex-1 min-w-0">
+              {/* Row 1: Name + role badge */}
+              <View className="flex-row items-center gap-2 mb-0.5">
+                <Text
+                  className="text-surface-50 text-sm font-semibold shrink"
+                  numberOfLines={1}
+                >
                   {team.name}
                 </Text>
-                <Text className="text-surface-400 text-xs">
-                  <Trans>
-                    {team.member_count} member
-                    {team.member_count !== 1 ? "s" : ""}
-                  </Trans>
-                </Text>
+                <RoleBadge role={team.membership_role} />
               </View>
+
+              {/* Row 2: Description (1 line) */}
+              {team.description ? (
+                <Text className="text-surface-400 text-xs mb-1" numberOfLines={1}>
+                  {team.description}
+                </Text>
+              ) : null}
+
+              {/* Row 3: Coaches inline */}
+              {team.coaches.length > 0 ? (
+                <View className="flex-row flex-wrap items-center gap-x-3 gap-y-0.5">
+                  {team.coaches.map((coach) => (
+                    <View
+                      key={coach.id}
+                      className="flex-row items-center gap-1"
+                    >
+                      <View className="w-4 h-4 rounded-full bg-card-soft items-center justify-center">
+                        <Text className="text-[9px] font-bold text-surface-400">
+                          {coach.displayName.charAt(0).toUpperCase()}
+                        </Text>
+                      </View>
+                      <Text className="text-surface-400 text-[11px]" numberOfLines={1}>
+                        {coach.displayName}
+                      </Text>
+                    </View>
+                  ))}
+                </View>
+              ) : null}
             </View>
-            <Ionicons name="chevron-forward" size={16} color="#707074" />
+
+            {/* Right: composition + chevron */}
+            <View className="items-end justify-center ml-2 shrink-0">
+              <Text className="text-surface-500 text-[10px] mb-1">
+                {team.coach_count}c · {team.athlete_count}a
+              </Text>
+              <Ionicons name="chevron-forward" size={16} color="#707074" />
+            </View>
           </TouchableOpacity>
+        ))}
+      </Card>
+    );
+  }
+
+  /** Fallback "My Coach" card for athletes without teams but with legacy coach links. */
+  function MyCoachFallback() {
+    const { coaches: myCoaches } = useProfileCoach();
+    if (myCoaches.length === 0) return null;
+
+    return (
+      <Card title={t`My Coach`} className="mb-4">
+        {myCoaches.map((coach) => (
+          <View
+            key={coach.id}
+            className="flex-row items-center gap-3 py-2 border-b border-border last:border-b-0"
+          >
+            <View className="w-10 h-10 rounded-full bg-graphite items-center justify-center">
+              <Text className="text-surface-50 font-bold text-sm">
+                {coach.displayName.charAt(0).toUpperCase()}
+              </Text>
+            </View>
+            <View className="flex-1">
+              <Text className="text-surface-50 text-sm font-semibold">
+                {coach.displayName}
+              </Text>
+              <Text className="text-surface-400 text-xs">{coach.email}</Text>
+            </View>
+          </View>
         ))}
       </Card>
     );
@@ -174,7 +261,7 @@ export function ProfileScreen() {
           totalVolume={totalVolume}
         />
 
-        {/* ─── My Coach / Your Athletes ──────────────────────────── */}
+        {/* ─── My Squads & Coaches / Your Athletes ──────────────── */}
         {isCoachView ? (
           <Card title={t`Coaching`} className="mb-4">
             <View className="flex-row items-center gap-3 py-2">
@@ -191,41 +278,9 @@ export function ProfileScreen() {
               </View>
             </View>
           </Card>
-        ) : (
-          <Card title={t`My Coach`} className="mb-4">
-            {myCoaches.length === 0 ? (
-              <View className="py-3 items-center">
-                <Ionicons name="person-outline" size={24} color="#707074" />
-                <Text className="text-surface-400 text-sm mt-2 text-center">
-                  <Trans>You don't have a coach yet</Trans>
-                </Text>
-              </View>
-            ) : (
-              myCoaches.map((coach) => (
-                <View
-                  key={coach.id}
-                  className="flex-row items-center gap-3 py-2 border-b border-border last:border-b-0"
-                >
-                  <View className="w-10 h-10 rounded-full bg-graphite items-center justify-center">
-                    <Text className="text-surface-50 font-bold text-sm">
-                      {coach.displayName.charAt(0).toUpperCase()}
-                    </Text>
-                  </View>
-                  <View className="flex-1">
-                    <Text className="text-surface-50 text-sm font-semibold">
-                      {coach.displayName}
-                    </Text>
-                    <Text className="text-surface-400 text-xs">
-                      {coach.email}
-                    </Text>
-                  </View>
-                </View>
-              ))
-            )}
-          </Card>
-        )}
+        ) : null}
 
-        {/* ─── My Teams ────────────────────────────────────────────── */}
+        {/* ─── Teams & Coaches (athlete) ─────────────────────────── */}
         <MyTeamsSection />
 
         {/* ─── Sync Status ─────────────────────────────────────────── */}

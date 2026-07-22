@@ -236,11 +236,11 @@ describe("PocketBase teams service", () => {
   // getUserTeams
   // -----------------------------------------------------------------------
   describe("getUserTeams", () => {
-    it("returns UserTeam[] with counts", async () => {
+    it("returns UserTeam[] with counts and coaches", async () => {
       const team1 = makeTeam({ id: "team-1", name: "Team Alpha" });
       const team2 = makeTeam({ id: "team-2", name: "Team Beta" });
 
-      // 1st getFullList: user memberships with expand
+      // 1st getFullList: user memberships with team expand
       const memberships = [
         makeMembership(
           { id: "ms-1", team_id: "team-1", role: "admin" },
@@ -253,16 +253,43 @@ describe("PocketBase teams service", () => {
       ];
       mockGetFullList.mockResolvedValueOnce(memberships);
 
-      // 2nd getFullList: members of team-1 (for counts)
+      // 2nd getFullList: ALL members across both teams (single query) with user expand
       mockGetFullList.mockResolvedValueOnce([
-        { role: "admin" },
-        { role: "athlete" },
-        { role: "athlete" },
-      ]);
-      // 3rd getFullList: members of team-2
-      mockGetFullList.mockResolvedValueOnce([
-        { role: "coach" },
-        { role: "athlete" },
+        {
+          team_id: "team-1",
+          role: "admin",
+          expand: {
+            user_id: { id: "user-1", displayName: "Me", email: "me@test.com" },
+          },
+        },
+        {
+          team_id: "team-1",
+          role: "athlete",
+          expand: {
+            user_id: { id: "user-2", displayName: "Athlete A", email: "a@test.com" },
+          },
+        },
+        {
+          team_id: "team-1",
+          role: "athlete",
+          expand: {
+            user_id: { id: "user-3", displayName: "Athlete B", email: "b@test.com" },
+          },
+        },
+        {
+          team_id: "team-2",
+          role: "coach",
+          expand: {
+            user_id: { id: "user-4", displayName: "Coach Smith", email: "smith@test.com" },
+          },
+        },
+        {
+          team_id: "team-2",
+          role: "athlete",
+          expand: {
+            user_id: { id: "user-2", displayName: "Athlete A", email: "a@test.com" },
+          },
+        },
       ]);
 
       const result = await getUserTeams("user-1");
@@ -275,7 +302,10 @@ describe("PocketBase teams service", () => {
       expect(result[0].membership_role).toBe("admin");
       expect(result[0].member_count).toBe(3);
       expect(result[0].athlete_count).toBe(2);
-      expect(result[0].coach_count).toBe(1); // admin
+      expect(result[0].coach_count).toBe(1);
+      // Only admin/coach entries appear in coaches[]
+      expect(result[0].coaches).toHaveLength(1);
+      expect(result[0].coaches[0].displayName).toBe("Me");
 
       // Team 2
       expect(result[1].id).toBe("team-2");
@@ -283,7 +313,40 @@ describe("PocketBase teams service", () => {
       expect(result[1].membership_role).toBe("coach");
       expect(result[1].member_count).toBe(2);
       expect(result[1].athlete_count).toBe(1);
-      expect(result[1].coach_count).toBe(1); // coach
+      expect(result[1].coach_count).toBe(1);
+      expect(result[1].coaches).toHaveLength(1);
+      expect(result[1].coaches[0].displayName).toBe("Coach Smith");
+    });
+
+    it("deduplicates coaches by user id", async () => {
+      const team = makeTeam({ id: "team-1", name: "One Team" });
+
+      // 1st: my membership
+      mockGetFullList.mockResolvedValueOnce([
+        makeMembership({ id: "ms-1", team_id: "team-1", role: "athlete" }, team),
+      ]);
+
+      // 2nd: all members — same coach appears once
+      mockGetFullList.mockResolvedValueOnce([
+        {
+          team_id: "team-1",
+          role: "coach",
+          expand: { user_id: { id: "coach-1", displayName: "Coach A", email: "a@coach.com" } },
+        },
+        {
+          team_id: "team-1",
+          role: "coach",
+          expand: { user_id: { id: "coach-1", displayName: "Coach A", email: "a@coach.com" } },
+        },
+        {
+          team_id: "team-1",
+          role: "athlete",
+          expand: { user_id: { id: "ath-1", displayName: "Athlete", email: "ath@test.com" } },
+        },
+      ]);
+
+      const result = await getUserTeams("user-1");
+      expect(result[0].coaches).toHaveLength(1);
     });
 
     it("returns empty when no memberships", async () => {

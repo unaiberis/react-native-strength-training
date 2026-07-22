@@ -13,7 +13,6 @@ import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { ErrorBoundary } from "@/shared/ui/ErrorBoundary";
-import { DashboardSkeleton } from "@/shared/ui/SkeletonLoader";
 import { useCoachDashboard } from "@/features/coach/hooks/useCoachDashboard";
 import { useUnlinkAthlete } from "@/features/coach/hooks/useAthleteDetail";
 
@@ -199,8 +198,30 @@ export function CoachAthletesScreen() {
   if (isLoading) {
     return (
       <ErrorBoundary>
-        <View className="flex-1">
-          <DashboardSkeleton />
+        <View className="flex-1 px-4 pt-4 bg-soft">
+          {/* Dashboard header — empty cards */}
+          <View className="flex-row gap-2 mb-4">
+            <View className="flex-1 bg-card border border-border rounded-2xl p-3 shadow-card items-center" />
+            <View className="flex-1 bg-card border border-border border-l-4 border-l-sacred/50 rounded-2xl p-3 shadow-card items-center" />
+            <View className="flex-1 bg-card border border-border border-l-4 border-l-danger/50 rounded-2xl p-3 shadow-card items-center" />
+            <View className="flex-1 bg-card border border-border rounded-2xl p-3 shadow-card items-center" />
+          </View>
+          {/* Search bar */}
+          <View className="flex-row items-center bg-card border border-border rounded-xl px-3 mb-4 min-h-[44px]" />
+          {/* Empty list */}
+          {[1, 2, 3].map((i) => (
+            <View
+              key={i}
+              className="bg-card border border-border rounded-2xl p-4 mb-3 flex-row items-center gap-3"
+            >
+              <View className="w-10 h-10 rounded-full bg-graphite" />
+              <View className="flex-1" />
+              <View className="flex-row gap-2">
+                <View className="bg-graphite rounded-xl p-2 min-w-[44px] min-h-[44px]" />
+                <View className="bg-graphite rounded-xl p-2 min-w-[44px] min-h-[44px]" />
+              </View>
+            </View>
+          ))}
         </View>
       </ErrorBoundary>
     );

@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { View, Text, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity } from "react-native";
+import { useState, useRef } from "react";
+import { View, Text, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity, TextInput } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "expo-router";
@@ -16,10 +16,12 @@ export function LoginScreen() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const passwordRef = useRef<TextInput>(null);
 
   const {
     control,
     handleSubmit,
+    getValues,
     formState: { errors },
   } = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
@@ -86,6 +88,16 @@ export function LoginScreen() {
                 onChangeText={onChange}
                 onBlur={onBlur}
                 error={errors.email?.message}
+                onSubmitEditing={() => {
+                  const { email, password } = getValues();
+                  if (email && password) {
+                    handleSubmit(onSubmit)();
+                  } else {
+                    passwordRef.current?.focus();
+                  }
+                }}
+                blurOnSubmit={false}
+                returnKeyType="next"
               />
             )}
           />
@@ -95,6 +107,7 @@ export function LoginScreen() {
             name="password"
             render={({ field: { onChange, onBlur, value } }) => (
               <Input
+                ref={passwordRef}
                 label={t`Password`}
                 placeholder={t`Enter your password`}
                 secureTextEntry
@@ -104,6 +117,8 @@ export function LoginScreen() {
                 onChangeText={onChange}
                 onBlur={onBlur}
                 error={errors.password?.message}
+                onSubmitEditing={handleSubmit(onSubmit)}
+                returnKeyType="go"
               />
             )}
           />
