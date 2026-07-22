@@ -15,7 +15,7 @@ jest.mock("../../client", () => ({
   pb: mockPb,
 }));
 
-import { listAthletes, getAthlete, unlinkAthlete } from "../coach-athletes";
+import { listAthletes, getAthlete, getAthleteCoach, unlinkAthlete } from "../coach-athletes";
 import type { UserRow } from "../../../../types/pocketbase";
 
 const makeUser = (overrides: Partial<UserRow> = {}): UserRow => ({
@@ -59,8 +59,16 @@ describe("PocketBase coach-athletes service", () => {
       mockGetFullList.mockResolvedValueOnce(mockMemberships(["team-1"], "coach-1"));
       // Mock athlete memberships in team-1
       mockGetFullList.mockResolvedValueOnce(mockAthleteMemberships(["team-1"], ["athlete-1"]));
-      // Mock users query
-      mockGetFullList.mockResolvedValueOnce([makeUser()]);
+      // Mock team_memberships with expand (replaces direct users query)
+      mockGetFullList.mockResolvedValueOnce([
+        {
+          id: "ms-team-1-athlete-1",
+          user_id: "athlete-1",
+          team_id: "team-1",
+          role: "athlete",
+          expand: { user_id: makeUser() },
+        },
+      ]);
       // Mock sessions for athlete-1
       mockGetFullList.mockResolvedValueOnce([{ id: "s1", started_at: "2026-06-01T00:00:00Z" }]);
       // Mock sets for s1
@@ -151,6 +159,98 @@ describe("PocketBase coach-athletes service", () => {
       mockGetFullList.mockRejectedValue(new Error("Query failed"));
 
       await expect(unlinkAthlete("athlete-1", "team-1")).rejects.toThrow("Query failed");
+    });
+  });
+
+  describe("getAthleteCoach", () => {
+    it("returns coaches for an athlete by looking up team memberships", async () => {
+      // Step 1: athlete's memberships
+      mockGetFullList.mockResolvedValueOnce([
+        { id: "ms-a1", user_id: "athlete-1", team_id: "team-1", role: "athlete" },
+      ]);
+      // Step 2: coach member in that team
+      mockGetFullList.mockResolvedValueOnce([
+        { id: "ms-c1", user_id: "coach-1", team_id: "team-1", role: "coach", expand: { user_id: {} } },
+      ]);
+      // Step 3: user records for coaches
+      mockGetFullList.mockResolvedValueOnce([
+        { id: "coach-1", displayName: "Coach One", email: "coach@test.com" },
+      ]);
+
+      const result = await getAthleteCoach("athlete-1");
+
+      expect(result).toHaveLength(1);
+      expect(result[0].id).toBe("coach-1");
+      expect(result[0].displayName).toBe("Coach One");
+      expect(result[0].email).toBe("coach@test.com");
+
+      // Verify query sequence
+      expect(mockGetFullList).toHaveBeenNthCalledWith(1, {
+        filter: "user_id = 'athlete-1'",
+        $autoCancel: false,
+      });
+    });
+
+    it("returns empty array when athlete has no team memberships", async () => {
+      mockGetFullList.mockResolvedValueOnce([]);
+
+      const result = await getAthleteCoach("athlete-1");
+
+      expect(result).toEqual([]);
+    });
+
+    it("returns empty array when no coach/admin in teams", async () => {
+      mockGetFullList.mockResolvedValueOnce([
+        { id: "ms-a1", user_id: "athlete-1", team_id: "team-1", role: "athlete" },
+      ]);
+      mockGetFullList.mockResolvedValueOnce([]);
+
+      const result = await getAthleteCoach("athlete-1");
+
+      expect(result).toEqual([]);
+    });
+
+    it("deduplicates coaches appearing in multiple teams", async () => {
+      // Athlete is in two teams
+      mockGetFullList.mockResolvedValueOnce([
+        { id: "ms-a1", user_id: "athlete-1", team_id: "team-1", role: "athlete" },
+        { id: "ms-a2", user_id: "athlete-1", team_id: "team-2", role: "athlete" },
+      ]);
+      // Coach memberships — same coach in both teams
+      mockGetFullList.mockResolvedValueOnce([
+        { id: "ms-c1", user_id: "coach-1", team_id: "team-1", role: "coach" },
+        { id: "ms-c2", user_id: "coach-1", team_id: "team-2", role: "coach" },
+      ]);
+      // User query — only one coach
+      mockGetFullList.mockResolvedValueOnce([
+        { id: "coach-1", displayName: "Coach One", email: "coach@test.com" },
+      ]);
+
+      const result = await getAthleteCoach("athlete-1");
+
+      expect(result).toHaveLength(1);
+    });
+
+    it("throws on PocketBase error", async () => {
+      mockGetFullList.mockRejectedValue(new Error("PB error"));
+
+      await expect(getAthleteCoach("athlete-1")).rejects.toThrow("PB error");
+    });
+
+    it("returns empty displayName when field is empty string (no nullish coalescing)", async () => {
+      mockGetFullList.mockResolvedValueOnce([
+        { id: "ms-a1", user_id: "athlete-1", team_id: "team-1", role: "athlete" },
+      ]);
+      mockGetFullList.mockResolvedValueOnce([
+        { id: "ms-c1", user_id: "coach-1", team_id: "team-1", role: "coach" },
+      ]);
+      mockGetFullList.mockResolvedValueOnce([
+        { id: "coach-1", displayName: "", email: "john@test.com" },
+      ]);
+
+      const result = await getAthleteCoach("athlete-1");
+
+      expect(result[0].displayName).toBe("");
     });
   });
 });

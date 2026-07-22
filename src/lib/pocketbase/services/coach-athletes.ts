@@ -28,14 +28,28 @@ export async function listAthletes(userId: string): Promise<AthleteSummary[]> {
     const athleteIds = [...new Set(athleteMemberships.map((m: any) => m.user_id))] as string[];
     if (athleteIds.length === 0) return [];
 
-    // Step 4: Fetch user records and enrich with stats
-    const userFilter = athleteIds.map((id: string) => `id = '${id}'`).join(" || ");
-    const users = await pb.collection("users").getFullList({
-      filter: userFilter,
-      sort: "displayName",
+    // Step 4: Fetch user records via team_memberships expand instead of direct users query.
+    // Direct users.getFullList is blocked by PocketBase API rules (users can only read own record).
+    // Using team_memberships with expand=user_id respects the team-based access control.
+    const userMemberships = await pb.collection("team_memberships").getFullList({
+      filter: athleteIds.map((id: string) => `user_id = '${id}'`).join(" || "),
+      expand: "user_id",
+      sort: "user_id",
+      $autoCancel: false,
     });
 
-    const athleteRows = (users ?? []) as unknown as UserRow[];
+    const athleteRows: UserRow[] = [];
+    const seenIds = new Set<string>();
+    for (const m of userMemberships) {
+      const expanded = (m as any).expand?.user_id;
+      if (expanded && !seenIds.has(expanded.id)) {
+        seenIds.add(expanded.id);
+        athleteRows.push(expanded as unknown as UserRow);
+      }
+    }
+
+    // Sort by displayName since PocketBase sort on users is unavailable
+    athleteRows.sort((a, b) => (a.displayName ?? "").localeCompare(b.displayName ?? ""));
 
     // Enrich each athlete with workout stats
     const summaries = await Promise.all(
