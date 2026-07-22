@@ -12,6 +12,7 @@ import {
 import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { t } from "@lingui/core/macro";
 import { ErrorBoundary } from "@/shared/ui/ErrorBoundary";
 import { useCoachDashboard } from "@/features/coach/hooks/useCoachDashboard";
 import { useUnlinkAthlete } from "@/features/coach/hooks/useAthleteDetail";
@@ -115,7 +116,7 @@ export function CoachAthletesScreen() {
                       {item.feedbackCount != null && item.feedbackCount > 0 && (
                         <View className="bg-brand-500/20 rounded-full px-2 py-0.5">
                           <Text className="text-brand-400 text-[10px] font-bold">
-                            {item.feedbackCount} feedback
+                            {item.feedbackCount} {t`feedback`}
                           </Text>
                         </View>
                       )}

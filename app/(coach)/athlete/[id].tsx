@@ -11,6 +11,7 @@ import {
 import { useRouter, useLocalSearchParams, Stack } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { Trans } from "@lingui/react/macro";
+import { t } from "@lingui/core/macro";
 import { BackButton } from "@/shared/ui/BackButton";
 import { Card } from "@/shared/ui/Card";
 import { DETAIL_HEADER } from "@/constants/theme";
@@ -211,7 +212,7 @@ export default function AthleteDetailScreen() {
                 <View className="flex-row items-center justify-between">
                   <View className="flex-1">
                     <Text className="text-surface-50 font-semibold">
-                      {aWithName.templateName ?? "Template name unavailable"}
+                      {aWithName.templateName ?? t`Template name unavailable`}
                     </Text>
                     <Text className="text-surface-400 text-xs mt-1">
                       <Trans>Starts</Trans> {formatDate(a.started_at)}
@@ -280,7 +281,7 @@ export default function AthleteDetailScreen() {
                   <View className="flex-row items-center justify-between">
                     <View className="flex-1">
                       <Text className="text-surface-50 font-semibold">
-                        {aWithName.templateName ?? "Template name unavailable"}
+                        {aWithName.templateName ?? t`Template name unavailable`}
                       </Text>
                       <Text className="text-surface-400 text-xs mt-1">
                         {formatDate(a.started_at)}
