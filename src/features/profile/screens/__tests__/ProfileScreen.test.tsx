@@ -61,7 +61,10 @@ jest.mock("@/features/notifications/hooks/useNotifications", () => ({
 
 // ─── Mock Auth Store (mutable per-test) ──────────────────────────────────────
 
-let mockAuthState = { role: null, isTeamCoach: false };
+let mockAuthState: { role: string | null; isTeamCoach: boolean } = {
+  role: null,
+  isTeamCoach: false,
+};
 jest.mock("@/stores/auth-store", () => ({
   useAuthStore: jest.fn((selector: any) => {
     return selector ? selector(mockAuthState) : mockAuthState;

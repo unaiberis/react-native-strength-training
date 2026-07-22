@@ -28,6 +28,7 @@ import {
   updateTemplate,
   deleteTemplate,
   reorderTemplateExercises,
+  fetchTemplateNameMap,
   type TemplateWithExercises,
 } from "../templates";
 
@@ -356,5 +357,74 @@ describe("PocketBase templates service", () => {
     await expect(
       reorderTemplateExercises("tmpl-1", ["te-1"]),
     ).rejects.toThrow("Reorder failed");
+  });
+
+  // ─── fetchTemplateNameMap ──────────────────────────────────────────
+
+  describe("fetchTemplateNameMap", () => {
+    beforeEach(() => {
+      mockGetFullList.mockClear();
+    });
+
+    it("returns a map of template IDs to names", async () => {
+      mockGetFullList.mockResolvedValueOnce([
+        { id: "tpl-1", name: "Upper Body" },
+        { id: "tpl-2", name: "Lower Body" },
+      ]);
+
+      const result = await fetchTemplateNameMap(["tpl-1", "tpl-2"]);
+
+      expect(result.size).toBe(2);
+      expect(result.get("tpl-1")).toBe("Upper Body");
+      expect(result.get("tpl-2")).toBe("Lower Body");
+
+      // Verify it queried workout_templates with id filter
+      expect(mockGetFullList).toHaveBeenCalledWith({
+        filter: "id = 'tpl-1' || id = 'tpl-2'",
+        fields: "id,name",
+        $autoCancel: false,
+      });
+    });
+
+    it("returns empty map when ids array is empty", async () => {
+      const result = await fetchTemplateNameMap([]);
+
+      expect(result.size).toBe(0);
+      expect(mockGetFullList).not.toHaveBeenCalled();
+    });
+
+    it("deduplicates IDs", async () => {
+      mockGetFullList.mockResolvedValueOnce([
+        { id: "tpl-1", name: "Upper Body" },
+      ]);
+
+      const result = await fetchTemplateNameMap(["tpl-1", "tpl-1"]);
+
+      // Should only make one filter entry for the unique ID
+      expect(mockGetFullList).toHaveBeenCalledWith({
+        filter: "id = 'tpl-1'",
+        fields: "id,name",
+        $autoCancel: false,
+      });
+      expect(result.size).toBe(1);
+    });
+
+    it("falls back to 'Untitled Program' when name is missing", async () => {
+      mockGetFullList.mockResolvedValueOnce([
+        { id: "tpl-1", name: null },
+      ]);
+
+      const result = await fetchTemplateNameMap(["tpl-1"]);
+
+      expect(result.get("tpl-1")).toBe("Untitled Program");
+    });
+
+    it("returns empty map on PocketBase error", async () => {
+      mockGetFullList.mockRejectedValueOnce(new Error("Network error"));
+
+      const result = await fetchTemplateNameMap(["tpl-1"]);
+
+      expect(result.size).toBe(0);
+    });
   });
 });
