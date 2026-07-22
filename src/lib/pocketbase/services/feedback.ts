@@ -1,5 +1,5 @@
 import { pb } from "../client";
-import type { WorkoutFeedbackRow, AthleteSummary } from "../../../types/pocketbase";
+import type { WorkoutFeedbackRow } from "../../../types/pocketbase";
 
 // ─── Input Types ─────────────────────────────────────────────────────────
 
