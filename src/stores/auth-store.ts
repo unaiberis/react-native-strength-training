@@ -57,12 +57,13 @@ const initialSyncStatus: SyncStatus = "idle";
 
 /**
  * Extract the user role from a PocketBase record.
- * Missing or unknown role values default to "athlete".
+ * Returns null when the record is null, role is missing, or role is unknown.
  */
 export function extractRole(user: RecordModel | null): UserRole {
-  if (!user || !user.role) return "athlete";
+  if (!user || !user.role) return null;
   if (user.role === "coach") return "coach";
-  return "athlete";
+  if (user.role === "athlete") return "athlete";
+  return null;
 }
 
 export const useAuthStore = create<AuthStore>((set, get) => ({

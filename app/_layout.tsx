@@ -57,8 +57,8 @@ function AuthGate({ children }: { children: React.ReactNode }) {
         const { session, error } = await getSession();
         console.log("[AuthGate] getSession result:", session ? { userId: session.user?.id, email: session.user?.email } : "null", "error:", error);
         if (!cancelled) {
-          setSession(session);
-          // Set team roles from memberships (best-effort, dynamic import avoids circular deps)
+          // Resolve team memberships BEFORE transitioning to authenticated
+          // so isTeamCoach is available for the first navigation decision.
           if (session?.user?.id) {
             try {
               const { getMyMemberships } = await import("@/lib/pocketbase/services/team-memberships");
@@ -66,8 +66,11 @@ function AuthGate({ children }: { children: React.ReactNode }) {
               const isCoach = ms.some((m: any) => m.role === "coach" || m.role === "admin");
               const isAdmin = ms.some((m: any) => m.role === "admin");
               useAuthStore.getState().setTeamRoles(isCoach, isAdmin);
-            } catch { /* best effort */ }
+            } catch {
+              // Safe default — isTeamCoach stays false, user routes to athlete UI
+            }
           }
+          setSession(session);
         }
         return;
       }

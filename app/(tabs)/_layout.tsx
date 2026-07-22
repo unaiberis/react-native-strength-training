@@ -222,12 +222,12 @@ function CustomTabBar({
 
 export default function TabsLayout() {
   const router = useRouter();
-  const { state, role, isTeamCoach } = useAuthStore();
+  const { state, isTeamCoach } = useAuthStore();
 
   /**
    * Auth guards:
    * 1. Unauthenticated → redirect to login
-   * 2. Coach user in athlete tabs → redirect to coach tabs
+   * 2. Team coach in athlete tabs → redirect to coach tabs
    * Diferido con setTimeout(0) para que el navegador esté montado
    * antes de intentar la navegación (evita "navigate before mounting Root Layout").
    */
@@ -236,11 +236,11 @@ export default function TabsLayout() {
       const id = setTimeout(() => router.replace("/(auth)/login"), 0);
       return () => clearTimeout(id);
     }
-    if (state === "authenticated" && (role === "coach" || isTeamCoach)) {
+    if (state === "authenticated" && isTeamCoach) {
       const id = setTimeout(() => router.replace("/(coach)"), 0);
       return () => clearTimeout(id);
     }
-  }, [state, role, isTeamCoach, router]);
+  }, [state, isTeamCoach, router]);
 
   return (
     <GradientBackground>

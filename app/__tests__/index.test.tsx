@@ -47,7 +47,7 @@ describe("WelcomeScreen auth-aware redirect", () => {
     expect(mockReplace).toHaveBeenCalledWith("/(tabs)/home");
   });
 
-  it("authenticated coach redirects to /(coach) exactly once", () => {
+  it("authenticated user with coach role only (no team membership) routes to athlete tabs", () => {
     useAuthStore.setState({
       state: "authenticated",
       role: "coach",
@@ -57,7 +57,7 @@ describe("WelcomeScreen auth-aware redirect", () => {
     render(<WelcomeScreen />);
 
     expect(mockReplace).toHaveBeenCalledTimes(1);
-    expect(mockReplace).toHaveBeenCalledWith("/(coach)");
+    expect(mockReplace).toHaveBeenCalledWith("/(tabs)/home");
   });
 
   it("authenticated team-coach athlete redirects to /(coach)", () => {

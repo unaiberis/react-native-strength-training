@@ -100,10 +100,10 @@ describe("TabsLayout progress tab removal", () => {
     expect(mockReplace).toHaveBeenCalledWith("/(auth)/login");
   });
 
-  it("redirects to coach tabs when authenticated coach", () => {
+  it("redirects to coach tabs when authenticated team coach", () => {
     jest.useFakeTimers();
     mockAuthState.state = "authenticated";
-    mockAuthState.role = "coach";
+    mockAuthState.isTeamCoach = true;
     render(<TabsLayout />);
     act(() => {
       jest.runAllTimers();

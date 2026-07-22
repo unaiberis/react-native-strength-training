@@ -111,16 +111,16 @@ describe("auth-store", () => {
       expect(useAuthStore.getState().role).toBe("athlete");
     });
 
-    it("defaults to 'athlete' when role field is missing", () => {
+    it("defaults to null when role field is missing", () => {
       const mockSession = { user: { id: "abc" }, token: "tok" } as any;
       useAuthStore.getState().setSession(mockSession);
-      expect(useAuthStore.getState().role).toBe("athlete");
+      expect(useAuthStore.getState().role).toBeNull();
     });
 
-    it("defaults to 'athlete' when role is unknown", () => {
+    it("defaults to null when role is unknown", () => {
       const mockSession = { user: { id: "abc", role: "admin" }, token: "tok" } as any;
       useAuthStore.getState().setSession(mockSession);
-      expect(useAuthStore.getState().role).toBe("athlete");
+      expect(useAuthStore.getState().role).toBeNull();
     });
 
     it("sets role to null when session is cleared", () => {
@@ -169,16 +169,16 @@ describe("auth-store", () => {
       expect(extractRole({ role: "athlete" } as any)).toBe("athlete");
     });
 
-    it("returns 'athlete' for null user", () => {
-      expect(extractRole(null)).toBe("athlete");
+    it("returns null for null user", () => {
+      expect(extractRole(null)).toBeNull();
     });
 
-    it("returns 'athlete' when role field is missing", () => {
-      expect(extractRole({ id: "abc" } as any)).toBe("athlete");
+    it("returns null when role field is missing", () => {
+      expect(extractRole({ id: "abc" } as any)).toBeNull();
     });
 
-    it("returns 'athlete' for unknown role value", () => {
-      expect(extractRole({ role: "admin" } as any)).toBe("athlete");
+    it("returns null for unknown role value", () => {
+      expect(extractRole({ role: "admin" } as any)).toBeNull();
     });
   });
 });

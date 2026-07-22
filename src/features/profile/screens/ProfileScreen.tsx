@@ -33,9 +33,8 @@ export function ProfileScreen() {
   const query = useProfileStats();
   const { data: syncCount } = usePendingSyncCount();
   const { unreadCount: notificationUnreadCount } = useNotifications();
-  const userRole = useAuthStore((s) => s.role);
   const isTeamCoachFlag = useAuthStore((s) => s.isTeamCoach);
-  const isCoachView = userRole === "coach" || isTeamCoachFlag;
+  const isCoachView = isTeamCoachFlag;
 
   // ─── Derived data ─────────────────────────────────────────────────────
   const email = user?.email ?? "No email";
@@ -119,9 +118,7 @@ export function ProfileScreen() {
   function MyTeamsSection() {
     const { data: teams, isLoading: teamsLoading } = useUserTeams();
     const innerRouter = useRouter();
-    const isCoach =
-      useAuthStore((s) => s.role === "coach") ||
-      useAuthStore((s) => s.isTeamCoach);
+    const isCoach = useAuthStore((s) => s.isTeamCoach);
     const hasCoaches = useProfileCoach().coaches.length > 0;
 
     if (teamsLoading) return null;

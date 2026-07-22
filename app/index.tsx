@@ -43,7 +43,7 @@ const COACH_ROUTE = "/(coach)";
 
 export default function WelcomeScreen() {
   const router = useRouter();
-  const { state, role, isTeamCoach } = useAuthStore();
+  const { state, isTeamCoach } = useAuthStore();
   // Remembers the last navigation target so the redirect fires exactly once
   // per distinct destination. Idempotent under StrictMode's dev double-invoke,
   // yet still re-routes when async team-role resolution promotes an athlete to
@@ -52,7 +52,7 @@ export default function WelcomeScreen() {
 
   useEffect(() => {
     if (state !== "authenticated") return;
-    const target = role === "coach" || isTeamCoach ? COACH_ROUTE : TABS_HOME_ROUTE;
+    const target = isTeamCoach ? COACH_ROUTE : TABS_HOME_ROUTE;
     if (redirectedTo.current === target) return;
     redirectedTo.current = target;
     try {
@@ -61,7 +61,7 @@ export default function WelcomeScreen() {
       // Navigation should never throw for a valid target; fall back safely.
       if (target !== TABS_HOME_ROUTE) router.replace(TABS_HOME_ROUTE);
     }
-  }, [state, role, isTeamCoach, router]);
+  }, [state, isTeamCoach, router]);
 
   // Loading OR authenticated -> neutral logo-only splash (no action buttons).
   // Avoids a flash of login UI before the authenticated redirect fires.
