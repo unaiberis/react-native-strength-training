@@ -123,11 +123,19 @@ export async function listAthletes(userId: string): Promise<AthleteSummary[]> {
 
 /**
  * Get a single athlete's profile by user ID.
+ * Uses team_memberships expand instead of direct users.getOne to
+ * avoid PocketBase API rule restrictions (users can only read own record).
  */
 export async function getAthlete(userId: string): Promise<UserRow | null> {
   try {
-    const record = await pb.collection("users").getOne(userId);
-    return record as unknown as UserRow;
+    const memberships = await pb.collection("team_memberships").getFullList({
+      filter: `user_id = '${userId}'`,
+      expand: "user_id",
+      $autoCancel: false,
+    });
+    const expanded = (memberships as any[])?.[0]?.expand?.user_id;
+    if (!expanded) return null;
+    return expanded as unknown as UserRow;
   } catch (err: any) {
     if (
       err?.status === 404 ||
@@ -166,23 +174,22 @@ export async function getAthleteCoach(
     });
     if (coachMemberships.length === 0) return [];
 
-    // Step 3: Unique coach user IDs
-    const coachIds = [
-      ...new Set(coachMemberships.map((m: any) => m.user_id)),
-    ] as string[];
-
-    // Step 4: Fetch user records
-    const userFilter = coachIds.map((id: string) => `id = '${id}'`).join(" || ");
-    const users = await pb.collection("users").getFullList({
-      filter: userFilter,
-      $autoCancel: false,
-    });
-
-    return (users ?? []).map((u: any) => ({
-      id: u.id,
-      displayName: u.displayName ?? u.email?.split("@")[0] ?? "Coach",
-      email: u.email ?? "",
-    }));
+    // Step 3: Extract coach user data from expand (avoids direct users query
+    // which is blocked by PocketBase API rules for non-admin tokens).
+    const seenIds = new Set<string>();
+    const coaches: { id: string; displayName: string; email: string }[] = [];
+    for (const m of coachMemberships) {
+      const expanded = (m as any).expand?.user_id;
+      if (expanded && !seenIds.has(expanded.id)) {
+        seenIds.add(expanded.id);
+        coaches.push({
+          id: expanded.id,
+          displayName: expanded.displayName ?? expanded.email?.split("@")[0] ?? "Coach",
+          email: expanded.email ?? "",
+        });
+      }
+    }
+    return coaches;
   } catch (err: any) {
     throw new Error(err.message ?? "Failed to fetch athlete's coach");
   }

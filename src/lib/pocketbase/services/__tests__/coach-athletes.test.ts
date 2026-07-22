@@ -118,16 +118,17 @@ describe("PocketBase coach-athletes service", () => {
   describe("getAthlete", () => {
     it("returns a single athlete by id", async () => {
       const athlete = makeUser();
-      mockGetOne.mockResolvedValue(athlete);
+      mockGetFullList.mockResolvedValue([
+        { id: "ms-1", user_id: "athlete-1", expand: { user_id: athlete } },
+      ]);
 
       const result = await getAthlete("athlete-1");
 
-      expect(mockGetOne).toHaveBeenCalledWith("athlete-1");
       expect(result).toEqual(athlete);
     });
 
     it("returns null when athlete not found", async () => {
-      mockGetOne.mockRejectedValue(new Error("The requested resource wasn't found."));
+      mockGetFullList.mockResolvedValue([]);
 
       const result = await getAthlete("nonexistent");
 
@@ -135,7 +136,7 @@ describe("PocketBase coach-athletes service", () => {
     });
 
     it("throws on unexpected PocketBase error", async () => {
-      mockGetOne.mockRejectedValue(new Error("Unexpected"));
+      mockGetFullList.mockRejectedValue(new Error("Unexpected"));
 
       await expect(getAthlete("athlete-1")).rejects.toThrow("Unexpected");
     });
@@ -168,13 +169,12 @@ describe("PocketBase coach-athletes service", () => {
       mockGetFullList.mockResolvedValueOnce([
         { id: "ms-a1", user_id: "athlete-1", team_id: "team-1", role: "athlete" },
       ]);
-      // Step 2: coach member in that team
+      // Step 2: coach member in that team (with expand — replaces direct users query)
       mockGetFullList.mockResolvedValueOnce([
-        { id: "ms-c1", user_id: "coach-1", team_id: "team-1", role: "coach", expand: { user_id: {} } },
-      ]);
-      // Step 3: user records for coaches
-      mockGetFullList.mockResolvedValueOnce([
-        { id: "coach-1", displayName: "Coach One", email: "coach@test.com" },
+        {
+          id: "ms-c1", user_id: "coach-1", team_id: "team-1", role: "coach",
+          expand: { user_id: { id: "coach-1", displayName: "Coach One", email: "coach@test.com" } },
+        },
       ]);
 
       const result = await getAthleteCoach("athlete-1");
@@ -216,14 +216,16 @@ describe("PocketBase coach-athletes service", () => {
         { id: "ms-a1", user_id: "athlete-1", team_id: "team-1", role: "athlete" },
         { id: "ms-a2", user_id: "athlete-1", team_id: "team-2", role: "athlete" },
       ]);
-      // Coach memberships — same coach in both teams
+      // Coach memberships — same coach in both teams (with expand, replaces users query)
       mockGetFullList.mockResolvedValueOnce([
-        { id: "ms-c1", user_id: "coach-1", team_id: "team-1", role: "coach" },
-        { id: "ms-c2", user_id: "coach-1", team_id: "team-2", role: "coach" },
-      ]);
-      // User query — only one coach
-      mockGetFullList.mockResolvedValueOnce([
-        { id: "coach-1", displayName: "Coach One", email: "coach@test.com" },
+        {
+          id: "ms-c1", user_id: "coach-1", team_id: "team-1", role: "coach",
+          expand: { user_id: { id: "coach-1", displayName: "Coach One", email: "coach@test.com" } },
+        },
+        {
+          id: "ms-c2", user_id: "coach-1", team_id: "team-2", role: "coach",
+          expand: { user_id: { id: "coach-1", displayName: "Coach One", email: "coach@test.com" } },
+        },
       ]);
 
       const result = await getAthleteCoach("athlete-1");
@@ -237,15 +239,15 @@ describe("PocketBase coach-athletes service", () => {
       await expect(getAthleteCoach("athlete-1")).rejects.toThrow("PB error");
     });
 
-    it("returns empty displayName when field is empty string (no nullish coalescing)", async () => {
+    it("returns empty displayName when field is empty string", async () => {
       mockGetFullList.mockResolvedValueOnce([
         { id: "ms-a1", user_id: "athlete-1", team_id: "team-1", role: "athlete" },
       ]);
       mockGetFullList.mockResolvedValueOnce([
-        { id: "ms-c1", user_id: "coach-1", team_id: "team-1", role: "coach" },
-      ]);
-      mockGetFullList.mockResolvedValueOnce([
-        { id: "coach-1", displayName: "", email: "john@test.com" },
+        {
+          id: "ms-c1", user_id: "coach-1", team_id: "team-1", role: "coach",
+          expand: { user_id: { id: "coach-1", displayName: "", email: "john@test.com" } },
+        },
       ]);
 
       const result = await getAthleteCoach("athlete-1");
