@@ -27,7 +27,6 @@ export function useProfileCoach(): {
 } {
   const userId = useAuthStore((s) => s.user?.id);
   const role = useAuthStore((s) => s.role);
-  const isTeamCoach = useAuthStore((s) => s.isTeamCoach);
 
   const query = useQuery({
     queryKey: [PROFILE_COACH_QUERY_KEY, userId],
